@@ -11,9 +11,8 @@ import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
+import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
 
 /**
  * Problem ist hier habe ich nur die Gewinnregion um mit der Umgebung die aus 

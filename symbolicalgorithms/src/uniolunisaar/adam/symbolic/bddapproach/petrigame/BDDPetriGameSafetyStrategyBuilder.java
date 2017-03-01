@@ -12,7 +12,6 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.solver.bddapproach.solver.SafetySolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSafetySolver;
 
 /**

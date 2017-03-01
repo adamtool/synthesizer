@@ -9,11 +9,12 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.ds.solver.Solver;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
+import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 import uniolunisaar.adam.util.Tools;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
 
 /**
  *
@@ -21,13 +22,13 @@ import uniolunisaar.adam.util.benchmark.Benchmarks;
  */
 public class TestingTools {
 
-    public static void testExample(Solver solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
+    public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
         Tools.savePN2PDF(file, solv.getNet(), false);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.OVERALL);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
-        Tools.savePN2PDF(file + "_debug", solv.getNet(), true, solv.getGame());
+        Tools.savePN2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getTOKENCOUNT());
         if (hasStrategy) {
             Assert.assertTrue(solv.existsWinningStrategy());
             printWinningStrategies(solv, file);
@@ -37,11 +38,11 @@ public class TestingTools {
         Logger.getInstance().addMessage(Benchmarks.getInstance().toString());
     }
 
-    static void testExample(Solver solv, String file) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
+    static void testExample(BDDSolver<? extends WinningCondition> solv, String file) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
         testExample(solv, file, true);
     }
 
-    private static void printWinningStrategies(Solver solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+    private static void printWinningStrategies(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.OVERALL);
@@ -58,14 +59,14 @@ public class TestingTools {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
     }
 
-    private static void printWinningStratGraph(Solver solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+    private static void printWinningStratGraph(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
         BDDGraph strat = solv.getGraphStrategy();
 
         BDDTools.saveGraph2DotAndPDF(path + "_gg", strat, solv);
     }
 
-    private static void printWinningStratPG(Solver solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
-        PetriNet strategy = solv.getPetriGameStrategy();
+    private static void printWinningStratPG(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+        PetriNet strategy = solv.getStrategy();
         Tools.savePN2DotAndPDF(path + "_pg", strategy, true);
     }
 

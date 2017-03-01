@@ -12,8 +12,8 @@ import uniol.apt.analysis.invariants.InvariantCalculator;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotCoveredBySInvariants;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
+import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
 
 /**
  *

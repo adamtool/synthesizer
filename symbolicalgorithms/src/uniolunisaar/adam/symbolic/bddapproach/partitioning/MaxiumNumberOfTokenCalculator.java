@@ -6,8 +6,8 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
+import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
 
 /**
  * very primitive, just first naiv idea for testing.

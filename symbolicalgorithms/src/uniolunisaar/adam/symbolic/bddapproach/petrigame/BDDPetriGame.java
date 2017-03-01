@@ -15,8 +15,8 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
 
 /**
  *

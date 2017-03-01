@@ -134,7 +134,7 @@ public class BDDTools {
         return Integer.toBinaryString(game.getPlaces()[token].size() + add).length();
     }
 
-    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<W> solver) {
+    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
         BDDPetriGame game = solver.getGame();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getTOKENCOUNT()];

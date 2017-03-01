@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="adam_logics" default="javac.tests">
-<!--	<dirname property="antfile.dir" file="${ant.file}"/>-->
+<project name="adam_logics" default="jar">
 	
 	<path id="project.class.path">
 		<pathelement location="./classes"/>
@@ -165,7 +164,7 @@
 		<delete dir="classes" failonerror="false"/>
 		<delete dir="test-classes" failonerror="false"/>
 		<delete dir="./doc/javadoc" failonerror="false"/>
-		<delete file="adam_logics.jar" failonerror="false"/>
+		<delete file="adam_symbolic.jar" failonerror="false"/>
 		<delete file="testng.xml" failonerror="false"/>
 	</target>
 
@@ -175,13 +174,14 @@
 	</target>
 
 	<target name="jar" depends="javac" description="Builds a jar file. Also contains all files of the needed dependencies.">
-		<jar destfile="adam_logics.jar">
+		<jar destfile="adam_symbolic.jar">
 			<fileset dir="classes/"/>
-			<zipfileset includes="**/*.class" src="lib/apt/apt.jar"/>
+			<zipfileset includes="**/*.class" src="../ds/adam_ds.jar"/>
+<!--			<zipfileset includes="**/*.class" src="lib/apt/apt.jar"/>
 			<zipfileset includes="**/*.stg" src="lib/apt/apt.jar"/>
 			<zipfileset includes="**/*.class" src="lib/adam_fallback.jar"/>
 			<zipfileset includes="**/*.class" src="lib/commons-cli-1.2/commons-cli-1.2.jar"/>
-			<zipfileset includes="**/*.class" src="lib/javaBDD/javabdd-1.0b2.jar"/>
+			<zipfileset includes="**/*.class" src="lib/javaBDD/javabdd-1.0b2.jar"/>-->
 		</jar>
 	</target>
 	<import file="build.local.xml" optional="true"/>
