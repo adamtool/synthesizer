@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="adam_logics" default="javac.tests">
+<!--	<dirname property="antfile.dir" file="${ant.file}"/>-->
+	
+	<path id="project.class.path">
+		<pathelement location="./classes"/>
+		<filelist id="libs" dir=".">
+			<file name="../ds/adam_ds.jar"/>
+	<!--		<file name="./lib/adam_fallback.jar"/>
+			<file name="./lib/commons-cli-1.2/commons-cli-1.2.jar"/>-->
+			<file name="./lib/javaBDD/javabdd-1.0b2.jar"/>
+		</filelist>
+	</path>
+
+	<path id="test.class.path">
+		<pathelement location="./test-classes"/>
+		<filelist id="libs.test" dir=".">
+			<file name="../lib/testng-6.8/testng-6.8.jar"/>
+			<file name="../lib/testng-6.8/jcommander-1.18.jar"/>
+		</filelist>
+	</path>
+
+	<target name="check-dependencies" description="Checks whether the needed dependencies exists.">
+		<restrict id="missing.libs">
+			<filelist refid="libs"/>
+			<not>
+				<exists/>
+			</not>
+		</restrict>
+
+		<property name="missing.libs" refid="missing.libs" />
+		<fail message="Some dependencies are missing: ${missing.libs}">
+			<condition>
+				<length string="${missing.libs}" when="greater" length="0" />
+			</condition>
+		</fail>		
+	</target>
+
+	<target name="check-dependencies-test" description="Checks whether the needed dependencies exists.">
+		<restrict id="missing.libs">
+			<filelist refid="libs.test"/>
+			<not>
+				<exists/>
+			</not>
+		</restrict>
+
+		<property name="missing.libs" refid="missing.libs" />
+		<fail message="Some dependencies are missing: ${missing.libs}">
+			<condition>
+				<length string="${missing.libs}" when="greater" length="0" />
+			</condition>
+		</fail>		
+	</target>
+
+	<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="test.class.path"/>
+
+	<target name="javac" depends="check-dependencies" description="Compile java source to bytecode">
+		<mkdir dir="classes"/>
+		<javac includes="**" encoding="utf-8" destdir="classes" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
+			<src path="src"/>
+			<classpath refid="project.class.path"/>
+			<compilerarg value="-Xlint:all"/>
+		</javac>
+	</target>
+
+	<target name="javac.tests" depends="javac,check-dependencies-test" description="Compile test code">
+		<mkdir dir="test-classes"/>
+		<depend srcdir="test" destdir="test-classes" classpath="classes"/>
+		<javac srcdir="test" includes="**" encoding="utf-8" destdir="test-classes" source="1.7" target="1.7" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
+			<classpath>
+				<path refid="test.class.path"/>
+				<path refid="project.class.path"/>
+			</classpath>
+			<compilerarg value="-Xlint:all"/>
+		</javac>
+	</target>
+
+	<target name="test" depends="javac.tests" description="Run tests">
+		<testng outputdir="reports/testng" verbose="2" listeners="uniol.tests.listener.PackageNameAsTestNameListener">
+			<!-- enable assertions -->
+			<jvmarg value="-ea"/>
+			<classpath>
+				<path refid="test.class.path"/>
+				<path refid="project.class.path"/>
+			</classpath>
+			<classfileset dir="test-classes">
+				<include name="**/*Test*.class"/>
+			</classfileset>
+		</testng>
+	</target>
+
+	<target name="test-class" depends="javac.tests" description="run a specific test class. Requires class.name property set to fully qualified name of test class">
+		<condition property="propsSpecified">
+			<and>
+				<isset property="class.name"/>
+			</and>
+		</condition>
+		<tstamp/>
+		<fail unless="propsSpecified" message="class.name property not specified; try calling ant with -Dclass.name=uniolunisaar.adam...."/>
+		<copy file="testng.single-class.xml" tofile="testng.xml" overwrite="true">
+			<filterset>
+				<filter token="CLASS" value="${class.name}"/>
+			</filterset>
+		</copy>
+		<testng outputDir="reports/testng-single-class-${class.name}" verbose="2" listeners="uniol.tests.listener.PackageNameAsTestNameListener">
+			<!-- enable assertions -->
+			<jvmarg value="-ea"/>
+			<classpath>
+				<path refid="test.class.path"/>
+				<path refid="project.class.path"/>
+			</classpath>
+			<xmlfileset file="testng.xml"/>
+		</testng>
+	</target>
+
+	<target name="test-method" depends="javac.tests" description="run a specific test method. Requires class.name property set to fully qualified name of test class and test.name property set to method name">
+		<condition property="propsSpecified">
+			<and>
+				<isset property="class.name"/>
+				<isset property="test.name"/>
+			</and>
+		</condition>
+		<tstamp/>
+		<fail unless="propsSpecified" message="class.name and/or test.name property not specified; try calling ant with -Dclass.name=uniolunisaar.adam... -Dtest.name=myTestMethod"/>
+		<copy file="testng.single-method.xml" tofile="testng.xml" overwrite="true">
+			<filterset>
+				<filter token="CLASS" value="${class.name}"/>
+				<filter token="TEST" value="${test.name}"/>
+			</filterset>
+		</copy>
+		<testng outputDir="reports/testng-single-method-${class.name}-${test.name}" verbose="2" listeners="uniol.tests.listener.PackageNameAsTestNameListener">
+			<!-- enable assertions -->
+			<jvmarg value="-ea"/>
+			<!-- enable more heap space -->
+			<jvmarg value="-Xmx32G"/>
+			<classpath>
+				<path refid="test.class.path"/>
+				<path refid="project.class.path"/>
+			</classpath>
+			<xmlfileset file="testng.xml"/>
+		</testng>
+	</target>
+
+	<target name="javadoc" description="Generate documentation from java source">
+		<mkdir dir="./doc/javadoc"/>
+		<javadoc encoding="utf-8" destdir="./doc/javadoc" author="true" version="true" use="true" Encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" access="private">
+			<fileset dir="src" includes="**/*.java"/>
+			<fileset dir="test" includes="**/*.java"/>
+			<classpath>
+				<path refid="test.class.path"/>
+				<path refid="project.class.path"/>
+			</classpath>
+		</javadoc>
+	</target>
+
+<!--	<target name="clean-strategies" description="Cleans all _strategy-files in the folder nets">-->
+<!--		<delete failonerror="false">-->
+<!--			<fileset dir="./nets/" includes="**/*_strategy.apt"/>-->
+<!--			<fileset dir="./nets/" includes="**/*_strategy.dot"/>-->
+<!--			<fileset dir="./nets/" includes="**/*_strategy.pdf"/>-->
+<!--		</delete>	-->
+<!--	</target>-->
+
+	<target name="clean" description="Cleans this project">
+		<delete dir="classes" failonerror="false"/>
+		<delete dir="test-classes" failonerror="false"/>
+		<delete dir="./doc/javadoc" failonerror="false"/>
+		<delete file="adam_logics.jar" failonerror="false"/>
+		<delete file="testng.xml" failonerror="false"/>
+	</target>
+
+<!--	<target name="clean-all" depends="clean, clean-strategies" description="Cleans this project, including the reports">-->
+	<target name="clean-all" depends="clean" description="Cleans this project, including the reports">
+		<delete dir="reports" failonerror="false"/>
+	</target>
+
+	<target name="jar" depends="javac" description="Builds a jar file. Also contains all files of the needed dependencies.">
+		<jar destfile="adam_logics.jar">
+			<fileset dir="classes/"/>
+			<zipfileset includes="**/*.class" src="lib/apt/apt.jar"/>
+			<zipfileset includes="**/*.stg" src="lib/apt/apt.jar"/>
+			<zipfileset includes="**/*.class" src="lib/adam_fallback.jar"/>
+			<zipfileset includes="**/*.class" src="lib/commons-cli-1.2/commons-cli-1.2.jar"/>
+			<zipfileset includes="**/*.class" src="lib/javaBDD/javabdd-1.0b2.jar"/>
+		</jar>
+	</target>
+	<import file="build.local.xml" optional="true"/>
+</project>
