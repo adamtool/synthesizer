@@ -2,7 +2,6 @@ package uniolunisaar.adam.symbolic.bddapproach;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,8 +30,8 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 @Test
 public class TestingAllFilesInFolder {
 
-    private static final String inputDir = "../examples/safety/";
-    private static final String outputDir = "../testExamples/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String outputDir = "../../testExamples/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",
             "lateSameDecision.apt",
@@ -72,7 +71,7 @@ public class TestingAllFilesInFolder {
     }
 
     @Test(dataProvider = "files")
-    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, UnboundedPGException, NoSuchMethodException, InstantiationException, IllegalArgumentException, InvocationTargetException, IllegalAccessException {
+    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, UnboundedPGException {
         String output = outputDir + file.getName().split(".apt")[0];
         BDDSolver solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
         TestingTools.testExample(solv, output, hasStrategy);

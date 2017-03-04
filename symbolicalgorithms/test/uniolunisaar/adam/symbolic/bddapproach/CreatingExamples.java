@@ -23,7 +23,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 @Test
 public class CreatingExamples {
 
-    private static final String inputDir = "../examples/safety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
 
     @Test
     public void testFirstExamplePaper() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {

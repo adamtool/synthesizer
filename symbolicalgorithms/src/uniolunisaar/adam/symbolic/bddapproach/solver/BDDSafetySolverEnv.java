@@ -1,27 +1,28 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 
 /**
- * Problem ist hier habe ich nur die Gewinnregion um mit der Umgebung die aus 
- * Systemsicht schlechten Situationen zu erreichen. Daraus 
+ * Problem ist hier habe ich nur die Gewinnregion um mit der Umgebung die aus
+ * Systemsicht schlechten Situationen zu erreichen. Daraus
  *
  * @author Manuel Gieseking
  */
 public class BDDSafetySolverEnv extends BDDSolver<Safety> {
-
 
     /**
      * Creates a new Reachability solver for a given game.
@@ -32,8 +33,8 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDSafetySolverEnv(PetriNet net, boolean skipTests) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        super(net, skipTests, new Safety());  
+    BDDSafetySolverEnv(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Safety());
         super.initialize();
     }
 

@@ -25,7 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = "../examples/safety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
 
     @Test
     public void testFirstExamplePaper() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {

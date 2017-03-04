@@ -25,7 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = "../examples/buechi/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/buechi/";
 
     @Test
     public void testToyExamples() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -41,13 +41,11 @@ public class FirstTests {
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
 //        TestingTools.testExample(solv, path + name, true);
-
 //        name = "infiniteA";
 //        solv = SolverFactory.getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 ////        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
 //        TestingTools.testExample(solv, path + name, true);
-
         name = "finiteA";
         solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);

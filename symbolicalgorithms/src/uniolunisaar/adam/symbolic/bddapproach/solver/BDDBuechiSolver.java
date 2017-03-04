@@ -1,6 +1,5 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +10,17 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 
 /**
@@ -42,7 +44,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] NOCC;
-    
+
     /**
      *
      * TODO: Only works when there is at least one system place since this one
@@ -66,8 +68,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a Buchi condition.
      */
-    BDDBuechiSolver(PetriNet net, boolean skipTests) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        super(net, skipTests, new Buchi());  
+    BDDBuechiSolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Buchi());
         super.initialize();
     }
 
@@ -83,7 +85,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      */
     @Override
     void createVariables() {
-        int tokencount = getGame().getTOKENCOUNT();
+        int tokencount = getGame().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         NOCC = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
@@ -127,7 +129,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
-        for (int i = 0; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(NOCC[pos][i].set());
         }
         return variables;
@@ -165,7 +167,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
         }
         return preBimpSucc;
@@ -179,7 +181,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     public BDD getInitialDCSs() {
         BDD init = super.getInitialDCSs();
         // all newly occupied flags to 0
-        for (int i = 0; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             init.andWith(NOCC[0][i].ithVar(0));
         }
         return init;
@@ -231,7 +233,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         if (getGame().isConcurrencyPreserving()) {
             env = envTransitionsCP();
         } else {
-            env =  envTransitionsNotCP();
+            env = envTransitionsNotCP();
         }
 //        env.orWith(loops());
         return env;
@@ -245,7 +247,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0); // the transition should be enabled and choosen!
                 // Systempart
-                for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
                         if (place.hasExtension("env")) {
@@ -333,7 +335,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
     private void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -439,7 +441,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
-            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
@@ -471,7 +473,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); i++) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -544,7 +546,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));

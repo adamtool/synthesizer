@@ -12,7 +12,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 import uniolunisaar.adam.util.Tools;
 
@@ -28,7 +28,7 @@ public class TestingTools {
         Benchmarks.getInstance().start(Benchmarks.Parts.OVERALL);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
-        Tools.savePN2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getTOKENCOUNT());
+        Tools.savePN2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
         if (hasStrategy) {
             Assert.assertTrue(solv.existsWinningStrategy());
             printWinningStrategies(solv, file);

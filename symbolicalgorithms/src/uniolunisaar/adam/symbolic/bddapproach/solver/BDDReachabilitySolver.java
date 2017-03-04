@@ -1,14 +1,16 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.lang.reflect.InvocationTargetException;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 
 /**
@@ -34,7 +36,7 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDReachabilitySolver(PetriNet net, boolean skipTests) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    BDDReachabilitySolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Reachability());
         super.initialize();
     }

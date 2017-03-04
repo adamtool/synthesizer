@@ -92,7 +92,7 @@ public class BDDTools {
             for (int i = 0; i < getBinLength(game, 0); i++) {
                 s.append(sol[counter++]);
             }
-            for (int i = 1; i < game.getTOKENCOUNT(); i++) {
+            for (int i = 1; i < game.getMaxTokenCount(); i++) {
                 s.append("|");
                 for (int j = 0; j < getBinLength(game, i); j++) {
                     s.append(sol[counter++]);
@@ -107,7 +107,7 @@ public class BDDTools {
             for (int i = 0; i < getBinLength(game, 0); i++) {
                 s.append(sol[counter++]);
             }
-            for (int i = 1; i < game.getTOKENCOUNT(); i++) {
+            for (int i = 1; i < game.getMaxTokenCount(); i++) {
                 s.append("|");
                 for (int j = 0; j < getBinLength(game, i); j++) {
                     s.append(sol[counter++]);
@@ -137,8 +137,8 @@ public class BDDTools {
     public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
         BDDPetriGame game = solver.getGame();
         // Decoding of places
-        Map<String, String>[] pls = new Map[game.getTOKENCOUNT()];
-        for (int i = 0; i < game.getTOKENCOUNT(); i++) {
+        Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
+        for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
             for (Place pl : game.getPlaces()[i]) {
                 pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
@@ -173,7 +173,7 @@ public class BDDTools {
             }
 
             String tokens = "";
-            for (int i = 1; i < game.getTOKENCOUNT(); i++) {
+            for (int i = 1; i < game.getMaxTokenCount(); i++) {
                 String id = "";
                 zeros = "";
                 for (int j = 0; j < getBinLength(game, i); j++) {
@@ -223,7 +223,7 @@ public class BDDTools {
                 envBin_ = "-";
             }
             String tokens_ = "";
-            for (int i = 1; i < game.getTOKENCOUNT(); i++) {
+            for (int i = 1; i < game.getMaxTokenCount(); i++) {
                 String id = "";
                 zeros = "";
                 for (int j = 0; j < getBinLength(game, i); j++) {

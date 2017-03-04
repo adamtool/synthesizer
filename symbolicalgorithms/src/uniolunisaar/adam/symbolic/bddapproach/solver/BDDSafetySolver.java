@@ -1,6 +1,5 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,13 +12,16 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameSafetyStrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 
 /**
@@ -61,8 +63,8 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a safety condition.
      */
-    BDDSafetySolver(PetriNet net, boolean skipTests) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        super(net, skipTests, new Safety());        
+    BDDSafetySolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Safety());
         super.initialize();
     }
 
@@ -75,7 +77,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      */
     @Override
     void createVariables() {
-        int tokencount = getGame().getTOKENCOUNT();
+        int tokencount = getGame().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
         TOP = new BDDDomain[2][tokencount - 1];
@@ -175,7 +177,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
-        for (int i = 0; i < getGame().getTOKENCOUNT() - 1; ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
             variables.andWith(TYPE[pos][i].set());
         }
         return variables;
@@ -215,7 +217,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < getGame().getTOKENCOUNT() - 1; ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
             preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));
         }
         return preBimpSucc;
@@ -277,7 +279,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      */
     private BDD type2() {
         BDD type2 = getFactory().zero();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             BDD type = TYPE[0][i - 1].ithVar(0);
             // todo: really necessary?
             if (!getGame().isConcurrencyPreserving()) {
@@ -561,7 +563,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, true, 0);
                 // Systempart
-                for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
                         if (place.hasExtension("env")) {
@@ -647,7 +649,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 
     private void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -752,7 +754,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, true, 0);
-            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
@@ -780,7 +782,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); i++) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -847,7 +849,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -926,7 +928,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, false, 0);
-            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getGame().getPlaces()[i]) {
                     if (place.hasExtension("env")) {
@@ -965,7 +967,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 
     private BDD oldType2() {
         BDD prev = wrongTypedType2DCS().not().and(wellformed());
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             prev = TYPE[0][i - 1].ithVar(0).ite(
                     prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
                     prev.id()).id();

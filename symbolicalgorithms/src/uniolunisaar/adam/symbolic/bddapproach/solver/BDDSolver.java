@@ -1,6 +1,5 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,15 +13,18 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmark.Benchmarks;
 import uniolunisaar.adam.util.Logger;
 
 /**
@@ -64,8 +66,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDSolver(PetriNet net, boolean skipTests, W winCon) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        super(BDDPetriGame.class, net, skipTests, winCon);
+    BDDSolver(PetriNet net, boolean skipTests, W winCon) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(new BDDPetriGame(net, skipTests), winCon);
     }
 
     /**
@@ -179,7 +181,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * |p_i_0|p_i_1|top|t_1|...|t_m| ... |p_i_n|top|t_1|...|t_m|
      */
     void createVariables() {
-        int tokencount = getGame().getTOKENCOUNT();
+        int tokencount = getGame().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
@@ -240,7 +242,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //        well.andWith(top);
         // only transitions in the postset of pi are allowed in the commitments
         BDD com = bddfac.one();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             for (Transition t : getGame().getTransitions()[i - 1]) {
                 BDD place = bddfac.zero();
                 for (Place p : t.getPreset()) {
@@ -337,7 +339,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     private BDD nTop() {
         BDD nTop = getFactory().one();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             BDD top = TOP[0][i - 1].ithVar(0);
             // todo: really necessary?
             if (!getGame().isConcurrencyPreserving()) {
@@ -414,7 +416,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             }
         }
         if (!getGame().isConcurrencyPreserving()) {
-            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 if (!tokens.contains(i)) {
                     marking.andWith(codePlace(0, 0, i));
                 }
@@ -545,7 +547,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
                 // Systempart
-                for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
                         if (place.hasExtension("env")) {
@@ -627,7 +629,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     private void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -718,7 +720,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
-            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
@@ -744,7 +746,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); i++) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -811,7 +813,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -944,7 +946,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = PLACES[pos][0].set();
-        for (int i = 0; i < getGame().getTOKENCOUNT() - 1; ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
             variables.andWith(PLACES[pos][i + 1].set());
             variables.andWith(TOP[pos][i].set());
             variables.andWith(TRANSITIONS[pos][i].set());
@@ -983,7 +985,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDD preBimpSucc() {
         BDD preBimpSucc = PLACES[0][0].buildEquals(PLACES[1][0]);
-        for (int i = 0; i < getGame().getTOKENCOUNT() - 1; ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
             preBimpSucc.andWith(PLACES[0][i + 1].buildEquals(PLACES[1][i + 1]));
             preBimpSucc.andWith(TOP[0][i].buildEquals(TOP[1][i]));
             preBimpSucc.andWith(TRANSITIONS[0][i].buildEquals(TRANSITIONS[1][i]));
