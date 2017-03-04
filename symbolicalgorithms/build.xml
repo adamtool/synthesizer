@@ -10,10 +10,9 @@
 
 <!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PATHs %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
 	<path id="symbolic.classpath">
-		<filelist id="symbolic.libs" dir=".">
-			<file name="${subproject.basedir}/../ds/adam_logics.jar"/>
-			<file name="${subproject.basedir}/lib/javaBDD/javabdd-1.0b2.jar"/>
-		</filelist>
+			<resourcelist id="symbolic.libs">
+					<file file="${subproject.basedir}/libs.res"/>
+			</resourcelist>
 	</path>
 
 	<union id="symbolic.jar.res">    			
