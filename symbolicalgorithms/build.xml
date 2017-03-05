@@ -15,10 +15,12 @@
 			</resourcelist>
 	</path>
 
-	<union id="symbolic.jar.res">    			
-			<zipfileset includes="**/*.class" src="${subproject.basedir}/../ds/adam_logics.jar"/>
+	<union id="symbolic.jar.res">    	
+			<zipfileset includes="**/*.class" src="${mainfolder}/lib/apt/apt.jar"/>
+			<zipfileset includes="**/*.stg" src="${mainfolder}/lib/apt/apt.jar"/>		
+			<zipfileset includes="**/*.class" src="${mainfolder}/logic/adam_logics.jar"/>
 <!--			<zipfileset includes="**/*.stg" src="${subproject.basedir}/../ds/adam_logics.jar"/>-->
-			<zipfileset includes="**/*.class" src="${subproject.basedir}/lib/javaBDD/javabdd-1.0b2.jar"/>
+			<zipfileset includes="**/*.class" src="${mainfolder}/lib/javaBDD/javabdd-1.0b2.jar"/>
 	</union>
 
 	<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
@@ -39,6 +41,9 @@
 	</target>
 	<target name="jar" depends="loadProperties" description="Builds a jar with all its dependencies">
 		<antcall target="symbolic.fu.jar"/>
+	</target>
+	<target name="jar-standalone" depends="loadProperties" description="Builds a jar with all its dependencies">
+		<antcall target="symbolic.fu.jar-standalone"/>
 	</target>
 	<target name="clean" depends="loadProperties" description="Cleans all temporary files.">
 		<antcall target="symbolic.fu.clean"/>
