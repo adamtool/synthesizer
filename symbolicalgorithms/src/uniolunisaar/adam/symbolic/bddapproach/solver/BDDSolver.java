@@ -32,15 +32,10 @@ import uniolunisaar.adam.util.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPetriGame, W> {
-    // BDD settings
+public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPetriGame, W, BDDSolverOptions> {
 
+    // BDD settings
     private static BDDFactory bddfac;
-    private int nodenum = 1000000;
-    private int cachesize = 1000000;
-    private int maxIncrease = 100000000;
-    //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
-    private String libName = "buddy";
 
     // the length of the decision sets
     private int dcsLength;
@@ -66,8 +61,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDSolver(PetriNet net, boolean skipTests, W winCon) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(new BDDPetriGame(net, skipTests), winCon);
+    BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(new BDDPetriGame(net, skipTests), winCon, opts);
     }
 
     /**
@@ -81,7 +76,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      *
      * @return - A BDD containing all winning states for the system.
      */
-    abstract BDD calcWinningDCSs();
+    abstract BDD calcWinningDCSs();    
 
     /**
      * Here the initialisation of the Solver is done.
@@ -94,6 +89,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             Logger.getInstance().addMessage("BDDFactory reinitialized.");
             bddfac.done();
         }
+        if(getSolverOpts()!=null) {
+            
+        }
+        String libName = getSolverOpts().getLIBRARY_NAME();
+        int nodenum = getSolverOpts().getINIT_NODE_NB();
+        int cachesize = getSolverOpts().getCACHE_SIZE();
+        int maxIncrease = getSolverOpts().getMAX_INCREASE();
         bddfac = BDDFactory.init(libName, nodenum, cachesize);
 //        bddfac = BDDFactory.init("java", NODENUM, CACHESIZE);
         bddfac.setMaxIncrease(maxIncrease);
@@ -1212,35 +1214,35 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return bddfac.varNum();
     }
 
-    public int getCachesize() {
-        return cachesize;
-    }
-
-    public void setCachesize(int cachesize) {
-        this.cachesize = cachesize;
-    }
-
-    public int getMaxIncrease() {
-        return maxIncrease;
-    }
-
-    public void setMaxIncrease(int maxIncrease) {
-        this.maxIncrease = maxIncrease;
-    }
-
-    public int getNodenum() {
-        return nodenum;
-    }
-
-    public void setNodenum(int nodenum) {
-        this.nodenum = nodenum;
-    }
-
-    public String getLibName() {
-        return libName;
-    }
-
-    public void setLibName(String libName) {
-        this.libName = libName;
-    }
+//    public int getCachesize() {
+//        return cachesize;
+//    }
+//
+//    public void setCachesize(int cachesize) {
+//        this.cachesize = cachesize;
+//    }
+//
+//    public int getMaxIncrease() {
+//        return maxIncrease;
+//    }
+//
+//    public void setMaxIncrease(int maxIncrease) {
+//        this.maxIncrease = maxIncrease;
+//    }
+//
+//    public int getNodenum() {
+//        return nodenum;
+//    }
+//
+//    public void setNodenum(int nodenum) {
+//        this.nodenum = nodenum;
+//    }
+//
+//    public String getLibName() {
+//        return libName;
+//    }
+//
+//    public void setLibName(String libName) {
+//        this.libName = libName;
+//    }
 }

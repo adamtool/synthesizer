@@ -63,8 +63,8 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a safety condition.
      */
-    BDDSafetySolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, new Safety());
+    BDDSafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Safety(), opts);
         super.initialize();
     }
 

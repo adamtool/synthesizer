@@ -36,8 +36,8 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDReachabilitySolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, new Reachability());
+    BDDReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Reachability(), opts);
         super.initialize();
     }
 

@@ -68,8 +68,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a Buchi condition.
      */
-    BDDBuechiSolver(PetriNet net, boolean skipTests) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, new Buchi());
+    BDDBuechiSolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, new Buchi(), opts);
         super.initialize();
     }
 
