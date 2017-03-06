@@ -76,7 +76,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      *
      * @return - A BDD containing all winning states for the system.
      */
-    abstract BDD calcWinningDCSs();    
+    abstract BDD calcWinningDCSs();
 
     /**
      * Here the initialisation of the Solver is done.
@@ -89,13 +89,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             Logger.getInstance().addMessage("BDDFactory reinitialized.");
             bddfac.done();
         }
-        if(getSolverOpts()!=null) {
-            
+        if (getSolverOpts() != null) {
+
         }
-        String libName = getSolverOpts().getLIBRARY_NAME();
-        int nodenum = getSolverOpts().getINIT_NODE_NB();
-        int cachesize = getSolverOpts().getCACHE_SIZE();
-        int maxIncrease = getSolverOpts().getMAX_INCREASE();
+        String libName = getSolverOpts().getLibraryName();
+        int nodenum = getSolverOpts().getInitNodeNb();
+        int cachesize = getSolverOpts().getCacheSize();
+        int maxIncrease = getSolverOpts().getMaxIncrease();
         bddfac = BDDFactory.init(libName, nodenum, cachesize);
 //        bddfac = BDDFactory.init("java", NODENUM, CACHESIZE);
         bddfac.setMaxIncrease(maxIncrease);

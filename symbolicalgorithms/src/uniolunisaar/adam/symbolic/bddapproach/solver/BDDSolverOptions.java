@@ -9,36 +9,52 @@ import uniolunisaar.adam.ds.solver.SolverOptions;
 public class BDDSolverOptions extends SolverOptions {
 
     //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
-    private String LIBRARY_NAME = "buddy";
-    private int MAX_INCREASE = 100000000;
-    private int INIT_NODE_NB = 1000000;
-    private int CACHE_SIZE = 1000000;
+    private String libraryName = "buddy";
+    private int maxIncrease = 100000000;
+    private int initNodeNb = 1000000;
+    private int cacheSize = 1000000;
 
     public BDDSolverOptions() {
         super("buddy");
     }
 
-    public BDDSolverOptions(String name, String LIBRARY_NAME, int MAX_INCREASE, int INIT_NODE_NB, int CACHE_SIZE) {
+    public BDDSolverOptions(String name, String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
         super(name);
-        this.LIBRARY_NAME = LIBRARY_NAME;
-        this.MAX_INCREASE = MAX_INCREASE;
-        this.INIT_NODE_NB = INIT_NODE_NB;
-        this.CACHE_SIZE = CACHE_SIZE;
+        this.libraryName = libraryName;
+        this.maxIncrease = maxIncrease;
+        this.initNodeNb = initNodeNb;
+        this.cacheSize = cacheSize;
     }
 
-    public String getLIBRARY_NAME() {
-        return LIBRARY_NAME;
+    public void setLibraryName(String libraryName) {
+        this.libraryName = libraryName;
     }
 
-    public int getMAX_INCREASE() {
-        return MAX_INCREASE;
+    public void setMaxIncrease(int maxIncrease) {
+        this.maxIncrease = maxIncrease;
     }
 
-    public int getINIT_NODE_NB() {
-        return INIT_NODE_NB;
+    public void setInitNodeNb(int initNodeNb) {
+        this.initNodeNb = initNodeNb;
     }
 
-    public int getCACHE_SIZE() {
-        return CACHE_SIZE;
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public String getLibraryName() {
+        return libraryName;
+    }
+
+    public int getMaxIncrease() {
+        return maxIncrease;
+    }
+
+    public int getInitNodeNb() {
+        return initNodeNb;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
     }
 }
