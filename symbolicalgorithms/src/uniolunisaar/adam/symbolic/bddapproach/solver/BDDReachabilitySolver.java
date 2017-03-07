@@ -38,7 +38,6 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      */
     BDDReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Reachability(), opts);
-        super.initialize();
     }
 
     /**

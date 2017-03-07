@@ -70,7 +70,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      */
     BDDBuechiSolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Buchi(), opts);
-        super.initialize();
     }
 
     /**

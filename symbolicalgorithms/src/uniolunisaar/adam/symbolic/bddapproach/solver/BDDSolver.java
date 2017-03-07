@@ -36,6 +36,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     // BDD settings
     private static BDDFactory bddfac;
+    private boolean initialized = false;
 
     // the length of the decision sets
     private int dcsLength;
@@ -121,6 +122,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         precalculateBDDs();
         Logger.getInstance().addMessage("... precalculation of BDDs done.");
         Logger.getInstance().addMessage("... BDD Initialisation done.");
+        initialized = true;
     }
 
     /**
@@ -892,14 +894,23 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver !!!!!!!!!!!!!
     @Override
     protected boolean exWinStrat() {
+        if (!initialized) {
+            initialize();
+        }
         return !((getWinDCSs().and(getInitialDCSs())).isZero());
     }
 
     public BDDGraph getGraphGame() {
+        if (!initialized) {
+            initialize();
+        }
         return BDDGraphBuilder.builtGraph(this);
     }
 
     public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
+        if (!initialized) {
+            initialize();
+        }
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        

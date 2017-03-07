@@ -35,7 +35,6 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
      */
     BDDSafetySolverEnv(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Safety(), opts);
-        super.initialize();
     }
 
     /**
