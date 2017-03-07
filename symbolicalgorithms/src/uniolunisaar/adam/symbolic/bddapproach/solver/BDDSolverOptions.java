@@ -15,7 +15,7 @@ public class BDDSolverOptions extends SolverOptions {
     private int cacheSize = 1000000;
 
     public BDDSolverOptions() {
-        super("buddy");
+        super("bdd");
     }
 
     public BDDSolverOptions(String name, String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
