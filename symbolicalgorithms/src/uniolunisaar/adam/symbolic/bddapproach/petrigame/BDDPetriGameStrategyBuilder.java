@@ -17,7 +17,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.util.Logger;
+import uniolunisaar.adam.logic.util.Logger;
 
 /**
  * @author Manuel Gieseking

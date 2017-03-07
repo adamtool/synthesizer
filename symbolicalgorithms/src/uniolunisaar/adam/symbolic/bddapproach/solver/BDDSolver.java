@@ -24,8 +24,8 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
-import uniolunisaar.adam.util.Logger;
+import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.logic.util.Logger;
 
 /**
  *

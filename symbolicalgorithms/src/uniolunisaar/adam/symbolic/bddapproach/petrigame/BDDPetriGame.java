@@ -10,10 +10,10 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
-import uniolunisaar.adam.partitioning.Partitioner;
+import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
-import uniolunisaar.adam.util.Logger;
+import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.logic.util.Logger;
 
 /**
  *

@@ -20,8 +20,8 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
-import uniolunisaar.adam.util.Logger;
+import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.logic.util.Logger;
 
 /**
  * Problem what to do with the non-deterministic states? Already a fixed-point

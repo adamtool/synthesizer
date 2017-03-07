@@ -3,8 +3,8 @@ package uniolunisaar.adam.symbolic.bddapproach.util.benchmark;
 import uniol.apt.adt.pn.PetriNet;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.util.benchmark.Benchmarks;
-import uniolunisaar.adam.util.benchmark.Benchmarks.Parts;
+import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.logic.util.benchmark.Benchmarks.Parts;
 
 /**
  * Just toString and toCSVString overriden to add the nb of variables to the

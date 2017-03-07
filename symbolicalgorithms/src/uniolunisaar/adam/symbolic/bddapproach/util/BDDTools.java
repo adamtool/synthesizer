@@ -19,7 +19,7 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.util.Logger;
+import uniolunisaar.adam.logic.util.Logger;
 
 /**
  *
