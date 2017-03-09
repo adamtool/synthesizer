@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import net.sf.javabdd.BDD;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 
 /**
@@ -11,18 +12,18 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
  */
 public class BDDGraphBuilder {
 
-    public static BDDGraph builtGraph(BDDSolver solver) {
+    public static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver) {
         return builtGraph(solver, false);
     }
 
-    public static BDDGraph builtGraphStrategy(BDDSolver solver) throws NoStrategyExistentException {
+    public static BDDGraph builtGraphStrategy(BDDSolver<? extends WinningCondition> solver) throws NoStrategyExistentException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
         return builtGraph(solver, true);
     }
 
-    private static BDDGraph builtGraph(BDDSolver solver, boolean strategy) {
+    private static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, boolean strategy) {
 
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
@@ -38,7 +39,6 @@ public class BDDGraphBuilder {
 //        } catch (InterruptedException ex) {
 //            Logger.getLogger(BDDGraphBuilder.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        
         LinkedList<BDDState> todoStates = new LinkedList<>();
 
         BDD inits = solver.getInitialDCSs();
@@ -83,7 +83,7 @@ public class BDDGraphBuilder {
                     } else {
                         BDDState succState = graph.addState(succ);
                         succState.setMcut(succEnvState);
-                        addFlow(solver, graph, prev, succState);                   
+                        addFlow(solver, graph, prev, succState);
                         // take the next step
                         todoStates.add(succState);
                     }
@@ -98,7 +98,7 @@ public class BDDGraphBuilder {
         return graph;
     }
 
-    private static Flow addFlow(BDDSolver solver, BDDGraph graph, BDDState pre, BDDState succ) {
+    private static Flow addFlow(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState pre, BDDState succ) {
         return graph.addFlow(pre, succ, solver.getTransition(pre.getState(), succ.getState()));
     }
 

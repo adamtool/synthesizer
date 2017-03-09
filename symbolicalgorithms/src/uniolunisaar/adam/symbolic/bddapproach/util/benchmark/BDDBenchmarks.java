@@ -40,7 +40,7 @@ public class BDDBenchmarks {
 
     public String toCSVString() {
         StringBuilder sb = new StringBuilder(Benchmarks.getInstance().toCSVString());
-        BDDSolver solver = (BDDSolver) Benchmarks.getInstance().getSolver();
+        BDDSolver<? extends WinningCondition> solver = (BDDSolver<? extends WinningCondition>) Benchmarks.getInstance().getSolver();
         if (solver != null) {
             sb.append(", ").append(solver.getVariableNumber());
         }

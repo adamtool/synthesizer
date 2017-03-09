@@ -10,9 +10,11 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
+import uniolunisaar.adam.ds.winningconditions.Safety;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSafetySolver;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 
 /**
  * @author Manuel Gieseking
@@ -39,7 +41,7 @@ public class BDDPetriGameSafetyStrategyBuilder extends BDDPetriGameStrategyBuild
     private int type2Ids = 0;
     
     @Override
-    void addSpecialStateBehaviour(Solver solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking); //To change body of generated methods, choose Tools | Templates.
 
         // Adapt the name of the net

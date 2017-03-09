@@ -8,6 +8,9 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.solver.SolverFactory;
+import uniolunisaar.adam.ds.winningconditions.Buchi;
+import uniolunisaar.adam.ds.winningconditions.Reachability;
+import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 
 /**
@@ -29,30 +32,30 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     }
 
-    public BDDSolver getSolver(PetriNet net, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDSolver<? extends WinningCondition> getSolver(PetriNet net, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         return super.getSolver(net, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver getSolver(String file, boolean skipTests) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
+    public BDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver getSolver(String file) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
+    public BDDSolver<? extends WinningCondition> getSolver(String file) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
         return super.getSolver(file, new BDDSolverOptions());
     }
 
     @Override
-    protected BDDSolver getSafetySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDSolver<Safety> getSafetySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDSafetySolver(pn, skipTests, opts);
     }
 
     @Override
-    protected BDDSolver getReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDSolver<Reachability> getReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDReachabilitySolver(pn, skipTests, opts);
     }
 
     @Override
-    protected BDDSolver getBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDSolver<Buchi> getBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDBuechiSolver(pn, skipTests, opts);
     }
 

@@ -15,7 +15,7 @@ public class BDDGraph extends Graph<BDDState, Flow> {
         super(name);
     }
 
-    public BDDGraph(Graph g) {
+    public BDDGraph(Graph<BDDState, Flow> g) {
         super(g);
     }
 
