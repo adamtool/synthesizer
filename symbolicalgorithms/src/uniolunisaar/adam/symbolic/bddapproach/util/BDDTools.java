@@ -123,7 +123,7 @@ public class BDDTools {
         return s.toString();
     }
 
-    public static void printDecodedDecisionSets(BDD dcs, BDDSolver solver, boolean force) {
+    public static void printDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver, boolean force) {
         if (print || force) {
             System.out.println(getDecodedDecisionSets(dcs, solver));
         }
@@ -262,7 +262,7 @@ public class BDDTools {
         return out;
     }
 
-    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver solver) throws IOException, InterruptedException {
+    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(states2Dot(bdds, solver));
         }
@@ -274,7 +274,7 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", false);
     }
 
-    public static String states2Dot(BDD bdds, BDDSolver solver) {
+    public static String states2Dot(BDD bdds, BDDSolver<? extends WinningCondition> solver) {
         final String mcutShape = "diamond";
         final String sysShape = "box";
 
@@ -309,7 +309,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Dot(BDDGraph g, BDDSolver solver) {
+    public static String graph2Dot(BDDGraph g, BDDSolver<? extends WinningCondition> solver) {
         final String mcutShape = "diamond";
         final String sysShape = "box";
 
@@ -377,7 +377,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Tikz(BDDGraph g, BDDSolver solver) {
+    public static String graph2Tikz(BDDGraph g, BDDSolver<? extends WinningCondition> solver) {
         StringBuilder sb = new StringBuilder();
         sb.append("\\begin{tikzpicture}[\n");
         sb.append("sys/.style={\n");
@@ -413,7 +413,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    private static void graphStates2Tikz(BDDGraph g, BDDSolver solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
+    private static void graphStates2Tikz(BDDGraph g, BDDSolver<? extends WinningCondition> solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
         if (visited.contains(state.getId())) {
             return;
         }
@@ -437,7 +437,7 @@ public class BDDTools {
         }
     }
 
-    public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver solver) throws IOException, InterruptedException {
+    public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
         saveGraph2Dot(path, g, solver);
         Runtime rt = Runtime.getRuntime();
         String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
@@ -446,13 +446,13 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", false);
     }
 
-    public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver solver) throws IOException, InterruptedException {
+    public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
         saveGraph2DotAndPDF(path, g, solver);
         // Delete dot file
         new File(path + ".dot").delete();
     }
 
-    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver solver) throws FileNotFoundException {
+    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(graph2Dot(g, solver));
         }

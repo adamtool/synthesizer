@@ -1,7 +1,10 @@
 package uniolunisaar.adam.symbolic.bddapproach.util.benchmark;
 
 import uniol.apt.adt.pn.PetriNet;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
+import uniolunisaar.adam.ds.solver.SolverOptions;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks.Parts;
@@ -30,7 +33,7 @@ public class BDDBenchmarks {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         if (Benchmarks.getInstance().getSolver() != null) {
-            sb.append("Nb variables: ").append(((BDDSolver) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
+            sb.append("Nb variables: ").append(((BDDSolver<? extends WinningCondition>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
         }
         return sb.toString();
     }
@@ -73,11 +76,11 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(Solver solver, PetriNet strat) {
+    public void addData(Solver<? extends PetriGame, ? extends WinningCondition, ? extends SolverOptions> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 
-    public Solver getSolver() {
+    public Solver<? extends PetriGame, ? extends WinningCondition, ? extends SolverOptions> getSolver() {
         return Benchmarks.getInstance().getSolver();
     }
 
