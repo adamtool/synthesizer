@@ -11,7 +11,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.ds.util.Logger;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  * Solves Petri games with a reachability objective by simply using an attractor

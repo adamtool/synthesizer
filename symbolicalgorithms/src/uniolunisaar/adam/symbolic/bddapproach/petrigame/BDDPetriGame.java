@@ -13,7 +13,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.ds.util.Logger;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  *
