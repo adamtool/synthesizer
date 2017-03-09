@@ -9,18 +9,13 @@
 	<include file="${mainfolder}/build_targets.xml" as="symbolic.fu" optional="false" />
 
 <!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PATHs %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
-	<path id="symbolic.classpath">
-			<resourcelist id="symbolic.libs">
-					<file file="${subproject.basedir}/libs.res"/>
-			</resourcelist>
-	</path>
 
 	<union id="symbolic.jar.res">    	
-			<zipfileset includes="**/*.class" src="${mainfolder}/lib/apt/apt.jar"/>
+<!--			<zipfileset includes="**/*.class" src="${mainfolder}/lib/apt/apt.jar"/>
 			<zipfileset includes="**/*.stg" src="${mainfolder}/lib/apt/apt.jar"/>		
-			<zipfileset includes="**/*.class" src="${mainfolder}/logic/adam_logics.jar"/>
+			<zipfileset includes="**/*.class" src="${mainfolder}/logic/adam_logics.jar"/>-->
 <!--			<zipfileset includes="**/*.stg" src="${subproject.basedir}/../ds/adam_logics.jar"/>-->
-			<zipfileset includes="**/*.class" src="${mainfolder}/lib/javaBDD/javabdd-1.0b2.jar"/>
+<!--			<zipfileset includes="**/*.class" src="${mainfolder}/lib/javaBDD/javabdd-1.0b2.jar"/>-->
 	</union>
 
 	<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
