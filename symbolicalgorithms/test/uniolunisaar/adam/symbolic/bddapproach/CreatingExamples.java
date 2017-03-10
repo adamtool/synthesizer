@@ -3,6 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
@@ -16,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  *
@@ -25,6 +27,11 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 public class CreatingExamples {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+
+    @BeforeClass
+    public void createFolder() {
+        Logger.getInstance().setVerbose(false);
+    }
 
     @Test
     public void testFirstExamplePaper() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {

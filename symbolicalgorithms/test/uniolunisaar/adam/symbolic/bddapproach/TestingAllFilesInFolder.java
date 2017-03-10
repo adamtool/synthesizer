@@ -23,6 +23,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  *
@@ -50,6 +51,7 @@ public class TestingAllFilesInFolder {
 
     @BeforeClass
     public void createFolder() {
+        Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
 
