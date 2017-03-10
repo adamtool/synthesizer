@@ -24,7 +24,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Test
-public class CreatingExamples {
+public class TestingSomeFiles {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
 
@@ -38,7 +38,7 @@ public class CreatingExamples {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        TestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CreatingExamples {
         final String path = inputDir + "burglar" + File.separator;
         final String name = "burglar";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        TestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class CreatingExamples {
         final String path = inputDir + "constructedExample" + File.separator;
         final String name = "constructedExample";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        TestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
 
     @Test
@@ -62,6 +62,6 @@ public class CreatingExamples {
         final String path = inputDir + "olderog" + File.separator + "type1Type2Mutex" + File.separator;
         final String name = "net";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        TestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
 }

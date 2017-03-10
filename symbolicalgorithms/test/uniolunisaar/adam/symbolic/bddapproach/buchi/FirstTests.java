@@ -7,7 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.symbolic.bddapproach.TestingTools;
+import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
@@ -28,7 +28,7 @@ import uniolunisaar.adam.tools.Logger;
 public class FirstTests {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/buechi/";
-     
+
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
@@ -39,39 +39,27 @@ public class FirstTests {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        TestingTools.testExample(solv, path + name, true);
-
-//        name = "type2B";
-//        solv = SolverFactory.getSolver(path + name + ".apt", true);
-//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-//        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        TestingTools.testExample(solv, path + name, true);
-//        name = "infiniteA";
-//        solv = SolverFactory.getSolver(path + name + ".apt", true);
-//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-////        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        TestingTools.testExample(solv, path + name, true);
-//        name = "finiteA";
-//        solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-////        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        TestingTools.testExample(solv, path + name, true);
-////
-//        name = "infiniteB";
-//        solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-//        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        TestingTools.testExample(solv, path + name, hasStrat);
+        BDDTestingTools.testExample(solv, path + name, hasStrat);
     }
 
-    @Test
+    @Test(enabled = false) //-- currently bdd error
     public void testToyExampleType2A() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-      //  testToyExamples("type2A", true); -- currently bdd error
+        testToyExamples("type2A", true);
+    }
+
+    @Test(enabled = false) //-- currently bdd error
+    public void testToyExampleType2B() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        testToyExamples("type2B", true);
     }
 
     @Test
-    public void testToyExamplefiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public void testToyExampleFiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         testToyExamples("finiteA", true);
+    }
+
+    @Test
+    public void testToyExampleInfiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        testToyExamples("infiniteA", true);
     }
 
     @Test

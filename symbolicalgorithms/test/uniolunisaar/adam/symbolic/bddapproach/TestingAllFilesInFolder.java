@@ -33,7 +33,7 @@ import uniolunisaar.adam.tools.Logger;
 public class TestingAllFilesInFolder {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
-    private static final String outputDir = "../../testExamples/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",
             "lateSameDecision.apt",
@@ -77,6 +77,6 @@ public class TestingAllFilesInFolder {
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, UnboundedPGException {
         String output = outputDir + file.getName().split(".apt")[0];
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
-        TestingTools.testExample(solv, output, hasStrategy);
+        BDDTestingTools.testExample(solv, output, hasStrategy);
     }
 }
