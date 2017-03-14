@@ -47,7 +47,7 @@ public class CreatingGeneratorExamples {
     public void testPhilosophers() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
         testPhilosophers(2);
         testPhilosophers(3);
-        testPhilosophers(4);
+//        testPhilosophers(4);
 //        testPhilosophers(4);
 //        testPhilosophers(5);
 //        testPhilosophers(6);

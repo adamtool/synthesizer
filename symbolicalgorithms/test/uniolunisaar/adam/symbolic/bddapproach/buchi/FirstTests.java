@@ -28,10 +28,12 @@ import uniolunisaar.adam.tools.Logger;
 public class FirstTests {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/buechi/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/buchi/";
 
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
+        (new File(outputDir)).mkdirs();
     }
 
     private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -39,7 +41,7 @@ public class FirstTests {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        BDDTestingTools.testExample(solv, path + name, hasStrat);
+        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
     }
 
     @Test(enabled = false) //-- currently bdd error

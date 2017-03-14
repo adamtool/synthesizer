@@ -17,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -27,10 +28,12 @@ import uniolunisaar.adam.tools.Logger;
 public class TestingSomeFiles {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
+        (new File(outputDir)).mkdirs();
     }
 
     @Test
@@ -38,7 +41,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     @Test
@@ -46,7 +49,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "burglar" + File.separator;
         final String name = "burglar";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     @Test
@@ -54,7 +57,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "constructedExample" + File.separator;
         final String name = "constructedExample";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     @Test
@@ -62,6 +65,24 @@ public class TestingSomeFiles {
         final String path = inputDir + "olderog" + File.separator + "type1Type2Mutex" + File.separator;
         final String name = "net";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
+
+    @Test
+    public void testWatchdog5() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "tests" + File.separator;
+        final String name = "watchdog5";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+   
+    @Test
+    public void testNdet() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "ndet" + File.separator;
+        final String name = "nondet2WithSys";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+    
 }

@@ -37,22 +37,37 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingGenerators {
 
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/";
-    private static final int countPhilsGuided = 4;
-    private static final int countPhils = 3;
-    private static final int countClerksCP = 10;
-    private static final int countClerksNonCP = 8;
-    private static final int countManu = 5;
-    private static final int countRobotCell_rb = 2;
-    private static final int countRobotCell_destr = 3;
-    private static final int countSelfOrga_rb = 1;
-    private static final int countSelfOrga_destr = 3;
-    private static final int countCM_machines = 3;
-    private static final int countCM_pieces = 3;
-//    private static final int countWD_machines = 9;
-    private static final int countWD_machines = 3;
-    private static final int countSecuritySystems = 8;
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/generators/";
+//    private static final int countPhilsGuided = 4;
+//    private static final int countPhils = 3;
+//    private static final int countClerksCP = 10;
+//    private static final int countClerksNonCP = 8;
+//    private static final int countManu = 5;
+//    private static final int countRobotCell_rb = 2;
+//    private static final int countRobotCell_destr = 3;
+//    private static final int countSelfOrga_rb = 1;
+//    private static final int countSelfOrga_destr = 2;
+//    private static final int countCM_machines = 3;
+//    private static final int countCM_pieces = 3;
+////    private static final int countWD_machines = 9;
+//    private static final int countWD_machines = 3;
+//    private static final int countSecuritySystems = 8;
 
+    // fast
+        private static final int countPhilsGuided = 2;
+    private static final int countPhils = 2;
+    private static final int countClerksCP = 2;
+    private static final int countClerksNonCP = 2;
+    private static final int countManu = 2;
+    private static final int countRobotCell_rb = 2;
+    private static final int countRobotCell_destr = 2;
+    private static final int countSelfOrga_rb = 1;
+    private static final int countSelfOrga_destr = 2;
+    private static final int countCM_machines = 2;
+    private static final int countCM_pieces = 2;
+//    private static final int countWD_machines = 9;
+    private static final int countWD_machines = 2;
+    private static final int countSecuritySystems = 2;
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
@@ -249,7 +264,7 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Manu
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Watchdog
     @DataProvider(name = "watchdog")
     public static Object[][] watchdog() {
         Object[][] out = new Object[countWD_machines][2];

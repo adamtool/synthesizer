@@ -29,10 +29,12 @@ import uniolunisaar.adam.tools.Logger;
 public class FirstTests {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/reachability/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
 
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
+        (new File(outputDir)).mkdirs();
     }
 
     @Test
@@ -40,9 +42,9 @@ public class FirstTests {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
         //BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     @Test
@@ -52,7 +54,7 @@ public class FirstTests {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     @Test
@@ -62,7 +64,7 @@ public class FirstTests {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
     private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -70,7 +72,7 @@ public class FirstTests {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-        BDDTestingTools.testExample(solv, path + name, hasStrat);
+        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
     }
 
     @Test
@@ -78,9 +80,9 @@ public class FirstTests {
         testToyExamples("type2A", true);
     }
 
-    @Test(enabled=false) // -- currently calculating infinitly long
+    @Test(enabled = false) // -- currently calculating infinitly long
     public void testToyExampleType2B() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-         testToyExamples("type2B", true);
+        testToyExamples("type2B", true);
     }
 
     @Test

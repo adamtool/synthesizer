@@ -305,31 +305,48 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return nondet;//.andWith(wellformed());
     }
 
+    
+    /**
+     * There could ndet states be missed because of the scheduling. A conjecture is
+     * that it is enough to take the states where ndet encountered and add all of 
+     * those states with which we could reach such states by firing transitions
+     * which are only dependent of an environment token in the preset. Todo: check
+     * if this  es really enough!
+     * @return 
+     */
     BDD ndetEncountered() {
         BDD Q = getOne();
         BDD Q_ = ndetStates(0);
-//        System.out.println("toooo reach");
-//        BDDTools.printDecodedDecisionSets(Q_, this, true);
-//        System.out.println("fertisch");
-//        int step = 0;
         Set<Transition> envTrans = getGame().getEnvTransitions();
+        int[] pres = new int[envTrans.size()];
+        int[] posts = new int[envTrans.size()];
+        int i = 0;
+        for (Transition t : envTrans) {
+            for (Place pre : t.getPreset()) {
+                if (pre.hasExtension("env")) {
+                    pres[i] = (Integer) pre.getExtension("id");
+                }
+            }
+            for (Place post : t.getPostset()) {
+                if (post.hasExtension("env")) {
+                    posts[i] = (Integer) post.getExtension("id");
+                }
+            }
+            ++i;
+        }
         while (!Q_.equals(Q)) {
             Q = Q_;
             BDD pre = getZero(); // get all predecessors of the current ndetEncountered-States with only env transitions
-            for (Transition envTran : envTrans) { // only single enviroment transitions
+            for (int j = 0; j < pres.length; j++) {
                 //replace the env place at the front and check if the postset is set at the end
-                pre.orWith(Q.exist(PLACES[0][0].set()).and(codePlace(envTran.getPreset().iterator().next(), 0, 0)) // preset and postset should be singleton
-                        .and(shiftFirst2Second(Q).and(codePlace(envTran.getPostset().iterator().next(), 1, 0))));
+                pre.orWith(Q.exist(PLACES[0][0].set()).and(codePlace(pres[j], 0, 0)) // preset and postset should be singleton
+                        .and(shiftFirst2Second(Q).and(codePlace(posts[j], 1, 0))));
             }
-            pre.exist(getVariables(1)); // only predecessors are interesting
+            pre = pre.exist(getVariables(1)); // only predecessors are interesting
             Q_ = pre.or(Q);
-//            ++step;
-//            if (step == 1) {
-//                System.out.println("Step " + step);
-//                BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
-//            }
-            Q_.andWith(wellformed(0));
         }
+//        System.out.println("ndet %%%%%%%");
+//        BDDTools.printDecodedDecisionSets(Q_, this, true);
         return Q_;
     }
 

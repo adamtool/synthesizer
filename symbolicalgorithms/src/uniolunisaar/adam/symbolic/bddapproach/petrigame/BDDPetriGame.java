@@ -66,7 +66,7 @@ public class BDDPetriGame extends PetriGame {
         //todo:  all comments are old version, before cavarti
         // split places and add an id
         int additional = (isConcurrencyPreserving()) ? 0 : 1;
-        places = new Set[getMaxTokenCountInt()];
+        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
         for (Place place : getNet().getPlaces()) {
             int token = (Integer) place.getExtension("token");
             if (places[token] == null) {

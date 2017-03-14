@@ -428,38 +428,6 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
     @Override
-    BDD ndetEncountered() {
-        BDD Q = getOne();
-        BDD Q_ = ndetStates(0);
-        Set<Transition> envTrans = getGame().getEnvTransitions();
-        int[] pres = new int[envTrans.size()];
-        int[] posts = new int[envTrans.size()];
-        int i = 0;
-        for (Transition t : envTrans) {
-            Iterator<Place> it = t.getPreset().iterator();
-            pres[i] = (it.hasNext()) ? (Integer) it.next().getExtension("id") : 0;
-            it = t.getPostset().iterator();
-            posts[i] = (it.hasNext()) ? (Integer) it.next().getExtension("id") : 0;
-            ++i;
-        }
-        while (!Q_.equals(Q)) {
-            Q = Q_;
-            BDD pre = getZero(); // get all predecessors of the current ndetEncountered-States with only env transitions
-            for (int j = 0; j < pres.length; j++) {
-                //replace the env place at the front and check if the postset is set at the end
-                pre.orWith(Q.exist(PLACES[0][0].set()).and(codePlace(pres[j], 0, 0)) // preset and postset should be singleton
-                        .and(shiftFirst2Second(Q).and(codePlace(posts[j], 1, 0))));
-            }
-            pre = pre.exist(getVariables(1)); // only predecessors are interesting
-            Q_ = pre.or(Q);
-            Q_.andWith(wellformed(0));
-        }
-//        System.out.println("ndet %%%%%%%");
-//        BDDTools.printDecodedDecisionSets(Q_, this, true);
-        return Q_;
-    }
-
-    @Override
     BDD enabled(Transition t, int pos) {
         return enabled(t, true, pos).orWith(enabled(t, false, pos));
     }
