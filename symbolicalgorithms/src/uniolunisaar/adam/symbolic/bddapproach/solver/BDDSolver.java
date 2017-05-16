@@ -305,14 +305,14 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return nondet;//.andWith(wellformed());
     }
 
-    
     /**
-     * There could ndet states be missed because of the scheduling. A conjecture is
-     * that it is enough to take the states where ndet encountered and add all of 
-     * those states with which we could reach such states by firing transitions
-     * which are only dependent of an environment token in the preset. Todo: check
-     * if this  es really enough!
-     * @return 
+     * There could ndet states be missed because of the scheduling. A conjecture
+     * is that it is enough to take the states where ndet encountered and add
+     * all of those states with which we could reach such states by firing
+     * transitions which are only dependent of an environment token in the
+     * preset. Todo: check if this es really enough!
+     *
+     * @return
      */
     BDD ndetEncountered() {
         BDD Q = getOne();
@@ -347,6 +347,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
 //        System.out.println("ndet %%%%%%%");
 //        BDDTools.printDecodedDecisionSets(Q_, this, true);
+//        return getZero();
         return Q_;
     }
 

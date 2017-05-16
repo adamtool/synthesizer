@@ -67,7 +67,7 @@ public class TestingGenerators {
     private static final int countCM_pieces = 2;
 //    private static final int countWD_machines = 9;
     private static final int countWD_machines = 2;
-    private static final int countSecuritySystems = 2;
+    private static final int countSecuritySystems = 6;
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
@@ -306,7 +306,8 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate security System...");
-        PetriNet pn = SecuritySystem.createReachabilityVersion(intrudingPoints, true);
+        PetriNet pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
+//        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);

@@ -20,6 +20,7 @@ import uniolunisaar.adam.generators.Clerks;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
 import uniolunisaar.adam.generators.RobotCell;
+import uniolunisaar.adam.generators.SecuritySystem;
 import uniolunisaar.adam.generators.SelfOrganizingRobots;
 import uniolunisaar.adam.generators.Workflow;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
@@ -39,7 +40,7 @@ public class CreatingGeneratorExamples {
 
     @BeforeClass
     public void createFolder() {
-        Logger.getInstance().setVerbose(false);        
+        Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
 
@@ -108,6 +109,11 @@ public class CreatingGeneratorExamples {
         testWork(3, 2, true);
 //        testWork(4, 3);
 //        testWork(4, 4);
+    }
+
+    @Test
+    public void testSecuritySystem() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+        testSecuritySystem(4, true);
     }
 
     private void testPhilosophersGuided(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, UnboundedPGException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException {
@@ -200,6 +206,19 @@ public class CreatingGeneratorExamples {
         PetriNet pn = Workflow.generate(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+        final String path = outputDir + "securitySystem" + File.separator;
+        String name = intrudingPoints + "_secSystems";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate security System...");
+        PetriNet pn = SecuritySystem.createReachabilityVersion(intrudingPoints, true);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 }

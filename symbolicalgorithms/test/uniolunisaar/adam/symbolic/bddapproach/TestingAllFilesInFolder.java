@@ -43,6 +43,9 @@ public class TestingAllFilesInFolder {
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
             "nondet.apt",
             "nondet2.apt",
+            //            "nondet2WithSys.apt",
+            "nondet_s3_noStrat.apt",
+            "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt"));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "myexample7.apt", // has two environment token
