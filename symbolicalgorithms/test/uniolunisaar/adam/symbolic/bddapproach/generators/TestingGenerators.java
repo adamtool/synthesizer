@@ -17,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.generators.Clerks;
+import uniolunisaar.adam.generators.ContainerTerminal;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
 import uniolunisaar.adam.generators.RobotCell;
@@ -68,6 +69,8 @@ public class TestingGenerators {
 //    private static final int countWD_machines = 9;
     private static final int countWD_machines = 2;
     private static final int countSecuritySystems = 6;
+    private static final int countContainerPlaces = 1;
+    
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
@@ -288,7 +291,7 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Sexurity System
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Security System
     @DataProvider(name = "secSystem")
     public static Object[][] securitySystem() {
         Object[][] out = new Object[countSecuritySystems][2];
@@ -312,4 +315,29 @@ public class TestingGenerators {
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
+    
+//    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Container terminal (more than one env place)
+//    @DataProvider(name = "conTerminal")
+//    public static Object[][] containerTerminal() {
+//        Object[][] out = new Object[countContainerPlaces][2];
+//        for (int i = 0; i < countContainerPlaces; i++) {
+//            out[i][0] = i + 2;
+//            out[i][1] = true;
+//        }
+//        return out;
+//    }
+//
+//    @Test(dataProvider = "conTerminal")
+//    public void testContainerTerminal(int containerPlaces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+//        final String path = outputDir + "containerTerminal" + File.separator;
+//        String name = containerPlaces + "_conTerminal";
+//        File f = new File(path);
+//        f.mkdir();
+//        System.out.println("Generate container terminal...");
+//        PetriNet pn = ContainerTerminal.createSafetyVersion(containerPlaces, true);
+////        Tools.savePN(path+name, pn);
+//        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+//    }
 }
