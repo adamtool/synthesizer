@@ -84,7 +84,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      *
      * The BDDFactory is initialised and some BDDs are precalculated.
      */
-    protected void initialize() {
+    public void initialize() {
         Logger.getInstance().addMessage("Initialize BDD data ...");
         if (bddfac != null && bddfac.isInitialized()) {
             Logger.getInstance().addMessage("BDDFactory reinitialized.");
