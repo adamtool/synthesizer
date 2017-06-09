@@ -66,11 +66,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         super(new BDDPetriGame(net, skipTests), winCon, opts);
     }
 
-    /**
-     * Here should those BDDs be calculated which should be precalculated at
-     * creation time of this object.
-     */
-    abstract void precalculateSpecificBDDs();
+//    /**
+//     * Here should those BDDs be calculated which should be precalculated at
+//     * creation time of this object.
+//     */
+//    abstract void precalculateSpecificBDDs();
 
     /**
      * Returns the winning decisionsets for the system players.
@@ -118,9 +118,9 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         Logger.getInstance().addMessage("Reordering variables ...");
         reorderVariables();
         Logger.getInstance().addMessage("... reordering variables done.");
-        Logger.getInstance().addMessage("Precalculating BDDs ...");
-        precalculateBDDs();
-        Logger.getInstance().addMessage("... precalculation of BDDs done.");
+//        Logger.getInstance().addMessage("Precalculating BDDs ...");
+//        precalculateBDDs();
+//        Logger.getInstance().addMessage("... precalculation of BDDs done.");
         Logger.getInstance().addMessage("... BDD Initialisation done.");
         initialized = true;
     }
@@ -141,44 +141,44 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
         bddfac.setVarOrder(order);
     }
-
-    /**
-     * Some BDDs are precalculated since they are used quite often.
-     */
-    private void precalculateBDDs() {
-        precalculateSpecificBDDs();
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.ENVIRONMENT_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Logger.getInstance().addMessage("Calculating environment transitions ...");
-        environment = getEnvironmentTransitions();
-        Logger.getInstance().addMessage(".. calculation of environment transitions done.");
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.ENVIRONMENT_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-
-        Logger.getInstance().addMessage("Calculating existence of environment successors ...");
-        exEnvSucc = calcExEnvSucc();
-        Logger.getInstance().addMessage("... calculation of existence of environment successors done.");
-
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.SYSTEM1_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS            
-        Logger.getInstance().addMessage("Calculating system transitions ...");
-        system = getSystemTransitions();
-        Logger.getInstance().addMessage(".. calculation of system transitions done.");
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.SYSTEM1_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-
-        Logger.getInstance().addMessage("Calculating existence of system successors ...");
-        exSysSucc = system.id().exist(getSecondBDDVariables());
-        Logger.getInstance().addMessage("... calculation of existence of system successors done.");
-
-//        Logger.getInstance().addMessage("Calculating ndet encountered states ...");
-//        ndet = ndetEncountered();
-//        Logger.getInstance().addMessage("... calculation ndet encountered states.");
-    }
+//
+//    /**
+//     * Some BDDs are precalculated since they are used quite often.
+//     */
+//    private void precalculateBDDs() {
+//        precalculateSpecificBDDs();
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().start(Benchmarks.Parts.ENVIRONMENT_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Logger.getInstance().addMessage("Calculating environment transitions ...");
+//        environment = getEnvironmentTransitions();
+//        Logger.getInstance().addMessage(".. calculation of environment transitions done.");
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().stop(Benchmarks.Parts.ENVIRONMENT_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//
+//        Logger.getInstance().addMessage("Calculating existence of environment successors ...");
+//        exEnvSucc = calcExEnvSucc();
+//        Logger.getInstance().addMessage("... calculation of existence of environment successors done.");
+//
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().start(Benchmarks.Parts.SYSTEM1_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS            
+//        Logger.getInstance().addMessage("Calculating system transitions ...");
+//        system = getSystemTransitions();
+//        Logger.getInstance().addMessage(".. calculation of system transitions done.");
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().stop(Benchmarks.Parts.SYSTEM1_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//
+//        Logger.getInstance().addMessage("Calculating existence of system successors ...");
+//        exSysSucc = system.id().exist(getSecondBDDVariables());
+//        Logger.getInstance().addMessage("... calculation of existence of system successors done.");
+//
+////        Logger.getInstance().addMessage("Calculating ndet encountered states ...");
+////        ndet = ndetEncountered();
+////        Logger.getInstance().addMessage("... calculation ndet encountered states.");
+//    }
 
     /**
      * Codierung: p_i_0 - Environment Token n - TokenCount
@@ -409,8 +409,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     public BDD preEnv(BDD succ) {
         BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = ((system.imp(succ_shifted)).forAll(getSecondBDDVariables())).and(exSysSucc);
-        BDD exists = (environment.and(succ_shifted)).exist(getSecondBDDVariables());
+        BDD forall = ((getBufferedSystemTransition().imp(succ_shifted)).forAll(getSecondBDDVariables())).and(getBufferedExSysSucc());
+        BDD exists = (getBufferedEnvTransitions().and(succ_shifted)).exist(getSecondBDDVariables());
         return forall.or(exists).and(wellformed());
     }
 
@@ -422,8 +422,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     public BDD preSys(BDD succ) {
         BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = (environment.imp(succ_shifted)).forAll(getSecondBDDVariables()).and(exEnvSucc);
-        BDD exists = (system.and(succ_shifted)).exist(getSecondBDDVariables());
+        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
+        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables());
         return forall.or(exists).and(wellformed());
     }
 
@@ -1031,9 +1031,21 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @return - All environment states.
      */
     private BDD calcExEnvSucc() {
-        return environment.id().exist(getSecondBDDVariables());
+        return getBufferedEnvTransitions().id().exist(getSecondBDDVariables());
     }
-
+    
+    
+    /**
+     * Returns a BDD where all predecessors of environment transitions are coded
+     * and the successor are arbitrary.
+     *
+     * @return - All environment states.
+     */
+    private BDD calcExSysSucc() {
+        return getBufferedSystemTransition().id().exist(getSecondBDDVariables());
+    }
+    
+    
     /**
      * Returns a BDD where the places of the predecessor and the successor of
      * the given token are equal.
@@ -1216,6 +1228,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return exEnvSucc;
     }
 
+    BDD getBufferedExSysSucc() {
+        if (exSysSucc == null) {
+            exSysSucc = calcExSysSucc();
+        }
+        return exSysSucc;
+    }
+
 // %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS    
     public BDD getZero() {
         return bddfac.zero();
@@ -1242,36 +1261,4 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     public int getVariableNumber() {
         return bddfac.varNum();
     }
-
-//    public int getCachesize() {
-//        return cachesize;
-//    }
-//
-//    public void setCachesize(int cachesize) {
-//        this.cachesize = cachesize;
-//    }
-//
-//    public int getMaxIncrease() {
-//        return maxIncrease;
-//    }
-//
-//    public void setMaxIncrease(int maxIncrease) {
-//        this.maxIncrease = maxIncrease;
-//    }
-//
-//    public int getNodenum() {
-//        return nodenum;
-//    }
-//
-//    public void setNodenum(int nodenum) {
-//        this.nodenum = nodenum;
-//    }
-//
-//    public String getLibName() {
-//        return libName;
-//    }
-//
-//    public void setLibName(String libName) {
-//        this.libName = libName;
-//    }
 }

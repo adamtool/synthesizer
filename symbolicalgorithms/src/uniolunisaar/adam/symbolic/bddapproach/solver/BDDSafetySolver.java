@@ -75,88 +75,89 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      */
     @Override
     void createVariables() {
+        super.createVariables();
         int tokencount = getGame().getMaxTokenCountInt();
-        PLACES = new BDDDomain[2][tokencount];
+//        PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
-        TOP = new BDDDomain[2][tokencount - 1];
-        TRANSITIONS = new BDDDomain[2][tokencount - 1];
+//        TOP = new BDDDomain[2][tokencount - 1];
+//        TRANSITIONS = new BDDDomain[2][tokencount - 1];
         for (int i = 0; i < 2; ++i) {
-            // Env-place
-            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
-            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
-            //for any token
+//            // Env-place
+//            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+//            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+//            //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
-                // Place
-                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
-                // type
+//                // Place
+//                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
+//                // type
                 TYPE[i][j] = getFactory().extDomain(2);
-                // top
-                TOP[i][j] = getFactory().extDomain(2);
-                // transitions                
-                BigInteger maxTrans = BigInteger.valueOf(2);
-                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size()); // at the end extDomain creates log2(size) variables
-                TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
+//                // top
+//                TOP[i][j] = getFactory().extDomain(2);
+//                // transitions                
+//                BigInteger maxTrans = BigInteger.valueOf(2);
+//                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size()); // at the end extDomain creates log2(size) variables
+//                TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
         }
         setDCSLength(getFactory().varNum() / 2);
     }
 
-    /**
-     * Precalculates and saved the BDDs for the system2 transitions and the
-     * type2-trap.
-     */
-    @Override
-    void precalculateSpecificBDDs() {
-        //        wellformed = wellformed();
-//        type2 = type2();
-//        nTop = nTop();
-//        initialDCS = initial();
-//        baddcs = baddcs();
-//        ndet = ndet();
-//        deadSysDCS = deadSysDCS();
-//        mcut = mcut();
-//        term = term();
-//        goodSysDCSForType2Trap = goodSysDCSForType2Trap;
-        // Existential variables
-//        secondBDDVariables = secondBDDVariables();
-//        firstBDDVariables = firstBDDVariables();
-//        p0eqp0_ = placesEqual(0);
-//        preBimpSucc = preBimpSucc();
-//        System.out.println("Start calculation wellformed transitions");
-////        wellformedTransition = wellformedTransition();
-//        System.out.println("... done (calculation of wellformed transitions)");
+//    /**
+//     * Precalculates and saved the BDDs for the system2 transitions and the
+//     * type2-trap.
+//     */
+//    @Override
+//    void precalculateSpecificBDDs() {
+//        //        wellformed = wellformed();
+////        type2 = type2();
+////        nTop = nTop();
+////        initialDCS = initial();
+////        baddcs = baddcs();
+////        ndet = ndet();
+////        deadSysDCS = deadSysDCS();
+////        mcut = mcut();
+////        term = term();
+////        goodSysDCSForType2Trap = goodSysDCSForType2Trap;
+//        // Existential variables
+////        secondBDDVariables = secondBDDVariables();
+////        firstBDDVariables = firstBDDVariables();
+////        p0eqp0_ = placesEqual(0);
+////        preBimpSucc = preBimpSucc();
+////        System.out.println("Start calculation wellformed transitions");
+//////        wellformedTransition = wellformedTransition();
+////        System.out.println("... done (calculation of wellformed transitions)");
+////
+//////        commitmentsEquals = new HashMap<>();
+//////        int offset = PL_CODE_LEN;
+//////        for (int i = 1; i < game.getTOKENCOUNT(); ++i) {
+//////            commitmentsEquals.put(offset, commitmentsEqual(offset));
+//////            offset += OFFSET;
+//////        }
 //
-////        commitmentsEquals = new HashMap<>();
-////        int offset = PL_CODE_LEN;
-////        for (int i = 1; i < game.getTOKENCOUNT(); ++i) {
-////            commitmentsEquals.put(offset, commitmentsEqual(offset));
-////            offset += OFFSET;
-////        }
-
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.SYSTEM2_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Logger.getInstance().addMessage("Calculating system2 transitions ...");
-        system2 = sys2Transitions();
-        Logger.getInstance().addMessage("... calculation of type2 transitions done.");
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.SYSTEM2_TRANS);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.TYPE2_TRAP);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS            
-        Logger.getInstance().addMessage("Calculating type2 trap ...");
-        type2Trap = type2Trap();
-        Logger.getInstance().addMessage("... calculation of type2 trap done.");
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.TYPE2_TRAP);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS   
-
-//        // not(type2 => type2Trap)
-//        wrongTypedType2DCS = type2.and(type2Trap.not()).and(wellformed);
-//        goodSysStates = ((baddcs.or(ndet).or(deadSysDCS).or(wrongTypedType2DCS)).not()).and(wellformed);
-    }
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().start(Benchmarks.Parts.SYSTEM2_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Logger.getInstance().addMessage("Calculating system2 transitions ...");
+//        system2 = sys2Transitions();
+//        Logger.getInstance().addMessage("... calculation of type2 transitions done.");
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().stop(Benchmarks.Parts.SYSTEM2_TRANS);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().start(Benchmarks.Parts.TYPE2_TRAP);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS            
+//        Logger.getInstance().addMessage("Calculating type2 trap ...");
+//        type2Trap = type2Trap();
+//        Logger.getInstance().addMessage("... calculation of type2 trap done.");
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        Benchmarks.getInstance().stop(Benchmarks.Parts.TYPE2_TRAP);
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS   
+//
+////        // not(type2 => type2Trap)
+////        wrongTypedType2DCS = type2.and(type2Trap.not()).and(wellformed);
+////        goodSysStates = ((baddcs.or(ndet).or(deadSysDCS).or(wrongTypedType2DCS)).not()).and(wellformed);
+//    }
 
     /**
      * Returns all variables of the predecessor or success as a BDD.
@@ -1001,6 +1002,9 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
     BDD getType2Trap() {
+        if(type2Trap== null) {
+            type2Trap = type2Trap();
+        }
         return type2Trap;
     }
 

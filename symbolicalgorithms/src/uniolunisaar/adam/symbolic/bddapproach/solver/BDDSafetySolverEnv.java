@@ -36,13 +36,13 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
     BDDSafetySolverEnv(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Safety(), opts);
     }
-
-    /**
-     * Nothing to do here.
-     */
-    @Override
-    void precalculateSpecificBDDs() {
-    }
+//
+//    /**
+//     * Nothing to do here.
+//     */
+//    @Override
+//    void precalculateSpecificBDDs() {
+//    }
 
     /**
      * Creates a BDD with all states from which a state with a reachable place

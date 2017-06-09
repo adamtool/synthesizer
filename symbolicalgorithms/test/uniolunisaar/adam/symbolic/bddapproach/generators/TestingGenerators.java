@@ -55,8 +55,8 @@ public class TestingGenerators {
 //    private static final int countSecuritySystems = 8;
 
     // fast
-        private static final int countPhilsGuided = 2;
-    private static final int countPhils = 2;
+        private static final int countPhilsGuided = 1;
+    private static final int countPhils = 1;
     private static final int countClerksCP = 2;
     private static final int countClerksNonCP = 2;
     private static final int countManu = 2;
@@ -64,11 +64,11 @@ public class TestingGenerators {
     private static final int countRobotCell_destr = 2;
     private static final int countSelfOrga_rb = 1;
     private static final int countSelfOrga_destr = 2;
-    private static final int countCM_machines = 2;
+    private static final int countCM_machines = 1;
     private static final int countCM_pieces = 2;
 //    private static final int countWD_machines = 9;
     private static final int countWD_machines = 2;
-    private static final int countSecuritySystems = 6;
+    private static final int countSecuritySystems = 1;
     private static final int countContainerPlaces = 1;
     
     @BeforeClass

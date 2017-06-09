@@ -171,10 +171,10 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         }
         return preBimpSucc;
     }
-
-    @Override
-    void precalculateSpecificBDDs() {
-    }
+//
+//    @Override
+//    void precalculateSpecificBDDs() {
+//    }
 
     @Override
     public BDD getInitialDCSs() {
