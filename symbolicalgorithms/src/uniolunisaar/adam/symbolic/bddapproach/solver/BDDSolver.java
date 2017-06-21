@@ -71,7 +71,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //     * creation time of this object.
 //     */
 //    abstract void precalculateSpecificBDDs();
-
     /**
      * Returns the winning decisionsets for the system players.
      *
@@ -1033,8 +1032,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     private BDD calcExEnvSucc() {
         return getBufferedEnvTransitions().id().exist(getSecondBDDVariables());
     }
-    
-    
+
     /**
      * Returns a BDD where all predecessors of environment transitions are coded
      * and the successor are arbitrary.
@@ -1044,8 +1042,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     private BDD calcExSysSucc() {
         return getBufferedSystemTransition().id().exist(getSecondBDDVariables());
     }
-    
-    
+
     /**
      * Returns a BDD where the places of the predecessor and the successor of
      * the given token are equal.
@@ -1153,11 +1150,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     public BDD getSystemSuccTransitions(BDD state) {
-        return state.and(getSystemTransitions());
+        return state.and(getBufferedSystemTransition());
     }
 
     public BDD getEnvSuccTransitions(BDD state) {
-        return state.and(getEnvironmentTransitions());
+        return state.and(getBufferedEnvTransitions());
     }
 
     public BDD getInitialDCSs() {
