@@ -20,10 +20,13 @@ import uniolunisaar.adam.tools.Logger;
 /**
  * Solves Petri games with a safety objective with BDDs.
  *
+ * The first version of a BDD safety solver for Petri games. Uses two nested
+ * fixpoints, termination and do not extend the game such that not every state
+ * has to have a successor.
  *
  * @author Manuel Gieseking
  */
-public class BDDSafetySolver extends BDDSolver<Safety> {
+public class BDDSafetySolverNested extends BDDSolver<Safety> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] TYPE;
@@ -45,7 +48,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDSafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDSafetySolverNested(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Safety(), opts);
     }
 
