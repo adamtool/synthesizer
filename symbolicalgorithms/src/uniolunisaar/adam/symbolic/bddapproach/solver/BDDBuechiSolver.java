@@ -238,7 +238,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         return env;
     }
 
-    private BDD envTransitionsCP() {
+    @Override
+    BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
         for (Transition t : getGame().getNet().getTransitions()) {
@@ -309,7 +310,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         return zero;
     }
 
-    private void setPresetAndNeededZeros(Set<Place> pre_sys, List<Integer> visitedToken, BDD all) {
+    @Override
+    void setPresetAndNeededZeros(Set<Place> pre_sys, List<Integer> visitedToken, BDD all) {
         List<Integer> postTokens = new ArrayList<>(visitedToken);
         // set the dcs for the places in the preset
         for (Place pre : pre_sys) {
@@ -332,7 +334,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         }
     }
 
-    private void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    @Override
+    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -359,7 +362,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         }
     }
 
-    private BDD envTransitionsNotCP() {
+    @Override
+    BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
         for (Transition t : getGame().getNet().getTransitions()) {

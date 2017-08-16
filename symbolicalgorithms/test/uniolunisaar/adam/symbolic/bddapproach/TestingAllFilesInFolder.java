@@ -34,7 +34,7 @@ public class TestingAllFilesInFolder {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
-    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
+    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(            
             "abb62.apt",
             "lateSameDecision.apt",
             "tafel.apt",
@@ -46,8 +46,11 @@ public class TestingAllFilesInFolder {
             //            "nondet2WithSys.apt",
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
-            "firstExamplePaper_extended.apt"));
+            "firstExamplePaper_extended.apt",
+            "envSkipsSys.apt"));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            "container.apt", // takes to long ... 
+            "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
             "wf_2_3_pg_reversible.apt" // currently unbounded
     ));

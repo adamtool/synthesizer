@@ -66,18 +66,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         super(new BDDPetriGame(net, skipTests), winCon, opts);
     }
 
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
 //    /**
 //     * Here should those BDDs be calculated which should be precalculated at
 //     * creation time of this object.
 //     */
 //    abstract void precalculateSpecificBDDs();
-    /**
-     * Returns the winning decisionsets for the system players.
-     *
-     * @return - A BDD containing all winning states for the system.
-     */
-    abstract BDD calcWinningDCSs();
-
     /**
      * Here the initialisation of the Solver is done.
      *
@@ -89,15 +84,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             Logger.getInstance().addMessage("BDDFactory reinitialized.");
             bddfac.done();
         }
-        if (getSolverOpts() != null) {
-
-        }
         String libName = getSolverOpts().getLibraryName();
         int nodenum = getSolverOpts().getInitNodeNb();
         int cachesize = getSolverOpts().getCacheSize();
         int maxIncrease = getSolverOpts().getMaxIncrease();
         bddfac = BDDFactory.init(libName, nodenum, cachesize);
-//        bddfac = BDDFactory.init("java", NODENUM, CACHESIZE);
         bddfac.setMaxIncrease(maxIncrease);
         Logger.getInstance().addMessage("Using BDDLibrary: " + bddfac.getVersion());
         Logger.getInstance().addMessage("BDD cachesize: " + cachesize);
@@ -108,76 +99,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         createVariables();
         Logger.getInstance().addMessage("Number of variables: " + bddfac.varNum());
         Logger.getInstance().addMessage("... creating variables done.");
-//        Logger.addMessage("Start creating dcs bdds ... ");
-//        createDCSBDDs();
-//        System.out.println("... done. (creating dcs bdds)");
-        // Extend created BDDs for DCS to relation of DCS
-        // (fills the end with -1)
-//        bddfac.extVarNum(DCS_LENGTH);
         Logger.getInstance().addMessage("Reordering variables ...");
         reorderVariables();
         Logger.getInstance().addMessage("... reordering variables done.");
-//        Logger.getInstance().addMessage("Precalculating BDDs ...");
-//        precalculateBDDs();
-//        Logger.getInstance().addMessage("... precalculation of BDDs done.");
         Logger.getInstance().addMessage("... BDD Initialisation done.");
         initialized = true;
     }
-
-    /**
-     * The variables of the BDDs are reordered since for a transition D->D' it
-     * is much more faster to have the variables of D and D' interleaved since
-     * many operations have to compare the variables of the predecessor and the
-     * successor of a transition.
-     */
-    private void reorderVariables() {
-        // interleaving of D and D' for D->D'
-        int[] order = new int[bddfac.varNum()];
-        int count = 0;
-        for (int i = 0; i < this.dcsLength; i++) {
-            order[count++] = i;
-            order[count++] = dcsLength + i;
-        }
-        bddfac.setVarOrder(order);
-    }
-//
-//    /**
-//     * Some BDDs are precalculated since they are used quite often.
-//     */
-//    private void precalculateBDDs() {
-//        precalculateSpecificBDDs();
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Benchmarks.getInstance().start(Benchmarks.Parts.ENVIRONMENT_TRANS);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Logger.getInstance().addMessage("Calculating environment transitions ...");
-//        environment = getEnvironmentTransitions();
-//        Logger.getInstance().addMessage(".. calculation of environment transitions done.");
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Benchmarks.getInstance().stop(Benchmarks.Parts.ENVIRONMENT_TRANS);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//
-//        Logger.getInstance().addMessage("Calculating existence of environment successors ...");
-//        exEnvSucc = calcExEnvSucc();
-//        Logger.getInstance().addMessage("... calculation of existence of environment successors done.");
-//
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Benchmarks.getInstance().start(Benchmarks.Parts.SYSTEM1_TRANS);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS            
-//        Logger.getInstance().addMessage("Calculating system transitions ...");
-//        system = getSystemTransitions();
-//        Logger.getInstance().addMessage(".. calculation of system transitions done.");
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Benchmarks.getInstance().stop(Benchmarks.Parts.SYSTEM1_TRANS);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//
-//        Logger.getInstance().addMessage("Calculating existence of system successors ...");
-//        exSysSucc = system.id().exist(getSecondBDDVariables());
-//        Logger.getInstance().addMessage("... calculation of existence of system successors done.");
-//
-////        Logger.getInstance().addMessage("Calculating ndet encountered states ...");
-////        ndet = ndetEncountered();
-////        Logger.getInstance().addMessage("... calculation ndet encountered states.");
-//    }
 
     /**
      * Codierung: p_i_0 - Environment Token n - TokenCount
@@ -207,10 +134,44 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         setDCSLength(getFactory().varNum() / 2);
     }
 
+    /**
+     * The variables of the BDDs are reordered since for a transition D->D' it
+     * is much more faster to have the variables of D and D' interleaved since
+     * many operations have to compare the variables of the predecessor and the
+     * successor of a transition.
+     */
+    private void reorderVariables() {
+        // interleaving of D and D' for D->D'
+        int[] order = new int[bddfac.varNum()];
+        int count = 0;
+        for (int i = 0; i < this.dcsLength; i++) {
+            order[count++] = i;
+            order[count++] = dcsLength + i;
+        }
+        bddfac.setVarOrder(order);
+    }
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Calculates the wellformed BDDs for the predecessor.
+     * 
+     * @return BDD of wellformed predecessors.
+     */
     BDD wellformed() {
         return wellformed(0);
     }
 
+    /**
+     * Calculates the wellformed BDDs for the predecessor or successor.
+     * 
+     * Only successors of the place are allowed in its commitment sets. Additional
+     * reduction technique of Valentin Spreckel's MA.
+     * 
+     * @param pos - 0 for the predecessor variables and 1 for the successor
+     * variables.
+     * 
+     * @return a wellformed BDD 
+     */
     BDD wellformed(int pos) {
         BDD well = bddfac.one();
 
@@ -277,6 +238,27 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return well;//.andWith(ndet(pos).not());
     }
 
+    /**
+     * Calculates the BDD belonging to the initial marking with all tops set
+     * to false.
+     * 
+     * @return BDD for the initial marking.
+     */
+    private BDD initial() {
+        BDD init = marking2BDD(getGame().getNet().getInitialMarking());
+        init.andWith(getNotTop());
+        return init;//.and(getWellformed());
+    }
+
+    /**
+     * Calculates a BDD with all situations where nondeterminism has been
+     * encountered.
+     * 
+     * @param pos - 0 for the predecessor variables and 1 for the successor
+     * variables.
+     * 
+     * @return BDD with all nondeterministic situations.
+     */
     BDD ndetStates(int pos) {
         BDD nondet = getZero();
         Set<Transition> trans = getGame().getNet().getTransitions();
@@ -309,9 +291,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * is that it is enough to take the states where ndet encountered and add
      * all of those states with which we could reach such states by firing
      * transitions which are only dependent of an environment token in the
-     * preset. Todo: check if this es really enough!
+     * preset. Todo: check if this es really enough! That's not enough and there
+     * is most likely no fix in this reduction for this problem.
+     * 
+     * ATTENTION: fixes only a very special case!
      *
-     * @return
+     * @return BDD with all nondeterministic situations.
      */
     BDD ndetEncountered() {
         BDD Q = getOne();
@@ -351,12 +336,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
-     * All tops are zero.
-     *
-     * eher teuer weil vergleich ueber die token und damit ueber recht weite
-     * entfernungen
-     *
-     * @return
+     * Calculates the BDD where all tops are zero.
+     * 
+     * Should be expensive, since it compares variables over wide ranges.
+     * This should be expensive for BDDs.
+     * 
+     * @return a BDD with all tops set to zero.
      */
     private BDD nTop() {
         BDD nTop = getFactory().one();
@@ -554,13 +539,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return mc.andWith(wellformed());
     }
 
-    private BDD initial() {
-        BDD init = marking2BDD(getGame().getNet().getInitialMarking());
-        init.andWith(getNotTop());
-        return init;//.and(getWellformed());
-    }
-
-    private BDD envTransitionsCP() {
+    BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
         for (Transition t : getGame().getNet().getTransitions()) {
@@ -625,7 +604,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return zero;
     }
 
-    private void setPresetAndNeededZeros(Set<Place> pre_sys, List<Integer> visitedToken, BDD all) {
+    void setPresetAndNeededZeros(Set<Place> pre_sys, List<Integer> visitedToken, BDD all) {
         List<Integer> postTokens = new ArrayList<>(visitedToken);
         // set the dcs for the places in the preset
         for (Place pre : pre_sys) {
@@ -648,7 +627,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
     }
 
-    private void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -673,7 +652,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
     }
 
-    private BDD envTransitionsNotCP() {
+    BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
         for (Transition t : getGame().getNet().getTransitions()) {
@@ -727,7 +706,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    private BDD sysTransitionsCP() {
+    BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
         BDD sys1 = getMcut().not();
         // no successors for already reached states
@@ -792,7 +771,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return sys1;
     }
 
-    private BDD sysTransitionsNotCP() {
+    BDD sysTransitionsNotCP() {
         // Only useable if it's not an mcut
         BDD sys1 = getMcut().not();
         // no successors for already reached states
@@ -859,56 +838,14 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return sys1;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    /**
-     * Searches for a transition which could have been fired to get the target
-     * BDD of the source BDD.
-     *
-     * @param source - the source BDD.
-     * @param target - the target BDD.
-     * @return - A transition which could have been fired to connect source and
-     * target.
-     */
-    public Transition getTransition(BDD source, BDD target) {
-        for (Transition t : getNet().getTransitions()) {
-            if (hasFired(t, source, target)) {
-                return t;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns a BDD where the successors of the given BDD are shifted to the
-     * predecessor and the successors are arbitrary.
-     *
-     * This means given D->D' returing D'-> -1.
-     *
-     * @param trans - The BDD where the successors should be shifted to the
-     * predecessors.
-     * @return - The successor states of the given transition.
-     */
-    public BDD getSuccs(BDD trans) {
-        trans = trans.exist(getFirstBDDVariables());
-        trans = shiftSecond2First(trans);
-        return trans;
-    }
-
-    /**
-     * @param pre
-     * @param t
-     * @return
-     */
-    public Place getSuitableSuccessor(Place pre, Transition t) {
-        for (Place place : t.getPostset()) {
-            if (pre.getExtension("token").equals(place.getExtension("token"))) {
-                return place;
-            }
-        }
-        // no suitable successor found
-        return null;
-    }
-
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver !!!!!!!!!!!!!
+    /**
+     * Returns the winning decisionsets for the system players.
+     *
+     * @return - A BDD containing all winning states for the system.
+     */
+    abstract BDD calcWinningDCSs();
+
     @Override
     protected boolean exWinStrat() {
         if (!initialized) {
@@ -1108,6 +1045,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     BDD getEnvironmentTransitions() {
+        System.out.println("getEnvironmentTransitions");
         BDD env = (getGame().isConcurrencyPreserving()) ? envTransitionsCP() : envTransitionsNotCP();
         // no nondeterministic successors
         return env;//.andWith(ndet(1).not().andWith(ndet(0).not()));
@@ -1135,6 +1073,55 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDD getSecondBDDVariables() {
         return getVariables(1);
+    }
+
+    /**
+     * Searches for a transition which could have been fired to get the target
+     * BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    public Transition getTransition(BDD source, BDD target) {
+        for (Transition t : getNet().getTransitions()) {
+            if (hasFired(t, source, target)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a BDD where the successors of the given BDD are shifted to the
+     * predecessor and the successors are arbitrary.
+     *
+     * This means given D->D' returing D'-> -1.
+     *
+     * @param trans - The BDD where the successors should be shifted to the
+     * predecessors.
+     * @return - The successor states of the given transition.
+     */
+    public BDD getSuccs(BDD trans) {
+        trans = trans.exist(getFirstBDDVariables());
+        trans = shiftSecond2First(trans);
+        return trans;
+    }
+
+    /**
+     * @param pre
+     * @param t
+     * @return
+     */
+    public Place getSuitableSuccessor(Place pre, Transition t) {
+        for (Place place : t.getPostset()) {
+            if (pre.getExtension("token").equals(place.getExtension("token"))) {
+                return place;
+            }
+        }
+        // no suitable successor found
+        return null;
     }
 
     public boolean hasTop(BDD bdd) {
@@ -1213,6 +1200,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     BDD getBufferedNDet() {
         if (ndet == null) {
+//            ndet = ndetStates(0);
+            //fixes one special case of the ndet problem but takes longer
             ndet = ndetEncountered();
         }
         return ndet;

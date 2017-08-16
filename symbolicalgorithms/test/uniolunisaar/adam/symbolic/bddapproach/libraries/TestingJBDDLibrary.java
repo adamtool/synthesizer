@@ -1,5 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.libraries;
 
+import java.io.File;
+import java.io.IOException;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import java.math.BigInteger;
 import net.sf.javabdd.BDD;
@@ -9,6 +11,14 @@ import net.sf.javabdd.BDDPairing;
 import net.sf.javabdd.JFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import uniol.apt.io.parser.ParseException;
+import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
+import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
+import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
 
 /**
@@ -20,6 +30,17 @@ public class TestingJBDDLibrary {
 
     private final int NODENUM = 1000;
     private final int CACHESIZE = 1000;
+
+    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
+
+    @Test
+    public static void testCallings() throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
+        final String path = inputDir + "firstExamplePaper" + File.separator;
+        final String name = "firstExamplePaper";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        solv.initialize();
+    }
 
     @Test(enabled = false)
     public void speicher() {

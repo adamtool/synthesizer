@@ -19,6 +19,7 @@ import uniolunisaar.adam.tools.Tools;
  * @author Manuel Gieseking
  */
 public class BDDTestingTools {
+    
 
     public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
         Tools.savePN2PDF(file, solv.getNet(), false);
