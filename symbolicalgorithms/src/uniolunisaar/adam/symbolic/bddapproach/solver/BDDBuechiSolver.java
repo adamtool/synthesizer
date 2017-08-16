@@ -220,25 +220,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         return loops;
     }
 
-    /**
-     * Overriden since the newly occupied flag has to be considered in the
-     * transition
-     *
-     * @return
-     */
-    @Override
-    BDD getEnvironmentTransitions() {
-        BDD env;
-        if (getGame().isConcurrencyPreserving()) {
-            env = envTransitionsCP();
-        } else {
-            env = envTransitionsNotCP();
-        }
-//        env.orWith(loops());
-        return env;
-    }
-
-    @Override
+      @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
@@ -417,19 +399,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
         mcut.andWith(dis);
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
-    }
-
-    @Override
-    BDD getSystemTransitions() {
-//        return sys1TransitionsNotCP();
-        BDD sys1;
-        if (getGame().isConcurrencyPreserving()) {
-            sys1 = sys1TransitionsCP();
-        } else {
-            sys1 = sys1TransitionsNotCP();
-        }
-//        sys1.andWith(loops());
-        return sys1;
     }
 
     private BDD sys1TransitionsCP() {

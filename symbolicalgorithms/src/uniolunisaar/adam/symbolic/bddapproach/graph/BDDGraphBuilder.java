@@ -28,7 +28,7 @@ public class BDDGraphBuilder {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
                 + solver.getNet().getName());
-        BDD states = (strategy) ? solver.getWinDCSs() : solver.getDCSs();
+        BDD states = (strategy) ? solver.getBufferedWinDCSs() : solver.getBufferedDCSs();
 //        BDD states = solver.getWinDCSs();
 
 //        try {

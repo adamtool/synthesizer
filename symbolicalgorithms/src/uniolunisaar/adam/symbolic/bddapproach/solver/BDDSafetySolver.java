@@ -1,7 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.sf.javabdd.BDD;
@@ -9,20 +8,21 @@ import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
-import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
-import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
-import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameSafetyStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * Solves Petri games with a safety objective with BDDs.
+ *
+ * The first version of a BDD safety solver for Petri games. Uses two nested
+ * fixpoints, termination and do not extend the game such that not every state
+ * has to have a successor.
  *
  * @author Manuel Gieseking
  */
@@ -38,17 +38,21 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     /**
      * Creates a new Safety solver for a given game.
      *
-     * Already creates the needed variables and precalculates some BDDs.
-     *
-     * @param game - the game to solve.
-     * @throws SolverDontFitPetriGameException - Is thrown if the winning
-     * condition of the game is not a safety condition.
+     * @param net - the Petri game to solve.
+     * @param skipTests - should the tests for safe and bounded and other
+     * preconditions be skipped?
+     * @param opts - the options for the solver.
+     * @throws UnboundedPGException - Thrown if the given net is not bounded.
+     * @throws NetNotSafeException - Thrown if the given net is not safe.
+     * @throws NoSuitableDistributionFoundException - Thrown if the given net is
+     * not annotated to which token each place belongs and the algorithm was not
+     * able to detect it on its own.
      */
     BDDSafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Safety(), opts);
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Creates the variables for this solver. This have to be overriden since
      * the type flag has to be coded additionally.
@@ -70,29 +74,17 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         setDCSLength(getFactory().varNum() / 2);
     }
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%
     /**
-     * overriden since by safty also termination is ok for the system
+     * Calculates a BDD representing all situations where at least one place is
+     * type2 typed.
      *
-     * Brauche ich nicht, solange ich rueckwaerts gehe.
+     * Should be expensive, since it compares variables over wide ranges. This
+     * should be expensive for BDDs.
      *
-     * @param succ
-     * @return
-     */
-    @Override
-    public BDD preSys(BDD succ) {
-        BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
-        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(getTerm());
-        return forall.or(exists).and(wellformed());
-    }
-
-    /**
-     * It exists a type 2 place
-     *
-     * eher teuer weil vergleich ueber die token und damit ueber recht weite
-     * entfernungen
+     * @return BDD with at least one place is type2 typed.
      */
     private BDD type2() {
         BDD type2 = getFactory().zero();
@@ -109,15 +101,125 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
     /**
-     * Calculates all decisionsets from which the systemplayers can play
-     * infinitely long
+     * Calculates a BDD representing all system2 transitions.
      *
-     * @return
+     * @return BDD for all system2 transitions
+     */
+    private BDD sys2Transitions() {
+//        return sys2TransitionsNotCP();
+        if (getGame().isConcurrencyPreserving()) {
+            return sys2TransitionsCP();
+        } else {
+            return sys2TransitionsNotCP();
+        }
+    }
+
+    /**
+     * Calculates a BDD representing all system2 transitions for a net which is
+     * not concurrency preserving.
+     *
+     * @return BDD for all system2 transitions for a concurrency preserving net.
+     */
+    private BDD sys2TransitionsNotCP() {
+        BDD sys2 = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, false, 0);
+
+            List<Integer> visitedToken = new ArrayList<>();
+
+            // set the dcs for the place of the postset 
+            for (Place post : t.getPostset()) {
+                int token = (Integer) post.getExtension("token");
+                if (token != 0) { // jump over environment
+                    visitedToken.add(token);
+                    //pre_i=post_j'
+                    all.andWith(codePlace(post, 1, token));
+                    // top'=0
+                    all.andWith(TOP[1][token - 1].ithVar(0));
+                    // type = type'
+                    all.andWith(TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]));
+                } else {
+                    throw new RuntimeException("should not appear. No env place in sys2 transitions.");
+                }
+            }
+
+            // set the dcs for the places in the preset
+            setPresetAndNeededZeros(pre_sys, visitedToken, all);
+
+            // Positions in dcs not set with places of pre- or postset
+            setNotAffectedPositions(all, visitedToken);
+            sys2.orWith(all);
+        }
+//            Tools.printDecodedDecisionSets(sys2, game, true);
+//        System.out.println("for ende");
+        // p0=p0'        
+        sys2.andWith(placesEqual(0));
+//        System.out.println("for wellformed");
+//        return sys2;//.andWith(wellformedTransition());
+        return sys2;//.andWith(wellformedTransition());
+    }
+
+    /**
+     * Calculates a BDD representing all system2 transitions for a concurrency
+     * preserving net.
+     *
+     * @return BDD for all system2 transitions for a concurrency preserving net.
+     */
+    private BDD sys2TransitionsCP() {
+        BDD sys2 = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre = t.getPreset();
+            BDD all = firable(t, false, 0);
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                BDD pl = getZero();
+                for (Place place : getGame().getPlaces()[i]) {
+                    if (place.hasExtension("env")) {
+                        throw new RuntimeException("Should not appear!"
+                                + "An enviromental place could not appear here!");
+//                        continue;
+                    }
+                    BDD inner = getOne();
+                    inner.andWith(codePlace(place, 0, i));
+                    if (!pre.contains(place)) {
+                        // pi=pi'
+                        inner.andWith(codePlace(place, 1, i));
+                        // ti=ti'
+                        inner.andWith(commitmentsEqual(i));
+                    } else {
+                        //pre_i=post_i'
+                        inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
+                    }
+                    pl.orWith(inner);
+                }
+                all.andWith(pl);
+                // top'=0
+                all.andWith(TOP[1][i - 1].ithVar(0));
+                // type = type'
+                all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+            }
+            sys2.orWith(all);
+        }
+//        System.out.println("for ende");
+        // p0=p0'        
+        sys2 = sys2.andWith(placesEqual(0));
+//        System.out.println("for wellformed");
+//        return sys2;//.andWith(wellformedTransition());
+        return sys2;//.andWith(wellformedTransition());
+    }
+
+    /**
+     * Calculates a BDD representing all decisionsets from which the system
+     * players can play infinitely long without any further interaction with the
+     * environment.
+     *
+     * @return BDD for all decision set in the type2 trap, so from which the
+     * system players can play on their own infinitely long.
      */
     BDD type2Trap() {
         // Fixpoint
         BDD Q = getOne();
-        BDD Q_ = getGoodSysDCSForType2Trap();
+        BDD Q_ = goodSysDCSForType2Trap();
 //        int counter = 0;
         while (!Q_.equals(Q)) {
 //            System.out.println("first" +counter);
@@ -128,11 +230,116 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             Q = Q_.andWith(wellformed());
             BDD Q_shifted = shiftFirst2Second(Q);
             // there is a predecessor (sys2) such that the transition is in the considered set of transitions
-            Q_ = ((getSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
+            Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
         }
         return Q_;
     }
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%    
 
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Calculates a BDD with all possible situations containing a bad place.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing situations with bad places
+     */
+    private BDD baddcs(int pos) {
+        BDD bad = getZero();
+        for (Place place : getWinningCondition().getBadPlaces()) {
+            bad.orWith(codePlace(place, pos, (Integer) place.getExtension("token")));
+        }
+        return bad;
+    }
+
+    /**
+     * Calculates a BDD representing all decision sets where the system decided
+     * not to choose any enabled transition, but there exists at least one.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing the deadlocks of the Petri game.
+     */
+    private BDD deadSysDCS(int pos) {
+        BDD dead = getOne();
+        BDD buf = getZero();
+        for (Transition t : getGame().getNet().getTransitions()) {
+//            dead = dead.and((firable(t, true).or(firable(t, false))).not());
+//            buf = buf.or(enabled(t, true).or(enabled(t, false)));
+            dead.andWith(firable(t, true, pos).not());
+            buf.orWith(enabled(t, true, pos));
+        }
+        dead.andWith(buf);
+        // set types to 1
+        dead.andWith(type2().not());
+        return dead.andWith(getTop().not()).andWith(wellformed());
+    }
+
+    /**
+     * Calculates a BDD representing all decision sets where no transition is
+     * enabled.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing the terminating situations.
+     */
+    private BDD term(int pos) {
+        BDD notEn = getOne();
+        Set<Transition> trans = getGame().getNet().getTransitions();
+        for (Transition transition : trans) {
+            notEn.andWith(enabled(transition, true, pos).not());
+        }
+//        BDD notCh = getOne();
+//        for (Transition transition : trans) {
+//            if (!getGame().getSysTransition().contains(transition)) {
+//                notCh.andWith(chosen(transition, pos).not());
+//            }
+//        }
+//        BDD termType1 = notEn.orWith(type2().andWith(notCh));
+//        return termType1;//.and(getWellformed());
+        return notEn;
+    }
+
+    /**
+     * Calculates a BDD with all possible bad situations:
+     *
+     * 1) bad place reached 2) non determinism encountered 3) deadlock created
+     *
+     * @return BDD representing all bad situations
+     */
+    public BDD badSysDCS() {
+        return baddcs(0).orWith(getBufferedNDet().or(deadSysDCS(0)));
+    }
+
+    /**
+     * Calculates a BDD with all good situations for the system.
+     *
+     * @return BDD representing all good decision sets for the system.
+     */
+    private BDD goodSysDCSForType2Trap() {
+        return badSysDCS().not();//.andWith(getWellformed());
+    }
+
+    /**
+     * Calculates a BDD with all good situations for the system also considering
+     * the type2 situations (wrongly typed type2).
+     *
+     * @return BDD representing all good decision sets for the system (including
+     * wrongly typed type2).
+     */
+    private BDD goodSysStates() {
+        return (goodSysDCSForType2Trap().andWith(wrongTypedType2DCS().not())).andWith(wellformed());
+    }
+
+    /**
+     * Calculates a BDD with all good situations for the system also considering
+     * the type2 situations (wrongly typed type2) and wellformed.
+     *
+     * @return BDD representing all good decision sets for the system (including
+     * wrongly typed type2 and wellformed).
+     */
+    private BDD getGoodSysStates() {
+        return goodSysStates().and(wellformed());
+    }
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
     /**
      * Responsible for jumping from mcut to mcut
      *
@@ -144,7 +351,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      */
     BDD fixpointOuter() {
         BDD Q = getOne();
-        BDD Q_ = getGoodSysStates().orWith(getTerm());
+        BDD Q_ = getGoodSysStates().orWith(term(0));
         while (!Q_.equals(Q)) {
             Q = Q_;
             Q_ = preSys(Q.and(getMcut()));
@@ -183,30 +390,33 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return Q_;
     }
 
+    /**
+     * Calculates a BDD representing the situations where a decision set is
+     * typed as type2, but is not contained in the type2 trap.
+     *
+     * @return BDD of wrongly type2 typed decision sets.
+     */
+    BDD wrongTypedType2DCS() {
+        // not(type2 => type2Trap)
+        return type2().andWith(getBufferedType2Trap().not());
+    }
+
+    /**
+     * Calculates a BDD representing the successors of the given 'trans' which
+     * are contained in the type2 trap.
+     *
+     * @param trans - the transition containing the successor for which the
+     * successor should be found in the type2 trap.
+     * @return the transitions where the successors of 'trans' have a successor
+     * int the type2 trap.
+     */
     public BDD getGoodType2Succs(BDD trans) {
         // shift to the successors
         trans = trans.exist(getFirstBDDVariables());
         trans = shiftSecond2First(trans);
         // get only the good ones
-        trans = trans.and(getType2Trap());
+        trans = trans.and(getBufferedType2Trap());
         return trans;
-    }
-
-    BDD wrongTypedType2DCS() {
-        // not(type2 => type2Trap)
-        return type2().andWith(getType2Trap().not());
-    }
-
-    private BDD goodSysDCSForType2Trap() {
-        return badSysDCS().not();//.andWith(getWellformed());
-    }
-
-    private BDD goodSysStates() {
-        return (goodSysDCSForType2Trap().andWith(wrongTypedType2DCS().not())).andWith(wellformed());
-    }
-
-    public BDD badSysDCS() {
-        return getBadDecisionsets().orWith(getBufferedNDet().or(getDeadSysDCS()));
     }
 
 //    private BDD mixedTypes(int pos) {
@@ -226,16 +436,57 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 //        }
 //        return ret;
 //    }
-    private BDD baddcs(int pos) {
-        BDD bad = getZero();
-        for (Place place : getWinningCondition().getBadPlaces()) {
-            bad.orWith(codePlace(place, pos, (Integer) place.getExtension("token")));
+    /**
+     * TODO: javadoc.
+     *
+     * @return
+     */
+    private BDD oldType2() {
+        BDD prev = wrongTypedType2DCS().not().and(wellformed());
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            prev = TYPE[0][i - 1].ithVar(0).ite(
+                    prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
+                    prev.id()).id();
         }
-        return bad;
+        return prev;
     }
 
     /**
-     * Overriden since the standard code only knows type1
+     * Calculates the transitions where 'state' is the predecessor and there
+     * exists a system2 transition.
+     *
+     * @param state - the predecessor to find the system2 transitions to.
+     * @return a BDD representing the type2 transitions starting with 'state'.
+     */
+    public BDD getSystem2SuccTransitions(BDD state) {
+        return state.and(getBufferedSystem2Transition());
+    }
+
+    /**
+     * States if a type2 flag is set in the decision set represented by 'bdd'.
+     *
+     * @param bdd - the bdd to check for the type2 flag.
+     * @return true if 'bdd' has a type2 flag set to true.
+     */
+    public boolean isType2(BDD bdd) {
+        return !bdd.and(type2()).isZero();
+    }
+
+//%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Overriden since for a safety objectiv is termination also OK. Only
+     * necessary, since we don't have for all states a successor?
+     */
+    @Override
+    public BDD preSys(BDD succ) {
+        BDD succ_shifted = shiftFirst2Second(succ);
+        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
+        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
+        return forall.or(exists).and(wellformed());
+    }
+
+    /**
+     * Overriden since the standard case only knows type1 places.
      */
     @Override
     BDD enabled(Transition t, int pos) {
@@ -243,14 +494,14 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
     /**
-     * Enabled iff all preset places of t are set and the type fits.
+     * Only adds the type2 behavior to the enabled function of the standard
+     * case.
      *
-     * Only adds the type2 behavior.
-     *
-     * @param t
-     * @param type1
-     * @param pos
-     * @return
+     * @param t - the transition which is checked to be enabled.
+     * @param type1 - the type to check
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing all decision sets where 't' is enabled in the
+     * given position 'pos' and with the correct type 'type1'.
      */
     private BDD enabled(Transition t, boolean type1, int pos) {
         BDD en = super.enabled(t, pos);
@@ -272,55 +523,6 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     @Override
     boolean isFirable(Transition t, BDD source) {
         return source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero();
-    }
-
-//    public BDD deadSysDCS(boolean type1) {
-//        BDD dead = bddfac.one();
-//        BDD buf = bddfac.zero();
-//        for (Transition t : net.getTransitions()) {
-//            dead = dead.and(firable(t, type1).not());
-//            buf = buf.or(enabled(t, type1));
-//        }
-//        dead = dead.and(buf);
-//        // set types to 1
-////        int offset = PL_CODE_LEN;
-////        for (int i = 1; i < game.getTOKENCOUNT(); i++) {
-////            dead = dead.and(bddfac.ithVar(offset + PL_CODE_LEN));
-////            offset += OFFSET;
-////        }
-//        return dead.and(nTop).and(wellformed);
-//    }
-    private BDD deadSysDCS(int pos) {
-        BDD dead = getOne();
-        BDD buf = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-//            dead = dead.and((firable(t, true).or(firable(t, false))).not());
-//            buf = buf.or(enabled(t, true).or(enabled(t, false)));
-            dead.andWith(firable(t, true, pos).not());
-            buf.orWith(enabled(t, true, pos));
-        }
-        dead.andWith(buf);
-        // set types to 1
-        dead.andWith(getType2().not());
-        return dead.andWith(getTop().not()).andWith(wellformed());
-    }
-
-   
-    private BDD term(int pos) {
-        BDD notEn = getOne();
-        Set<Transition> trans = getGame().getNet().getTransitions();
-        for (Transition transition : trans) {
-            notEn.andWith(enabled(transition, true, pos).not());
-        }
-//        BDD notCh = getOne();
-//        for (Transition transition : trans) {
-//            if (!getGame().getSysTransition().contains(transition)) {
-//                notCh.andWith(chosen(transition, pos).not());
-//            }
-//        }
-//        BDD termType1 = notEn.orWith(type2().andWith(notCh));
-//        return termType1;//.and(getWellformed());
-        return notEn;
     }
 
     @Override
@@ -546,170 +748,10 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return sys1.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    private BDD sys2Transitions() {
-//        return sys2TransitionsNotCP();
-        if (getGame().isConcurrencyPreserving()) {
-            return sys2TransitionsCP();
-        } else {
-            return sys2TransitionsNotCP();
-        }
-    }
-
-    private BDD sys2TransitionsNotCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre_sys = t.getPreset();
-            BDD all = firable(t, false, 0);
-
-            List<Integer> visitedToken = new ArrayList<>();
-
-            // set the dcs for the place of the postset 
-            for (Place post : t.getPostset()) {
-                int token = (Integer) post.getExtension("token");
-                if (token != 0) { // jump over environment
-                    visitedToken.add(token);
-                    //pre_i=post_j'
-                    all.andWith(codePlace(post, 1, token));
-                    // top'=0
-                    all.andWith(TOP[1][token - 1].ithVar(0));
-                    // type = type'
-                    all.andWith(TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]));
-                } else {
-                    throw new RuntimeException("should not appear. No env place in sys2 transitions.");
-                }
-            }
-
-            // set the dcs for the places in the preset
-            setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-            // Positions in dcs not set with places of pre- or postset
-            setNotAffectedPositions(all, visitedToken);
-            sys2.orWith(all);
-        }
-//            Tools.printDecodedDecisionSets(sys2, game, true);
-//        System.out.println("for ende");
-        // p0=p0'        
-        sys2.andWith(placesEqual(0));
-//        System.out.println("for wellformed");
-//        return sys2;//.andWith(wellformedTransition());
-        return sys2;//.andWith(wellformedTransition());
-    }
-
-    private BDD sys2TransitionsCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre = t.getPreset();
-            BDD all = firable(t, false, 0);
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-                BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {
-                    if (place.hasExtension("env")) {
-                        throw new RuntimeException("Should not appear!"
-                                + "An enviromental place could not appear here!");
-//                        continue;
-                    }
-                    BDD inner = getOne();
-                    inner.andWith(codePlace(place, 0, i));
-                    if (!pre.contains(place)) {
-                        // pi=pi'
-                        inner.andWith(codePlace(place, 1, i));
-                        // ti=ti'
-                        inner.andWith(commitmentsEqual(i));
-                    } else {
-                        //pre_i=post_i'
-                        inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
-                    }
-                    pl.orWith(inner);
-                }
-                all.andWith(pl);
-                // top'=0
-                all.andWith(TOP[1][i - 1].ithVar(0));
-                // type = type'
-                all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
-            }
-            sys2.orWith(all);
-        }
-//        System.out.println("for ende");
-        // p0=p0'        
-        sys2 = sys2.andWith(placesEqual(0));
-//        System.out.println("for wellformed");
-//        return sys2;//.andWith(wellformedTransition());
-        return sys2;//.andWith(wellformedTransition());
-    }
-
-    private BDD oldType2() {
-        BDD prev = wrongTypedType2DCS().not().and(wellformed());
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-            prev = TYPE[0][i - 1].ithVar(0).ite(
-                    prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
-                    prev.id()).id();
-        }
-        return prev;
-    }
-
-    /**
-     * deprecated
-     *
-     * @param state
-     * @param place
-     * @return
-     */
-    boolean isType2(BDD state, Place place) {
-        if (place.hasExtension("env")) {
-            return false;
-        }
-        int token = (Integer) place.getExtension("token");
-        BDD comp = TYPE[0][token - 1].ithVar(0); // set to type 2
-        return !state.and(comp).isZero();
-    }
-
-
-    BDD getGoodSysStates() {
-        return goodSysStates().and(wellformed());
-    }
-
-    BDD getTerm() {
-        return term(0);
-    }
-
-    public BDD getSystem2SuccTransitions(BDD state) {
-        return state.and(getSystem2Transition());
-    }
-
-    BDD getSystem2Transition() {
-        if (system2 == null) {
-            system2 = sys2Transitions();
-        }
-        return system2;
-//        return sys2Transitions();
-    }
-
-    BDD getGoodSysDCSForType2Trap() {
-        return goodSysDCSForType2Trap();
-    }
-
-
-    BDD getType2() {
-        return type2();
-    }
-
-    BDD getType2Trap() {
-        if (type2Trap == null) {
-            type2Trap = type2Trap();
-        }
-        return type2Trap;
-    }
-
-    public boolean isType2(BDD bdd) {
-        return !bdd.and(getType2()).isZero();
-    }
-
-    BDD getBadDecisionsets() {
-        return baddcs(0);
-    }
-    
-    BDD getDeadSysDCS() {
-        return deadSysDCS(0);
+// %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
+    @Override
+    BDD calcDCSs() {
+        return wellformed().andWith(wrongTypedType2DCS().not());
     }
 
     /**
@@ -732,11 +774,11 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return fixedPoint;
     }
 
-    @Override
-    BDD calcDCSs() {
-        return wellformed().andWith(wrongTypedType2DCS().not());
-    }
-
+    /**
+     * Overriden for marking the bad states.
+     *
+     * @return
+     */
     @Override
     public BDDGraph getGraphGame() {
         BDDGraph graph = super.getGraphGame();
@@ -748,7 +790,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return graph;
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations %%%%%%%%%%%%%%%%
     /**
      * Returns all variables of the predecessor or success as a BDD.
      *
@@ -812,4 +854,19 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return preBimpSucc;
     }
 
+// %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs %%%%%%%%%%%%%%%%%%%%%%%%%%
+    BDD getBufferedType2Trap() {
+        if (type2Trap == null) {
+            type2Trap = type2Trap();
+        }
+        return type2Trap;
+    }
+
+    BDD getBufferedSystem2Transition() {
+        if (system2 == null) {
+            system2 = sys2Transitions();
+        }
+        return system2;
+//        return sys2Transitions();
+    }
 }

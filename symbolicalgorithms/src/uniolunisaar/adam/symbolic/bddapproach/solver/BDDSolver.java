@@ -154,7 +154,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Calculates the wellformed BDDs for the predecessor.
-     * 
+     *
      * @return BDD of wellformed predecessors.
      */
     BDD wellformed() {
@@ -163,14 +163,14 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     /**
      * Calculates the wellformed BDDs for the predecessor or successor.
-     * 
-     * Only successors of the place are allowed in its commitment sets. Additional
-     * reduction technique of Valentin Spreckel's MA.
-     * 
+     *
+     * Only successors of the place are allowed in its commitment sets.
+     * Additional reduction technique of Valentin Spreckel's MA.
+     *
      * @param pos - 0 for the predecessor variables and 1 for the successor
      * variables.
-     * 
-     * @return a wellformed BDD 
+     *
+     * @return a wellformed BDD
      */
     BDD wellformed(int pos) {
         BDD well = bddfac.one();
@@ -239,9 +239,9 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
-     * Calculates the BDD belonging to the initial marking with all tops set
-     * to false.
-     * 
+     * Calculates the BDD belonging to the initial marking with all tops set to
+     * false.
+     *
      * @return BDD for the initial marking.
      */
     private BDD initial() {
@@ -253,10 +253,10 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     /**
      * Calculates a BDD with all situations where nondeterminism has been
      * encountered.
-     * 
+     *
      * @param pos - 0 for the predecessor variables and 1 for the successor
      * variables.
-     * 
+     *
      * @return BDD with all nondeterministic situations.
      */
     BDD ndetStates(int pos) {
@@ -293,7 +293,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * transitions which are only dependent of an environment token in the
      * preset. Todo: check if this es really enough! That's not enough and there
      * is most likely no fix in this reduction for this problem.
-     * 
+     *
      * ATTENTION: fixes only a very special case!
      *
      * @return BDD with all nondeterministic situations.
@@ -337,10 +337,10 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     /**
      * Calculates the BDD where all tops are zero.
-     * 
-     * Should be expensive, since it compares variables over wide ranges.
-     * This should be expensive for BDDs.
-     * 
+     *
+     * Should be expensive, since it compares variables over wide ranges. This
+     * should be expensive for BDDs.
+     *
      * @return a BDD with all tops set to zero.
      */
     private BDD nTop() {
@@ -838,7 +838,16 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return sys1;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-// %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver !!!!!!!!!!!!!
+// %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
+    /** 
+     * Calculates all wellformed possible decisionsets.
+     * 
+     * @return BDD with all possible wellformed states.
+     */
+    BDD calcDCSs() {
+        return wellformed();
+    }
+
     /**
      * Returns the winning decisionsets for the system players.
      *
@@ -851,7 +860,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         if (!initialized) {
             initialize();
         }
-        return !((getWinDCSs().and(getInitialDCSs())).isZero());
+        return !((getBufferedWinDCSs().and(getInitialDCSs())).isZero());
     }
 
     public BDDGraph getGraphGame() {
@@ -1034,7 +1043,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * transition.
      *
      * @param place - the place which should be coded.
-     * @param pos - 0 for the predecessor variables and 1 for the sucessor.
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
      * @param token - the token to which the place belongs and thus should be
      * coded at.
      * @return - A BDD with the id coded at the given position.
@@ -1044,14 +1053,14 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return codePlace((Integer) place.getExtension("id"), pos, token);
     }
 
-    BDD getEnvironmentTransitions() {
+    private BDD getEnvironmentTransitions() {
         System.out.println("getEnvironmentTransitions");
         BDD env = (getGame().isConcurrencyPreserving()) ? envTransitionsCP() : envTransitionsNotCP();
         // no nondeterministic successors
         return env;//.andWith(ndet(1).not().andWith(ndet(0).not()));
     }
 
-    BDD getSystemTransitions() {
+    private BDD getSystemTransitions() {
         BDD sys = (getGame().isConcurrencyPreserving()) ? sysTransitionsCP() : sysTransitionsNotCP();
         // no nondeterministic successors
         return sys;//.andWith(ndet(1).not().andWith(ndet(0).not()));
@@ -1157,10 +1166,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return mcut(0);
     }
 
-    BDD calcDCSs() {
-        return wellformed();
-    }
-
     BDD getEnabled(Transition t) {
         return enabled(t, 0);
     }
@@ -1169,15 +1174,15 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return chosen(t, 0);
     }
 
-// %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs
-    public BDD getWinDCSs() {
+// %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs %%%%%%%%%%%%%%%%%%%%%%%%%
+    public BDD getBufferedWinDCSs() {
         if (winDCSs == null) {
             winDCSs = calcWinningDCSs();
         }
         return winDCSs;
     }
 
-    public BDD getDCSs() {
+    public BDD getBufferedDCSs() {
         if (DCSs == null) {
             DCSs = calcDCSs();
         }
@@ -1221,7 +1226,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return exSysSucc;
     }
 
-// %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS    
+// %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public BDD getZero() {
         return bddfac.zero();
     }
@@ -1230,7 +1235,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return bddfac.one();
     }
 
-// %%%%%%%%%%%%%%%%%%%%%%%%% GETTER / SETTER 
+// %%%%%%%%%%%%%%%%%%%%%%%%% GETTER / SETTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public int getDcs_length() {
         return dcsLength;
     }
@@ -1239,7 +1244,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         this.dcsLength = dscLength;
     }
 
-// %%%%%%%%%%%%%%%%%%%%%%%%% Getter/Setter for BDD library
+// %%%%%%%%%%%%%%%%%%%%%%%%% Getter/Setter for BDD library %%%%%%%%%%%%%%%%%%%%%
     BDDFactory getFactory() {
         return bddfac;
     }
