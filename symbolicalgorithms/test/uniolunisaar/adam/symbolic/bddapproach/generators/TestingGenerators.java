@@ -17,7 +17,6 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.generators.Clerks;
-import uniolunisaar.adam.generators.ContainerTerminal;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
 import uniolunisaar.adam.generators.RobotCell;

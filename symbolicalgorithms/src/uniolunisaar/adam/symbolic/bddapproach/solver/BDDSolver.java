@@ -158,7 +158,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @return BDD of wellformed predecessors.
      */
     BDD wellformed() {
-        return wellformed(0);
+        return wellformed(0);//.andWith(wellformed(1));
     }
 
     /**
@@ -175,35 +175,16 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD wellformed(int pos) {
         BDD well = bddfac.one();
 
-//        for (Place p : game.getNet().getPlaces()) {
-//            if (!p.hasExtension("env")) {
-//                // sys place only once in a decision set
-//                for (int i = 1; i < game.getTOKENCOUNT(); ++i) {
-//                    BDD pl = codePlace(p, pos, i);
-//                    BDD buf = bddfac.zero();
-//                    for (int j = 1; j < game.getTOKENCOUNT(); ++j) {
-//                        if (j != i) {
-//                            BDD bad = codePlace(p, pos, j);
-//                            buf.orWith(bad);
-//                        }
-//                    }
-//                    pl.impWith(buf.not());
-//                    well.andWith(pl);
-//                }
-//            }
-//        }
-//        BDD top = bddfac.one();
-//        int offset = PL_CODE_LEN;
-//        for (int i = 1; i < game.getTOKENCOUNT(); ++i) {
-//            BDD trans = bddfac.zero();
-//            for (int j = 0; j < net.getTransitions().size(); ++j) {
-//                trans.andWith(bddfac.ithVar(offset + PL_CODE_LEN + 2 + j));
-//            }
-//            top.andWith(trans.imp(bddfac.nithVar(offset + PL_CODE_LEN + 1)));
-//            offset += OFFSET;
-//        }
-//
-//        well.andWith(top);
+        // only the places belonging to the token (or zero) are allowed in the positions
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            BDD place = bddfac.zero();
+            for (Place p : getGame().getPlaces()[i]) {
+                place.orWith(codePlace(p, pos, i));
+            }
+            place.orWith(notUsedToken(pos, i));
+            well.andWith(place);
+        }
+
         // only transitions in the postset of pi are allowed in the commitments
         BDD com = bddfac.one();
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
@@ -385,9 +366,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
-     * pre of player 1 todo: benutze ich nicht, darum zumindest die
-     * getExsys1Succ sparen, da sie immer vorberechnet, aber nicht genutzt wird.
-     *
      * @param succ
      * @return
      */
@@ -839,9 +817,9 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-    /** 
+    /**
      * Calculates all wellformed possible decisionsets.
-     * 
+     *
      * @return BDD with all possible wellformed states.
      */
     BDD calcDCSs() {
@@ -1054,7 +1032,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     private BDD getEnvironmentTransitions() {
-        System.out.println("getEnvironmentTransitions");
         BDD env = (getGame().isConcurrencyPreserving()) ? envTransitionsCP() : envTransitionsNotCP();
         // no nondeterministic successors
         return env;//.andWith(ndet(1).not().andWith(ndet(0).not()));
@@ -1205,9 +1182,9 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     BDD getBufferedNDet() {
         if (ndet == null) {
-//            ndet = ndetStates(0);
+            ndet = ndetStates(0);
             //fixes one special case of the ndet problem but takes longer
-            ndet = ndetEncountered();
+//            ndet = ndetEncountered();
         }
         return ndet;
     }

@@ -9,7 +9,8 @@ import uniolunisaar.adam.ds.solver.SolverOptions;
 public class BDDSolverOptions extends SolverOptions {
 
     //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
-    private String libraryName = "buddy";
+//    private String libraryName = "buddy";
+    private String libraryName = "java";
     private int maxIncrease = 100000000;
     private int initNodeNb = 1000000;
     private int cacheSize = 1000000;

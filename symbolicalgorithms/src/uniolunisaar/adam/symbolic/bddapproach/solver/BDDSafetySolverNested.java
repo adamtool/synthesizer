@@ -58,7 +58,7 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
      * the type flag has to be coded additionally.
      *
      * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
-     * |p_i_0|p_i_1|type|top|t_1|...|t_m| ... |p_i_n|type|top|t_1|...|t_m|
+     * |p_i_0|p_i_1|top|t_1|...|t_m| ... |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
      */
     @Override
     void createVariables() {
@@ -90,7 +90,7 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
         BDD type2 = getFactory().zero();
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             BDD type = TYPE[0][i - 1].ithVar(0);
-            // todo: really necessary?
+            // todo: really necessary? It is, but why?
             if (!getGame().isConcurrencyPreserving()) {
                 type.andWith(codePlace(0, 0, i).not());
             }
@@ -270,7 +270,7 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
         dead.andWith(buf);
         // set types to 1
         dead.andWith(type2().not());
-        return dead.andWith(getTop().not()).andWith(wellformed());
+        return dead.andWith(getTop().not());//.andWith(wellformed());
     }
 
     /**
@@ -345,8 +345,8 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
      *
      * so this is responsible for getting a strategy as well as creating the
      * game. this means it could be a reachabilty solving strategy and the
-     * nested fixedpoints are for the complete information of the game.
-     *
+     * nested fixedpoints are for the complete information of the game. Shurely??
+     * 
      * @return
      */
     BDD fixpointOuter() {

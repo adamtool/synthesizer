@@ -1,6 +1,8 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import net.sf.javabdd.BDD;
@@ -15,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -55,18 +58,53 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      * the type flag has to be coded additionally.
      *
      * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
+     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
+     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+     *
+     * TODO: is this ordering more expensive, since the types are all together
+     * at the end?
+     */
+//    @Override
+//    void createVariables() {
+//        super.createVariables();
+//        int tokencount = getGame().getMaxTokenCountInt();
+//        TYPE = new BDDDomain[2][tokencount - 1];
+//        for (int i = 0; i < 2; ++i) {
+//            //for any token add the type
+//            for (int j = 0; j < tokencount - 1; ++j) {
+//                // type
+//                TYPE[i][j] = getFactory().extDomain(2);
+//            }
+//        }
+//        setDCSLength(getFactory().varNum() / 2);
+//    }
+    /**
+     * Codierung: p_i_0 - Environment Token n - TokenCount
      * |p_i_0|p_i_1|type|top|t_1|...|t_m| ... |p_i_n|type|top|t_1|...|t_m|
      */
     @Override
     void createVariables() {
-        super.createVariables();
         int tokencount = getGame().getMaxTokenCountInt();
+        PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
+        TOP = new BDDDomain[2][tokencount - 1];
+        TRANSITIONS = new BDDDomain[2][tokencount - 1];
         for (int i = 0; i < 2; ++i) {
-            //for any token add the type
+            // Env-place
+            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+            //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
+                // Place
+                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
                 // type
                 TYPE[i][j] = getFactory().extDomain(2);
+                // top
+                TOP[i][j] = getFactory().extDomain(2);
+                // transitions                
+                BigInteger maxTrans = BigInteger.valueOf(2);
+                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
+                TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
         }
         setDCSLength(getFactory().varNum() / 2);
@@ -224,7 +262,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 //                break;
 //            }
             Q.free();
-            Q = Q_.andWith(wellformed());
+            Q = Q_.andWith(super.wellformed(0));
             BDD Q_shifted = shiftFirst2Second(Q);
             // there is a predecessor (sys2) such that the transition is in the considered set of transitions
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
@@ -267,7 +305,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         dead.andWith(buf);
         // set types to 1
         dead.andWith(type2().not());
-        return dead.andWith(getTop().not()).andWith(wellformed());
+        return dead.andWith(getTop().not());//.andWith(wellformed());
     }
 
     /**
@@ -342,7 +380,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      *
      * so this is responsible for getting a strategy as well as creating the
      * game. this means it could be a reachabilty solving strategy and the
-     * nested fixedpoints are for the complete information of the game.
+     * nested fixedpoints are for the complete information of the game. shure?
      *
      * @return
      */
@@ -385,6 +423,22 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             Q_ = (preSys(Q).or(Q)).and(getGoodSysStates());
         }
         return Q_;
+    }
+
+    private BDD attractor(BDD F, boolean p1) {
+        BDD Q = getZero();
+        BDD Q_ = F;
+        while (!Q_.equals(Q)) {
+            Q = Q_;
+//            System.out.println("pre");
+//            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
+//            System.out.println("ready");
+            BDD pre = p1 ? preEnv(Q) : preSys(Q);
+            Q_ = pre.or(Q);
+        }
+//        BDDTools.printDecodedDecisionSets(Q_.not().andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(codePlace(getGame().getNet().getPlace("sys"), 0, 4)), this, true);
+//        BDDTools.printDecodedDecisionSets(getBufferedSystemTransition(), this, true);
+        return Q_.not().andWith(wellformed());
     }
 
     /**
@@ -470,9 +524,22 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
 //%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    @Override
+    public BDD wellformed(int pos) {
+        BDD well = super.wellformed(pos);
+        if (pos == 0) {
+            well.andWith(wrongTypedType2DCS().not());
+        } else {
+            well.andWith(shiftFirst2Second(wrongTypedType2DCS().not()));
+        }
+        return well;
+    }
+
     /**
      * Overriden since for a safety objectiv is termination also OK. Only
      * necessary, since we don't have for all states a successor?
+     * 
+     * todo: currently not used
      */
     @Override
     public BDD preSys(BDD succ) {
@@ -582,7 +649,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             }
         }
         env.andWith(dis);
-        return env.andWith(oldType2());//.andWith(wellformedTransition()));
+        return env.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
 
     @Override
@@ -674,7 +741,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
 
         mcut.andWith(dis);
-        return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
+        return mcut.andWith(wellformed(1));//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
     @Override
@@ -742,8 +809,14 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         // p0=p0'        
         sys1 = sys1.andWith(placesEqual(0));
 
-        return sys1.andWith(oldType2());//.andWith(wellformedTransition()));
+        return sys1.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
+    
+     @Override
+    BDD sysTransitionsNotCP() {
+        return super.sysTransitionsNotCP().andWith(wellformed(1));
+    }
+    
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     @Override
@@ -762,8 +835,10 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = fixpointOuter();
-//        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
+        BDD fixedPoint = attractor(badSysDCS(), true);//fixpointOuter();
+//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
+//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
+//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
