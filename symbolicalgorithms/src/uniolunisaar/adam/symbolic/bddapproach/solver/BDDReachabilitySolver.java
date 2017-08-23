@@ -11,6 +11,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -39,42 +40,34 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
     BDDReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Reachability(), opts);
     }
-//
+
 //    /**
-//     * Nothing to do here.
+//     * Creates a BDD with all states from which a state with a reachable place
+//     * can be reached against all behavior of the environment.
+//     *
+//     * This is only a standard attractor algorithm.
+//     *
+//     * @return BDD with the attractor for the reachable places.
 //     */
-//    @Override
-//    void precalculateSpecificBDDs() {
+//    private BDD attractor() {
+//        BDD Q = getOne();
+//        BDD Q_ = reach();
+////        System.out.println("toooo reach");
+////        BDDTools.printDecodedDecisionSets(Q_, this, true);
+////        System.out.println("fertisch");
+////        int step = 0;
+//        while (!Q_.equals(Q)) {
+//            Q = Q_;
+//            Q_ = preSys(Q).or(Q);
+////            ++step;
+////            if (step == 1) {
+////                System.out.println("Step " + step);
+////                BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
+////            }
+//            Q_.andWith(wellformed(0));
+//        }
+//        return Q_;
 //    }
-
-    /**
-     * Creates a BDD with all states from which a state with a reachable place
-     * can be reached against all behavior of the environment.
-     *
-     * This is only a standard attractor algorithm.
-     *
-     * @return BDD with the attractor for the reachable places.
-     */
-    private BDD attractor() {
-        BDD Q = getOne();
-        BDD Q_ = reach();
-//        System.out.println("toooo reach");
-//        BDDTools.printDecodedDecisionSets(Q_, this, true);
-//        System.out.println("fertisch");
-//        int step = 0;
-        while (!Q_.equals(Q)) {
-            Q = Q_;
-            Q_ = preSys(Q).or(Q);
-//            ++step;
-//            if (step == 1) {
-//                System.out.println("Step " + step);
-//                BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
-//            }
-            Q_.andWith(wellformed(0));
-        }
-        return Q_;
-    }
-
     /**
      * Creates a BDD where a disjunction of all places which should be reached
      * is coded.
@@ -87,6 +80,13 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
             reach.orWith(codePlace(place, 0, (Integer) place.getExtension("token")));
         }
         return reach;
+    }
+
+    @Override
+    BDD initial() {
+        BDD init = super.initial();
+        init.andWith(ndetStates(0).not());
+        return init;
     }
 
     /**
@@ -103,13 +103,29 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor();
+        BDD goodReach = reach().andWith(ndetStates(0).not()).andWith(wellformed(0));
+//        BDDTools.printDecodedDecisionSets(goodReach, this, true);
+        BDD fixedPoint = attractor(goodReach, false);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return fixedPoint;
+    }
+
+    @Override
+    BDD sysTransitionsNotCP() {
+        BDD sys = super.sysTransitionsNotCP();
+        sys.andWith(ndetStates(0).not());
+        return sys;
+    }
+
+    @Override
+    BDD sysTransitionsCP() {
+        BDD sys = super.sysTransitionsCP();
+        sys.andWith(ndetStates(0).not());
+        return sys;
     }
 
     /**

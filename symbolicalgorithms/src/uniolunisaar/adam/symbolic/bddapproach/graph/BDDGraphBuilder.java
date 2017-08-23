@@ -6,6 +6,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
 /**
  * @author Manuel Gieseking
@@ -60,25 +61,34 @@ public class BDDGraphBuilder {
                 todoStates.add(initSucc);
                 inits = inits.and(init.not());
                 init = inits.satOne(solver.getFirstBDDVariables(), false);
+                System.out.println("init state");
             }
         }
 
         while (!todoStates.isEmpty()) {
             BDDState prev = todoStates.poll();
             boolean envState = prev.isMcut();
+//            System.out.println("state" );
+//                BDDTools.printDecodedDecisionSets(prev.getState(), solver, true);
+//            System.out.println("mcut "+ envState);
+//            System.out.println(!prev.getState().and(solver.getMcut()).isZero());
             BDD succs = (envState) ? solver.getEnvSuccTransitions(prev.getState()) : solver.getSystemSuccTransitions(prev.getState());
             if (!succs.isZero()) {// is there a firable transition ?
                 // shift successors to the first variables
                 succs = solver.getSuccs(succs);
+//                System.out.println("succcs");
+//                BDDTools.printDecodedDecisionSets(succs, solver, true);
                 // todo: should all be good, comment next line
                 succs = succs.and(states);
                 BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
                 while (!succ.isZero()) {
+//                    System.out.println("loooping looooui");
                     // only loops to mcuts are allowed, thus this is the only point
                     // in the program where we possibly can add a loop    
                     boolean succEnvState = solver.isEnvState(succ);
                     BDDState oldSuccState = graph.contains(succ);
                     if (succEnvState && oldSuccState != null) { // we found an existing mcut and it's a succ of this current cut
+//                    if (oldSuccState != null) { // change to jump to every already visited cut
                         addFlow(solver, graph, prev, oldSuccState);
                     } else {
                         BDDState succState = graph.addState(succ);

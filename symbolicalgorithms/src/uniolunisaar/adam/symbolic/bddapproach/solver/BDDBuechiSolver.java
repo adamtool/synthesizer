@@ -558,13 +558,13 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD B = buchiStates();
         do {
             B = B.and(S);
-            BDD R = attractor(B, true);
+            BDD R = attractor(B, false);
             System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
             BDDTools.printDecodedDecisionSets(R, this, true);
             BDD Tr = S.and(R.not());
             System.out.println("%%%%%%%%%%%%%%%% TR");
             BDDTools.printDecodedDecisionSets(Tr, this, true);
-            W_ = attractor(Tr, false);
+            W_ = attractor(Tr, true);
             System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
             BDDTools.printDecodedDecisionSets(W_, this, true);
             W = W.or(W_);
@@ -576,20 +576,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         System.out.println("%%%%%%%%%%%% return");
         BDDTools.printDecodedDecisionSets(W, this, true);
         return W;
-    }
-
-    private BDD attractor(BDD F, boolean p1) {
-        BDD Q = getZero();
-        BDD Q_ = F;
-        while (!Q_.equals(Q)) {
-            Q = Q_;
-//            System.out.println("pre");
-//            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
-//            System.out.println("ready");
-            BDD pre = p1 ? preSys(Q) : preEnv(Q);
-            Q_ = pre.or(Q);
-        }
-        return Q_;//.andWith(wellformed());
     }
 
     /**

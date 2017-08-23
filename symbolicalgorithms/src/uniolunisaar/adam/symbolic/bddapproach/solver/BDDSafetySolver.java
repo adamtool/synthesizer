@@ -2,7 +2,6 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import net.sf.javabdd.BDD;
@@ -160,7 +159,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, false, 0);
-
+            
             List<Integer> visitedToken = new ArrayList<>();
 
             // set the dcs for the place of the postset 
@@ -425,22 +424,6 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return Q_;
     }
 
-    private BDD attractor(BDD F, boolean p1) {
-        BDD Q = getZero();
-        BDD Q_ = F;
-        while (!Q_.equals(Q)) {
-            Q = Q_;
-//            System.out.println("pre");
-//            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
-//            System.out.println("ready");
-            BDD pre = p1 ? preEnv(Q) : preSys(Q);
-            Q_ = pre.or(Q);
-        }
-//        BDDTools.printDecodedDecisionSets(Q_.not().andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(codePlace(getGame().getNet().getPlace("sys"), 0, 4)), this, true);
-//        BDDTools.printDecodedDecisionSets(getBufferedSystemTransition(), this, true);
-        return Q_.not().andWith(wellformed());
-    }
-
     /**
      * Calculates a BDD representing the situations where a decision set is
      * typed as type2, but is not contained in the type2 trap.
@@ -538,7 +521,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     /**
      * Overriden since for a safety objectiv is termination also OK. Only
      * necessary, since we don't have for all states a successor?
-     * 
+     *
      * todo: currently not used
      */
     @Override
@@ -579,16 +562,16 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         return en;//.andWith(getWellformed());
     }
-
+    
     private BDD firable(Transition t, boolean type1, int pos) {
         return enabled(t, type1, pos).andWith(chosen(t, pos));
     }
-
+    
     @Override
     boolean isFirable(Transition t, BDD source) {
-        return source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero();
+        return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
-
+    
     @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
@@ -649,16 +632,17 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             }
         }
         env.andWith(dis);
-        return env.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
+//        return env.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
+        return env.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
-
+    
     @Override
     BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(TYPE[pos][token - 1].ithVar(0));
         return zero;
     }
-
+    
     @Override
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
@@ -686,7 +670,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             all.andWith(pl.orWith(zero));
         }
     }
-
+    
     @Override
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
@@ -695,7 +679,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             if (!getGame().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, true, 0);
-
+                
                 List<Integer> visitedToken = new ArrayList<>();
 
                 // set the dcs for the place of the postset 
@@ -739,11 +723,11 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
                 dis.orWith(all);
             }
         }
-
+        
         mcut.andWith(dis);
         return mcut.andWith(wellformed(1));//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
-
+    
     @Override
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
@@ -803,25 +787,26 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             sysT.andWith(impl);
         }
         sysT = top.impWith(sysT);
-
+        
         sys1.andWith(sysN);
         sys1.andWith(sysT);
         // p0=p0'        
         sys1 = sys1.andWith(placesEqual(0));
 
-        return sys1.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
+//        return sys1.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
+        return sys1.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
     
-     @Override
+    @Override
     BDD sysTransitionsNotCP() {
         return super.sysTransitionsNotCP().andWith(wellformed(1));
     }
-    
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     @Override
     BDD calcDCSs() {
-        return wellformed().andWith(wrongTypedType2DCS().not());
+        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
+        return wellformed(0).andWith(wrongTypedType2DCS().not());
     }
 
     /**
@@ -835,7 +820,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor(badSysDCS(), true);//fixpointOuter();
+        BDD fixedPoint = attractor(badSysDCS(), true).not().andWith(wellformed());//fixpointOuter();
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);
@@ -933,7 +918,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         return type2Trap;
     }
-
+    
     BDD getBufferedSystem2Transition() {
         if (system2 == null) {
             system2 = sys2Transitions();

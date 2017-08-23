@@ -522,7 +522,7 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
 
     @Override
     boolean isFirable(Transition t, BDD source) {
-        return source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero();
+        return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
 
     @Override

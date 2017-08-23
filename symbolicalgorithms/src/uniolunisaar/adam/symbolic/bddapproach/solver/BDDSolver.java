@@ -176,12 +176,16 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         BDD well = bddfac.one();
 
         // only the places belonging to the token (or zero) are allowed in the positions
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             BDD place = bddfac.zero();
             for (Place p : getGame().getPlaces()[i]) {
                 place.orWith(codePlace(p, pos, i));
             }
-            place.orWith(notUsedToken(pos, i));
+            if (i == 0) { // env case
+                place.orWith(codePlace(0, pos, 0));
+            } else {
+                place.orWith(notUsedToken(pos, i));
+            }
             well.andWith(place);
         }
 
@@ -225,7 +229,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      *
      * @return BDD for the initial marking.
      */
-    private BDD initial() {
+    BDD initial() {
         BDD init = marking2BDD(getGame().getNet().getInitialMarking());
         init.andWith(getNotTop());
         return init;//.and(getWellformed());
@@ -428,9 +432,10 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     public boolean hasFired(Transition t, BDD source, BDD target) {
-        if (isFirable(t, source)) {
-            return false; // thus the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
+        if (!isFirable(t, source)) {
+            return false;
         }
+        // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
 
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
@@ -504,7 +509,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     boolean isFirable(Transition t, BDD source) {
-        return source.and(firable(t, 0)).isZero();
+        return !source.and(firable(t, 0)).isZero();
     }
 
     private BDD mcut(int pos) {
@@ -605,6 +610,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
     }
 
+    /**
+     * Sets all successors-bits to the predecessor-bits for the token which had
+     * not been affected by this transition.
+     *
+     * @param all
+     * @param visitedToken
+     */
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
@@ -817,6 +829,22 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
+    BDD attractor(BDD F, boolean p1) {
+        BDD Q = getZero();
+        BDD Q_ = F;
+        while (!Q_.equals(Q)) {
+            Q = Q_;
+//            System.out.println("pre");
+//            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
+//            System.out.println("ready");
+            BDD pre = p1 ? preEnv(Q) : preSys(Q);
+            Q_ = pre.or(Q);
+        }
+//        BDDTools.printDecodedDecisionSets(Q_.not().andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(codePlace(getGame().getNet().getPlace("sys"), 0, 4)), this, true);
+//        BDDTools.printDecodedDecisionSets(deadSysDCS(0).andWith(codePlace(getGame().getNet().getPlace("p"), 0, 1)).andWith(codePlace(getGame().getNet().getPlace("r"), 0, 2)), this, true);
+        return Q_.andWith(wellformed());
+    }
+
     /**
      * Calculates all wellformed possible decisionsets.
      *
@@ -1139,7 +1167,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return !state.and(getMcut()).isZero();
     }
 
-    BDD getMcut() {
+    public BDD getMcut() {
         return mcut(0);
     }
 

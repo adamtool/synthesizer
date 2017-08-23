@@ -1,4 +1,4 @@
-package uniolunisaar.adam.symbolic.bddapproach;
+package uniolunisaar.adam.symbolic.bddapproach.safety;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionExcep
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.tools.Logger;
@@ -31,10 +32,10 @@ import uniolunisaar.adam.tools.Logger;
  */
 @Test
 public class TestingAllFilesInFolder {
-
+    
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
-    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(            
+    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",
             "lateSameDecision.apt",
             "tafel.apt",
@@ -51,16 +52,18 @@ public class TestingAllFilesInFolder {
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "container.apt", // takes to long ... 
             "myexample1.apt", // no token annotation given and not able to do it on its own
+            "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
-            "wf_2_3_pg_reversible.apt" // currently unbounded
+            "wf_2_3_pg_reversible.apt", // currently unbounded
+            "robots.apt" // not annotated with token, calculation of invariants takes to long
     ));
-
+    
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
-
+    
     @DataProvider(name = "files")
     public static Object[][] allExamples() {
         Collection<File> files = FileUtils.listFiles(
@@ -78,10 +81,11 @@ public class TestingAllFilesInFolder {
         }
         return out;
     }
-
+    
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, UnboundedPGException {
         String output = outputDir + file.getName().split(".apt")[0];
+        Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
         BDDTestingTools.testExample(solv, output, hasStrategy);
     }

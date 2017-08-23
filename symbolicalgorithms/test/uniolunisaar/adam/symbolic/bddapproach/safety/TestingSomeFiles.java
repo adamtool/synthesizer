@@ -1,4 +1,4 @@
-package uniolunisaar.adam.symbolic.bddapproach;
+package uniolunisaar.adam.symbolic.bddapproach.safety;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionExcep
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
@@ -60,7 +61,7 @@ public class TestingSomeFiles {
         final String name = "abb62";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true); // TODO: must be false
+        BDDTestingTools.testExample(solv, outputDir + name, false);
     }     
     
     @Test
@@ -69,7 +70,7 @@ public class TestingSomeFiles {
         final String name = "vsp__adam_machines";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true); // TODO: must be false
+        BDDTestingTools.testExample(solv, outputDir + name, false); 
     } 
     
     @Test
@@ -77,7 +78,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "testingNets" + File.separator;
         final String name = "infiniteSystemTrysToAvoidEnvUseBadPlace";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-//        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true); // todo must be false
     }
 
@@ -113,6 +114,17 @@ public class TestingSomeFiles {
         BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }  
+    
+    @Test
+    public void testNdetS3() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "ndet" + File.separator;
+        final String name = "nondet_s3_noStrat";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true); // should not have one
+    }  
+    
+    
    
     @Test
     public void testDeadlock() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -120,6 +132,16 @@ public class TestingSomeFiles {
         final String name = "missDeadlock";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+    
+        @Test
+    public void testJHHRobots() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "jhh" + File.separator;
+        final String name = "robots_annotated";
+        Logger.getInstance().setVerbose(true);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+//        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 }
