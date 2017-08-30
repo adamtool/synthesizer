@@ -6,7 +6,6 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
 /**
  * @author Manuel Gieseking
@@ -14,17 +13,32 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 public class BDDGraphBuilder {
 
     public static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver) {
-        return builtGraph(solver, false);
+        return builtGraph(solver, -1);
     }
 
     public static BDDGraph builtGraphStrategy(BDDSolver<? extends WinningCondition> solver) throws NoStrategyExistentException {
+        return builtGraphStrategy(solver, -1);
+    }
+
+    public static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, int depth) {
+        return builtGraph(solver, false, depth);
+    }
+
+    public static BDDGraph builtGraphStrategy(BDDSolver<? extends WinningCondition> solver, int depth) throws NoStrategyExistentException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
-        return builtGraph(solver, true);
+        return builtGraph(solver, true, depth);
     }
 
-    private static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, boolean strategy) {
+    /**
+     *
+     * @param solver
+     * @param strategy
+     * @param depth -1 means do the whole graph
+     * @return
+     */
+    private static BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, boolean strategy, int depth) {
 
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
@@ -65,7 +79,9 @@ public class BDDGraphBuilder {
             }
         }
 
-        while (!todoStates.isEmpty()) {
+        int count = 0;
+        while (!todoStates.isEmpty() && depth != count) {
+            ++count;
             BDDState prev = todoStates.poll();
             boolean envState = prev.isMcut();
 //            System.out.println("state" );
@@ -87,8 +103,8 @@ public class BDDGraphBuilder {
                     // in the program where we possibly can add a loop    
                     boolean succEnvState = solver.isEnvState(succ);
                     BDDState oldSuccState = graph.contains(succ);
-                    if (succEnvState && oldSuccState != null) { // we found an existing mcut and it's a succ of this current cut
-//                    if (oldSuccState != null) { // change to jump to every already visited cut
+//                    if (succEnvState && oldSuccState != null) { // we found an existing mcut and it's a succ of this current cut
+                    if (oldSuccState != null) { // change to jump to every already visited cut
                         addFlow(solver, graph, prev, oldSuccState);
                     } else {
                         BDDState succState = graph.addState(succ);

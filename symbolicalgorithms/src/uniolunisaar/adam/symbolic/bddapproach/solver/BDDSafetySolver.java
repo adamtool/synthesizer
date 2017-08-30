@@ -62,6 +62,9 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      *
      * TODO: is this ordering more expensive, since the types are all together
      * at the end?
+     * 
+     * But at least problem for my output functions in BDDTools, since I use
+     * explicit counting.
      */
 //    @Override
 //    void createVariables() {
@@ -518,19 +521,19 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         return well;
     }
 
-    /**
-     * Overriden since for a safety objectiv is termination also OK. Only
-     * necessary, since we don't have for all states a successor?
-     *
-     * todo: currently not used
-     */
-    @Override
-    public BDD preSys(BDD succ) {
-        BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
-        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
-        return forall.or(exists).and(wellformed());
-    }
+//    /**
+//     * Overriden since for a safety objectiv is termination also OK. Only
+//     * necessary, since we don't have for all states a successor?
+//     *
+//     * todo: currently not used
+//     */
+//    @Override
+//    public BDD preSys(BDD succ) {
+//        BDD succ_shifted = shiftFirst2Second(succ);
+//        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
+//        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
+//        return forall.or(exists).and(wellformed());
+//    }
 
     /**
      * Overriden since the standard case only knows type1 places.
@@ -805,7 +808,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     @Override
     BDD calcDCSs() {
-        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
+//        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
         return wellformed(0).andWith(wrongTypedType2DCS().not());
     }
 
@@ -846,12 +849,13 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         return graph;
     }
+// %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations %%%%%%%%%%%%%%%%
     /**
      * Returns all variables of the predecessor or success as a BDD.
      *
-     * This means the variables for: places + top-flags + type-flag + commitment
+     * This means the variables for: places + top-flags + commitment + type-flag
      * sets.
      *
      * So only adds the variables for the type.
@@ -875,7 +879,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      * Returns the variables belonging to one token in a predecessor or in a
      * sucessor as BDD.
      *
-     * This means the varibles for the coding of the place, the top-flag, the
+     * This means the variables for the coding of the place, the top-flag, the
      * type-flag and the belonging commitment set for a system token.
      *
      * So only add the variables for the type-flag.

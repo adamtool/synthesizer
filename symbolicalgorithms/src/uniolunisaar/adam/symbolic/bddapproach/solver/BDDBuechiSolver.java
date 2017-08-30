@@ -1,26 +1,25 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
-import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
-import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -28,7 +27,9 @@ import uniolunisaar.adam.tools.Logger;
  * combi of safety and reachability? It is not possible to totally omit them
  * because when a ndet state is a successor of an env state, then the env state
  * would errorously marked as good. Furthermore, if it's the only successor of a
- * sys state, then also this sys state would errorously marked as good.
+ * sys state, then also this sys state would errorously marked as good. Solve it
+ * the same way how it is done for reachability. It's also the same that no
+ * deadlock and not type2 analysis necessary.
  *
  * Problem 2: Terminating of the game is not allowed. We have to add selfloops
  * at every state which isn't a buchi state and if a buchi state doesn't have
@@ -44,34 +45,26 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] NOCC;
-
-    /**
-     *
-     * TODO: Only works when there is at least one system place since this one
-     * is used to create the loop place by putting it at the env position.
-     *
-     * @param pos
-     * @return
-     */
-    private BDD loopState(int pos) {
-        Place sys = this.getGame().getPlaces()[0].iterator().next();
-        BDD nearlyZero = this.getZero().exist(PLACES[pos][0].domain());
-        return nearlyZero.and(codePlace(sys, pos, 0));
-    }
+    private BDDDomain[] LOOP;
 
     /**
      * Creates a new Buchi solver for a given game.
      *
-     * Already creates the needed variables and precalculates some BDDs.
-     *
-     * @param game - the game to solve.
-     * @throws SolverDontFitPetriGameException - Is thrown if the winning
-     * condition of the game is not a Buchi condition.
+     * @param net - the Petri game to solve.
+     * @param skipTests - should the tests for safe and bounded and other
+     * preconditions be skipped?
+     * @param opts - the options for the solver.
+     * @throws UnboundedPGException - Thrown if the given net is not bounded.
+     * @throws NetNotSafeException - Thrown if the given net is not safe.
+     * @throws NoSuitableDistributionFoundException - Thrown if the given net is
+     * not annotated to which token each place belongs and the algorithm was not
+     * able to detect it on its own.
      */
     BDDBuechiSolver(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, new Buchi(), opts);
     }
 
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Creates the variables for this solver. This have to be overriden since
      * the flag if the place has been newly occupied in this state has to be
@@ -89,6 +82,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         NOCC = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
+        LOOP = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
@@ -107,120 +101,108 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                 maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
+            LOOP[i] = getFactory().extDomain(2);
         }
-        setDCSLength(getFactory().varNum() / 2);
+        setDCSLength(getFactory().varNum() / 2 - 2);
     }
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special loop stuff %%%%%%%%%%%%%%%%%%%%
     /**
-     * Returns all variables of the predecessor or success as a BDD.
      *
-     * This means the variables for: places + top-flags + nocc-flag + commitment
-     * sets.
+     * Problem for concurrency preserving nets, since there zero is an id of a
+     * place and so it is posible to have this loopState as a sen
      *
-     * So only adds the variables for the newly occupied places.
+     * Since they are only id's it's also not possible to code e.g. a sys place
+     * at the env position.
      *
-     * @param pos - 0 for the predecessor variables and 1 for the sucessor
-     * variables.
-     * @return - the variables of the predecessor or the sucessor of a
-     * transition.
-     */
-    @Override
-    BDD getVariables(int pos) {
-        // Existential variables
-        BDD variables = super.getVariables(pos);
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
-            variables.andWith(NOCC[pos][i].set());
-        }
-        return variables;
-    }
-
-    /**
-     * Returns the variables belonging to one token in a predecessor or in a
-     * successor as BDD.
-     *
-     * This means the varibles for the coding of the place, the top-flag, the
-     * newly occupied-flag and the belonging commitment set for a system token.
-     *
-     * So only add the variables for the nocc-flag.
-     *
-     * @param pos - 0 for the predecessor variables and 1 for the sucessor.
-     * @param token - for which token the variables should be return.
-     * @return - the variables of the given token of the predecessor or the
-     * successor.
-     */
-    @Override
-    BDD getTokenVariables(int pos, int token) {
-        BDD variables = super.getTokenVariables(pos, token);
-        variables.andWith(NOCC[pos][token].set());
-        return variables;
-    }
-
-    /**
-     * Create a BDD which is true, when the predesseccor und the successor of a
-     * transition are equal.
-     *
-     * Only adds the conditions for the nocc-flag.
-     *
-     * @return BDD with Pre <-> Succ
-     */
-    @Override
-    BDD preBimpSucc() {
-        BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
-            preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
-        }
-        return preBimpSucc;
-    }
-//
-//    @Override
-//    void precalculateSpecificBDDs() {
-//    }
-
-    @Override
-    public BDD getInitialDCSs() {
-        BDD init = super.getInitialDCSs();
-        // all newly occupied flags to 0
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
-            init.andWith(NOCC[0][i].ithVar(0));
-        }
-        return init;
-    }
-
-    /**
-     * Not all terminating states!? At least ndet again a Problem.
+     * So added a new LOOP variable which should be 0 at any case a apart from
+     * the loop state
      *
      * @param pos
      * @return
      */
-    private BDD term(int pos) {
+    private BDD loopState(int pos) {
+//        Place sys = this.getGame().getPlaces()[0].iterator().next();
+//        BDD nearlyZero = this.getZero().exist(PLACES[pos][0].domain());
+//        BDDTools.printDecisionSets(nearlyZero, true);
+//        return nearlyZero.andWith(codePlace(sys, pos, 0));
+        BDD loop = getOne();
+        int start = (pos == 0) ? 0 : getDcs_length();
+        for (int i = start; i < start + getDcs_length(); i++) {
+            loop.andWith(getFactory().nithVar(i));
+        }
+        loop.andWith(LOOP[pos].ithVar(1));
+        return loop;
+    }
+
+    /**
+     * @param pos
+     * @return
+     */
+    private BDD endStates(int pos) {
         BDD term = getOne();
         Set<Transition> trans = getGame().getNet().getTransitions();
         for (Transition transition : trans) {
-            term.andWith(enabled(transition, pos).not());
+            term.andWith(firable(transition, pos).not());
         }
         return term;
     }
 
-    /**
-     * TODO: Only works when there is at least one system place since this one
-     * is used to create loop place.
-     *
-     * @return
-     */
     private BDD loops() {
         BDD buchi = buchiStates();
-        BDD term = term(0);
+        BDD term = endStates(0);
         // Terminating not buchi states add selfloop
-        BDD termNBuchi = term.and(buchi.not());
-        BDD loops = termNBuchi.andWith(shiftFirst2Second(termNBuchi));
+        BDD termNBuchi = term.and(buchi.not()).andWith(wellformed(0));
+        BDD loops = termNBuchi.andWith(preBimpSucc());
         // Terminating buchi states add transition to new looping state (all 
-        loops.orWith(term.and(buchi).and(loopState(1)));
-        // add loop
-        loops.orWith(loopState(0).andWith(loopState(1)));
-        return loops;
+//        loops.orWith(term.and(buchi).and(loopState(1)));
+//        // add loop
+//        loops.orWith(loopState(0).andWith(loopState(1)));
+        return loops.andWith(wellformed(0));
+    }
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special loop stuff %%%%%%%%%%%%%%%%%%%%%%
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Returns all states as a BDD which have a buchi place coded and this place
+     * is newly occupied in this state.
+     *
+     * @return - All states with a newly occupied buchi place
+     */
+    private BDD buchiStates() {
+        BDD buchi = getZero();
+        for (Place place : getWinningCondition().getBuchiPlaces()) {
+            int token = (Integer) place.getExtension("token");
+            // is a buchi place and is newly occupied, than it's a buchi state
+            buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
+        }
+        return buchi.andWith(wellformed(0));
+    }
+// %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+//%%%%%%%%%%%%%%%% ADAPTED to NOCC  / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    @Override
+    BDD wellformed(int pos) {
+        BDD well = super.wellformed(pos);
+        well.andWith(LOOP[0].ithVar(0));
+        well.andWith(LOOP[1].ithVar(0));
+        well.orWith(loopState(pos));
+        return well;
     }
 
-      @Override
+    @Override
+    public BDD initial() {
+        BDD init = super.initial();
+        // all newly occupied flags to 0
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+            init.andWith(NOCC[0][i].ithVar(0));
+        }
+        init.andWith(ndetStates(0).not());
+        return init;
+    }
+
+    @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
@@ -277,11 +259,14 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                     all.andWith(NOCC[1][0].ithVar(1));
                 } else {
                     all.andWith(codePlace(0, 1, 0));
+                    all.andWith(NOCC[1][0].ithVar(0));
                 }
                 dis.orWith(all);
             }
         }
-        env.andWith(dis);
+        env.andWith(LOOP[0].ithVar(0));
+        env.andWith(LOOP[1].ithVar(0));
+        env.andWith(dis).orWith(loops());
         return env;
     }
 
@@ -290,30 +275,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(NOCC[pos][token].ithVar(0));
         return zero;
-    }
-
-    @Override
-    void setPresetAndNeededZeros(Set<Place> pre_sys, List<Integer> visitedToken, BDD all) {
-        List<Integer> postTokens = new ArrayList<>(visitedToken);
-        // set the dcs for the places in the preset
-        for (Place pre : pre_sys) {
-            if (!pre.hasExtension("env")) { // jump over environment
-                int token = (Integer) pre.getExtension("token");
-                visitedToken.add(token);
-                all.andWith(codePlace(pre, 0, token));
-                // if this position in the dcs is free after this position
-                if (!postTokens.contains(token)) {
-                    all.andWith(notUsedToken(1, token));
-                } else {
-                    postTokens.remove((Integer) token);
-                }
-            }
-        }
-
-        // those where there is a post but no preset for this token
-        for (Integer token : postTokens) {
-            all.andWith(notUsedToken(0, token));
-        }
     }
 
     @Override
@@ -387,23 +348,29 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
                     all.andWith(codePlace(0, 0, 0));
+                    all.andWith(NOCC[0][0].ithVar(0));
                 }
                 if (!post.isEmpty()) {
                     all.andWith(codePlace(post.get(0), 1, 0));
+                    all.andWith(NOCC[1][0].ithVar(1));
                 } else {
                     all.andWith(codePlace(0, 1, 0));
+                    all.andWith(NOCC[1][0].ithVar(0));
                 }
                 dis.orWith(all);
             }
         }
+        mcut.andWith(LOOP[0].ithVar(0));
+        mcut.andWith(LOOP[1].ithVar(0));
 
-        mcut.andWith(dis);
+        mcut.andWith(dis).orWith(loops());
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    private BDD sys1TransitionsCP() {
+    @Override
+    BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
-        BDD sys1 = getMcut().not();
+        BDD sys = getMcut().not();
 
         // not all tops are zero
         BDD top = getTop();
@@ -466,17 +433,21 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         // in top case just copy the newly occupation flag of the env place
         sysT = sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
 
-        sys1.andWith(sysN);
-        sys1.andWith(sysT);
-        // p0=p0'        
-        sys1 = sys1.andWith(placesEqual(0));
+        sys.andWith(sysN);
+        sys.andWith(sysT);
 
-        return sys1;
+        sys.andWith(LOOP[0].ithVar(0));
+        sys.andWith(LOOP[1].ithVar(0));
+        // p0=p0'        
+        sys = sys.andWith(placesEqual(0)).orWith(loops());
+
+        return sys.andWith(ndetStates(0).not());
     }
 
-    private BDD sys1TransitionsNotCP() {
+    @Override
+    BDD sysTransitionsNotCP() {
         // Only useable if it's not an mcut
-        BDD sys1 = getMcut().not();
+        BDD sys = getMcut().not();
 
         // not all tops are zero
         BDD top = getTop();
@@ -539,13 +510,16 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         // in top case just copy the newly occupation flag of the env place
         sysT = sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
 
-        sys1.andWith(sysN);
-        sys1.andWith(sysT);
+        sys.andWith(sysN);
+        sys.andWith(sysT);
+        sys.andWith(LOOP[0].ithVar(0));
+        sys.andWith(LOOP[1].ithVar(0));
         // p0=p0'        
-        sys1 = sys1.andWith(placesEqual(0));
-        return sys1;
+        sys = sys.andWith(placesEqual(0)).orWith(loops());;
+        return sys.andWith(ndetStates(0).not());
     }
 
+// %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     /**
      * Compare Algorithm for Buchi Games by Krish
      *
@@ -559,39 +533,23 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         do {
             B = B.and(S);
             BDD R = attractor(B, false);
-            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
-            BDDTools.printDecodedDecisionSets(R, this, true);
+//            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
+//            BDDTools.printDecodedDecisionSets(R, this, true);
             BDD Tr = S.and(R.not());
-            System.out.println("%%%%%%%%%%%%%%%% TR");
-            BDDTools.printDecodedDecisionSets(Tr, this, true);
+//            System.out.println("%%%%%%%%%%%%%%%% TR");
+//            BDDTools.printDecodedDecisionSets(Tr, this, true);
             W_ = attractor(Tr, true);
-            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
-            BDDTools.printDecodedDecisionSets(W_, this, true);
+//            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
+//            BDDTools.printDecodedDecisionSets(W_, this, true);
             W = W.or(W_);
             S.andWith(W_.not());
         } while (!W_.isZero());
-        System.out.println("%%%%%%%%%%%% W");
-        BDDTools.printDecodedDecisionSets(W, this, true);
+//        System.out.println("%%%%%%%%%%%% W");
+//        BDDTools.printDecodedDecisionSets(W, this, true);
         W = W.not().and(wellformed());
-        System.out.println("%%%%%%%%%%%% return");
-        BDDTools.printDecodedDecisionSets(W, this, true);
+//        System.out.println("%%%%%%%%%%%% return");
+//        BDDTools.printDecodedDecisionSets(W, this, true);
         return W;
-    }
-
-    /**
-     * Returns all states as a BDD which have a buchi place coded and this place
-     * is newly occupied in this state.
-     *
-     * @return - All states with a newly occupied buchi place
-     */
-    private BDD buchiStates() {
-        BDD buchi = getZero();
-        for (Place place : getWinningCondition().getBuchiPlaces()) {
-            int token = (Integer) place.getExtension("token");
-            // is a buchi place and is newly occupied, than it's a buchi state
-            buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
-        }
-        return buchi;
     }
 
     /**
@@ -605,7 +563,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = buchi();
+        BDD fixedPoint = buchi().andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -628,6 +586,16 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     @Override
     public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
         BDDGraph strat = super.getGraphStrategy();
+        try {
+            BDDTools.saveStates2Pdf("./states", buchiStates(), this);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("loops");
+        BDDTools.printDecisionSets(loops(), true);
+        BDDTools.printDecodedDecisionSets(loops(), this, true);
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);
@@ -635,30 +603,67 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         }
         return strat;
     }
+// %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
 
-//
-//    @Override
-//    public PetriNet getPetriGameStrategy() throws NoStrategyExistentException {
-//        BDDGraph gstrat = getGraphStrategy();
-//        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        PetriNet pn = BDDPetriGameSafetyStrategyBuilder.getInstance().builtStrategy(this, gstrat);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
-//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        return pn;
-//    }
-//
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations %%%%%%%%%%%%%%%%
+    /**
+     * Returns all variables of the predecessor or success as a BDD.
+     *
+     * This means the variables for: places + top-flags + commitment + nocc-flag
+     * sets.
+     *
+     * So only adds the variables for the newly occupied places.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the sucessor
+     * variables.
+     * @return - the variables of the predecessor or the sucessor of a
+     * transition.
+     */
     @Override
-    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
-        BDDGraph gstrat = getGraphStrategy();
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pstrat = BDDPetriGameStrategyBuilder.getInstance().builtStrategy(this, gstrat);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        return new Pair<>(gstrat, pstrat);
+    BDD getVariables(int pos) {
+        // Existential variables
+        BDD variables = super.getVariables(pos);
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+            variables.andWith(NOCC[pos][i].set());
+        }
+        return variables;
+    }
+
+    /**
+     * Returns the variables belonging to one token in a predecessor or in a
+     * successor as BDD.
+     *
+     * This means the variables for the coding of the place, the top-flag, the
+     * newly occupied-flag and the belonging commitment set for a system token.
+     *
+     * So only add the variables for the nocc-flag.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the sucessor.
+     * @param token - for which token the variables should be return.
+     * @return - the variables of the given token of the predecessor or the
+     * successor.
+     */
+    @Override
+    BDD getTokenVariables(int pos, int token) {
+        BDD variables = super.getTokenVariables(pos, token);
+        variables.andWith(NOCC[pos][token].set());
+        return variables;
+    }
+
+    /**
+     * Create a BDD which is true, when the predesseccor und the successor of a
+     * transition are equal.
+     *
+     * Only adds the conditions for the nocc-flag.
+     *
+     * @return BDD with Pre <-> Succ
+     */
+    @Override
+    BDD preBimpSucc() {
+        BDD preBimpSucc = super.preBimpSucc();
+        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+            preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
+        }
+        return preBimpSucc;
     }
 }

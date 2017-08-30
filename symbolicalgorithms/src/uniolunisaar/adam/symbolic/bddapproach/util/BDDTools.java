@@ -143,8 +143,8 @@ public class BDDTools {
         int add = (game.isConcurrencyPreserving()) ? -1 : 0;
         return Integer.toBinaryString(game.getPlaces()[token].size() + add).length();
     }
-    
-     /**
+
+    /**
      * Deprecated. Do not fit when domains aren't created in the exact expected
      * order.
      *
@@ -162,6 +162,7 @@ public class BDDTools {
                 pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
             }
         }
+
 //        Map<Integer, String> transitions = new HashMap<>();
 //        for (Transition t : game.getNet().getTransitions()) {
 //            transitions.put((Integer) t.getExtension("id"), t.getId());
@@ -281,9 +282,9 @@ public class BDDTools {
     }
 
     /**
-     * Do not fit when domains aren't created in the exact expected
-     * order. This could be fixed by using PLACES[0][i - 1].vars() to get 
-     * the indizes of the domain variables. TODO: do it...
+     * Do not fit when domains aren't created in the exact expected order. This
+     * could be fixed by using PLACES[0][i - 1].vars() to get the indizes of the
+     * domain variables. TODO: do it...
      *
      * @param dcs
      * @param solver
@@ -311,113 +312,130 @@ public class BDDTools {
             if (sol == null) {
                 continue;
             }
-            // Enviroment
-            String envBin = "";
-            int counter = 0;
-            String zeros = "";
-            for (int i = 0; i < getBinLength(game, 0); i++) {
-                envBin += sol[counter++];
-                zeros += "0";
-            }
-            if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
-                envBin = pls[0].get(envBin);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
-                    envBin += ", " + sol[counter++];
-                }
-            } else {
-                envBin = "-";
-            }
 
-            String tokens = "";
-            for (int i = 1; i < game.getMaxTokenCount(); i++) {
-                String id = "";
-                zeros = "";
-                for (int j = 0; j < getBinLength(game, i); j++) {
-                    id += sol[counter++];
+            String pre = "";
+            int counter = 0;
+            // Loop state
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI && sol[sol.length - 2] == 1) {
+                pre += "LOOP";
+            } else {
+                // Enviroment
+                String envBin = "";
+                String zeros = "";
+                for (int i = 0; i < getBinLength(game, 0); i++) {
+                    envBin += sol[counter++];
                     zeros += "0";
                 }
-                if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
-                    tokens += "(" + pls[i].get(id) + ", ";
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
-                        tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
-                        tokens += sol[counter++] + ", ";
+                if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
+                    envBin = pls[0].get(envBin);
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                        envBin += ", " + sol[counter++];
                     }
-                    tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
-                    for (int j = 0; j < transitions.size(); ++j) {
-                        Transition trans = transitions.get(j);
-                        byte t = sol[counter++];
-                        if (t == 1) {
-                            tokens += trans.getId() + ",";
-                        } else if (t == -1) {
-                            tokens += "-" + trans.getId() + ",";
-                        }
-                    }
-                    tokens += "})\n";
                 } else {
-                    tokens += "( - )\n";
-                    int buf = counter;
-                    counter += 1 + game.getTransitions()[i - 1].size();                 
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
-                        ++counter;
+                    envBin = "-";
+                }
+
+                String tokens = "";
+                for (int i = 1; i < game.getMaxTokenCount(); i++) {
+                    String id = "";
+                    zeros = "";
+                    for (int j = 0; j < getBinLength(game, i); j++) {
+                        id += sol[counter++];
+                        zeros += "0";
                     }
+                    if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
+                        tokens += "(" + pls[i].get(id) + ", ";
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                            tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
+                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                            tokens += sol[counter++] + ", ";
+                        }
+                        tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
+                        List<Transition> transitions = game.getTransitions()[i - 1];
+                        for (int j = 0; j < transitions.size(); ++j) {
+                            Transition trans = transitions.get(j);
+                            byte t = sol[counter++];
+                            if (t == 1) {
+                                tokens += trans.getId() + ",";
+                            } else if (t == -1) {
+                                tokens += "-" + trans.getId() + ",";
+                            }
+                        }
+                        tokens += "})\n";
+                    } else {
+                        tokens += "( - )\n";
+                        int buf = counter;
+                        counter += 1 + game.getTransitions()[i - 1].size();
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                            ++counter;
+                        }
 //                    for (int j = buf; j < counter; j++) {
 //                        System.out.print(sol[j]);
 //                    }
+                    }
                 }
+                pre += envBin + ",\n" + tokens;
             }
-            String envBin_ = "";
-            zeros = "";
-            for (int i = 0; i < getBinLength(game, 0); i++) {
-                envBin_ += sol[counter++];
-                zeros += "0";
-            }
-            if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
-                envBin_ = pls[0].get(envBin_);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
-                    envBin_ += ", " + sol[counter++];
-                }
 
+            String post = "";
+            // Loop state
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI && sol[sol.length - 1] == 1) {
+                post += "LOOP";
             } else {
-                envBin_ = "-";
-            }
-            String tokens_ = "";
-            for (int i = 1; i < game.getMaxTokenCount(); i++) {
-                String id = "";
-                zeros = "";
-                for (int j = 0; j < getBinLength(game, i); j++) {
-                    id += sol[counter++];
+                // Successor
+                String envBin_ = "";
+                String zeros = "";
+                for (int i = 0; i < getBinLength(game, 0); i++) {
+                    envBin_ += sol[counter++];
                     zeros += "0";
                 }
-                if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
-                    tokens_ += "(" + pls[i].get(id);
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
-                        tokens_ += (sol[counter++] == 1) ? ", 1, " : (sol[counter - 1] == 0) ? ", 2, " : ", -, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
-                        tokens_ += sol[counter++] + ", ";
+                if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
+                    envBin_ = pls[0].get(envBin_);
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                        envBin_ += ", " + sol[counter++];
                     }
-                    tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
-                    for (int j = 0; j < transitions.size(); ++j) {
-                        Transition trans = transitions.get(j);
-                        byte t = sol[counter++];
-                        if (t == 1) {
-                            tokens_ += trans.getId() + ",";
-                        } else if (t == -1) {
-                            tokens_ += "-" + trans.getId() + ",";
+
+                } else {
+                    envBin_ = "-";
+                }
+                String tokens_ = "";
+                for (int i = 1; i < game.getMaxTokenCount(); i++) {
+                    String id = "";
+                    zeros = "";
+                    for (int j = 0; j < getBinLength(game, i); j++) {
+                        id += sol[counter++];
+                        zeros += "0";
+                    }
+                    if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
+                        tokens_ += "(" + pls[i].get(id) + ",";
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                            tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
+                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                            tokens_ += sol[counter++] + ", ";
+                        }
+                        tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
+                        List<Transition> transitions = game.getTransitions()[i - 1];
+                        for (int j = 0; j < transitions.size(); ++j) {
+                            Transition trans = transitions.get(j);
+                            byte t = sol[counter++];
+                            if (t == 1) {
+                                tokens_ += trans.getId() + ",";
+                            } else if (t == -1) {
+                                tokens_ += "-" + trans.getId() + ",";
+                            }
+                        }
+                        tokens_ += "})\n";
+                    } else {
+                        tokens_ += "( - )\n";
+                        counter += 1 + game.getTransitions()[i - 1].size();
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                            ++counter;
                         }
                     }
-                    tokens_ += "})\n";
-                } else {
-                    tokens_ += "( - )\n";
-                    counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
-                        ++counter;
-                    }
                 }
+                post += envBin_ + ",\n" + tokens_;
             }
-            out += envBin + ",\n" + tokens + " ->\n" + envBin_ + ",\n" + tokens_ + "\n";
+            out += pre + " ->\n" + post + "\n";
 //            System.out.println(out);
 //            System.out.println(Arrays.toString(sol));
         }
@@ -489,6 +507,7 @@ public class BDDTools {
             sb.append(", height=0.5, width=0.5, fixedsize=false,  penwidth=").append(penwidth);
 //            sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
 //            sb.append(", label=").append("\"").append(Tools.printDecodedDecisionSets(null, null, true)).append("\"");
+
             String value = getDecodedDecisionSets(state.getState(), solver);
             value = value.substring(0, value.indexOf("->"));
             sb.append(", label=\"").append(value).append("\"");
