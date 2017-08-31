@@ -45,19 +45,34 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDSolver<Safety> getSafetySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        return new BDDSafetySolver(pn, skipTests, opts);
+    protected BDDSafetySolver getESafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected BDDSolver<Safety> getASafetySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        return new BDDSafetySolver(pn, skipTests, new Safety(false), opts);
 //        return new BDDSafetySolverNested(pn, skipTests, opts);
     }
 
     @Override
-    protected BDDSolver<Reachability> getReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        return new BDDReachabilitySolver(pn, skipTests, opts);
+    protected BDDSolver<Reachability> getEReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        return new BDDReachabilitySolver(pn, skipTests, new Reachability(true), opts);
     }
 
     @Override
-    protected BDDSolver<Buchi> getBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        return new BDDBuechiSolver(pn, skipTests, opts);
+    protected BDDSolver<? extends WinningCondition> getAReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected BDDSolver<Buchi> getEBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        return new BDDBuechiSolver(pn, skipTests, new Buchi(true), opts);
+    }
+
+    @Override
+    protected BDDSolver<? extends WinningCondition> getABuchiSolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

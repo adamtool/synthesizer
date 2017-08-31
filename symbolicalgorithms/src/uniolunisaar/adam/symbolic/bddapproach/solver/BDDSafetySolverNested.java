@@ -48,8 +48,8 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDSafetySolverNested(PetriNet net, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, new Safety(), opts);
+    BDDSafetySolverNested(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(net, skipTests, win, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,7 +58,8 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
      * the type flag has to be coded additionally.
      *
      * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
-     * |p_i_0|p_i_1|top|t_1|...|t_m| ... |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
+     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
      */
     @Override
     void createVariables() {
@@ -345,8 +346,9 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
      *
      * so this is responsible for getting a strategy as well as creating the
      * game. this means it could be a reachabilty solving strategy and the
-     * nested fixedpoints are for the complete information of the game. Shurely??
-     * 
+     * nested fixedpoints are for the complete information of the game.
+     * Shurely??
+     *
      * @return
      */
     BDD fixpointOuter() {

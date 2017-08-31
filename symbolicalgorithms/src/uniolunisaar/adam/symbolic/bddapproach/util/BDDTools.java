@@ -184,7 +184,7 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                 envBin = pls[0].get(envBin);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                     envBin += ", " + sol[counter++];
                 }
             } else {
@@ -201,9 +201,9 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens += "(" + pls[i].get(id) + ", ";
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                         tokens += sol[counter++] + ", ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -221,7 +221,7 @@ public class BDDTools {
                 } else {
                     tokens += "( - )\n";
                     counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
                 }
@@ -234,7 +234,7 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                 envBin_ = pls[0].get(envBin_);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                     envBin_ += ", " + sol[counter++];
                 }
 
@@ -251,9 +251,9 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens_ += "(" + pls[i].get(id);
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens_ += (sol[counter++] == 1) ? ", 1, " : (sol[counter - 1] == 0) ? ", 2, " : ", -, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                         tokens_ += sol[counter++] + ", ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -271,7 +271,7 @@ public class BDDTools {
                 } else {
                     tokens_ += "( - )\n";
                     counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
                 }
@@ -316,7 +316,7 @@ public class BDDTools {
             String pre = "";
             int counter = 0;
             // Loop state
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI && sol[sol.length - 2] == 1) {
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[sol.length - 2] == 1) {
                 pre += "LOOP";
             } else {
                 // Enviroment
@@ -328,7 +328,7 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                     envBin = pls[0].get(envBin);
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                         envBin += ", " + sol[counter++];
                     }
                 } else {
@@ -345,9 +345,9 @@ public class BDDTools {
                     }
                     if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                         tokens += "(" + pls[i].get(id) + ", ";
-                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                             tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
-                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                             tokens += sol[counter++] + ", ";
                         }
                         tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -366,7 +366,7 @@ public class BDDTools {
                         tokens += "( - )\n";
                         int buf = counter;
                         counter += 1 + game.getTransitions()[i - 1].size();
-                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                             ++counter;
                         }
 //                    for (int j = buf; j < counter; j++) {
@@ -379,7 +379,7 @@ public class BDDTools {
 
             String post = "";
             // Loop state
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI && sol[sol.length - 1] == 1) {
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[sol.length - 1] == 1) {
                 post += "LOOP";
             } else {
                 // Successor
@@ -391,7 +391,7 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                     envBin_ = pls[0].get(envBin_);
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                         envBin_ += ", " + sol[counter++];
                     }
 
@@ -408,9 +408,9 @@ public class BDDTools {
                     }
                     if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                         tokens_ += "(" + pls[i].get(id) + ",";
-                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY) { // add type for safety
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                             tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
-                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // add newly occupied for buchi
+                        } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
                             tokens_ += sol[counter++] + ", ";
                         }
                         tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -428,7 +428,7 @@ public class BDDTools {
                     } else {
                         tokens_ += "( - )\n";
                         counter += 1 + game.getTransitions()[i - 1].size();
-                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.BUCHI) { // jump over
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                             ++counter;
                         }
                     }
