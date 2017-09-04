@@ -51,8 +51,8 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     @Override
     protected BDDSolver<Safety> getASafetySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        return new BDDSafetySolver(pn, skipTests, new Safety(false), opts);
-//        return new BDDSafetySolverNested(pn, skipTests, opts);
+//        return new BDDSafetySolver(pn, skipTests, new Safety(false), opts);
+        return new BDDSafetySolverNested(pn, skipTests, new Safety(false), opts);
     }
 
     @Override

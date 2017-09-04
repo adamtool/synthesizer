@@ -48,14 +48,15 @@ public class TestingAllFilesInFolder {
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
-            "envSkipsSys.apt"));
+            "envSkipsSys.apt",
+            "robots_false.apt"));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "container.apt", // takes to long ... 
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
-            "wf_2_3_pg_reversible.apt", // currently unbounded
-            "robots.apt" // not annotated with token, calculation of invariants takes to long
+            "wf_2_3_pg_reversible.apt" // currently unbounded
+        //    "robots.apt" // not annotated with token, calculation of invariants takes to long TODO: jesko deleted?
     ));
     
     @BeforeClass

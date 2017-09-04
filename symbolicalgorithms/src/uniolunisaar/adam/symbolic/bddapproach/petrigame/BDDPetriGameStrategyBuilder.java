@@ -1,5 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
@@ -18,6 +20,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.Tools;
 
 /**
  * @author Manuel Gieseking
@@ -54,20 +57,31 @@ public class BDDPetriGameStrategyBuilder {
             }
         }
         // calculate Petri game
-        calculateStrategyByBFS(solver, graph, strategy, init, initial);
+        try { // TODO: debug!
+            calculateStrategyByBFS(solver, graph, strategy, init, initial);
+        } catch (Exception e) {
+            try {
+                Tools.savePN2PDF("error_petrinet", strategy, true);
+                throw e;
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
         Logger.getInstance().addMessage("Done calculating Petri game strategy.");
         return strategy;
     }
 
     private void calculateStrategyByBFS(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState initialState, List<Place> initialMarking) {
-        Map<Integer, List<Place>> visitedMCuts = new HashMap<>();
+        Map<Integer, List<Place>> visitedMCuts = new HashMap<>(); // todo: only cuts should be enough
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
         // add to visited mcuts 
-        if (initialState.isMcut()) {
-            visitedMCuts.put(initialState.getId(), initialMarking);
-        }
+//        if (initialState.isMcut()) { todo: only cuts should be enough
+        visitedMCuts.put(initialState.getId(), initialMarking);
+//        }
         while (!todoStates.isEmpty()) {
             Pair<BDDState, List<Place>> state = todoStates.poll();
             BDDState prevState = state.getFirst();
@@ -76,7 +90,7 @@ public class BDDPetriGameStrategyBuilder {
                 BDDState succState = graph.getState(flow.getTargetid());
                 List<Place> succMarking = new ArrayList<>(prevMarking);
 
-                // Jump over tops (tau transitions) todo: all this top stuff should be in the safety builder!
+                // Jump over tops (tau transitions)
                 Transition strat_t = null;
                 Transition t = flow.getTransition();
                 if (t == null) {
@@ -84,12 +98,12 @@ public class BDDPetriGameStrategyBuilder {
                         // there can only be one successor of a top state in a strategy (deterministic)
                         todoStates.add(new Pair<>(succState, succMarking));
                         // add to visited mcuts 
-                        if (succState.isMcut()) {
-                            visitedMCuts.put(succState.getId(), succMarking);
-                        }
+//                        if (succState.isMcut()) { // todo cuts should be enough
+                        visitedMCuts.put(succState.getId(), succMarking);
+//                        }
                         continue; // break is also OK, since there is only one
                     } else {
-                        // if we have an already visited mcut, we have to find 
+                        // if we have an already visited cut, we have to find 
                         // the transition which let to the previous state (since this was a
                         // tau transition) to put the right postset to this transition
                         t = (Transition) prevState.getExtension("t");
@@ -112,7 +126,8 @@ public class BDDPetriGameStrategyBuilder {
                 }
 
                 // Calculate the postset edges and possibly the new postset places
-                if (succState.isMcut() && visitedMCuts.containsKey(succState.getId())) { // already visited mcut
+//                if (succState.isMcut() && visitedMCuts.containsKey(succState.getId())) { // already visited mcut
+                if (visitedMCuts.containsKey(succState.getId())) { // already visited mcut todo: cut should be enough
                     // Don't create new places, only add the "suitable" flows and delete 
                     // the places which had been created before, which are now double.
                     List<Place> visitedMarking = visitedMCuts.get(succState.getId());
@@ -177,9 +192,9 @@ public class BDDPetriGameStrategyBuilder {
                     }
                     todoStates.add(new Pair<>(succState, succMarking));
                     // add to visited mcuts 
-                    if (succState.isMcut()) {
-                        visitedMCuts.put(succState.getId(), succMarking);
-                    }
+//                    if (succState.isMcut()) { // cuts should be enough
+                    visitedMCuts.put(succState.getId(), succMarking);
+//                    }
                 }
             }
             addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);

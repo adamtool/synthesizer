@@ -1,5 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -53,24 +54,58 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    /**
+//     * Creates the variables for this solver. This have to be overriden since
+//     * the type flag has to be coded additionally.
+//     *
+//     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
+//     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
+//     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+//     */
+//    @Override
+//    void createVariables() {
+//        super.createVariables();
+//        int tokencount = getGame().getMaxTokenCountInt();
+//        TYPE = new BDDDomain[2][tokencount - 1];
+//        for (int i = 0; i < 2; ++i) {
+//            //for any token add the type
+//            for (int j = 0; j < tokencount - 1; ++j) {
+//                // type
+//                TYPE[i][j] = getFactory().extDomain(2);
+//            }
+//        }
+//        setDCSLength(getFactory().varNum() / 2);
+//    }
     /**
-     * Creates the variables for this solver. This have to be overriden since
-     * the type flag has to be coded additionally.
+     * Override it complete new, since at least the output has a problem
+     * BDDTools by a different ordering.
      *
-     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
-     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
-     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+     * Codierung: p_i_0 - Environment Token n - TokenCount
+     * |p_i_0|p_i_1|type|top|t_1|...|t_m| ... |p_i_n|type|top|t_1|...|t_m|
      */
     @Override
     void createVariables() {
-        super.createVariables();
         int tokencount = getGame().getMaxTokenCountInt();
+        PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
+        TOP = new BDDDomain[2][tokencount - 1];
+        TRANSITIONS = new BDDDomain[2][tokencount - 1];
         for (int i = 0; i < 2; ++i) {
-            //for any token add the type
+            // Env-place
+            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+            //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
+                // Place
+                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
                 // type
                 TYPE[i][j] = getFactory().extDomain(2);
+                // top
+                TOP[i][j] = getFactory().extDomain(2);
+                // transitions                
+                BigInteger maxTrans = BigInteger.valueOf(2);
+                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
+                TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
         }
         setDCSLength(getFactory().varNum() / 2);

@@ -594,8 +594,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("loops");
-        BDDTools.printDecisionSets(loops(), true);
-        BDDTools.printDecodedDecisionSets(loops(), this, true);
+//        BDDTools.printDecisionSets(loops(), true);
+//        BDDTools.printDecodedDecisionSets(loops(), this, true);
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);

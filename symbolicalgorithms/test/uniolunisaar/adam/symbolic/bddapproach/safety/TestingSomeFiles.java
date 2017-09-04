@@ -42,7 +42,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
@@ -53,8 +53,8 @@ public class TestingSomeFiles {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
-    }    
-    
+    }
+
     @Test
     public void testAbb62() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, UnboundedPGException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         final String path = inputDir + "ma_vsp" + File.separator;
@@ -62,24 +62,34 @@ public class TestingSomeFiles {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
-    }     
+    }
     
+        @Test
+    public void testVSPWithBad() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, UnboundedPGException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        final String path = inputDir + "ma_vsp" + File.separator;
+        final String name = "vsp_1_withBadPlaces";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir+name+"graph_strat", solv.getGraphStrategy(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+
     @Test
     public void testAdamMachines() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, UnboundedPGException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         final String path = inputDir + "vsp" + File.separator;
         final String name = "vsp__adam_machines";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, false); 
-    } 
-    
+        BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
+
     @Test
     public void testInfiniteSys() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, UnboundedPGException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         final String path = inputDir + "testingNets" + File.separator;
         final String name = "infiniteSystemTrysToAvoidEnvUseBadPlace";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true); // todo must be false
+//        BDDTools.saveGraph2PDF(outputDir + name + "graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false); // todo must be false
     }
 
     @Test
@@ -105,37 +115,35 @@ public class TestingSomeFiles {
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
-   
+
     @Test
     public void testNdet() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet2WithSys";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
-    }  
-    
+    }
+
     @Test
     public void testNdetS3() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet_s3_noStrat";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true); // should not have one
-    }  
-    
-    
-   
+        BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
+    }
+
     @Test
     public void testDeadlock() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final String path = inputDir + "deadlock" + File.separator;
         final String name = "missDeadlock";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
-    
-        @Test
+
+    @Test(enabled = false) // deleted?
     public void testJHHRobots() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         final String path = inputDir + "jhh" + File.separator;
         final String name = "robots_annotated";

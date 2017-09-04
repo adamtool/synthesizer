@@ -20,9 +20,6 @@ import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
-import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
-import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
-import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
 
 /**
  *
@@ -53,14 +50,14 @@ public class TestingJBDDLibrary {
         int i = 0;
         BDD test = bdd.ithVar(0);
         while (i < size) {
-            System.out.println("i" + i);
+//            System.out.println("i" + i);
             BDD b = bdd.ithVar((size - 1) - (i % size)).impWith(bdd.ithVar(i % size));
             test = test.and(b);
             b.free();
             i++;
         }
 
-        System.out.println("NEXT ONE");
+//        System.out.println("NEXT ONE");
         BDD test2 = bdd.ithVar(5);
         int j = 0;
         while (j < 10) {
@@ -102,7 +99,7 @@ public class TestingJBDDLibrary {
         test = test.and(bdd.ithVar(1));
         test = test.and(bdd.ithVar(2));
 
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
         BDD res = bdd.nithVar(2);
         BDD restriction = test.restrict(res);
@@ -111,12 +108,12 @@ public class TestingJBDDLibrary {
         bdd.extVarNum(1);
         BDD ch = bdd.nithVar(3);
         BDD changed = test.replace(bdd.makePair(0, ch));
-        BDDTools.printDecisionSets(changed);
+//        BDDTools.printDecisionSets(changed);
 
 //        System.out.println(test.var());
         BDD asdf = bdd.buildCube(1, new int[]{0, 1, 2});
 
-        BDDTools.printDecisionSets(asdf);
+//        BDDTools.printDecisionSets(asdf);
 
     }
 
@@ -136,13 +133,13 @@ public class TestingJBDDLibrary {
         first = first.and(bdd.nithVar(8));
         first = first.and(bdd.nithVar(9));
 //        System.out.println("first:");
-        printDecisionSets(first);
+//        printDecisionSets(first);
 
         int[] neworder = new int[]{0, 5, 1, 6, 2, 7, 3, 8, 4, 9};
         bdd.setVarOrder(neworder);
 
 //        System.out.println("first after reorder:");
-        printDecisionSets(first);
+//        printDecisionSets(first);
 
         BDD second = bdd.ithVar(0);
         second = second.and(bdd.nithVar(1));
@@ -155,7 +152,7 @@ public class TestingJBDDLibrary {
         second = second.and(bdd.nithVar(8));
         second = second.and(bdd.nithVar(9));
 //        System.out.println("second:");
-        printDecisionSets(second);
+//        printDecisionSets(second);
 
     }
 
@@ -170,7 +167,7 @@ public class TestingJBDDLibrary {
         test = test.and(fac.nithVar(6));
         test = test.and(fac.ithVar(7));
 //        System.out.println("orig");
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
         BDD ex = fac.ithVar(5);
         ex = ex.and(fac.ithVar(6));
@@ -180,17 +177,17 @@ public class TestingJBDDLibrary {
 
         test = test.exist(ex);
 //        System.out.println("exist");
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
         BDD test2 = fac1.ithVar(0);
 
         test2 = test2.or(test);
 //        System.out.println("blub");
-        printDecisionSets(test2);
+//        printDecisionSets(test2);
 
         test = test.and(test2.not());
 //        System.out.println("blub2");
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
     }
 
@@ -204,10 +201,10 @@ public class TestingJBDDLibrary {
         test = test.and(fac.ithVar(2));
         test = test.and(fac.nithVar(3));
         test = test.and(fac.nithVar(4));
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
 //        test.compose(fac.ithVar(4), 2);
-        printDecisionSets(test);
+//        printDecisionSets(test);
     }
 
     @Test
@@ -221,7 +218,7 @@ public class TestingJBDDLibrary {
         test = test.and(fac.nithVar(3));
         test = test.and(fac.nithVar(4));
 //        System.out.println("orgi:");
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
         // del
         //10111
@@ -231,7 +228,7 @@ public class TestingJBDDLibrary {
         del = del.and(fac.ithVar(3));
         del = del.and(fac.ithVar(4));
 //        System.out.println("del:");
-        printDecisionSets(test.and(del));
+//        printDecisionSets(test.and(del));
 
 //        System.out.println("comp");
 //        printDecisionSets(test.constrain(fac.zero()));
@@ -243,7 +240,7 @@ public class TestingJBDDLibrary {
         desired = desired.and(fac.ithVar(3));
         desired = desired.and(fac.nithVar(4));
 //        System.out.println("desired:");
-        printDecisionSets(desired);
+//        printDecisionSets(desired);
 
         BDDFactory fac1 = JFactory.init(NODENUM, CACHESIZE);
         fac1.setVarNum(10);
@@ -254,7 +251,7 @@ public class TestingJBDDLibrary {
         first.andWith(fac.nithVar(3));
         first.andWith(fac.nithVar(4));
 //        System.out.println("first:");
-        printDecisionSets(first);
+//        printDecisionSets(first);
 
         BDD second = fac1.ithVar(0);
         second = second.and(fac1.nithVar(1));
@@ -267,14 +264,14 @@ public class TestingJBDDLibrary {
         second = second.and(fac1.nithVar(8));
         second = second.and(fac1.nithVar(9));
 //        System.out.println("second:");
-        printDecisionSets(second);
+//        printDecisionSets(second);
 
 //        first = first.compose(second, 0);
 //        printDecisionSets(first);
 //        System.out.println("first or second:");
 //        printDecisionSets(first.or(second));
 //        System.out.println("second or first:");
-        printDecisionSets(second.or(first));
+//        printDecisionSets(second.or(first));
 
         BDDPairing pair = fac1.makePair();
         pair.set(new int[]{5, 6, 7, 8, 9}, new int[]{0, 1, 2, 3, 4});
@@ -295,29 +292,29 @@ public class TestingJBDDLibrary {
         ex1 = ex1.and(fac1.ithVar(4));
 
 //        System.out.println("exists: ");
-        printDecisionSets(second.exist(ex));
+//        printDecisionSets(second.exist(ex));
 
 //        System.out.println("second replaced:");
-        printDecisionSets(second.exist(ex).replace(pair1));
+//        printDecisionSets(second.exist(ex).replace(pair1));
 
 //        System.out.println("first replaced:");
-        printDecisionSets(first.replace(pair));
+//        printDecisionSets(first.replace(pair));
 
         BDD first_back = fac1.ithVar(0).or(fac1.nithVar(0));
-        printDecisionSets(first_back);
+//        printDecisionSets(first_back);
         first_back = first_back.and(first);
 //        System.out.println("first long");
-        printDecisionSets(first_back);
+//        printDecisionSets(first_back);
 
 //        System.out.println("test");
-        printDecisionSets(first);
+//        printDecisionSets(first);
 //        fac.setVarNum(10);
-        printDecisionSets(first);
+//        printDecisionSets(first);
 
         //01100
         BDD asdf = first.compose(fac.ithVar(3), 0);
 //        System.out.println("blub");
-        printDecisionSets(asdf);
+//        printDecisionSets(asdf);
 
     }
 
@@ -331,24 +328,24 @@ public class TestingJBDDLibrary {
         test = test.and(fac.ithVar(2));
         test = test.and(fac.nithVar(3));
         test = test.and(fac.nithVar(4));
-        printDecisionSets(test);
+//        printDecisionSets(test);
 
         // copy first three values
         BDD res = fac.ithVar(1).and(fac.ithVar(2));
         BDD test2 = test.restrict(res);
         // set 3 and 4 to one
         // test2 = test2.and(fac.ithVar(3).and(fac.ithVar(4)));
-        System.out.println("test2");
-        printDecisionSets(test2);
-        System.out.println("test2-ready");
+//        System.out.println("test2");
+//        printDecisionSets(test2);
+//        System.out.println("test2-ready");
 
 //        System.out.println("bla");
-        printDecisionSets(test.high());
-        printDecisionSets(test.low());
+//        printDecisionSets(test.high());
+//        printDecisionSets(test.low());
 //        System.out.println("high");
-        printDecisionSets(fac.ithVar(0).high());
+//        printDecisionSets(fac.ithVar(0).high());
 //        System.out.println("low");
-        printDecisionSets(fac.ithVar(0).low());
+//        printDecisionSets(fac.ithVar(0).low());
 
 //        System.out.println("first");
 //        printDecisionSets(test2);
@@ -390,17 +387,17 @@ public class TestingJBDDLibrary {
                 transitions[j][i - 1] = fac.extDomain(maxTrans);
             }
         }
-        BDDTools.printDecisionSets(transitions[0][0].ithVar(maxTrans.intValue() - 1), true);
-        BDDTools.printDecisionSets(type[0][1].ithVar(0).and(top[0][1].ithVar(1)), true);
-        BDDTools.printDecisionSets(type[0][1].ithVar(1).and(top[0][1].ithVar(0)), true);
+//        BDDTools.printDecisionSets(transitions[0][0].ithVar(maxTrans.intValue() - 1), true);
+//        BDDTools.printDecisionSets(type[0][1].ithVar(0).and(top[0][1].ithVar(1)), true);
+//        BDDTools.printDecisionSets(type[0][1].ithVar(1).and(top[0][1].ithVar(0)), true);
         BDD env = places[0][0].ithVar(0);
-        BDDTools.printDecisionSets(env.and(places[0][2].ithVar(0).and(type[0][0].ithVar(1).and(top[0][0].ithVar(1)))), true);
-        BDDTools.printDecisionSets(places[0][2].ithVar(0).and(type[0][1].ithVar(1).and(top[0][1].ithVar(1))), true);
-        System.out.println("%%%%%%%%%%%%%%%%%");
+//        BDDTools.printDecisionSets(env.and(places[0][2].ithVar(0).and(type[0][0].ithVar(1).and(top[0][0].ithVar(1)))), true);
+//        BDDTools.printDecisionSets(places[0][2].ithVar(0).and(type[0][1].ithVar(1).and(top[0][1].ithVar(1))), true);
+//        System.out.println("%%%%%%%%%%%%%%%%%");
         BDD pls = env.and(places[0][1].ithVar(0)).and(places[0][2].ithVar(0));
         BDD trans = fac.ithVar(transitions[0][0].vars()[0]);
         trans.andWith(fac.ithVar(transitions[0][0].vars()[8]));
-        BDDTools.printDecisionSets(pls.and(trans), true);
+//        BDDTools.printDecisionSets(pls.and(trans), true);
     }
 
     @Test
@@ -424,8 +421,8 @@ public class TestingJBDDLibrary {
                 fac.extDomain(maxTrans);
             }
         }
-        printDecisionSets(fac.getDomain(0).ithVar(3), true);
-        printDecisionSets(fac.getDomain(1).ithVar(5), true);
+//        printDecisionSets(fac.getDomain(0).ithVar(3), true);
+//        printDecisionSets(fac.getDomain(1).ithVar(5), true);
         // interleaving of D and D' for D->D'
         int[] order = new int[fac.varNum()];
         int count = 0;
@@ -434,9 +431,9 @@ public class TestingJBDDLibrary {
             order[count++] = fac.varNum() / 2 + i;
         }
         fac.setVarOrder(order);
-        System.out.println("neu");
-        printDecisionSets(fac.getDomain(1).ithVar(5), true);
-        printDecisionSets(fac.getDomain(2).ithVar(0), true);
+//        System.out.println("neu");
+//        printDecisionSets(fac.getDomain(1).ithVar(5), true);
+//        printDecisionSets(fac.getDomain(2).ithVar(0), true);
     }
 
     @Test
@@ -455,7 +452,7 @@ public class TestingJBDDLibrary {
         test.andWith(fac.nithVar(8));
         test.andWith(fac.nithVar(9));
 //        System.out.println("first");
-        printDecisionSets(test, true);
+//        printDecisionSets(test, true);
 
         fac.extDomain(5);
         fac.extDomain(16);
@@ -463,19 +460,19 @@ public class TestingJBDDLibrary {
 
         BDD asdf = fac.getDomain(0).ithVar(3);
 //        System.out.println("fac.getDomain(0).ithVar(2)");
-        printDecisionSets(asdf, true);
+//        printDecisionSets(asdf, true);
 
-        System.out.println("domain");
-        printDecisionSets(fac.getDomain(0).domain(), true);
+//        System.out.println("domain");
+//        printDecisionSets(fac.getDomain(0).domain(), true);
 
         BDD asdf1 = fac.getDomain(1).ithVar(10);
 //        System.out.println("fac.getDomain(3).ithVar(2)");
-        printDecisionSets(asdf1, true);
+//        printDecisionSets(asdf1, true);
         asdf1.andWith(fac.ithVar(9));
         asdf1.andWith(fac.ithVar(1));
-        printDecisionSets(asdf1, true);
+//        printDecisionSets(asdf1, true);
         asdf1.andWith(fac.getDomain(0).ithVar(3));
-        printDecisionSets(asdf1, true);
+//        printDecisionSets(asdf1, true);
 
     }
 
@@ -486,9 +483,9 @@ public class TestingJBDDLibrary {
         BDD test = fac.nithVar(0);
         test.andWith(fac.ithVar(1));
         test.andWith(fac.ithVar(2).or(fac.nithVar(2)));
-        printDecisionSets(test);
+//        printDecisionSets(test);
         BDD one = test.satOne();
 //        System.out.println(test.satCount());
-        BDDTools.printDecisionSets(one);
+//        BDDTools.printDecisionSets(one);
     }
 }
