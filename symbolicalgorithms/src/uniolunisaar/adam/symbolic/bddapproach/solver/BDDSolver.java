@@ -25,6 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -54,6 +55,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     private BDD winDCSs = null;
     private BDD DCSs = null;
     private BDD ndet = null;
+    private BDD reachableStates = null;
 
     /**
      * Creates a new solver for the given game.
@@ -846,12 +848,29 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
-     * Calculates all wellformed possible decisionsets.
+     * Calculates all states reachable from the initial state.
      *
-     * @return BDD with all possible wellformed states.
+     * @return BDD with all reachable states
      */
     BDD calcDCSs() {
-        return wellformed();
+        BDD Q = getZero();
+        BDD Q_ = getInitialDCSs();
+
+//        System.out.println("INITIAL : ");
+//        BDDTools.printDecodedDecisionSets(Q_.and(wellformed()), this, true);
+//        System.out.println("END");
+        while (!Q_.equals(Q)) {
+            Q = Q_;
+//            BDD succs = getMcut().and(getBufferedEnvTransitions());
+           // succs.orWith(getMcut().not().and(getBufferedSystemTransition().and(wellformed(0))));
+            BDD succs = getMcut().ite(getBufferedEnvTransitions(), getBufferedSystemTransition());
+            succs = succs.and(Q);
+            Q_ = getSuccs(succs).or(Q);
+        }
+//        System.out.println("REACHABLE : ");
+//        BDDTools.printDecodedDecisionSets(Q.and(wellformed()), this, true);
+//        System.out.println("END");
+        return Q.and(wellformed(0));
     }
 
     /**

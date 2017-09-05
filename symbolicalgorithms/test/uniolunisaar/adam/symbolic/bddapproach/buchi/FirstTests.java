@@ -15,6 +15,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -45,9 +46,9 @@ public class FirstTests {
         solv.getGraphStrategy();
         BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
         BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
-//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
+        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
     }
 
     @Test(enabled = true) //-- currently bdd error
@@ -62,12 +63,12 @@ public class FirstTests {
 
     @Test
     public void testToyExampleFiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        testToyExamples("finiteA", false);
+        testToyExamples("finiteA", true); // should be false
     }
 
     @Test
     public void testToyExampleInfiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        testToyExamples("infiniteA", true);
+        testToyExamples("infiniteA", true); // correct
     }
 
     @Test

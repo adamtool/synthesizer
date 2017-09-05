@@ -103,7 +103,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             }
             LOOP[i] = getFactory().extDomain(2);
         }
-        setDCSLength(getFactory().varNum() / 2 - 2);
+        setDCSLength(getFactory().varNum() / 2);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -156,9 +156,9 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD termNBuchi = term.and(buchi.not()).andWith(wellformed(0));
         BDD loops = termNBuchi.andWith(preBimpSucc());
         // Terminating buchi states add transition to new looping state (all 
-//        loops.orWith(term.and(buchi).and(loopState(1)));
+        loops.orWith(term.and(buchi).and(loopState(1)));
 //        // add loop
-//        loops.orWith(loopState(0).andWith(loopState(1)));
+        loops.orWith(loopState(0).andWith(loopState(1)));
         return loops.andWith(wellformed(0));
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special loop stuff %%%%%%%%%%%%%%%%%%%%%%
@@ -190,6 +190,15 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         well.orWith(loopState(pos));
         return well;
     }
+
+//    @Override
+//    BDD calcDCSs() {
+//        BDD all = super.calcDCSs();
+//        all.andWith(LOOP[0].ithVar(0));
+//        all.andWith(LOOP[1].ithVar(0));
+//        all.orWith(loopState(0));
+//        return all;
+//    }
 
     @Override
     public BDD initial() {
@@ -266,7 +275,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         }
         env.andWith(LOOP[0].ithVar(0));
         env.andWith(LOOP[1].ithVar(0));
-        env.andWith(dis).orWith(loops());
+        env.andWith(dis);
+        env.orWith(loops());
         return env;
     }
 
@@ -363,7 +373,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         mcut.andWith(LOOP[0].ithVar(0));
         mcut.andWith(LOOP[1].ithVar(0));
 
-        mcut.andWith(dis).orWith(loops());
+        mcut.andWith(dis);
+        mcut.orWith(loops());
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
@@ -439,7 +450,8 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         sys.andWith(LOOP[0].ithVar(0));
         sys.andWith(LOOP[1].ithVar(0));
         // p0=p0'        
-        sys = sys.andWith(placesEqual(0)).orWith(loops());
+        sys = sys.andWith(placesEqual(0));
+        sys.orWith(loops());
 
         return sys.andWith(ndetStates(0).not());
     }
@@ -526,19 +538,28 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @return
      */
     private BDD buchi() {
-        BDD S = wellformed();
+        BDD S = getBufferedDCSs();
         BDD W = getZero();
         BDD W_;
         BDD B = buchiStates();
         do {
             B = B.and(S);
             BDD R = attractor(B, false);
+            System.out.println("R states");
+            BDDTools.printDecodedDecisionSets(R, this, true);
+            System.out.println("END R staes");
 //            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
-            BDD Tr = S.and(R.not());
+            BDD Tr = (S.and(R.not())).and(getBufferedDCSs());
+            System.out.println("TR states");
+            BDDTools.printDecodedDecisionSets(Tr, this, true);
+            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
             W_ = attractor(Tr, true);
+            System.out.println("W_ states");
+            BDDTools.printDecodedDecisionSets(W_, this, true);
+            System.out.println("END W_ states");
 //            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
             W = W.or(W_);
@@ -548,7 +569,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 //        BDDTools.printDecodedDecisionSets(W, this, true);
         W = W.not().and(wellformed());
 //        System.out.println("%%%%%%%%%%%% return");
-//        BDDTools.printDecodedDecisionSets(W, this, true);
+        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
         return W;
     }
 
