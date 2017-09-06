@@ -129,7 +129,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 //        return nearlyZero.andWith(codePlace(sys, pos, 0));
         BDD loop = getOne();
         int start = (pos == 0) ? 0 : getDcs_length();
-        for (int i = start; i < start + getDcs_length(); i++) {
+        for (int i = start; i < start + getDcs_length() - 1; i++) {
             loop.andWith(getFactory().nithVar(i));
         }
         loop.andWith(LOOP[pos].ithVar(1));
@@ -146,6 +146,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         for (Transition transition : trans) {
             term.andWith(firable(transition, pos).not());
         }
+        term.andWith(getNotTop());
         return term;
     }
 
@@ -153,12 +154,16 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD buchi = buchiStates();
         BDD term = endStates(0);
         // Terminating not buchi states add selfloop
-        BDD termNBuchi = term.and(buchi.not()).andWith(wellformed(0));
+        BDD termNBuchi = term.and(buchi.not().andWith(wellformed(0)));
         BDD loops = termNBuchi.andWith(preBimpSucc());
         // Terminating buchi states add transition to new looping state (all 
         loops.orWith(term.and(buchi).and(loopState(1)));
 //        // add loop
         loops.orWith(loopState(0).andWith(loopState(1)));
+//        System.out.println("end states");
+//        BDDTools.printDecodedDecisionSets(term.and(buchi), this, true);
+//        BDDTools.printDecisionSets(term.and(buchi), true);
+//        System.out.println("END");
         return loops.andWith(wellformed(0));
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special loop stuff %%%%%%%%%%%%%%%%%%%%%%
@@ -185,8 +190,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     @Override
     BDD wellformed(int pos) {
         BDD well = super.wellformed(pos);
-        well.andWith(LOOP[0].ithVar(0));
-        well.andWith(LOOP[1].ithVar(0));
+        well.andWith(LOOP[pos].ithVar(0));
         well.orWith(loopState(pos));
         return well;
     }
@@ -199,7 +203,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 //        all.orWith(loopState(0));
 //        return all;
 //    }
-
     @Override
     public BDD initial() {
         BDD init = super.initial();
@@ -207,6 +210,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             init.andWith(NOCC[0][i].ithVar(0));
         }
+        init.andWith(LOOP[0].ithVar(0));
         init.andWith(ndetStates(0).not());
         return init;
     }
@@ -538,28 +542,28 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @return
      */
     private BDD buchi() {
-        BDD S = getBufferedDCSs();
+        BDD S = getBufferedDCSs().id();
         BDD W = getZero();
         BDD W_;
         BDD B = buchiStates();
         do {
             B = B.and(S);
             BDD R = attractor(B, false);
-            System.out.println("R states");
-            BDDTools.printDecodedDecisionSets(R, this, true);
-            System.out.println("END R staes");
+//            System.out.println("R states");
+//            BDDTools.printDecodedDecisionSets(R, this, true);
+//            System.out.println("END R staes");
 //            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
             BDD Tr = (S.and(R.not())).and(getBufferedDCSs());
-            System.out.println("TR states");
-            BDDTools.printDecodedDecisionSets(Tr, this, true);
-            System.out.println("END TR states");
+//            System.out.println("TR states");
+//            BDDTools.printDecodedDecisionSets(Tr, this, true);
+//            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
             W_ = attractor(Tr, true);
-            System.out.println("W_ states");
-            BDDTools.printDecodedDecisionSets(W_, this, true);
-            System.out.println("END W_ states");
+//            System.out.println("W_ states");
+//            BDDTools.printDecodedDecisionSets(W_, this, true);
+//            System.out.println("END W_ states");
 //            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
             W = W.or(W_);
@@ -567,9 +571,9 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         } while (!W_.isZero());
 //        System.out.println("%%%%%%%%%%%% W");
 //        BDDTools.printDecodedDecisionSets(W, this, true);
-        W = W.not().and(wellformed());
+        W = W.not().and(getBufferedDCSs());
 //        System.out.println("%%%%%%%%%%%% return");
-        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
+//        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
         return W;
     }
 
@@ -584,7 +588,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = buchi().andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
+        BDD fixedPoint = buchi();//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -601,6 +605,12 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                 state.setSpecial(true);
             }
         }
+        System.out.println("loops");
+        BDDTools.printDecisionSets(loops(), true);
+        BDDTools.printDecodedDecisionSets(loops(), this, true);
+        System.out.println("reach");
+        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
+        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
         return graph;
     }
 
@@ -613,10 +623,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println("loops");
-//        BDDTools.printDecisionSets(loops(), true);
-//        BDDTools.printDecodedDecisionSets(loops(), this, true);
+        }        
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);
@@ -633,7 +640,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * This means the variables for: places + top-flags + commitment + nocc-flag
      * sets.
      *
-     * So only adds the variables for the newly occupied places.
+     * So only adds the variables for the newly occupied places and the LOOP.
      *
      * @param pos - 0 for the predecessor variables and 1 for the sucessor
      * variables.
@@ -647,6 +654,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(NOCC[pos][i].set());
         }
+        variables.andWith(LOOP[pos].set());
         return variables;
     }
 
@@ -675,7 +683,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * Create a BDD which is true, when the predesseccor und the successor of a
      * transition are equal.
      *
-     * Only adds the conditions for the nocc-flag.
+     * Only adds the conditions for the nocc-flag and the loop flag.
      *
      * @return BDD with Pre <-> Succ
      */
@@ -685,6 +693,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
         }
+        preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         return preBimpSucc;
     }
 }

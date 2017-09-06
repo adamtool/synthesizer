@@ -43,9 +43,9 @@ public class FirstTests {
         final String path = inputDir + "toyExamples" + File.separator;
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         System.out.println("ExStrat" + solv.existsWinningStrategy());
-        solv.getGraphStrategy();
-        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
-        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
+//        solv.getGraphStrategy();
+//        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
@@ -63,7 +63,7 @@ public class FirstTests {
 
     @Test
     public void testToyExampleFiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        testToyExamples("finiteA", true); // should be false
+        testToyExamples("finiteA", false); // should be false
     }
 
     @Test

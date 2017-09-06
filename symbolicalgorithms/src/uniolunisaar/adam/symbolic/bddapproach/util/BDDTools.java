@@ -374,7 +374,7 @@ public class BDDTools {
 
             // Loop state
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
-                pre += "LOOP";
+                pre = "LOOP\n";
             }
 
             String post = "";
@@ -432,7 +432,7 @@ public class BDDTools {
             post += envBin_ + ",\n" + tokens_;
             // Loop state
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
-                post += "LOOP";
+                post = "LOOP";
             }
             out += pre + " ->\n" + post + "\n";
 //            System.out.println(out);

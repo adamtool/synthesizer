@@ -25,7 +25,6 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -857,18 +856,24 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         BDD Q_ = getInitialDCSs();
 
 //        System.out.println("INITIAL : ");
-//        BDDTools.printDecodedDecisionSets(Q_.and(wellformed()), this, true);
+//        BDDTools.printDecisionSets(Q_, true);
+//        BDDTools.printDecodedDecisionSets(Q_, this, true);
 //        System.out.println("END");
         while (!Q_.equals(Q)) {
             Q = Q_;
 //            BDD succs = getMcut().and(getBufferedEnvTransitions());
-           // succs.orWith(getMcut().not().and(getBufferedSystemTransition().and(wellformed(0))));
-            BDD succs = getMcut().ite(getBufferedEnvTransitions(), getBufferedSystemTransition());
+            // succs.orWith(getMcut().not().and(getBufferedSystemTransition().and(wellformed(0))));
+//            BDD succs = getMcut().ite(getBufferedEnvTransitions(), getBufferedSystemTransition());
+            // if it is an mcut or not is already coded in the transitions itself
+            BDD succs = getBufferedEnvTransitions().or(getBufferedSystemTransition());
             succs = succs.and(Q);
+//        System.out.println("SUCCS : ");
+//        BDDTools.printDecisionSets(succs, true);
+//            System.out.println("END SUCCS");
             Q_ = getSuccs(succs).or(Q);
         }
 //        System.out.println("REACHABLE : ");
-//        BDDTools.printDecodedDecisionSets(Q.and(wellformed()), this, true);
+//        BDDTools.printDecodedDecisionSets(Q.and(wellformed(0)), this, true);
 //        System.out.println("END");
         return Q.and(wellformed(0));
     }

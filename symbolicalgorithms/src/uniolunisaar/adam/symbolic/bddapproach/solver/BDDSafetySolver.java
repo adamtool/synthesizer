@@ -805,11 +805,11 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-    @Override
-    BDD calcDCSs() {
-//        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
-        return wellformed(0).andWith(wrongTypedType2DCS().not());
-    }
+//    @Override
+//    BDD calcDCSs() {
+////        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
+//        return wellformed(0).andWith(wrongTypedType2DCS().not());
+//    }
 
     /**
      * Returns the winning decisionsets for the system players
@@ -822,7 +822,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor(badSysDCS(), true).not().andWith(wellformed());//fixpointOuter();
+        BDD fixedPoint = attractor(badSysDCS(), true).not().and(getBufferedDCSs());//fixpointOuter();
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);
