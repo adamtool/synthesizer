@@ -549,19 +549,19 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD B = buchiStates();
         do {
             B = B.and(S);
-            BDD R = attractor(B, false);
+            BDD R = attractor(B, false, S);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
 //            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
-            BDD Tr = (S.and(R.not())).and(getBufferedDCSs());
+            BDD Tr = S.and(R.not());
 //            System.out.println("TR states");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
-            W_ = attractor(Tr, true);
+            W_ = attractor(Tr, true, S);
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
 //            System.out.println("END W_ states");
@@ -595,13 +595,13 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//        try {
-//            BDDTools.saveStates2Pdf("./states", getBufferedDCSs(), this);
-//        } catch (IOException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            BDDTools.saveStates2Pdf("./states", buchi(), this);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return fixedPoint;
     }
 

@@ -518,7 +518,7 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
     public BDD preSys(BDD succ) {
         BDD succ_shifted = shiftFirst2Second(succ);
         BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
-        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
+        BDD exists = (getBufferedSystemTransitions().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
         return forall.or(exists).and(wellformed());
     }
 

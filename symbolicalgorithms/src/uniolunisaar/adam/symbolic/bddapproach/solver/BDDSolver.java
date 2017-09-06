@@ -25,7 +25,6 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -371,15 +370,23 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return res.exist(getSecondBDDVariables());
     }
 
+    public BDD pre(BDD succ, BDD allTrans, BDD existsTrans) {
+        BDD succ_shifted = shiftFirst2Second(succ);
+        BDD forall = ((allTrans.imp(succ_shifted)).forAll(getSecondBDDVariables())).and(allTrans.id().exist(getSecondBDDVariables()));
+        BDD exists = (existsTrans.and(succ_shifted)).exist(getSecondBDDVariables());
+        return forall.or(exists).and(wellformed());
+    }
+
     /**
      * @param succ
      * @return
      */
     public BDD preEnv(BDD succ) {
-        BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = ((getBufferedSystemTransition().imp(succ_shifted)).forAll(getSecondBDDVariables())).and(getBufferedExSysSucc());
-        BDD exists = (getBufferedEnvTransitions().and(succ_shifted)).exist(getSecondBDDVariables());
-        return forall.or(exists).and(wellformed());
+//        BDD succ_shifted = shiftFirst2Second(succ);
+//        BDD forall = ((getBufferedSystemTransition().imp(succ_shifted)).forAll(getSecondBDDVariables())).and(getBufferedExSysSucc());
+//        BDD exists = (getBufferedEnvTransitions().and(succ_shifted)).exist(getSecondBDDVariables());
+//        return forall.or(exists).and(wellformed());
+        return pre(succ, getBufferedSystemTransitions(), getBufferedEnvTransitions());
     }
 
     /**
@@ -389,10 +396,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @return
      */
     public BDD preSys(BDD succ) {
-        BDD succ_shifted = shiftFirst2Second(succ);
-        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
-        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables());
-        return forall.or(exists).and(wellformed());
+//        BDD succ_shifted = shiftFirst2Second(succ);
+//        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
+//        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables());
+//        return forall.or(exists).and(wellformed());
+        return pre(succ, getBufferedEnvTransitions(), getBufferedSystemTransitions());
     }
 
     protected BDD marking2BDD(Marking m) {
@@ -438,7 +446,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             return false;
         }
         // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
-        
+
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
@@ -832,6 +840,15 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     BDD attractor(BDD F, boolean p1) {
+        return attractor(F, p1, getBufferedDCSs());
+    }
+
+    BDD attractor(BDD F, boolean p1, BDD gameGraph) {
+        // Calculate the possibly restricted transitions to the given game graph
+        BDD graphSuccs = this.shiftFirst2Second(gameGraph);
+        BDD envTrans = getBufferedEnvTransitions().and(gameGraph).and(graphSuccs);
+        BDD sysTrans = getBufferedSystemTransitions().and(gameGraph).and(graphSuccs);
+
         BDD Q = getZero();
         BDD Q_ = F;
         while (!Q_.equals(Q)) {
@@ -839,7 +856,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //            System.out.println("pre");
 //            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
 //            System.out.println("ready");
-            BDD pre = p1 ? preEnv(Q) : preSys(Q);
+//            BDD pre = p1 ? preEnv(Q) : preSys(Q);
+            BDD pre = p1 ? pre(Q, sysTrans, envTrans) : pre(Q, envTrans, sysTrans);
             Q_ = pre.or(Q);
         }
 //        BDDTools.printDecodedDecisionSets(Q_.not().andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(codePlace(getGame().getNet().getPlace("sys"), 0, 4)), this, true);
@@ -866,7 +884,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             // succs.orWith(getMcut().not().and(getBufferedSystemTransition().and(wellformed(0))));
 //            BDD succs = getMcut().ite(getBufferedEnvTransitions(), getBufferedSystemTransition());
             // if it is an mcut or not is already coded in the transitions itself
-            BDD succs = getBufferedEnvTransitions().or(getBufferedSystemTransition());
+            BDD succs = getBufferedEnvTransitions().or(getBufferedSystemTransitions());
             succs = succs.and(Q);
 //        System.out.println("SUCCS : ");
 //        BDDTools.printDecisionSets(succs, true);
@@ -1008,13 +1026,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
-     * Returns a BDD where all predecessors of environment transitions are coded
-     * and the successor are arbitrary.
+     * Returns a BDD where all predecessors of system transitions are coded and
+     * the successor are arbitrary.
      *
      * @return - All environment states.
      */
     private BDD calcExSysSucc() {
-        return getBufferedSystemTransition().id().exist(getSecondBDDVariables());
+        return getBufferedSystemTransitions().id().exist(getSecondBDDVariables());
     }
 
     /**
@@ -1173,7 +1191,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     public BDD getSystemSuccTransitions(BDD state) {
-        return state.and(getBufferedSystemTransition());
+        return state.and(getBufferedSystemTransitions());
     }
 
     public BDD getEnvSuccTransitions(BDD state) {
@@ -1216,7 +1234,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return DCSs;
     }
 
-    BDD getBufferedSystemTransition() {
+    BDD getBufferedSystemTransitions() {
         if (system == null) {
             system = getSystemTransitions();
         }

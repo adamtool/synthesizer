@@ -37,7 +37,8 @@ public class TestingAllFilesInFolder {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "finiteA.apt",
-            "infiniteB.apt"));
+            "infiniteB.apt",
+            "oneGoodInfEnv"));
     private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
             //                )
             );
