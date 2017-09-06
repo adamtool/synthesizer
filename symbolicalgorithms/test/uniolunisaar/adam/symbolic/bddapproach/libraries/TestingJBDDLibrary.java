@@ -2,7 +2,6 @@ package uniolunisaar.adam.symbolic.bddapproach.libraries;
 
 import java.io.File;
 import java.io.IOException;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import java.math.BigInteger;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
@@ -19,7 +18,6 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
-import static uniolunisaar.adam.symbolic.bddapproach.util.BDDTools.printDecisionSets;
 
 /**
  *
@@ -312,7 +310,7 @@ public class TestingJBDDLibrary {
 //        printDecisionSets(first);
 
         //01100
-        BDD asdf = first.compose(fac.ithVar(3), 0);
+//        BDD asdf = first.compose(fac.ithVar(3), 0);
 //        System.out.println("blub");
 //        printDecisionSets(asdf);
 

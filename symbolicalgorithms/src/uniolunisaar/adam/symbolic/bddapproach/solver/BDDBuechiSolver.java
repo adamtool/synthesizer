@@ -11,6 +11,7 @@ import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
@@ -438,15 +439,15 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
             // pi=pi'
             sysT.andWith(placesEqual(i));
-            // \not topi=>(ti=ti'\wedge nocc'=0)
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0)));
+            // \not topi=>(ti=ti'\wedge nocc=nocc')
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[0][0].buildEquals(NOCC[1][0])));
             // topi=> nocc'=1            
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
             sysT.andWith(impl).andWith(impl1);
         }
-        sysT = top.impWith(sysT);
         // in top case just copy the newly occupation flag of the env place
         sysT = sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
+        sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
         sys.andWith(sysT);
@@ -522,9 +523,9 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
             sysT.andWith(impl).andWith(impl1);
         }
-        sysT = top.impWith(sysT);
         // in top case just copy the newly occupation flag of the env place
         sysT = sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
+        sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
         sys.andWith(sysT);
@@ -594,6 +595,13 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        try {
+//            BDDTools.saveStates2Pdf("./states", getBufferedDCSs(), this);
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         return fixedPoint;
     }
 
@@ -605,25 +613,25 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
                 state.setSpecial(true);
             }
         }
-        System.out.println("loops");
-        BDDTools.printDecisionSets(loops(), true);
-        BDDTools.printDecodedDecisionSets(loops(), this, true);
-        System.out.println("reach");
-        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
-        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
+//        System.out.println("loops");
+//        BDDTools.printDecisionSets(loops(), true);
+//        BDDTools.printDecodedDecisionSets(loops(), this, true);
+//        System.out.println("reach");
+//        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
+//        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
         return graph;
     }
 
     @Override
     public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
         BDDGraph strat = super.getGraphStrategy();
-        try {
-            BDDTools.saveStates2Pdf("./states", buchiStates(), this);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+//        try {
+//            BDDTools.saveStates2Pdf("./states", getBufferedDCSs(), this);
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);
@@ -696,4 +704,78 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         return preBimpSucc;
     }
+
+    /**
+     * Only in not looping states there could have a transition fired.
+     *
+     * @param t
+     * @param source
+     * @param target
+     * @return
+     */
+    @Override
+    public boolean hasFired(Transition t, BDD source, BDD target) {
+        // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
+        if (!source.and(LOOP[0].ithVar(1)).isZero()) {
+            return false;
+        }
+        // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
+
+        if (!isFirable(t, source)) {
+            return false;
+        }
+        // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
+
+        // Create bdd mantarget with the postset of t and the rest -1
+        // So with "and" we can test if the postset of t also fit to the target
+        // additionally create a copy of the target BDD with the places of the postset set to -1
+        Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
+        // Environment place
+        // todo: one environment token case
+        BDD manTarget = getOne();
+        BDD restTarget = target.id();
+        if (!post.getFirst().isEmpty()) {
+            manTarget.andWith(codePlace(post.getFirst().get(0), 0, 0));
+            restTarget = restTarget.exist(getTokenVariables(0, 0));
+        }
+
+        // System places        
+        List<Place> postSys = post.getSecond();
+        BDD sysPlacesTarget = getOne();
+        for (Place p : postSys) {
+            int token = (Integer) p.getExtension("token");
+            sysPlacesTarget.andWith(codePlace(p, 0, token));
+            restTarget = restTarget.exist(getTokenVariables(0, token));
+        }
+        manTarget.andWith(sysPlacesTarget);
+
+        if ((manTarget.and(target)).isZero()) {
+            return false;
+        }
+
+        // Create now a copy of the source with all positions set to -1 where preset is set
+        Pair<List<Place>, List<Place>> pre = getGame().getSplittedPreset(t);
+        // todo: one environment token case
+        BDD restSource = source.id();
+        if (!pre.getFirst().isEmpty()) {
+            restSource = restSource.exist(getTokenVariables(0, 0));
+        }
+
+        List<Place> preSys = pre.getSecond();
+        for (Place p : preSys) {
+            restSource = restSource.exist(getTokenVariables(0, (Integer) p.getExtension("token")));
+        }
+
+        // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
+        // The flag indication that the place is newly occupied, may have changed
+        for (int i = 0; i < getGame().getMaxTokenCountInt(); i++) {
+            restSource = restSource.exist(NOCC[0][i].set());
+            restTarget = restTarget.exist(NOCC[0][i].set());
+        }
+        // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
+
+        // now test if the places not in pre- or postset of t stayed equal between source and target
+        return !(restTarget.and(restSource)).isZero();
+    }
+
 }

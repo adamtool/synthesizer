@@ -25,6 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -221,7 +222,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         well.andWith(com);
 
         //well.andWith(mixedTypes(pos)); //nicht so oder so not?
-        return well;//.andWith(ndet(pos).not());
+        return well;
     }
 
     /**
@@ -437,7 +438,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             return false;
         }
         // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
-
+        
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
@@ -699,7 +700,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
-        BDD sys1 = getMcut().not();
+        BDD sys = getMcut().not();
         // no successors for already reached states
 //        sys1.andWith(reach(0).not());
 
@@ -754,12 +755,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         }
         sysT = top.impWith(sysT);
 
-        sys1.andWith(sysN);
-        sys1.andWith(sysT);
+        sys.andWith(sysN);
+        sys.andWith(sysT);
         // p0=p0'        
-        sys1 = sys1.andWith(placesEqual(0));
+        sys = sys.andWith(placesEqual(0));
 
-        return sys1;
+        return sys;
     }
 
     BDD sysTransitionsNotCP() {
@@ -872,9 +873,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //            System.out.println("END SUCCS");
             Q_ = getSuccs(succs).or(Q);
         }
-//        System.out.println("REACHABLE : ");
-//        BDDTools.printDecodedDecisionSets(Q.and(wellformed(0)), this, true);
-//        System.out.println("END");
         return Q.and(wellformed(0));
     }
 
