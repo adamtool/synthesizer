@@ -3,6 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
+import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
@@ -12,6 +13,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -23,10 +25,10 @@ import uniolunisaar.adam.tools.Logger;
  * because when a ndet state is a successor of an env state, then the env state
  * would errorously marked as good. Furthermore, if it's the only successor of a
  * sys state, then also this sys state would errorously marked as good.
- * 
- * We solve it by marking every non-deterministic state as end-state and deleting
- * non-determinisic states from the set of good states to reach and from the inital
- * states.
+ *
+ * We solve it by marking every non-deterministic state as end-state and
+ * deleting non-determinisic states from the set of good states to reach and
+ * from the inital states.
  *
  * @author Manuel Gieseking
  */
@@ -44,7 +46,6 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
     BDDReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
-
 
     /**
      * Creates a BDD where a disjunction of all places which should be reached
@@ -95,8 +96,8 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
     /**
      * Non-deterministic states don't have any successor. This allows to avoid
      * non-deterministic strategies.
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     BDD sysTransitionsNotCP() {
@@ -105,12 +106,12 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
         return sys;
     }
 
-     /**
+    /**
      * Non-deterministic states don't have any successor. This allows to avoid
      * non-deterministic strategies.
-     * 
-     * @return 
-     */   
+     *
+     * @return
+     */
     @Override
     BDD sysTransitionsCP() {
         BDD sys = super.sysTransitionsCP();
@@ -137,7 +138,7 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
         }
         return graph;
     }
-    
+
     @Override
     public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
         BDDGraph strat = super.getGraphStrategy();
@@ -148,4 +149,30 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
         }
         return strat;
     }
+
+    @Override
+    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return pn;
+    }
+
+    @Override
+    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return new Pair<>(gstrat, pstrat);
+    }
+
 }

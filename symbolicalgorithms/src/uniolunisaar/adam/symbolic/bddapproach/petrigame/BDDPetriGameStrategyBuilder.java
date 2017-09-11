@@ -27,7 +27,7 @@ import uniolunisaar.adam.tools.Tools;
  */
 public class BDDPetriGameStrategyBuilder {
 
-    private static final String DELIM = "_";
+    static final String DELIM = "_";
     private static BDDPetriGameStrategyBuilder instance = null;
 
     public static BDDPetriGameStrategyBuilder getInstance() {
@@ -50,7 +50,7 @@ public class BDDPetriGameStrategyBuilder {
         for (Place p : solver.getNet().getPlaces()) {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
-                place.putExtension("origID", p.getId());
+                place.putExtension("origID", p.getId());                
                 place.copyExtensions(p);
                 place.setInitialToken(1);
                 initial.add(place);

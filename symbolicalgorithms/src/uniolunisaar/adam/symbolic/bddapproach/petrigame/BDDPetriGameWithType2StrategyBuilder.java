@@ -10,7 +10,6 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSafetySolver;
@@ -19,20 +18,20 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 /**
  * @author Manuel Gieseking
  */
-public class BDDPetriGameSafetyStrategyBuilder extends BDDPetriGameStrategyBuilder {
+public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBuilder {
     
     private static final String DELIM_TYPE_2 = "_2_";
     
-    private static BDDPetriGameSafetyStrategyBuilder instance = null;
+    private static BDDPetriGameWithType2StrategyBuilder instance = null;
     
-    public static BDDPetriGameSafetyStrategyBuilder getInstance() {
+    public static BDDPetriGameWithType2StrategyBuilder getInstance() {
         if (instance == null) {
-            instance = new BDDPetriGameSafetyStrategyBuilder();
+            instance = new BDDPetriGameWithType2StrategyBuilder();
         }
         return instance;
     }
     
-    private BDDPetriGameSafetyStrategyBuilder() {
+    private BDDPetriGameWithType2StrategyBuilder() {
         BDDPetriGameStrategyBuilder.getInstance();
     }
     
