@@ -100,4 +100,14 @@ public class FirstTests {
         testToyExamples("infiniteB", false);
     }
 
+    @Test
+    public void testToyExampleShortestStrategy0() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        testToyExamples("shortestStrategy0", true);
+    }
+
+    @Test
+    public void testToyExampleShortestStrategy1() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        testToyExamples("shortestStrategy1", true);
+    }
+
 }
