@@ -38,7 +38,7 @@ public class TestingAllFilesInFolder {
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "finiteA.apt",
             "infiniteB.apt",
-            "oneGoodInfEnv"));
+            "oneGoodInfEnv.apt"));
     private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
             //                )
             );

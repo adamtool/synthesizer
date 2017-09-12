@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import net.sf.javabdd.BDD;
@@ -585,7 +586,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @return
      */
     @Override
-    BDD calcWinningDCSs() {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

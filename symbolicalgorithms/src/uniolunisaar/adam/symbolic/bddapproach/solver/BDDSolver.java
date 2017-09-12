@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
@@ -843,7 +844,15 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return attractor(F, p1, getBufferedDCSs());
     }
 
+    BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) {
+        return attractor(F, p1, getBufferedDCSs(), distance);
+    }
+
     BDD attractor(BDD F, boolean p1, BDD gameGraph) {
+        return attractor(F, p1, gameGraph, null);
+    }
+
+    BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance) {
         // Calculate the possibly restricted transitions to the given game graph
         BDD graphSuccs = this.shiftFirst2Second(gameGraph);
         BDD envTrans = getBufferedEnvTransitions().and(gameGraph).and(graphSuccs);
@@ -851,7 +860,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
         BDD Q = getZero();
         BDD Q_ = F;
+        int i = 0;
         while (!Q_.equals(Q)) {
+            if (distance != null) {
+                distance.put(i++, Q_);
+            }
             Q = Q_;
 //            System.out.println("pre");
 //            BDDTools.printDecodedDecisionSets(preSys(Q), this, true);
@@ -899,7 +912,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      *
      * @return - A BDD containing all winning states for the system.
      */
-    abstract BDD calcWinningDCSs();
+    abstract BDD calcWinningDCSs(Map<Integer, BDD> distance);
 
     @Override
     protected boolean exWinStrat() {
@@ -913,21 +926,25 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         if (!initialized) {
             initialize();
         }
-        return BDDGraphBuilder.builtGraph(this);
+        return BDDGraphBuilder.getInstance().builtGraph(this);
+    }
+
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
+        BDDGraph g = BDDGraphBuilder.getInstance().builtGraphStrategy(this, null);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
+        return g;
     }
 
     public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
         if (!initialized) {
             initialize();
         }
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(this);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        return g;
+        return calculateGraphStrategy();
     }
 
     @Override
@@ -1220,9 +1237,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
 // %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs %%%%%%%%%%%%%%%%%%%%%%%%%
+    public void setBufferedWinDCSs(BDD win) {
+        winDCSs = win;
+    }
+
     public BDD getBufferedWinDCSs() {
         if (winDCSs == null) {
-            winDCSs = calcWinningDCSs();
+            winDCSs = calcWinningDCSs(null);
         }
         return winDCSs;
     }

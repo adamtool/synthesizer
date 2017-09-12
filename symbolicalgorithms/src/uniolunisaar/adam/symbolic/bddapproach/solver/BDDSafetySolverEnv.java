@@ -1,6 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.PetriNet;
@@ -139,7 +140,7 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs() {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

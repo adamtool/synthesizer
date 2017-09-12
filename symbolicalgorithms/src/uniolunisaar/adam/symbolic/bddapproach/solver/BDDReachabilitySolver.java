@@ -1,5 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.util.HashMap;
+import java.util.Map;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
@@ -13,6 +15,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDReachabilityGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
@@ -77,14 +80,14 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs() {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
         BDD goodReach = reach().andWith(ndetStates(0).not()).andWith(wellformed(0));
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-        BDD fixedPoint = attractor(goodReach, false);
+        BDD fixedPoint = attractor(goodReach, false, distance);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -140,8 +143,17 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     @Override
-    public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
-        BDDGraph strat = super.getGraphStrategy();
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+        HashMap<Integer, BDD> distance = new HashMap<>();
+        BDD win = calcWinningDCSs(distance);
+        super.setBufferedWinDCSs(win);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
+        BDDGraph strat = BDDReachabilityGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !reach().and(state.getState()).isZero()) {
                 state.setSpecial(true);

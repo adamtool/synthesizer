@@ -12,10 +12,16 @@ public class BDDState extends State {
 
     private final BDD state;
     private boolean mcut;
+    private int distance;
     private boolean special;
 
     public BDDState(BDD state) {
+        this(state, -1);
+    }
+
+    public BDDState(BDD state, int distance) {
         this.state = state;
+        this.distance = distance;
     }
 //
 //    @Override
@@ -90,4 +96,9 @@ public class BDDState extends State {
     public void setSpecial(boolean special) {
         this.special = special;
     }
+
+    public int getDistance() {
+        return distance;
+    }
+
 }

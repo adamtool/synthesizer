@@ -20,7 +20,11 @@ public class BDDGraph extends Graph<BDDState, Flow> {
     }
 
     public BDDState addState(BDD state) {
-        return super.addState(new BDDState(state));
+        return addState(state, -1);
+    }
+
+    public BDDState addState(BDD state, int dist) {
+        return super.addState(new BDDState(state, dist));
     }
 
     public Flow addFlow(BDDState source, BDDState target, Transition t) {
