@@ -27,6 +27,11 @@ public class BDDGraph extends Graph<BDDState, Flow> {
         return super.addState(new BDDState(state, dist));
     }
 
+    @Override
+    public BDDState addState(BDDState state) {
+        return super.addState(state);
+    }
+
     public Flow addFlow(BDDState source, BDDState target, Transition t) {
         Flow flow = new Flow(source.getId(), target.getId(), t);
         return super.addFlow(flow);

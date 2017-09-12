@@ -1,12 +1,11 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
@@ -21,8 +20,8 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -542,28 +541,35 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     /**
      * Compare Algorithm for Buchi Games by Krish
      *
+     * with strategy building from zimmermanns lecture script
+     *
      * @return
      */
-    private BDD buchi() {
+    private BDD buchi(Map<Integer, BDD> distance) {
         BDD S = getBufferedDCSs().id();
         BDD W = getZero();
         BDD W_;
         BDD B = buchiStates();
+        BDD Tr;
         do {
             B = B.and(S);
-            BDD R = attractor(B, false, S);
+            if (distance != null) {
+                distance.clear();
+            }
+            BDD R = attractor(B, false, S, distance);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
 //            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
-            BDD Tr = S.and(R.not());
+            Tr = S.and(R.not());
 //            System.out.println("TR states");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
-//            BDDTools.printDecodedDecisionSets(Tr, this, true);
+//            BDDTools.printDecodedDecisionSets(Tr, this, true);         
             W_ = attractor(Tr, true, S);
+
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
 //            System.out.println("END W_ states");
@@ -572,9 +578,15 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
             W = W.or(W_);
             S.andWith(W_.not());
         } while (!W_.isZero());
-//        System.out.println("%%%%%%%%%%%% W");
+        //        System.out.println("%%%%%%%%%%%% W");
 //        BDDTools.printDecodedDecisionSets(W, this, true);
         W = W.not().and(getBufferedDCSs());
+        // Save attr0(recurm(F))\recurm(F) at position -1
+        if (distance != null) {
+//            attractor(B, false, getBufferedDCSs(), distance);
+//            System.out.println("hier" + distance.toString());
+            distance.put(-1, B);
+        }
 //        System.out.println("%%%%%%%%%%%% return");
 //        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
         return W;
@@ -591,19 +603,19 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = buchi();//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
+        BDD fixedPoint = buchi(distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        try {
-            BDDTools.saveStates2Pdf("./states", buchi(), this);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            BDDTools.saveStates2Pdf("./states", buchi(), this);
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         return fixedPoint;
     }
 
@@ -625,15 +637,17 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
-        BDDGraph strat = super.getGraphStrategy();
-//        try {
-//            BDDTools.saveStates2Pdf("./states", getBufferedDCSs(), this);
-//        } catch (IOException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+        HashMap<Integer, BDD> distance = new HashMap<>();
+        BDD win = calcWinningDCSs(distance);
+        super.setBufferedWinDCSs(win);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
+        BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);

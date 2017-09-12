@@ -125,16 +125,7 @@ public class BDDGraphBuilder {
     void addAllSuccessors(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
-            BDDState oldSuccState = graph.contains(succ);
-            if (oldSuccState != null) { // jump to every already visited cut
-                addFlow(solver, graph, prev, oldSuccState);
-            } else {
-                BDDState succState = graph.addState(succ);
-                succState.setMcut(solver.isEnvState(succ));
-                addFlow(solver, graph, prev, succState);
-                // take the next step
-                todoStates.add(succState);
-            }
+            addState(solver, graph, prev, todoStates, new BDDState(succ, -1));
             if (oneRandom) {
                 return;
             }
@@ -149,6 +140,83 @@ public class BDDGraphBuilder {
 
     Flow addFlow(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState pre, BDDState succ) {
         return graph.addFlow(pre, succ, solver.getTransition(pre.getState(), succ.getState()));
+    }
+
+    /**
+     * find a smarter solution. Problem is there is no distances added by the
+     * super class for enviroment state and the intital state. (only needed for
+     * the addOneSuccessor for reachability and buchi graph builder)
+     *
+     * @param prev
+     * @param distance
+     * @return
+     */
+    int getPrevDistance(BDDState prev, Map<Integer, BDD> distance) {
+        for (Map.Entry<Integer, BDD> entry : distance.entrySet()) {
+            Integer key = entry.getKey();
+            BDD value = entry.getValue();
+            if (!value.and(prev.getState()).isZero()) {
+                return key;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Tests if a state already exists in the graph, then it only adds the flow
+     * otherwise it constructs the succcessor and the flow and adds it to the
+     * todo states.
+     *
+     * @param solver
+     * @param graph
+     * @param prev
+     * @param todoStates
+     * @param succ
+     */
+    void addState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
+        BDDState oldSuccState = graph.contains(succ.getState());
+        if (oldSuccState != null) { // jump to every already visited cut
+            addFlow(solver, graph, prev, oldSuccState);
+        } else {
+            BDDState succState = graph.addState(succ);
+            succState.setMcut(solver.isEnvState(succ.getState()));
+            addFlow(solver, graph, prev, succState);
+            // take the next step
+            todoStates.add(succState);
+        }
+    }
+
+    /**
+     * Gets the reachability strategy for the given attractor in distance.
+     *
+     * (only needed for the addOneSuccessor for reachability and buchi graph
+     * builder)
+     *
+     * @param succs
+     * @param solver
+     * @param prev
+     * @param distance
+     * @return
+     */
+    BDDState getNearestSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDState prev, Map<Integer, BDD> distance) {
+        BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
+        int idx = prev.getDistance();
+        if (idx == -1) { // should be the initial state and all env states (todo: find a smarter solution)
+            idx = getPrevDistance(prev, distance);
+        }
+        BDD nearestSuccs = distance.get(idx - 1); // there should be a successor in the previous iteration
+        while (!succ.isZero()) {
+            if (idx == 0) { // if we are already there every successor is OK
+                return new BDDState(succ, -1);
+            }
+            // otherwise choose one which is getting nearer to the reachable states        
+            if (!succ.and(nearestSuccs).isZero()) {
+                return new BDDState(succ, idx - 1);
+            }
+            succs.andWith(succ.not());
+            succ = succs.satOne(solver.getFirstBDDVariables(), false);
+        }
+        return null;// should not happen
     }
 
 //    private final BDDPetriGame game;
