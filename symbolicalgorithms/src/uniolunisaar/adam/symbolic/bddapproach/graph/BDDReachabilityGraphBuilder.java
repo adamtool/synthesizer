@@ -25,6 +25,11 @@ public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
     }
 
     @Override
+    void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+        addNearestInitState(solver,graph,inits,todoStates,distance);
+    }
+
+    @Override
     void addOneSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
         addState(solver, graph, prev, todoStates, succ);

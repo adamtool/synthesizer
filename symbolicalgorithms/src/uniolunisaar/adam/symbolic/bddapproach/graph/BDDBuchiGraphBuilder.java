@@ -25,14 +25,20 @@ public class BDDBuchiGraphBuilder extends BDDGraphBuilder {
     }
 
     @Override
+    void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+        addNearestInitState(solver, graph, inits, todoStates, distance);
+    }
+
+    @Override
     void addOneSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
-        // Get the set attr0(recurm(F))\recurm(F)
-        BDD choosed = distance.get(-1);
-        if (choosed.and(succs).isZero()) { // first branch, thus choose strategy for the attractor
+        // Get the set F^m
+        BDD F = distance.get(-1);
+        if (F.and(prev.getState()).isZero()) { // if it's not a buchi state
             BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
             addState(solver, graph, prev, todoStates, succ);
-        } else { // choose an arbitray winning successor
-            addAllSuccessors(succs, solver, graph, prev, todoStates, true);
+        } else { // choose an arbitray winning successor (adapted from to algorithm in zimmermann to a nearest successor)            
+            BDDState succ = getNearestState(solver, succs, distance);
+            addState(solver, graph, prev, todoStates, succ);
         }
     }
 }

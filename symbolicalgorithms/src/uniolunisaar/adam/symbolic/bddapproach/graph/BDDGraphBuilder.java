@@ -70,16 +70,13 @@ public class BDDGraphBuilder {
 
         BDD inits = solver.getInitialDCSs();
         inits = inits.and(states);
-        BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
         if (strategy) { // is strategy only add one initial state            
-            BDDState in = graph.addState(init);
-            in.setMcut(solver.isEnvState(init));
-            graph.setInitial(in);
-            todoStates.add(in);
+            addOneInitState(solver, graph, inits, todoStates, distance);
         } else { // is graph add all initial states
             // Create a bufferstate where all initial states are childs
             BDDState in = graph.addState(solver.getOne());
             graph.setInitial(in);
+            BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
             while (!init.isZero()) {
                 BDDState initSucc = graph.addState(init);
                 initSucc.setMcut(solver.isEnvState(init));
@@ -122,6 +119,14 @@ public class BDDGraphBuilder {
         return graph;
     }
 
+    void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+        BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
+        BDDState in = graph.addState(init);
+        in.setMcut(solver.isEnvState(init));
+        graph.setInitial(in);
+        todoStates.add(in);
+    }
+
     void addAllSuccessors(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
@@ -147,19 +152,62 @@ public class BDDGraphBuilder {
      * super class for enviroment state and the intital state. (only needed for
      * the addOneSuccessor for reachability and buchi graph builder)
      *
-     * @param prev
+     * @param state
      * @param distance
      * @return
      */
-    int getPrevDistance(BDDState prev, Map<Integer, BDD> distance) {
-        for (Map.Entry<Integer, BDD> entry : distance.entrySet()) {
-            Integer key = entry.getKey();
-            BDD value = entry.getValue();
-            if (!value.and(prev.getState()).isZero()) {
-                return key;
+    int getDistance(BDD state, Map<Integer, BDD> distance) {
+        int max = distance.containsKey(-1) ? distance.size() - 1 : distance.size();
+        for (int i = 0; i < max; i++) {
+            BDD value = distance.get(i);
+            if (!value.and(state).isZero()) {
+                return i;
             }
         }
         return -1;
+    }
+
+    /**
+     * Gets the nearest state according to the distance set. (for buchi and
+     * reachability)
+     *
+     * @param solver
+     * @param states
+     * @param distance
+     */
+    BDDState getNearestState(BDDSolver<? extends WinningCondition> solver, BDD states, Map<Integer, BDD> distance) {
+        BDD state = states.satOne(solver.getFirstBDDVariables(), false);
+        BDD min = state;
+        int min_dist = Integer.MAX_VALUE;
+        while (!state.isZero()) {
+            int dist = getDistance(state, distance);
+            if (dist < min_dist) {
+                min = state;
+                min_dist = dist;
+            }
+            states = states.and(state.not());
+            state = states.satOne(solver.getFirstBDDVariables(), false);
+        }
+        return new BDDState(min, min_dist);
+    }
+
+    /**
+     * Adds the init state which is the nearest according to the distance set.
+     * (for buchi and reachability)
+     *
+     * @param solver
+     * @param graph
+     * @param inits
+     * @param todoStates
+     * @param distance
+     */
+    void addNearestInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+        BDDState min = getNearestState(solver, inits, distance);
+        // add the minimal init
+        BDDState in = graph.addState(min);
+        in.setMcut(solver.isEnvState(min.getState()));
+        graph.setInitial(in);
+        todoStates.add(in);
     }
 
     /**
@@ -202,7 +250,7 @@ public class BDDGraphBuilder {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         int idx = prev.getDistance();
         if (idx == -1) { // should be the initial state and all env states (todo: find a smarter solution)
-            idx = getPrevDistance(prev, distance);
+            idx = getDistance(prev.getState(), distance);
         }
         BDD nearestSuccs = distance.get(idx - 1); // there should be a successor in the previous iteration
         while (!succ.isZero()) {

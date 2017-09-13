@@ -208,6 +208,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     @Override
     public BDD initial() {
         BDD init = super.initial();
+        // one version, then in the most cases there is one unfolding of the place
         // all newly occupied flags to 0
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             init.andWith(NOCC[0][i].ithVar(0));
@@ -550,7 +551,6 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         BDD W = getZero();
         BDD W_;
         BDD B = buchiStates();
-        BDD Tr;
         do {
             B = B.and(S);
             if (distance != null) {
@@ -562,7 +562,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 //            System.out.println("END R staes");
 //            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
-            Tr = S.and(R.not());
+            BDD Tr = S.and(R.not());
 //            System.out.println("TR states");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);
 //            System.out.println("END TR states");
