@@ -78,7 +78,7 @@ public class BDDPetriGameStrategyBuilder {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
-        // add to visited mcuts 
+        // add to visited cuts 
         visitedCuts.put(initialState.getId(), initialMarking);
         while (!todoStates.isEmpty()) {
             Pair<BDDState, List<Place>> state = todoStates.poll();
@@ -89,7 +89,6 @@ public class BDDPetriGameStrategyBuilder {
                 List<Place> succMarking = new ArrayList<>(prevMarking);
 
                 // Jump over tops (tau transitions)
-                Transition strat_t = null;
                 Transition t = flow.getTransition();
                 if (t == null) { // prev was a top state
                     if (!visitedCuts.containsKey(succState.getId())) { // if not already visited
@@ -102,15 +101,22 @@ public class BDDPetriGameStrategyBuilder {
                         // if we have an already visited cut, we have to find 
                         // the transition which let to the previous state (since this was a
                         // tau transition) to put the right postset to this transition
-                        t = (Transition) prevState.getExtension("t");
-                        strat_t = (Transition) prevState.getExtension("strat_t");
-                        for (Place place : strat_t.getPostset()) { // delete the former wrong created postset
-                            strategy.removePlace(place);
+                        List<Transition> trans = (List<Transition>) prevState.getExtension("t");
+                        List<Transition> strats_t = (List<Transition>) prevState.getExtension("strat_t");
+                        for (int i = 0; i < trans.size(); i++) {
+                            t = trans.get(i);
+                            Transition strat_t = strats_t.get(i);
+                            if (i == 0) { // only delete ones, since that had been all merged to those places
+                                for (Place place : strat_t.getPostset()) { // delete the former wrong created postset
+                                    strategy.removePlace(place);
+                                }
+                            }
+                            addBehaviorForVisitedSuccessors(strategy, visitedCuts, succState, t, strat_t, todoStates, prevMarking);
                         }
                     }
                 } else { // prev was not a top state
                     // Create the new Transition
-                    strat_t = strategy.createTransition();
+                    Transition strat_t = strategy.createTransition();
                     strat_t.setLabel(t.getId());
 
                     // Create the preset edges
@@ -119,80 +125,89 @@ public class BDDPetriGameStrategyBuilder {
                         strategy.createFlow(place, strat_t);
                         succMarking.remove(place);
                     }
-                }
 
-                // Calculate the postset edges and possibly the new postset places
-                if (visitedCuts.containsKey(succState.getId())) { // already visited cut
-                    // Don't create new places, only add the "suitable" flows and delete 
-                    // the places which had been created before, which are now double.
-                    List<Place> visitedMarking = visitedCuts.get(succState.getId());
-                    // Do not create new places. Take the belonging places and only add
-                    // the needed flows            
-                    for (Place p : t.getPostset()) {
-                        Place place = getSuitablePredecessor(p.getId(), visitedMarking);
-                        strategy.createFlow(strat_t, place);
-                    }
-                    // those places which haven't change through the transition but are in the marking
-                    // thus a new place could had been created before and must be deleted and mapped to an existing place
-                    for (Place place : visitedMarking) {
-                        if (!containsID(t.getPostset(), place)) {
-                            Place place1 = null;
-                            // find the possibly unnecessarly created place
-                            for (Place p : prevMarking) {
-                                if (!(!place.getExtension("origID").equals(p.getExtension("origID")) || place.equals(p))) {
-                                    // so there is a different incarnation of the same place in the already visited mcut and the current marking
-                                    place1 = p;
-                                    break;
-                                }
-                            }
-                            if (place1 != null) {
-                                // it should only be at most one transition, since we are in the unfolding and deterministic
-                                Iterator<Transition> it = place1.getPreset().iterator();
-                                Transition tr = it.next();
-                                strategy.removePlace(place1);
-                                strategy.createFlow(tr, place);
-                                // update all markings
-                                // first the one for the other successors:
-                                prevMarking.remove(place1);
-                                prevMarking.add(place);
-                                // then all those which are still in the todo list. E.g. previous flows 
-                                // with the same prevMarking calculated in the flow loop before
-                                for (Pair<BDDState, List<Place>> pair : todoStates) {
-                                    List<Place> mark = pair.getSecond();
-                                    if (mark.contains(place1)) {
-                                        mark.remove(place1);
-                                        mark.add(place);
-                                    }
-                                    // TODO: Test if necessare or call by by reference
-                                    //todoStates.push(new Pair<>(pair.getFirst(), mark));
-                                }
-                                // that's it since the visitedMarkings belong to mcuts and we would already had updated them
-                            }
+                    // Calculate the postset edges and possibly the new postset places
+                    if (visitedCuts.containsKey(succState.getId())) { // already visited cut
+                        addBehaviorForVisitedSuccessors(strategy, visitedCuts, succState, t, strat_t, todoStates, prevMarking);
+                    } else {// new state reached
+                        // create all postset places as new copies
+                        for (Place p : t.getPostset()) {
+                            Place strat_p = strategy.createPlace(p.getId() + DELIM + succState.getId());
+                            strat_p.putExtension("origID", p.getId());
+                            strat_p.copyExtensions(p);
+                            strategy.createFlow(strat_t, strat_p);
+                            succMarking.add(strat_p);
                         }
-                    }
-                } else {
-                    // create all postset places as new copies
-                    for (Place p : t.getPostset()) {
-                        Place strat_p = strategy.createPlace(p.getId() + DELIM + succState.getId());
-                        strat_p.putExtension("origID", p.getId());
-                        strat_p.copyExtensions(p);
-                        strategy.createFlow(strat_t, strat_p);
-                        succMarking.add(strat_p);
+                        todoStates.add(new Pair<>(succState, succMarking));
+                        // add to visited cuts 
+                        visitedCuts.put(succState.getId(), succMarking);
                     }
                     // if the succ has a top, save the transition leeding to the state
                     // for creating the pg strategy
                     if (solver.hasTop(succState.getState())) {
-                        succState.putExtension("strat_t", strat_t);
-                        succState.putExtension("t", t);
+                        // there could possibly be more than one predeccessor
+                        List<Transition> strat_trans = (succState.hasExtension("strat_t")) ? (List<Transition>) succState.getExtension("strat_t") : new ArrayList<Transition>();
+                        strat_trans.add(strat_t);
+                        List<Transition> trans = (succState.hasExtension("t")) ? (List<Transition>) succState.getExtension("t") : new ArrayList<Transition>();
+                        trans.add(t);
+                        succState.putExtension("strat_t", strat_trans);
+                        succState.putExtension("t", trans);
                     }
-                    todoStates.add(new Pair<>(succState, succMarking));
-                    // add to visited cuts 
-                    visitedCuts.put(succState.getId(), succMarking);
                 }
             }
             addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         }
         cleanup();
+    }
+
+    void addBehaviorForVisitedSuccessors(PetriNet strategy, Map<Integer, List<Place>> visitedCuts, BDDState succState, Transition t, Transition strat_t, LinkedList<Pair<BDDState, List<Place>>> todoStates, List<Place> prevMarking) {
+        // Don't create new places, only add the "suitable" flows and delete 
+        // the places which had been created before, which are now double.
+        List<Place> visitedMarking = visitedCuts.get(succState.getId());
+        // Do not create new places. Take the belonging places and only add
+        // the needed flows            
+        for (Place p : t.getPostset()) {
+            Place place = getSuitablePredecessor(p.getId(), visitedMarking);
+            strategy.createFlow(strat_t, place);
+        }
+        // those places which haven't change through the transition but are in the marking
+        // thus a new place could had been created before and must be deleted and mapped to an existing place
+        for (Place place : visitedMarking) {
+            if (!containsID(t.getPostset(), place)) {
+                Place place1 = null;
+                // find the possibly unnecessarly created place
+                for (Place p : prevMarking) {
+                    if (!(!place.getExtension("origID").equals(p.getExtension("origID")) || place.equals(p))) {
+                        // so there is a different incarnation of the same place in the already visited mcut and the current marking
+                        place1 = p;
+                        break;
+                    }
+                }
+                if (place1 != null) {
+                    // it should only be at most one transition, since we are in the unfolding and deterministic
+                    Iterator<Transition> it = place1.getPreset().iterator();
+                    Transition tr = it.next();
+                    strategy.removePlace(place1);
+                    strategy.createFlow(tr, place);
+                    // update all markings
+                    // first the one for the other successors:
+                    prevMarking.remove(place1);
+                    prevMarking.add(place);
+                    // then all those which are still in the todo list. E.g. previous flows 
+                    // with the same prevMarking calculated in the flow loop before
+                    for (Pair<BDDState, List<Place>> pair : todoStates) {
+                        List<Place> mark = pair.getSecond();
+                        if (mark.contains(place1)) {
+                            mark.remove(place1);
+                            mark.add(place);
+                        }
+                        // TODO: Test if necessare or call by by reference
+                        //todoStates.push(new Pair<>(pair.getFirst(), mark));
+                    }
+                    // that's it since the visitedMarkings belong to mcuts and we would already had updated them
+                }
+            }
+        }
     }
 
     /**
