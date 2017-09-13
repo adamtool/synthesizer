@@ -40,6 +40,7 @@ public class BDDTestingTools {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);
         Assert.assertTrue(Tools.isDeterministic(strats.getSecond()), "Is deterministic");
+        Assert.assertFalse(Tools.restrictsEnvTransition(solv.getNet(), strats.getSecond()), "Restricts Environment Transitions");
         System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
         System.out.println("Save petri game pdf.");
