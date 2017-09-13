@@ -41,14 +41,14 @@ public class BDDTestingTools {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
-        System.out.println("node"+ cover.calculateNodes());
         boolean det = Tools.isDeterministic(strats.getSecond(), cover);
         Assert.assertTrue(det, "Is deterministic");
         boolean res = Tools.restrictsEnvTransition(solv.getNet(), strats.getSecond());
         Assert.assertFalse(res, "Restricts Environment Transitions");
-        boolean dead = Tools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
-        System.out.println("dead" + dead);
-        Assert.assertTrue(dead, "Is Deadlock Avoiding");
+        if (!(solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.E_REACHABILITY))) {
+            boolean dead = Tools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
+            Assert.assertTrue(dead, "Is Deadlock Avoiding");
+        }
         System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
         System.out.println("Save petri game pdf.");
