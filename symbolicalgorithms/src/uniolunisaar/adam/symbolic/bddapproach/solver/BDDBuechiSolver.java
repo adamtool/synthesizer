@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
+import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
+import uniol.apt.adt.pn.Token;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
@@ -209,9 +211,21 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     public BDD initial() {
         BDD init = super.initial();
         // one version, then in the most cases there is one unfolding of the place
-        // all newly occupied flags to 0
+//        // all newly occupied flags to 0
+//        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+//            init.andWith(NOCC[0][i].ithVar(0));
+//        }
+        // all newly ocupied flags for the initial token are 1 the others zero
+        Marking m = getNet().getInitialMarking();
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
-            init.andWith(NOCC[0][i].ithVar(0));
+            boolean occ = false;
+            for (Place p : getGame().getPlaces()[i]) {
+                if (m.getToken(p).getValue() > 0) {
+                    occ = true;
+                    break;
+                }
+            }
+            init.andWith(NOCC[0][i].ithVar(occ ? 1 : 0));
         }
         init.andWith(LOOP[0].ithVar(0));
         init.andWith(ndetStates(0).not());

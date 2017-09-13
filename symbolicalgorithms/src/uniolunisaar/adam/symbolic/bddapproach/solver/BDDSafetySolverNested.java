@@ -10,13 +10,16 @@ import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
+import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -28,7 +31,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDSafetySolverNested extends BDDSolver<Safety> {
+public class BDDSafetySolverNested extends BDDSolver<Safety> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] TYPE;
@@ -826,6 +829,31 @@ public class BDDSafetySolverNested extends BDDSolver<Safety> {
             }
         }
         return graph;
+    }
+
+    @Override
+    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return pn;
+    }
+
+    @Override
+    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return new Pair<>(gstrat, pstrat);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations %%%%%%%%%%%%%%%%

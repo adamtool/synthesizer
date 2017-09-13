@@ -10,13 +10,16 @@ import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
+import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -25,7 +28,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDSafetySolver extends BDDSolver<Safety> {
+public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] TYPE;
@@ -62,7 +65,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
      *
      * TODO: is this ordering more expensive, since the types are all together
      * at the end?
-     * 
+     *
      * But at least problem for my output functions in BDDTools, since I use
      * explicit counting.
      */
@@ -162,7 +165,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         for (Transition t : getGame().getSysTransition()) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, false, 0);
-            
+
             List<Integer> visitedToken = new ArrayList<>();
 
             // set the dcs for the place of the postset 
@@ -534,7 +537,6 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 //        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
 //        return forall.or(exists).and(wellformed());
 //    }
-
     /**
      * Overriden since the standard case only knows type1 places.
      */
@@ -565,16 +567,16 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         return en;//.andWith(getWellformed());
     }
-    
+
     private BDD firable(Transition t, boolean type1, int pos) {
         return enabled(t, type1, pos).andWith(chosen(t, pos));
     }
-    
+
     @Override
     boolean isFirable(Transition t, BDD source) {
         return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
-    
+
     @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
@@ -638,14 +640,14 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 //        return env.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
         return env.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
-    
+
     @Override
     BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(TYPE[pos][token - 1].ithVar(0));
         return zero;
     }
-    
+
     @Override
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
@@ -673,7 +675,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             all.andWith(pl.orWith(zero));
         }
     }
-    
+
     @Override
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
@@ -682,7 +684,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             if (!getGame().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, true, 0);
-                
+
                 List<Integer> visitedToken = new ArrayList<>();
 
                 // set the dcs for the place of the postset 
@@ -726,11 +728,11 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
                 dis.orWith(all);
             }
         }
-        
+
         mcut.andWith(dis);
         return mcut.andWith(wellformed(1));//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
-    
+
     @Override
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
@@ -790,7 +792,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             sysT.andWith(impl);
         }
         sysT = top.impWith(sysT);
-        
+
         sys1.andWith(sysN);
         sys1.andWith(sysT);
         // p0=p0'        
@@ -799,7 +801,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 //        return sys1.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
-    
+
     @Override
     BDD sysTransitionsNotCP() {
         return super.sysTransitionsNotCP().andWith(wellformed(1));
@@ -811,7 +813,6 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
 ////        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
 //        return wellformed(0).andWith(wrongTypedType2DCS().not());
 //    }
-
     /**
      * Returns the winning decisionsets for the system players
      *
@@ -848,6 +849,31 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
             }
         }
         return graph;
+    }
+
+    @Override
+    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return pn;
+    }
+
+    @Override
+    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+        BDDGraph gstrat = getGraphStrategy();
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        PetriNet pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        return new Pair<>(gstrat, pstrat);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
 
@@ -922,7 +948,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> {
         }
         return type2Trap;
     }
-    
+
     BDD getBufferedSystem2Transition() {
         if (system2 == null) {
             system2 = sys2Transitions();

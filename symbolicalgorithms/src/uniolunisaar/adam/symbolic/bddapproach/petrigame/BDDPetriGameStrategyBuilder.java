@@ -50,7 +50,7 @@ public class BDDPetriGameStrategyBuilder {
         for (Place p : solver.getNet().getPlaces()) {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
-                place.putExtension("origID", p.getId());                
+                place.putExtension("origID", p.getId());
                 place.copyExtensions(p);
                 place.setInitialToken(1);
                 initial.add(place);
@@ -75,13 +75,11 @@ public class BDDPetriGameStrategyBuilder {
     }
 
     private void calculateStrategyByBFS(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState initialState, List<Place> initialMarking) {
-        Map<Integer, List<Place>> visitedMCuts = new HashMap<>(); // todo: only cuts should be enough
+        Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
         // add to visited mcuts 
-//        if (initialState.isMcut()) { todo: only cuts should be enough
-        visitedMCuts.put(initialState.getId(), initialMarking);
-//        }
+        visitedCuts.put(initialState.getId(), initialMarking);
         while (!todoStates.isEmpty()) {
             Pair<BDDState, List<Place>> state = todoStates.poll();
             BDDState prevState = state.getFirst();
@@ -93,15 +91,13 @@ public class BDDPetriGameStrategyBuilder {
                 // Jump over tops (tau transitions)
                 Transition strat_t = null;
                 Transition t = flow.getTransition();
-                if (t == null) {
-                    if (!visitedMCuts.containsKey(succState.getId())) { // if not already visited
+                if (t == null) { // prev was a top state
+                    if (!visitedCuts.containsKey(succState.getId())) { // if not already visited
                         // there can only be one successor of a top state in a strategy (deterministic)
                         todoStates.add(new Pair<>(succState, succMarking));
-                        // add to visited mcuts 
-//                        if (succState.isMcut()) { // todo cuts should be enough
-                        visitedMCuts.put(succState.getId(), succMarking);
-//                        }
-                        continue; // break is also OK, since there is only one
+                        // add to visited cuts 
+                        visitedCuts.put(succState.getId(), succMarking);
+                        break; // break is OK, since there is only one
                     } else {
                         // if we have an already visited cut, we have to find 
                         // the transition which let to the previous state (since this was a
@@ -112,7 +108,7 @@ public class BDDPetriGameStrategyBuilder {
                             strategy.removePlace(place);
                         }
                     }
-                } else {
+                } else { // prev was not a top state
                     // Create the new Transition
                     strat_t = strategy.createTransition();
                     strat_t.setLabel(t.getId());
@@ -126,11 +122,10 @@ public class BDDPetriGameStrategyBuilder {
                 }
 
                 // Calculate the postset edges and possibly the new postset places
-//                if (succState.isMcut() && visitedMCuts.containsKey(succState.getId())) { // already visited mcut
-                if (visitedMCuts.containsKey(succState.getId())) { // already visited mcut todo: cut should be enough
+                if (visitedCuts.containsKey(succState.getId())) { // already visited cut
                     // Don't create new places, only add the "suitable" flows and delete 
                     // the places which had been created before, which are now double.
-                    List<Place> visitedMarking = visitedMCuts.get(succState.getId());
+                    List<Place> visitedMarking = visitedCuts.get(succState.getId());
                     // Do not create new places. Take the belonging places and only add
                     // the needed flows            
                     for (Place p : t.getPostset()) {
@@ -186,19 +181,18 @@ public class BDDPetriGameStrategyBuilder {
                     }
                     // if the succ has a top, save the transition leeding to the state
                     // for creating the pg strategy
-                    if (solver.hasTop(succState.getState())) { // TODO: attention problem with the top stuff. Should be separated class
+                    if (solver.hasTop(succState.getState())) {
                         succState.putExtension("strat_t", strat_t);
                         succState.putExtension("t", t);
                     }
                     todoStates.add(new Pair<>(succState, succMarking));
-                    // add to visited mcuts 
-//                    if (succState.isMcut()) { // cuts should be enough
-                    visitedMCuts.put(succState.getId(), succMarking);
-//                    }
+                    // add to visited cuts 
+                    visitedCuts.put(succState.getId(), succMarking);
                 }
             }
             addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         }
+        cleanup();
     }
 
     /**
@@ -209,6 +203,13 @@ public class BDDPetriGameStrategyBuilder {
      * @param strategy
      */
     void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+
+    }
+
+    /**
+     * No clean up behaviour is needed here.
+     */
+    void cleanup() {
 
     }
 

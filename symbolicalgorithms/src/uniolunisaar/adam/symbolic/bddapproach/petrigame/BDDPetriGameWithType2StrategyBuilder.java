@@ -12,45 +12,52 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSafetySolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDType2Solver;
 
 /**
  * @author Manuel Gieseking
  */
 public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBuilder {
-    
+
     private static final String DELIM_TYPE_2 = "_2_";
-    
+
     private static BDDPetriGameWithType2StrategyBuilder instance = null;
-    
+
     public static BDDPetriGameWithType2StrategyBuilder getInstance() {
         if (instance == null) {
             instance = new BDDPetriGameWithType2StrategyBuilder();
         }
         return instance;
     }
-    
+
     private BDDPetriGameWithType2StrategyBuilder() {
         BDDPetriGameStrategyBuilder.getInstance();
     }
-    
+
     private boolean firstType2State = true;
     private Map<BDD, List<Place>> visitedType2Markings;
     private int type2Ids = 0;
-    
+
+    @Override
+    void cleanup() {
+        firstType2State = true;
+        visitedType2Markings = null;
+        type2Ids = 0;
+    }
+
     @Override
     void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
-        super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking); //To change body of generated methods, choose Tools | Templates.
+        super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
-        // Adapt the name of the net
-        strategy.setName("Safety winning strategy of the system players of the net '" + solver.getNet().getName() + "'.");
-        // Must be a safety solver
-        BDDSafetySolver sol = (BDDSafetySolver) solver;
+//        // Adapt the name of the net
+//        strategy.setName("Winning strategy of the system players of the net '" + solver.getNet().getName() + "' with type 2");
+        // Must be a solver with type2 ability
+        BDDType2Solver sol = (BDDType2Solver) solver;
         // Add type2-strategy. We only have to consider it once. Since type2-strategies are
-        // only strategies where the system can infinitely on its own. So when a new type2 state is reached
+        // only strategies where the system can infinitely play on its own. So when a new type2 state is reached
         // the place must be occupied by a token (states are enriched markings), the token cannot be taken 
-        // away, since the system won't do it (is not stupid) and the environment cannot, since only sys places
+        // away, since the system won't do it (it's not stupid) and the environment cannot, since only sys places
         // are able to be type2-places. So we can play as long as we need, but the token will stuck there. Maybe we
         // reach other type2-places, but its also a valid strategy to let them stuck there, because we can play
         // infinitely long on our own.
@@ -59,10 +66,10 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
             type2Step(sol, strategy, prevState.getState(), prevMarking);
             firstType2State = false;
         }
-        
+
     }
-    
-    private void type2Step(BDDSafetySolver solver, PetriNet strategy, BDD state, List<Place> marking) {
+
+    private void type2Step(BDDType2Solver solver, PetriNet strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");

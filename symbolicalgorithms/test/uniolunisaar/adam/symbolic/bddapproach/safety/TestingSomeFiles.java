@@ -152,4 +152,14 @@ public class TestingSomeFiles {
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
+    
+        @Test(enabled = true) 
+    public void testJournal() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "tests" + File.separator;
+        final String name = "journalReview2";
+        Logger.getInstance().setVerbose(true);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir+name+"_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
 }
