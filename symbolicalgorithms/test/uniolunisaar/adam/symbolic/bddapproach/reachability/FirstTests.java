@@ -110,4 +110,8 @@ public class FirstTests {
         testToyExamples("shortestStrategy1", true);
     }
 
+    @Test
+    public void testToyExampleQuestion() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        testToyExamples("question", true);
+    }
 }
