@@ -19,7 +19,6 @@ import uniolunisaar.adam.tools.Tools;
  * @author Manuel Gieseking
  */
 public class BDDTestingTools {
-    
 
     public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
         Tools.savePN2PDF(file, solv.getNet(), false);
@@ -39,7 +38,8 @@ public class BDDTestingTools {
 
     private static void printWinningStrategies(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
-       //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);
+        //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);
+        Assert.assertTrue(Tools.isDeterministic(strats.getSecond()), "Is deterministic");
         System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
         System.out.println("Save petri game pdf.");
