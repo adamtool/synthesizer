@@ -37,7 +37,9 @@ public class TestingAllFilesInFolder {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "infiniteB.apt",
-            "nondet2.apt",
+            "infiniteC.apt",
+            "simple.apt",
+//            "nondet2.apt", is OK, since we can deadlock after reaching the place
             "notReachable.apt"
             ));
     private static final List<String> skip = new ArrayList<>(
