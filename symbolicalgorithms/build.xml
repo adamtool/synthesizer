@@ -40,6 +40,9 @@
 	<target name="jar-standalone" depends="loadProperties" description="Builds a jar with all its dependencies">
 		<antcall target="symbolic.fu.jar-standalone"/>
 	</target>
+	<target name="javadoc" depends="loadProperties" description="Creates the JavaDoc of this package.">
+		<antcall target="bounded.fu.javadoc"/>
+	</target>
 	<target name="clean" depends="loadProperties" description="Cleans all temporary files.">
 		<antcall target="symbolic.fu.clean"/>
 	</target>
