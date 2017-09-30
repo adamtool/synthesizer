@@ -3,8 +3,11 @@ package uniolunisaar.adam.symbolic.bddapproach.safety;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import uniol.apt.adt.pn.PetriNet;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
@@ -20,6 +23,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.Tools;
 
 /**
  *
@@ -140,6 +144,19 @@ public class TestingSomeFiles {
         final String name = "nondet_s3_noStrat";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
+    }
+
+    @Test
+    public void testNdetProbS3() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "ndet" + File.separator;
+        final String name = "nondet_withBad";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        PetriNet strat = solv.getStrategy();
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
+        Assert.assertTrue(Tools.isDeterministic(strat, cover));
+        Assert.assertTrue(Tools.isDeadlockAvoiding(solv.getNet(), strat, cover));
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
     }
 

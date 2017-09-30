@@ -55,8 +55,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     private BDD winDCSs = null;
     private BDD DCSs = null;
     private BDD ndet = null;
-    private BDD reachableStates = null;
-
+    
     /**
      * Creates a new solver for the given game.
      *
