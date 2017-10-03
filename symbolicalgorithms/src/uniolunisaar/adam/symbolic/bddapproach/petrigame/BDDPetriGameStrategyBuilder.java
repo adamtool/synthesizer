@@ -16,6 +16,7 @@ import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
+import uniolunisaar.adam.ds.util.PetriNetAnnotator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -50,7 +51,7 @@ public class BDDPetriGameStrategyBuilder {
         for (Place p : solver.getNet().getPlaces()) {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
-                place.putExtension("origID", p.getId());
+                PetriNetAnnotator.setOrigID(place, p.getId());
                 place.copyExtensions(p);
                 place.setInitialToken(1);
                 initial.add(place);
@@ -133,7 +134,7 @@ public class BDDPetriGameStrategyBuilder {
                         // create all postset places as new copies
                         for (Place p : t.getPostset()) {
                             Place strat_p = strategy.createPlace(p.getId() + DELIM + succState.getId());
-                            strat_p.putExtension("origID", p.getId());
+                            PetriNetAnnotator.setOrigID(strat_p, p.getId());
                             strat_p.copyExtensions(p);
                             strategy.createFlow(strat_t, strat_p);
                             succMarking.add(strat_p);
