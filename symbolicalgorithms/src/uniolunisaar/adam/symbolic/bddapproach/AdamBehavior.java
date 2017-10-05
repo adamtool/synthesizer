@@ -10,6 +10,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -111,7 +112,7 @@ public class AdamBehavior {
      * @throws NoSuitableDistributionFoundException
      */
     public static boolean existsWinningStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.existsWinningStrategy();
     }
@@ -134,7 +135,7 @@ public class AdamBehavior {
      */
     public static boolean existsWinningStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         PetriNet net = game.getNet();
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.existsWinningStrategy();
     }
@@ -228,7 +229,7 @@ public class AdamBehavior {
      * @throws NoSuitableDistributionFoundException
      */
     public static PetriNet getStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategy();
     }
@@ -251,7 +252,7 @@ public class AdamBehavior {
      */
     public static PetriNet getStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
         PetriNet net = game.getNet();
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategy();
     }
@@ -345,7 +346,7 @@ public class AdamBehavior {
      * @throws NoSuitableDistributionFoundException
      */
     public static BDDGraph getGraphStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphStrategy();
     }
@@ -368,7 +369,7 @@ public class AdamBehavior {
      */
     public static BDDGraph getGraphStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
         PetriNet net = game.getNet();
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphStrategy();
     }
@@ -461,7 +462,7 @@ public class AdamBehavior {
      * @throws NoSuitableDistributionFoundException
      */
     public static BDDGraph getGraphGraph(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphGame();
     }
@@ -483,7 +484,7 @@ public class AdamBehavior {
      */
     public static BDDGraph getGraphGame(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
         PetriNet net = game.getNet();
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphGame();
     }
@@ -596,7 +597,7 @@ public class AdamBehavior {
      * @throws NoSuitableDistributionFoundException
      */
     public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategies();
     }
@@ -621,7 +622,7 @@ public class AdamBehavior {
      */
     public static Pair<BDDGraph, PetriNet> getStrategies(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException {
         PetriNet net = game.getNet();
-        net.putExtension("winningCondition", win);
+        AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategies();
     }

@@ -32,7 +32,7 @@ import uniolunisaar.adam.tools.Logger;
  */
 @Test
 public class TestingAllFilesInFolder {
-    
+
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
@@ -44,7 +44,8 @@ public class TestingAllFilesInFolder {
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
             "nondet.apt",
             "nondet2.apt",
-            //            "nondet2WithSys.apt",
+            "nondet_withBad.apt", // has a strategy since nondet is overseen
+            "nondet2WithSys.apt", // has a strategy since nondet is overseen
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
@@ -56,15 +57,15 @@ public class TestingAllFilesInFolder {
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
             "wf_2_3_pg_reversible.apt" // currently unbounded
-        //    "robots.apt" // not annotated with token, calculation of invariants takes to long TODO: jesko deleted?
+    //    "robots.apt" // not annotated with token, calculation of invariants takes to long TODO: jesko deleted?
     ));
-    
+
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
-    
+
     @DataProvider(name = "files")
     public static Object[][] allExamples() {
         Collection<File> files = FileUtils.listFiles(
@@ -82,7 +83,7 @@ public class TestingAllFilesInFolder {
         }
         return out;
     }
-    
+
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, UnboundedPGException {
         String output = outputDir + file.getName().split(".apt")[0];

@@ -10,7 +10,7 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.util.PetriNetAnnotator;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -109,7 +109,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
                 } else {
                     for (Place p : t.getPostset()) {
                         Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
-                        PetriNetAnnotator.setOrigID(strat_p, p.getId());
+                        AdamExtensions.setOrigID(strat_p, p.getId());
                         strat_p.copyExtensions(p);
                         strategy.createFlow(strat_t, strat_p);
                         marking.add(strat_p);

@@ -12,7 +12,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.util.PetriNetAnnotator;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -74,7 +74,7 @@ public class BDDPetriGame extends PetriGame {
                 places[token] = new HashSet<>();
             }
             int add = additional;
-            PetriNetAnnotator.setID(place, places[token].size() + add);
+            AdamExtensions.setID(place, places[token].size() + add);
             places[token].add(place);
         }
 
