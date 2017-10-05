@@ -16,6 +16,7 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -30,7 +31,7 @@ public class BDDTools {
     private static final boolean print = false;
 
     public static String place2BinID(Place p, int digits) {
-        String binID = Integer.toBinaryString((Integer) p.getExtension("id"));
+        String binID = Integer.toBinaryString(AdamExtensions.getID(p));
         binID = String.format("%" + digits + "s", binID).replace(' ', '0');
         return new StringBuilder(binID).reverse().toString();
     }

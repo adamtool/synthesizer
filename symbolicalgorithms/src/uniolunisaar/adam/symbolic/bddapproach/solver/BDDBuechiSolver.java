@@ -18,6 +18,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -181,7 +182,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
     private BDD buchiStates() {
         BDD buchi = getZero();
         for (Place place : getWinningCondition().getBuchiPlaces()) {
-            int token = (Integer) place.getExtension("token");
+            int token = AdamExtensions.getToken(place);
             // is a buchi place and is newly occupied, than it's a buchi state
             buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
         }
@@ -348,7 +349,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
                 // set the dcs for the place of the postset 
                 for (Place post : t.getPostset()) {
-                    int token = (Integer) post.getExtension("token");
+                    int token = AdamExtensions.getToken(post);
                     if (token != 0) { // jump over environment
                         visitedToken.add(token);
                         //pre_i=post_j'
@@ -494,7 +495,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = (Integer) post.getExtension("token");
+                int token = AdamExtensions.getToken(post);
                 if (token != 0) { // jump over environment, could not appear...
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -797,7 +798,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = (Integer) p.getExtension("token");
+            int token = AdamExtensions.getToken(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             restTarget = restTarget.exist(getTokenVariables(0, token));
         }
@@ -817,7 +818,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, (Integer) p.getExtension("token")));
+            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getToken(p)));
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%

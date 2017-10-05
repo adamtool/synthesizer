@@ -18,12 +18,12 @@ import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionExcep
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.tools.Tools;
 
 /**
  *
@@ -155,8 +155,8 @@ public class TestingSomeFiles {
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
         PetriNet strat = solv.getStrategy();
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
-        Assert.assertTrue(Tools.isDeterministic(strat, cover));
-        Assert.assertTrue(Tools.isDeadlockAvoiding(solv.getNet(), strat, cover));
+        Assert.assertTrue(AdamTools.isDeterministic(strat, cover));
+        Assert.assertTrue(AdamTools.isDeadlockAvoiding(solv.getNet(), strat, cover));
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
     }
 

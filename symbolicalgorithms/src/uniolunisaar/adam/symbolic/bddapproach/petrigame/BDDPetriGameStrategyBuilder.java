@@ -19,9 +19,9 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.tools.Tools;
 
 /**
  * @author Manuel Gieseking
@@ -62,11 +62,9 @@ public class BDDPetriGameStrategyBuilder {
             calculateStrategyByBFS(solver, graph, strategy, init, initial);
         } catch (Exception e) {
             try {
-                Tools.savePN2PDF("error_petrinet", strategy, true);
+                AdamTools.savePG2PDF("error_petrinet", strategy, true);
                 throw e;
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
+            } catch (IOException | InterruptedException ex) {
                 java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -102,8 +100,8 @@ public class BDDPetriGameStrategyBuilder {
                         // if we have an already visited cut, we have to find 
                         // the transition which let to the previous state (since this was a
                         // tau transition) to put the right postset to this transition
-                        List<Transition> trans = (List<Transition>) prevState.getExtension("t");
-                        List<Transition> strats_t = (List<Transition>) prevState.getExtension("strat_t");
+                        List<Transition> trans = AdamExtensions.getTransition(prevState);
+                        List<Transition> strats_t = AdamExtensions.getStrategyTransition(prevState);
                         for (int i = 0; i < trans.size(); i++) {
                             t = trans.get(i);
                             Transition strat_t = strats_t.get(i);
@@ -147,9 +145,9 @@ public class BDDPetriGameStrategyBuilder {
                     // for creating the pg strategy
                     if (solver.hasTop(succState.getState())) {
                         // there could possibly be more than one predeccessor
-                        List<Transition> strat_trans = (succState.hasExtension("strat_t")) ? (List<Transition>) succState.getExtension("strat_t") : new ArrayList<Transition>();
+                        List<Transition> strat_trans = (succState.hasExtension("strat_t")) ? AdamExtensions.getStrategyTransition(succState) : new ArrayList<>();
                         strat_trans.add(strat_t);
-                        List<Transition> trans = (succState.hasExtension("t")) ? (List<Transition>) succState.getExtension("t") : new ArrayList<Transition>();
+                        List<Transition> trans = (succState.hasExtension("t")) ? AdamExtensions.getTransition(succState) : new ArrayList<>();
                         trans.add(t);
                         AdamExtensions.setStrategyTransition(succState, strat_trans);
                         AdamExtensions.setTransition(succState, trans);
@@ -178,7 +176,9 @@ public class BDDPetriGameStrategyBuilder {
                 Place place1 = null;
                 // find the possibly unnecessarly created place
                 for (Place p : prevMarking) {
-                    if (!(!place.getExtension("origID").equals(p.getExtension("origID")) || place.equals(p))) {
+                    String placeOID = AdamExtensions.getOrigID(place);
+                    String pOID = AdamExtensions.getOrigID(p);
+                    if (!(!placeOID.equals(pOID) || place.equals(p))) {
                         // so there is a different incarnation of the same place in the already visited mcut and the current marking
                         place1 = p;
                         break;
@@ -231,7 +231,7 @@ public class BDDPetriGameStrategyBuilder {
 
     private boolean containsID(Set<Place> places, Place place) {
         for (Place p : places) {
-            if (p.getId().equals(place.getExtension("origID"))) {
+            if (p.getId().equals(AdamExtensions.getOrigID(place))) {
                 return true;
             }
         }
@@ -258,7 +258,7 @@ public class BDDPetriGameStrategyBuilder {
      */
     Place getSuitablePredecessor(String placeid, List<Place> marking) {
         for (Place p : marking) {
-            String id = (String) p.getExtension("origID");
+            String id = AdamExtensions.getOrigID(p);
             if (id.equals(placeid)) {
                 return p;
             }

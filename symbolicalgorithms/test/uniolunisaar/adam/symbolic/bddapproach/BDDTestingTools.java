@@ -11,9 +11,9 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
-import uniolunisaar.adam.tools.Tools;
 
 /**
  *
@@ -22,9 +22,9 @@ import uniolunisaar.adam.tools.Tools;
 public class BDDTestingTools {
 
     public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
-        Tools.savePN2PDF(file, solv.getNet(), false);
+        AdamTools.savePG2PDF(file, solv.getNet(), false);
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
-        Tools.savePN2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
+        AdamTools.savePG2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
         if (hasStrategy) {
             Assert.assertTrue(solv.existsWinningStrategy());
             printWinningStrategies(solv, file);
@@ -41,18 +41,18 @@ public class BDDTestingTools {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
-        boolean det = Tools.isDeterministic(strats.getSecond(), cover);
+        boolean det = AdamTools.isDeterministic(strats.getSecond(), cover);
         Assert.assertTrue(det, "Is deterministic");
-        boolean res = Tools.restrictsEnvTransition(solv.getNet(), strats.getSecond());
+        boolean res = AdamTools.restrictsEnvTransition(solv.getNet(), strats.getSecond());
         Assert.assertFalse(res, "Restricts Environment Transitions");
         if (!(solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.E_REACHABILITY))) {
-            boolean dead = Tools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
+            boolean dead = AdamTools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
             Assert.assertTrue(dead, "Is Deadlock Avoiding");
         }
         System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
         System.out.println("Save petri game pdf.");
-        Tools.savePN2PDF(path + "_pg", strats.getSecond(), true);
+        AdamTools.savePG2PDF(path + "_pg", strats.getSecond(), true);
     }
 
     private static void printWinningStratGraph(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
@@ -63,7 +63,7 @@ public class BDDTestingTools {
 
     private static void printWinningStratPG(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
         PetriNet strategy = solv.getStrategy();
-        Tools.savePN2DotAndPDF(path + "_pg", strategy, true);
+        AdamTools.savePG2DotAndPDF(path + "_pg", strategy, true);
     }
 
 }

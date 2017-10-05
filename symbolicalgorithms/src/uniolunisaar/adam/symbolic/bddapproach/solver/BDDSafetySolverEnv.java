@@ -12,6 +12,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -86,7 +87,7 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
     private BDD badPlaces() {
         BDD reach = getZero();
         for (Place place : getWinningCondition().getBadPlaces()) {
-            reach.orWith(codePlace(place, 0, (Integer) place.getExtension("token")));
+            reach.orWith(codePlace(place, 0, AdamExtensions.getToken(place)));
         }
         return reach;
     }

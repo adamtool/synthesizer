@@ -69,7 +69,7 @@ public class BDDPetriGame extends PetriGame {
         int additional = (isConcurrencyPreserving()) ? 0 : 1;
         places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
         for (Place place : getNet().getPlaces()) {
-            int token = (Integer) place.getExtension("token");
+            int token = AdamExtensions.getToken(place);
             if (places[token] == null) {
                 places[token] = new HashSet<>();
             }

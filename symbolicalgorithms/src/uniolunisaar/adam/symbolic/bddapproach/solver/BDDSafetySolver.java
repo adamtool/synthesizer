@@ -16,6 +16,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -170,7 +171,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = (Integer) post.getExtension("token");
+                int token = AdamExtensions.getToken(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -286,7 +287,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
     private BDD baddcs(int pos) {
         BDD bad = getZero();
         for (Place place : getWinningCondition().getBadPlaces()) {
-            bad.orWith(codePlace(place, pos, (Integer) place.getExtension("token")));
+            bad.orWith(codePlace(place, pos, AdamExtensions.getToken(place)));
         }
         return bad;
     }
@@ -560,7 +561,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         for (Place place : t.getPreset()) {
             if (!place.hasExtension("env")) {
                 // Sys places
-                int token = (Integer) place.getExtension("token");
+                int token = AdamExtensions.getToken(place);
                 BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
                 en.andWith(type);
             }
@@ -689,7 +690,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
 
                 // set the dcs for the place of the postset 
                 for (Place post : t.getPostset()) {
-                    int token = (Integer) post.getExtension("token");
+                    int token = AdamExtensions.getToken(post);
                     if (token != 0) { // jump over environment
                         visitedToken.add(token);
                         //pre_i=post_j'

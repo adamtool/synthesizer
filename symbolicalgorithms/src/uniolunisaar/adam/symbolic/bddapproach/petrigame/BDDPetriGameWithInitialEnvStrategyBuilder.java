@@ -65,7 +65,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
         // add the enviroment strategy
         while (!todo.isEmpty()) {
             Place pre = todo.iterator().next();
-            Place orig = net.getPlace((String) pre.getExtension("origID"));
+            Place orig = net.getPlace(AdamExtensions.getOrigID(pre));
             for (Transition t : orig.getPostset()) {
                 if (trans.contains(t)) { // it's a single enviroment transition -> add
                     // Create the new Transition
@@ -76,7 +76,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
                         // test if successor is already in net
                         boolean added = false;
                         for (Place pl : strategy.getPlaces()) {
-                            if (pl.getExtension("origID").equals(p.getId())) {
+                            if (AdamExtensions.getOrigID(pl).equals(p.getId())) {
                                 strategy.createFlow(tstrat, pl);
                                 added = true;
                                 break;
