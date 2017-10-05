@@ -2,6 +2,8 @@ package uniolunisaar.adam.symbolic.bddapproach.libraries;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
@@ -18,6 +20,8 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  *
@@ -40,9 +44,31 @@ public class TestingJBDDLibrary {
         solv.initialize();
     }
 
-    @Test(enabled = false)
-    public void speicher() {
+    @Test(enabled = true)
+    public void speicher() throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         BDDFactory bdd = JFactory.init("buddy", NODENUM, CACHESIZE);
+        Logger.getInstance().setVerbose(false);
+//        Logger.getInstance().setSilent(true);
+//        System.setOut(new PrintStream(new OutputStream() {
+//            @Override
+//            public void write(int arg0) throws IOException {
+//                // keep empty
+//            }
+//        }));
+//        bdd.registerGCCallback(System.out, PrintStream.class.getMethod("println", String.class));
+//        bdd.registerGCCallback(new JavaBDDGCCallback(), JavaBDDGCCallback.class.getMethod("out", new Class[]{Boolean.class}));
+//        JavaBDDCallback jbddgcc = new JavaBDDCallback();
+//        Method m = JavaBDDGCCallback.class.getMethod("asdfasdf", BDDFactory.GCStats.class);
+//        bdd.registerGCCallback(jbddgcc, jbddgcc.getClass().getMethod("asdf", new Class[]{BDDFactory.GCStats.class}));
+//        bdd.registerGCCallback(jbddgcc, jbddgcc.getClass().getMethod("asdf", new Class[]{String.class}));
+//        m.invoke(jbddgcc, true, bdd.getGCStats());
+        Method m = JavaBDDCallback.class.getMethod("outGCStats", Integer.class, BDDFactory.GCStats.class);
+        bdd.registerGCCallback(new JavaBDDCallback(bdd), m);
+        m = JavaBDDCallback.class.getMethod("outReorderStats", Integer.class, BDDFactory.ReorderStats.class);
+        bdd.registerReorderCallback(new JavaBDDCallback(bdd), m);
+        m = JavaBDDCallback.class.getMethod("outResizeStats", Integer.class, Integer.class);
+        bdd.registerResizeCallback(new JavaBDDCallback(bdd), m);
+
         int size = 138;
         bdd.setVarNum(size);
         int i = 0;
@@ -98,7 +124,6 @@ public class TestingJBDDLibrary {
         test = test.and(bdd.ithVar(2));
 
 //        printDecisionSets(test);
-
         BDD res = bdd.nithVar(2);
         BDD restriction = test.restrict(res);
 
@@ -112,7 +137,6 @@ public class TestingJBDDLibrary {
         BDD asdf = bdd.buildCube(1, new int[]{0, 1, 2});
 
 //        BDDTools.printDecisionSets(asdf);
-
     }
 
     @Test
@@ -138,7 +162,6 @@ public class TestingJBDDLibrary {
 
 //        System.out.println("first after reorder:");
 //        printDecisionSets(first);
-
         BDD second = bdd.ithVar(0);
         second = second.and(bdd.nithVar(1));
         second = second.and(bdd.nithVar(2));
@@ -270,7 +293,6 @@ public class TestingJBDDLibrary {
 //        printDecisionSets(first.or(second));
 //        System.out.println("second or first:");
 //        printDecisionSets(second.or(first));
-
         BDDPairing pair = fac1.makePair();
         pair.set(new int[]{5, 6, 7, 8, 9}, new int[]{0, 1, 2, 3, 4});
 
@@ -291,13 +313,10 @@ public class TestingJBDDLibrary {
 
 //        System.out.println("exists: ");
 //        printDecisionSets(second.exist(ex));
-
 //        System.out.println("second replaced:");
 //        printDecisionSets(second.exist(ex).replace(pair1));
-
 //        System.out.println("first replaced:");
 //        printDecisionSets(first.replace(pair));
-
         BDD first_back = fac1.ithVar(0).or(fac1.nithVar(0));
 //        printDecisionSets(first_back);
         first_back = first_back.and(first);
@@ -308,12 +327,10 @@ public class TestingJBDDLibrary {
 //        printDecisionSets(first);
 //        fac.setVarNum(10);
 //        printDecisionSets(first);
-
         //01100
 //        BDD asdf = first.compose(fac.ithVar(3), 0);
 //        System.out.println("blub");
 //        printDecisionSets(asdf);
-
     }
 
     @Test
@@ -344,7 +361,6 @@ public class TestingJBDDLibrary {
 //        printDecisionSets(fac.ithVar(0).high());
 //        System.out.println("low");
 //        printDecisionSets(fac.ithVar(0).low());
-
 //        System.out.println("first");
 //        printDecisionSets(test2);
 //        System.out.println("Restricted variables:");
@@ -462,7 +478,6 @@ public class TestingJBDDLibrary {
 
 //        System.out.println("domain");
 //        printDecisionSets(fac.getDomain(0).domain(), true);
-
         BDD asdf1 = fac.getDomain(1).ithVar(10);
 //        System.out.println("fac.getDomain(3).ithVar(2)");
 //        printDecisionSets(asdf1, true);
