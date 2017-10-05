@@ -105,7 +105,7 @@ public class BDDSafetySolverEnv extends BDDSolver<Safety> {
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!place.hasExtension("env")) {
+                        if (!AdamExtensions.isEnviroment(place)) {
                             shared = true;
                         }
                     }

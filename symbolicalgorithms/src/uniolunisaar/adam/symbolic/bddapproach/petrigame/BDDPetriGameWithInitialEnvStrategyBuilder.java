@@ -53,7 +53,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy
         for (Place place : strategy.getPlaces()) {
-            if (place.hasExtension("env")) {
+            if (AdamExtensions.isEnviroment(place)) {
                 if (place.getPostset().isEmpty()) {
                     todo.add(place);
                 }

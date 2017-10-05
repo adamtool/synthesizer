@@ -197,7 +197,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             for (Transition t : getGame().getTransitions()[i - 1]) {
                 BDD place = bddfac.zero();
                 for (Place p : t.getPreset()) {
-                    if (!p.hasExtension("env") && i == AdamExtensions.getToken(p)) {
+                    if (!AdamExtensions.isEnviroment(p) && i == AdamExtensions.getToken(p)) {
                         place.orWith(codePlace(p, pos, i));
                     }
                 }
@@ -259,7 +259,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!place.hasExtension("env")) {
+                        if (!AdamExtensions.isEnviroment(place)) {
                             shared = true;
                         }
                     }
@@ -427,7 +427,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD chosen(Transition t, int pos) {
         BDD c = getOne();
         for (Place p : t.getPreset()) {
-            if (!p.hasExtension("env")) {
+            if (!AdamExtensions.isEnviroment(p)) {
                 // Sys places
 //                    //if pi=p and it's not top, then t has to be set to one (old version mit not top?)
 //                    BDD pl = codePlace(binID, offset).and(bddfac.nithVar(offset + PL_CODE_LEN + 1));
@@ -502,7 +502,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD enabled(Transition t, int pos) {
         BDD en = getOne();
         for (Place place : t.getPreset()) {
-            if (place.hasExtension("env")) {
+            if (AdamExtensions.isEnviroment(place)) {
                 // Env place
                 en.andWith(codePlace(place, pos, 0));
             } else {
@@ -544,7 +544,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
-                        if (place.hasExtension("env")) {
+                        if (AdamExtensions.isEnviroment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;

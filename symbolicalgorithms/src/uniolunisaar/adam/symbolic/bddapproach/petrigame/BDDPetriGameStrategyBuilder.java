@@ -145,9 +145,9 @@ public class BDDPetriGameStrategyBuilder {
                     // for creating the pg strategy
                     if (solver.hasTop(succState.getState())) {
                         // there could possibly be more than one predeccessor
-                        List<Transition> strat_trans = (succState.hasExtension("strat_t")) ? AdamExtensions.getStrategyTransition(succState) : new ArrayList<>();
+                        List<Transition> strat_trans = (AdamExtensions.hasStrategyTransition(succState)) ? AdamExtensions.getStrategyTransition(succState) : new ArrayList<>();
                         strat_trans.add(strat_t);
-                        List<Transition> trans = (succState.hasExtension("t")) ? AdamExtensions.getTransition(succState) : new ArrayList<>();
+                        List<Transition> trans = (AdamExtensions.hasTransition(succState)) ? AdamExtensions.getTransition(succState) : new ArrayList<>();
                         trans.add(t);
                         AdamExtensions.setStrategyTransition(succState, strat_trans);
                         AdamExtensions.setTransition(succState, trans);

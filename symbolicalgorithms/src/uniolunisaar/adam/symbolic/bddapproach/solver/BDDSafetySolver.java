@@ -215,7 +215,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getGame().getPlaces()[i]) {
-                    if (place.hasExtension("env")) {
+                    if (AdamExtensions.isEnviroment(place)) {
                         throw new RuntimeException("Should not appear!"
                                 + "An enviromental place could not appear here!");
 //                        continue;
@@ -559,7 +559,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
     private BDD enabled(Transition t, boolean type1, int pos) {
         BDD en = super.enabled(t, pos);
         for (Place place : t.getPreset()) {
-            if (!place.hasExtension("env")) {
+            if (!AdamExtensions.isEnviroment(place)) {
                 // Sys places
                 int token = AdamExtensions.getToken(place);
                 BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
@@ -590,7 +590,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
-                        if (place.hasExtension("env")) {
+                        if (AdamExtensions.isEnviroment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;
