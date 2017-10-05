@@ -44,7 +44,7 @@ public class TestingJBDDLibrary {
         solv.initialize();
     }
 
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void speicher() throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         BDDFactory bdd = JFactory.init("buddy", NODENUM, CACHESIZE);
         Logger.getInstance().setVerbose(false);
