@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -442,18 +444,6 @@ public class BDDTools {
         return out;
     }
 
-    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
-        try (PrintStream out = new PrintStream(path + ".dot")) {
-            out.println(states2Dot(bdds, solver));
-        }
-        Logger.getInstance().addMessage("Saved to: " + path + ".dot", false);
-        Runtime rt = Runtime.getRuntime();
-        String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
-        Process p = rt.exec(exString);
-        p.waitFor();
-        Logger.getInstance().addMessage("Saved to: " + path + ".pdf", false);
-    }
-
     public static String states2Dot(BDD bdds, BDDSolver<? extends WinningCondition> solver) {
         final String mcutShape = "diamond";
         final String sysShape = "box";
@@ -618,25 +608,42 @@ public class BDDTools {
         }
     }
 
+    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws FileNotFoundException {
+        try (PrintStream out = new PrintStream(path + ".dot")) {
+            out.println(graph2Dot(g, solver));
+        }
+        Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
+    }
+
     public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
         saveGraph2Dot(path, g, solver);
         Runtime rt = Runtime.getRuntime();
         String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
         Process p = rt.exec(exString);
         p.waitFor();
-        Logger.getInstance().addMessage("Saved to: " + path + ".pdf", false);
+        Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
     public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
-        saveGraph2DotAndPDF(path, g, solver);
+        String bufferpath = path + System.currentTimeMillis();
+        saveGraph2DotAndPDF(bufferpath, g, solver);
         // Delete dot file
-        new File(path + ".dot").delete();
+        new File(bufferpath + ".dot").delete();
+        Logger.getInstance().addMessage("Deleted: " + bufferpath + ".dot", true);
+        // move to original name
+        Files.move(new File(bufferpath + ".pdf").toPath(), new File(path + ".pdf").toPath(), REPLACE_EXISTING);
+        Logger.getInstance().addMessage("Moved: " + bufferpath + ".pdf --> " + path + ".pdf", true);
     }
 
-    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws FileNotFoundException {
+    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
-            out.println(graph2Dot(g, solver));
+            out.println(states2Dot(bdds, solver));
         }
-        Logger.getInstance().addMessage("Saved to: " + path + ".dot", false);
+        Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
+        Runtime rt = Runtime.getRuntime();
+        String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
+        Process p = rt.exec(exString);
+        p.waitFor();
+        Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 }
