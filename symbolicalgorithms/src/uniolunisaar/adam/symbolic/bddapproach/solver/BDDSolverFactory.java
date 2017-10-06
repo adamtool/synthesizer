@@ -6,6 +6,7 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
@@ -32,15 +33,15 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(PetriNet net, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDSolver<? extends WinningCondition> getSolver(PetriNet net, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
         return super.getSolver(net, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
+    public BDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(String file) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException {
+    public BDDSolver<? extends WinningCondition> getSolver(String file) throws ParseException, IOException, UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         return super.getSolver(file, new BDDSolverOptions());
     }
 

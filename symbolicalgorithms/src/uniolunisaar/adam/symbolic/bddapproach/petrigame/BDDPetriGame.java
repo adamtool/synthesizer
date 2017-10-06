@@ -9,6 +9,7 @@ import java.util.Set;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
@@ -16,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -39,10 +41,19 @@ public class BDDPetriGame extends PetriGame {
 
     public BDDPetriGame(PetriNet pn, boolean skipChecks) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(pn, skipChecks);
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
+        Pair<Transition, Transition> witness = AdamTools.isSolvablePetriGame(pn, cover);
+        if (witness != null) {
+            throw new RuntimeException("Petri game not solvable: " + witness.toString());
+        }
         if (!skipChecks) {
             if (!super.getBounded().isSafe()) {
                 throw new NetNotSafeException(super.getBounded().unboundedPlace.toString(), super.getBounded().sequence.toString());
             }
+//            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
+//            if (AdamTools.isSolvablePetriGame(pn, cover)) {
+//                throw new NoSuitableDistributionFoundException();
+//            }
         } else {
             Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe!", false);
         }
