@@ -9,9 +9,11 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
@@ -22,6 +24,7 @@ import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
@@ -33,28 +36,34 @@ import uniolunisaar.adam.tools.Logger;
  */
 @Test
 public class TestingAllFilesInFolder {
-    
+
     private static final String inputDir = System.getProperty("examplesfolder") + "/reachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "infiniteB.apt",
             "infiniteC.apt",
             "simple.apt",
-            "nondet2.apt",
             "nondetNoStrat.apt",
-            "notReachable.apt"
-            ));
-    private static final List<String> skip = new ArrayList<>(
-//            Arrays.asList(
-//                )
-    );
-    
+            "notReachable.apt",
+            "nondetNoStrat",// should have no strategy, builds one voilating S3
+            "nondet2.apt"// should have no strategy, builds one voilating S3
+    ));
+    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
+            //                )
+            );
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
+            "nondet.apt", // should have a strategy
+            "nondetWithBack.apt", // should have a strategy
+            "nondetNoStrat.apt",// should have no strategy, builds one voilating S3
+            "nondet2.apt"// should have no strategy, builds one voilating S3
+    ));
+
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
-    
+
     @DataProvider(name = "files")
     public static Object[][] allExamples() {
         Collection<File> files = FileUtils.listFiles(
@@ -72,12 +81,17 @@ public class TestingAllFilesInFolder {
         }
         return out;
     }
-    
+
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NotSupportedGameException, ParameterMissingException {
-        String output = outputDir + file.getName().split(".apt")[0];
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
-        BDDTestingTools.testExample(solv, output, hasStrategy);
+        if (notSupported.contains(file.getName())) {
+            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
+            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        } else {
+            String output = outputDir + file.getName().split(".apt")[0];
+            BDDTestingTools.testExample(solv, output, hasStrategy);
+        }
     }
 }

@@ -18,6 +18,7 @@ import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.logic.util.AdamTools;
+import uniolunisaar.adam.logic.util.NotSolvableWitness;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -47,7 +48,7 @@ public class BDDPetriGame extends PetriGame {
                 throw new NetNotSafeException(super.getBounded().unboundedPlace.toString(), super.getBounded().sequence.toString());
             }
             CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
-            Pair<Transition, Transition> witness = AdamTools.isSolvablePetriGame(pn, cover);
+            NotSolvableWitness witness = AdamTools.isSolvablePetriGame(pn, cover);
             if (witness != null) {
                 throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
             }
