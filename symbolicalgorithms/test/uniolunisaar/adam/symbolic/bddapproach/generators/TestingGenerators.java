@@ -13,6 +13,7 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
@@ -88,7 +89,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "philsGuided")
-    public void testPhilosophersGuided(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testPhilosophersGuided(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "philosophers_guided" + File.separator;
         String name = count + "_phils";
         File f = new File(path);
@@ -110,7 +111,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "phils")
-    public void testPhilosophers(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testPhilosophers(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "philosophers" + File.separator;
         String name = count + "_phils";
         File f = new File(path);
@@ -132,7 +133,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "clerksCP")
-    public void testClerksCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testClerksCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "clerks" + File.separator;
         String name = count + "_clerks";
         File f = new File(path);
@@ -154,7 +155,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "clerksNonCP")
-    public void testClerksNonCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testClerksNonCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "clerks_nonCP" + File.separator;
         String name = count + "_clerks";
         File f = new File(path);
@@ -177,7 +178,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "manu")
-    public void testManu(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testManu(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "manufactory" + File.separator;
         String name = machines + "_machines";
         File f = new File(path);
@@ -203,7 +204,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "robotCell")
-    public void testRobotCell(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testRobotCell(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "robotCell" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
@@ -229,7 +230,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "selfOrgaRobots")
-    public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "selfOrgaRobots" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
@@ -255,7 +256,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "concurrentMachines")
-    public void testWork(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testWork(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "workflow" + File.separator;
         String name = machines + "_machines_" + pieces + "_pieces";
         File f = new File(path);
@@ -278,7 +279,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "watchdog")
-    public void testWatchdog(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testWatchdog(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "watchdog" + File.separator;
         String name = machines + "_machines";
         File f = new File(path);
@@ -302,7 +303,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "secSystem")
-    public void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException {
+    public void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = outputDir + "securitySystem" + File.separator;
         String name = intrudingPoints + "_secSystems";
         File f = new File(path);
