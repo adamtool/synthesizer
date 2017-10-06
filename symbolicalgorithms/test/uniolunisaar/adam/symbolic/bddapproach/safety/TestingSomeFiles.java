@@ -159,6 +159,20 @@ public class TestingSomeFiles {
         Assert.assertTrue(AdamTools.isDeadlockAvoiding(solv.getNet(), strat, cover));
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
     }
+    
+    @Test
+    public void testNondet2WithStratByGameSolving() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        final String path = inputDir + "ndet" + File.separator;
+        final String name = "nondet2WithStratByGameSolving";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        PetriNet strat = solv.getStrategy();
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphenGame", solv.getGraphGame(), solv);
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
+        Assert.assertTrue(AdamTools.isDeterministic(strat, cover));
+        Assert.assertTrue(AdamTools.isDeadlockAvoiding(solv.getNet(), strat, cover));
+        BDDTestingTools.testExample(solv, outputDir + name, true); // todo: should be false
+    }
 
     @Test
     public void testDeadlock() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, UnboundedPGException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
