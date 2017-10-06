@@ -1,5 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -91,6 +93,17 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         int cachesize = getSolverOpts().getCacheSize();
         int maxIncrease = getSolverOpts().getMaxIncrease();
         bddfac = BDDFactory.init(libName, nodenum, cachesize);
+        // Redirect the GCSTats stream from standard System.err to Logger
+        // and the Reorder and ResizeStats from System.out to Logger
+        try {
+            Method m = JavaBDDCallback.class.getMethod("outGCStats", Integer.class, BDDFactory.GCStats.class);
+            bddfac.registerGCCallback(new JavaBDDCallback(bddfac), m);
+            m = JavaBDDCallback.class.getMethod("outReorderStats", Integer.class, BDDFactory.ReorderStats.class);
+            bddfac.registerReorderCallback(new JavaBDDCallback(bddfac), m);
+            m = JavaBDDCallback.class.getMethod("outResizeStats", Integer.class, Integer.class);
+            bddfac.registerResizeCallback(new JavaBDDCallback(bddfac), m);
+        } catch (NoSuchMethodException | SecurityException ex) {
+        }
         bddfac.setMaxIncrease(maxIncrease);
         Logger.getInstance().addMessage("Using BDDLibrary: " + bddfac.getVersion());
         Logger.getInstance().addMessage("BDD cachesize: " + cachesize);

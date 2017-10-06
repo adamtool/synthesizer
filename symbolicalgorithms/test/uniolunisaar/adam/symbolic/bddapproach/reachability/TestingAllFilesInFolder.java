@@ -39,7 +39,8 @@ public class TestingAllFilesInFolder {
             "infiniteB.apt",
             "infiniteC.apt",
             "simple.apt",
-//            "nondet2.apt", is OK, since we can deadlock after reaching the place
+            "nondet2.apt",
+            "nondetNoStrat.apt",
             "notReachable.apt"
             ));
     private static final List<String> skip = new ArrayList<>(

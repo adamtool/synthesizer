@@ -56,7 +56,8 @@ public class TestingAllFilesInFolder {
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
-            "wf_2_3_pg_reversible.apt" // currently unbounded
+            "wf_2_3_pg_reversible.apt", // currently unbounded
+            "sendingprotocolTwo.apt"// two environment token
     //    "robots.apt" // not annotated with token, calculation of invariants takes to long TODO: jesko deleted?
     ));
 
