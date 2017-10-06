@@ -11,7 +11,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
-import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -47,7 +47,7 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 

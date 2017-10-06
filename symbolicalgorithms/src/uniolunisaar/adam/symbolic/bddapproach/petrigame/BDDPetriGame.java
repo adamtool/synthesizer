@@ -13,7 +13,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.AdamExtensions;
@@ -35,27 +35,25 @@ public class BDDPetriGame extends PetriGame {
     // saves transitions belonging in the presets of the places to each token
     private List<Transition>[] transitions;
 
-    public BDDPetriGame(PetriNet pn) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDPetriGame(PetriNet pn) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         this(pn, false);
     }
 
-    public BDDPetriGame(PetriNet pn, boolean skipChecks) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDPetriGame(PetriNet pn, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(pn, skipChecks);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
-        Pair<Transition, Transition> witness = AdamTools.isSolvablePetriGame(pn, cover);
-        if (witness != null) {
-            throw new RuntimeException("Petri game not solvable: " + witness.toString());
-        }
+
         if (!skipChecks) {
             if (!super.getBounded().isSafe()) {
                 throw new NetNotSafeException(super.getBounded().unboundedPlace.toString(), super.getBounded().sequence.toString());
             }
-//            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
-//            if (AdamTools.isSolvablePetriGame(pn, cover)) {
-//                throw new NoSuitableDistributionFoundException();
-//            }
+            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
+            Pair<Transition, Transition> witness = AdamTools.isSolvablePetriGame(pn, cover);
+            if (witness != null) {
+                throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
+            }
         } else {
-            Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe!", false);
+            Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe or"
+                    + " belongs to the class of solvable Petri games!", false);
         }
 
         sysTransition = new HashSet<>();

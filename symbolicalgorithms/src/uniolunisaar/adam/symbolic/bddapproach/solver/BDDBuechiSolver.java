@@ -17,7 +17,7 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
-import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -58,13 +58,13 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * @param skipTests - should the tests for safe and bounded and other
      * preconditions be skipped?
      * @param opts - the options for the solver.
-     * @throws UnboundedPGException - Thrown if the given net is not bounded.
+     * @throws NotSupportedGameException - Thrown if the given net is not bounded.
      * @throws NetNotSafeException - Thrown if the given net is not safe.
      * @throws NoSuitableDistributionFoundException - Thrown if the given net is
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDBuechiSolver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDBuechiSolver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 

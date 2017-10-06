@@ -19,7 +19,7 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
-import uniolunisaar.adam.ds.exceptions.UnboundedPGException;
+import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
@@ -66,7 +66,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws UnboundedPGException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
     }
 
