@@ -26,10 +26,13 @@ import uniolunisaar.adam.tools.Logger;
 /**
  * Solves Petri games with a safety objective with BDDs.
  *
+ * The first version of a BDD safety solver for Petri games. Uses two nested
+ * fixpoints, termination and do not extend the game such that not every state
+ * has to have a successor.
  *
  * @author Manuel Gieseking
  */
-public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver {
+public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] TYPE;
@@ -51,25 +54,19 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDSafetySolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDASafetySolverNested(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    /**
-     * Creates the variables for this solver. This have to be overriden since
-     * the type flag has to be coded additionally.
-     *
-     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
-     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
-     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
-     *
-     * TODO: is this ordering more expensive, since the types are all together
-     * at the end?
-     *
-     * But at least problem for my output functions in BDDTools, since I use
-     * explicit counting.
-     */
+//    /**
+//     * Creates the variables for this solver. This have to be overriden since
+//     * the type flag has to be coded additionally.
+//     *
+//     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
+//     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
+//     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+//     */
 //    @Override
 //    void createVariables() {
 //        super.createVariables();
@@ -85,6 +82,9 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
 //        setDCSLength(getFactory().varNum() / 2);
 //    }
     /**
+     * Override it complete new, since at least the output has a problem
+     * BDDTools by a different ordering.
+     *
      * Codierung: p_i_0 - Environment Token n - TokenCount
      * |p_i_0|p_i_1|type|top|t_1|...|t_m| ... |p_i_n|type|top|t_1|...|t_m|
      */
@@ -131,7 +131,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         BDD type2 = getFactory().zero();
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             BDD type = TYPE[0][i - 1].ithVar(0);
-            // todo: really necessary?
+            // todo: really necessary? It is, but why?
             if (!getGame().isConcurrencyPreserving()) {
                 type.andWith(codePlace(0, 0, i).not());
             }
@@ -268,7 +268,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
 //                break;
 //            }
             Q.free();
-            Q = Q_.andWith(super.wellformed(0));
+            Q = Q_.andWith(wellformed());
             BDD Q_shifted = shiftFirst2Second(Q);
             // there is a predecessor (sys2) such that the transition is in the considered set of transitions
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
@@ -386,7 +386,8 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
      *
      * so this is responsible for getting a strategy as well as creating the
      * game. this means it could be a reachabilty solving strategy and the
-     * nested fixedpoints are for the complete information of the game. shure?
+     * nested fixedpoints are for the complete information of the game.
+     * Shurely??
      *
      * @return
      */
@@ -514,30 +515,18 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
     }
 
 //%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Overriden since for a safety objectiv is termination also OK. Only
+     * necessary, since we don't have for all states a successor?
+     */
     @Override
-    public BDD wellformed(int pos) {
-        BDD well = super.wellformed(pos);
-        if (pos == 0) {
-            well.andWith(wrongTypedType2DCS().not());
-        } else {
-            well.andWith(shiftFirst2Second(wrongTypedType2DCS().not()));
-        }
-        return well;
+    public BDD preSys(BDD succ) {
+        BDD succ_shifted = shiftFirst2Second(succ);
+        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
+        BDD exists = (getBufferedSystemTransitions().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
+        return forall.or(exists).and(wellformed());
     }
 
-//    /**
-//     * Overriden since for a safety objectiv is termination also OK. Only
-//     * necessary, since we don't have for all states a successor?
-//     *
-//     * todo: currently not used
-//     */
-//    @Override
-//    public BDD preSys(BDD succ) {
-//        BDD succ_shifted = shiftFirst2Second(succ);
-//        BDD forall = (getBufferedEnvTransitions().imp(succ_shifted)).forAll(getSecondBDDVariables()).and(getBufferedExEnvSucc());
-//        BDD exists = (getBufferedSystemTransition().and(succ_shifted)).exist(getSecondBDDVariables()).or(term(0));
-//        return forall.or(exists).and(wellformed());
-//    }
     /**
      * Overriden since the standard case only knows type1 places.
      */
@@ -638,8 +627,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
             }
         }
         env.andWith(dis);
-//        return env.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
-        return env.andWith(wellformed(1));//.andWith(wellformedTransition()));
+        return env.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
     @Override
@@ -731,7 +719,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         }
 
         mcut.andWith(dis);
-        return mcut.andWith(wellformed(1));//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
+        return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
     @Override
@@ -799,21 +787,15 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         // p0=p0'        
         sys1 = sys1.andWith(placesEqual(0));
 
-//        return sys1.andWith(oldType2()).andWith(wellformed(1));//.andWith(wellformedTransition()));
-        return sys1.andWith(wellformed(1));//.andWith(wellformedTransition()));
-    }
-
-    @Override
-    BDD sysTransitionsNotCP() {
-        return super.sysTransitionsNotCP().andWith(wellformed(1));
+        return sys1.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-//    @Override
-//    BDD calcDCSs() {
-////        BDDTools.printDecodedDecisionSets(wellformed(), this, true);
-//        return wellformed(0).andWith(wrongTypedType2DCS().not());
-//    }
+    @Override
+    BDD calcDCSs() {
+        return wellformed().andWith(wrongTypedType2DCS().not());
+    }
+
     /**
      * Returns the winning decisionsets for the system players
      *
@@ -825,10 +807,8 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor(badSysDCS(), true, distance).not().and(getBufferedDCSs());//fixpointOuter();
-//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
-//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
-//        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);
+        BDD fixedPoint = fixpointOuter();
+//        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
@@ -876,13 +856,12 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return new Pair<>(gstrat, pstrat);
     }
-// %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Some helping calculations %%%%%%%%%%%%%%%%
     /**
      * Returns all variables of the predecessor or success as a BDD.
      *
-     * This means the variables for: places + top-flags + commitment + type-flag
+     * This means the variables for: places + top-flags + type-flag + commitment
      * sets.
      *
      * So only adds the variables for the type.
@@ -906,7 +885,7 @@ public class BDDSafetySolver extends BDDSolver<Safety> implements BDDType2Solver
      * Returns the variables belonging to one token in a predecessor or in a
      * sucessor as BDD.
      *
-     * This means the variables for the coding of the place, the top-flag, the
+     * This means the varibles for the coding of the place, the top-flag, the
      * type-flag and the belonging commitment set for a system token.
      *
      * So only add the variables for the type-flag.

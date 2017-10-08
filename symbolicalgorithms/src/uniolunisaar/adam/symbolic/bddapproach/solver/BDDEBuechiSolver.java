@@ -45,7 +45,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDBuechiSolver extends BDDSolver<Buchi> {
+public class BDDEBuechiSolver extends BDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] NOCC;
@@ -64,7 +64,7 @@ public class BDDBuechiSolver extends BDDSolver<Buchi> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDBuechiSolver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDEBuechiSolver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 

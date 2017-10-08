@@ -36,7 +36,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDReachabilitySolver extends BDDSolver<Reachability> {
+public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 
     /**
      * Creates a new Reachability solver for a given game.
@@ -47,7 +47,7 @@ public class BDDReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDAReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 
