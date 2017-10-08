@@ -8,7 +8,7 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.solver.SolverFactory;
+import uniolunisaar.adam.logic.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.winningconditions.Safety;
