@@ -35,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesInFolder {
+public class TestingAllFilesEReachability {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/reachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
