@@ -663,7 +663,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
-            if (!strat.getInitial().equals(state) && !buchiStates().and(state.getState()).isZero()) {
+            if (!buchiStates().and(state.getState()).isZero()) {
                 state.setSpecial(true);
             }
         }

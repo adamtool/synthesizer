@@ -63,7 +63,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     @Override
     protected BDDSolver<? extends WinningCondition> getAReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        return new BDDEReachabilitySolver(net, skipTests, new Reachability(false), options);
+        return new BDDAReachabilitySolver(net, skipTests, new Reachability(false), options);
     }
 
     @Override

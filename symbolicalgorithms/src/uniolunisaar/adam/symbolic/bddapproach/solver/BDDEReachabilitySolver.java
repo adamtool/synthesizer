@@ -18,6 +18,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDReachabilityGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -68,6 +69,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD initial() {
         BDD init = super.initial();
+                    BDDTools.printDecodedDecisionSets(init, this, true);
         init.andWith(ndetStates(0).not());
         return init;
     }
@@ -156,7 +158,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
-            if (!strat.getInitial().equals(state) && !reach().and(state.getState()).isZero()) {
+            if (!reach().and(state.getState()).isZero()) {
                 state.setSpecial(true);
             }
         }
