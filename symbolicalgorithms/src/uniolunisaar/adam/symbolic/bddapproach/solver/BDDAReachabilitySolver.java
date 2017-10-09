@@ -1,14 +1,17 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
+import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
@@ -16,7 +19,6 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.TokenTree;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
@@ -91,8 +93,11 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
                 BigInteger maxTrans = BigInteger.valueOf(2);
-                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
+                int anzTransitions = getGame().getTransitions()[j].size();
+//                if (anzTransitions > 0) { todo: problem when there are no transitions
+                maxTrans = maxTrans.pow(anzTransitions);
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
+//                }
             }
             // one flag for each tokentree
             BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size());
@@ -113,25 +118,381 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 
     @Override
     BDD initial() {
-        System.out.println(AdamExtensions.getTokenTrees(getNet()).toString());
         BDD init = super.initial();
-        System.out.println("super");
-                    BDDTools.printDecodedDecisionSets(init, this, true);
         init.andWith(ndetStates(0).not());
-        System.out.println("nondet");
-                    BDDTools.printDecodedDecisionSets(init, this, true);
         Marking initial = getNet().getInitialMarking();
-//        for (Place place : getGame().getNet().getPlaces()) {
-//            if (initial.getToken(place).getValue() > 0) {
-//                List<Integer> treeIds = BDDTools.getTreeIDs(place);
-//                for (Integer treeId : treeIds) {
-//                    System.out.println("IDS"+treeId);
-//                    init.andWith(getFactory().ithVar(TOKENTREES[0].vars()[treeId]));
-//                    BDDTools.printDecodedDecisionSets(init, this, true);
-//                }
-//            }
-//        }
+        List<Integer> alreadySetIds = new ArrayList<>();
+        for (Place place : getGame().getNet().getPlaces()) {
+            if (getWinningCondition().getPlaces2Reach().contains(place) && initial.getToken(place).getValue() > 0) {
+                init.andWith(setTreeIDs(place, 0, true, alreadySetIds)); // set all which are winning and initial to 1 on all trees
+            }
+        }
+        init.andWith(setAllRemainingIDsToZero(alreadySetIds, 0));
+//        BDDTools.printDecodedDecisionSets(init, this, true);
         return init;
+    }
+
+    /**
+     * Sets all tokentreeids to the flag "toOne" and adds the ids to the list
+     *
+     * @param place
+     * @param pos
+     * @param toOne
+     * @return
+     */
+    private BDD setTreeIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
+        BDD res = getOne();
+        List<Integer> treeIds = BDDTools.getTreeIDs(place);
+        for (Integer treeId : treeIds) {
+            if (toOne) {
+                res.andWith(getFactory().ithVar(TOKENTREES[pos].vars()[treeId]));
+            } else {
+                res.andWith(getFactory().nithVar(TOKENTREES[pos].vars()[treeId]));
+            }
+        }
+        alreadySetIds.addAll(treeIds);
+        return res;
+    }
+
+    private BDD setAllRemainingIDsToZero(List<Integer> alreadySetIds, int pos) {
+        BDD res = getOne();
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            if (!alreadySetIds.contains(i)) {
+                res.andWith(getFactory().nithVar(TOKENTREES[pos].vars()[i]));
+            }
+        }
+        return res;
+    }
+
+    private BDD setSuitableRemainingSuccTreeIDsToZero(List<Integer> alreadySetIds) {
+        BDD res = getOne();
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            if (!alreadySetIds.contains(i)) {
+                // if pre not 1 => post 0
+                BDD pre = getFactory().ithVar(TOKENTREES[0].vars()[i]).not();
+                BDD post = getFactory().nithVar(TOKENTREES[1].vars()[i]);
+                res.andWith(pre.impWith(post));
+//            res.andWith(post);
+//            System.out.println("id" + treeId);
+//            BDDTools.printDecisionSets(res, true);
+            }
+        }
+        return res;
+    }
+
+    private BDD keepOnesForTrees() {
+        BDD ones = getOne();
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            ones.andWith(getFactory().ithVar(TOKENTREES[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREES[1].vars()[i])));
+        }
+        return ones;
+    }
+
+    @Override
+    BDD envTransitionsCP() {
+        BDD env = getMcut();
+        BDD dis = getZero();
+        for (Transition t : getGame().getNet().getTransitions()) {
+            if (!getGame().getSysTransition().contains(t)) {
+                Set<Place> pre_sys = t.getPreset();
+                BDD all = firable(t, 0);
+                // Systempart
+                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                    BDD pl = getZero();
+                    for (Place place : getGame().getPlaces()[i]) {
+                        if (AdamExtensions.isEnviroment(place)) {
+                            throw new RuntimeException("Should not appear!"
+                                    + "An enviromental place could not appear here!");
+                            //                            continue;
+                        }
+                        BDD inner = getOne();
+                        inner.andWith(codePlace(place, 0, i));
+                        if (!pre_sys.contains(place)) {
+                            // pi=pi'
+                            inner.andWith(codePlace(place, 1, i));
+                            // ti=ti'
+                            inner.andWith(commitmentsEqual(i));
+                            // top'=0
+                            inner.andWith(TOP[1][i - 1].ithVar(0));
+                        } else {
+                            Place succ = getSuitableSuccessor(place, t);
+                            //pre_i=post_i'
+                            inner.andWith(codePlace(succ, 1, i));
+                            // top'=1
+                            inner.andWith(TOP[1][i - 1].ithVar(1));
+                            // all t_i'=0
+                            inner.andWith(nothingChosen(1, i));
+                        }
+                        pl.orWith(inner);
+                    }
+                    all.andWith(pl);
+                }
+                // Environmentpart                
+                // todo: one environment token case
+                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
+                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
+                    all.andWith(codePlace(pre.get(0), 0, 0));
+                } else {
+                    all.andWith(codePlace(0, 0, 0));
+                }
+                if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
+                    Place place = post.get(0);
+                    all.andWith(codePlace(place, 1, 0));
+                } else {
+                    all.andWith(codePlace(0, 1, 0));
+                }
+                // update the tokentrees                
+                List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+                for (Place place : t.getPostset()) {
+                    // if it's a reachable place set it's tokentrees to 1
+                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                        all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
+                    }
+                }
+                all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds));
+//                all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
+                dis.orWith(all);
+            }
+        }
+        env.andWith(dis);
+        // 1 for a chain in preset => 1 for the chain in postset
+        env.andWith(keepOnesForTrees());
+        return env;
+    }
+
+    @Override
+    BDD envTransitionsNotCP() {
+        BDD mcut = getMcut();
+        BDD dis = getZero();
+        for (Transition t : getGame().getNet().getTransitions()) {
+            if (!getGame().getSysTransition().contains(t)) {
+                Set<Place> pre_sys = t.getPreset();
+                BDD all = firable(t, 0);
+
+                List<Integer> visitedToken = new ArrayList<>();
+
+                // set the dcs for the place of the postset 
+                for (Place post : t.getPostset()) {
+                    int token = AdamExtensions.getToken(post);
+                    if (token != 0) { // jump over environment
+                        visitedToken.add(token);
+                        //pre_i=post_j'
+                        all.andWith(codePlace(post, 1, token));
+                        // top'=1
+                        all.andWith(TOP[1][token - 1].ithVar(1));
+                        // all t_i'=0
+                        all.andWith(nothingChosen(1, token));
+                    }
+                }
+
+                // set the dcs for the places in the preset
+                setPresetAndNeededZeros(pre_sys, visitedToken, all);
+
+                // --------------------------
+                // Positions in dcs not set with places of pre- or postset
+                setNotAffectedPositions(all, visitedToken);
+
+                // --------------------------
+                // Environmentpart
+                // todo: one environment token case
+                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
+                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                if (!pre.isEmpty()) {
+                    all.andWith(codePlace(pre.get(0), 0, 0));
+                } else {
+                    all.andWith(codePlace(0, 0, 0));
+                }
+                if (!post.isEmpty()) {
+                    Place place = post.get(0);
+                    all.andWith(codePlace(place, 1, 0));
+                } else {
+                    all.andWith(codePlace(0, 1, 0));
+                }
+                // update the tokentrees                
+                List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+                for (Place place : t.getPostset()) {
+                    // if it's a reachable place set it's tokentrees to 1
+                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                        all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
+                    }
+                }
+                all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds));
+//                all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
+                dis.orWith(all);
+            }
+        }
+
+        mcut.andWith(dis);
+        // 1 for a chain in preset => 1 for the chain in postset
+        mcut.andWith(keepOnesForTrees());
+        return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
+    }
+
+    @Override
+    BDD sysTransitionsCP() {
+        // Only useable if it's not an mcut
+        BDD sys = getMcut().not();
+        // no successors for already reached states
+//        sys1.andWith(reach(0).not());
+
+        // not all tops are zero
+        BDD top = getTop();
+
+        // normal part
+        BDD sysN = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre = t.getPreset();
+            BDD all = firable(t, 0);
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                BDD pl = getZero();
+                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                    BDD inner = getOne();
+                    inner.andWith(codePlace(place, 0, i));
+                    if (!pre.contains(place)) {
+                        // pi=pi'
+                        inner.andWith(codePlace(place, 1, i));
+                        // ti=ti'
+                        inner.andWith(commitmentsEqual(i));
+                    } else {
+                        Place succ = getSuitableSuccessor(place, t);
+                        //pre_i=post_i'
+                        inner.andWith(codePlace(succ, 1, i));
+                    }
+                    pl.orWith(inner);
+                }
+                all.andWith(pl);
+                // top'=0
+                all.andWith(TOP[1][i - 1].ithVar(0));
+            }
+            // update the tokentrees                
+            List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+            for (Place place : t.getPostset()) {
+                // if it's a reachable place set it's tokentrees to 1
+                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
+                }
+            }
+            all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds));
+//            all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
+            sysN.orWith(all);
+        }
+        sysN = (top.not()).impWith(sysN);
+
+        // top part
+        BDD sysT = getOne();
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+//            // \not topi=>topi'=0
+//            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
+//            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
+//            sysT.andWith(topPart);
+            // topi'=0
+            sysT.andWith(TOP[1][i - 1].ithVar(0));
+            // type = type' todo: document anpassen
+            //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
+            // pi=pi'
+            sysT.andWith(placesEqual(i));
+            // \not topi=>ti=ti'
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
+            sysT.andWith(impl);
+        }
+        // keep tokentree ids
+        sysT.andWith(TOKENTREES[0].buildEquals(TOKENTREES[1]));
+        sysT = top.impWith(sysT);
+
+        sys.andWith(sysN);
+        sys.andWith(sysT);
+        // p0=p0'        
+        sys = sys.andWith(placesEqual(0));
+
+        sys.andWith(ndetStates(0).not());
+        // 1 for a chain in preset => 1 for the chain in postset
+        sys.andWith(keepOnesForTrees());
+        return sys;
+    }
+
+    @Override
+    BDD sysTransitionsNotCP() {
+        // Only useable if it's not an mcut
+        BDD sys = getMcut().not();
+        // no successors for already reached states
+//        sys1.andWith(reach(0).not());
+
+        // not all tops are zero
+        BDD top = getTop();
+
+        // normal part        
+        BDD sysN = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, 0);
+
+            List<Integer> visitedToken = new ArrayList<>();
+            // set the dcs for the place of the postset 
+            for (Place post : t.getPostset()) {
+                int token = AdamExtensions.getToken(post);
+                if (token != 0) { // jump over environment, could not appear...
+                    visitedToken.add(token);
+                    //pre_i=post_j'
+                    all.andWith(codePlace(post, 1, token));
+                    // top'=0
+                    all.andWith(TOP[1][token - 1].ithVar(0));
+                }
+            }
+
+            // set the dcs for the places in the preset
+            setPresetAndNeededZeros(pre_sys, visitedToken, all);
+
+            // Positions in dcs not set with places of pre- or postset
+            setNotAffectedPositions(all, visitedToken);
+
+            // update the tokentrees                
+            List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+            for (Place place : t.getPostset()) {
+                // if it's a reachable place set it's tokentrees to 1
+                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
+                }
+            }
+            all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds));
+//            all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
+
+            sysN.orWith(all);
+        }
+
+        sysN = (top.not()).impWith(sysN);
+
+        // top part
+        BDD sysT = getOne();
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+//            // \not topi=>topi'=0
+//            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
+//            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
+//            sysT.andWith(topPart);
+            // topi'=0
+            sysT.andWith(TOP[1][i - 1].ithVar(0));
+            // type = type' todo: document anpassen
+            //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
+            // pi=pi'
+            sysT.andWith(placesEqual(i));
+            // \not topi=>ti=ti'
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
+            sysT.andWith(impl);
+        }
+        // keep tokentree ids
+        sysT.andWith(TOKENTREES[0].buildEquals(TOKENTREES[1]));
+        sysT = top.impWith(sysT);
+
+        sys.andWith(sysN);
+        sys.andWith(sysT);
+        // p0=p0'        
+        sys = sys.andWith(placesEqual(0));
+//TODO: mache den oldtype stuff
+        sys.andWith(ndetStates(0).not());
+
+        // 1 for a chain in preset => 1 for the chain in postset
+        sys.andWith(keepOnesForTrees());
+        return sys;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
     /**
@@ -157,32 +518,6 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return fixedPoint;
-    }
-
-    /**
-     * Non-deterministic states don't have any successor. This allows to avoid
-     * non-deterministic strategies.
-     *
-     * @return
-     */
-    @Override
-    BDD sysTransitionsNotCP() {
-        BDD sys = super.sysTransitionsNotCP();
-        sys.andWith(ndetStates(0).not());
-        return sys;
-    }
-
-    /**
-     * Non-deterministic states don't have any successor. This allows to avoid
-     * non-deterministic strategies.
-     *
-     * @return
-     */
-    @Override
-    BDD sysTransitionsCP() {
-        BDD sys = super.sysTransitionsCP();
-        sys.andWith(ndetStates(0).not());
-        return sys;
     }
 
     /**
@@ -250,4 +585,115 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         return new Pair<>(gstrat, pstrat);
     }
 
+    /**
+     * Returns all variables of the predecessor or success as a BDD.
+     *
+     * This means the variables for: places + top-flags + commitment sets
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the sucessor
+     * variables.
+     * @return - the variables of the predecessor or the sucessor of a
+     * transition.
+     */
+    @Override
+    BDD getVariables(int pos) {
+        // Existential variables
+        BDD variables = PLACES[pos][0].set();
+        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
+            variables.andWith(PLACES[pos][i + 1].set());
+            variables.andWith(TOP[pos][i].set());
+            variables.andWith(TRANSITIONS[pos][i].set());
+        }
+        variables.andWith(TOKENTREES[pos].set());
+        return variables;
+    }
+
+    /**
+     * Create a BDD which is true, when the predesseccor und the successor of a
+     * transition are equal.
+     *
+     * Only adds the conditions for the nocc-flag and the loop flag.
+     *
+     * @return BDD with Pre <-> Succ
+     */
+    @Override
+    BDD preBimpSucc() {
+        BDD preBimpSucc = super.preBimpSucc();
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            preBimpSucc.andWith(TOKENTREES[0].buildEquals(TOKENTREES[1]));
+        }
+        return preBimpSucc;
+    }
+
+    /**
+     * Only in not looping states there could have a transition fired.
+     *
+     * @param t
+     * @param source
+     * @param target
+     * @return
+     */
+    @Override
+    public boolean hasFired(Transition t, BDD source, BDD target) {
+        if (!isFirable(t, source)) {
+            return false;
+        }
+        // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
+
+        // Create bdd mantarget with the postset of t and the rest -1
+        // So with "and" we can test if the postset of t also fit to the target
+        // additionally create a copy of the target BDD with the places of the postset set to -1
+        Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
+        // Environment place
+        // todo: one environment token case
+        BDD manTarget = getOne();
+        BDD restTarget = target.id();
+        if (!post.getFirst().isEmpty()) {
+            manTarget.andWith(codePlace(post.getFirst().get(0), 0, 0));
+            restTarget = restTarget.exist(getTokenVariables(0, 0));
+        }
+
+        // System places        
+        List<Place> postSys = post.getSecond();
+        BDD sysPlacesTarget = getOne();
+        for (Place p : postSys) {
+            int token = AdamExtensions.getToken(p);
+            sysPlacesTarget.andWith(codePlace(p, 0, token));
+            restTarget = restTarget.exist(getTokenVariables(0, token));
+        }
+        manTarget.andWith(sysPlacesTarget);
+
+        if ((manTarget.and(target)).isZero()) {
+            return false;
+        }
+
+        // Create now a copy of the source with all positions set to -1 where preset is set
+        Pair<List<Place>, List<Place>> pre = getGame().getSplittedPreset(t);
+        // todo: one environment token case
+        BDD restSource = source.id();
+        if (!pre.getFirst().isEmpty()) {
+            restSource = restSource.exist(getTokenVariables(0, 0));
+        }
+
+        List<Place> preSys = pre.getSecond();
+        for (Place p : preSys) {
+            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getToken(p)));
+        }
+
+        // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
+        // The flags for the tokentrees, may have changed
+        restSource = restSource.exist(TOKENTREES[0].set());
+        restTarget = restTarget.exist(TOKENTREES[0].set());
+        // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
+
+        // now test if the places not in pre- or postset of t stayed equal between source and target
+        boolean ret = !(restTarget.and(restSource)).isZero();
+//        if (ret == false) {
+//            BDDTools.printDecodedDecisionSets(source, this, true);
+//            System.out.println(t);
+//            BDDTools.printDecodedDecisionSets(target, this, true);
+//
+//        }
+        return ret;
+    }
 }

@@ -41,10 +41,13 @@ public class TestingAllFilesAReachability {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallreachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "chains0.apt",
-            "chains1.apt"
+            "chains1.apt",
+            "myexampleNoStrat.apt",
+            "myexample2WithEnvNoStrat.apt"
     ));
-    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
-            //                )
+    private static final List<String> skip = new ArrayList<>(             Arrays.asList(
+            "myexample2.apt" // has no env place
+                            )
             );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 

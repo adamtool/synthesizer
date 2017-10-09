@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,11 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
+import net.sf.javabdd.BDDFactory;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.petrigame.TokenTree;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -64,13 +67,22 @@ public class BDDTools {
         if (print || force) {
             @SuppressWarnings("unchecked")
             List<byte[]> l = dcs.allsat();
-            System.out.println(l.size());
+            Logger.getInstance().addMessage("" + l.size(), !force);
             for (byte[] sol : l) {
                 // required for buddy library
                 if (sol == null) {
                     continue;
                 }
-                System.out.println(Arrays.toString(sol));
+                StringBuilder sb = new StringBuilder("[");
+                for (int i = 0; i < sol.length / 2; i++) {
+                    sb.append(sol[i]);
+                }
+                sb.append(" -> ");
+                for (int i = sol.length / 2; i < sol.length; i++) {
+                    sb.append(sol[i]);
+                }
+                sb.append("]");
+                Logger.getInstance().addMessage(sb.toString(), !force);
             }
         }
     }
@@ -155,6 +167,7 @@ public class BDDTools {
      * @param solver
      * @return
      */
+    @Deprecated
     public static String getDecodedDecisionSetsDeprecated(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
         BDDPetriGame game = solver.getGame();
         // Decoding of places
@@ -363,9 +376,9 @@ public class BDDTools {
                     tokens += "})\n";
                 } else {
                     tokens += "( - )\n";
-                    int buf = counter;
+//                    int buf = counter;
                     counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over type2 or newly occ 
                         ++counter;
                     }
 //                    for (int j = buf; j < counter; j++) {
@@ -374,6 +387,14 @@ public class BDDTools {
                 }
             }
             pre += envBin + ",\n" + tokens;
+
+            // Tokentrees
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+                for (int i = 0; i < AdamExtensions.getTokenTrees(game.getNet()).size(); i++) {
+                    pre += sol[counter++];
+                }
+                pre += "\n";
+            }
 
             // Loop state
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
@@ -433,6 +454,15 @@ public class BDDTools {
                 }
             }
             post += envBin_ + ",\n" + tokens_;
+
+            // Tokentrees
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+                for (int i = 0; i < AdamExtensions.getTokenTrees(game.getNet()).size(); i++) {
+                    post += sol[counter++];
+                }
+                post += "\n";
+            }
+
             // Loop state
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
                 post = "LOOP";
@@ -645,5 +675,17 @@ public class BDDTools {
         Process p = rt.exec(exString);
         p.waitFor();
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
+    }
+
+    public static List<Integer> getTreeIDs(Place place) {
+        List<TokenTree> tokentrees = AdamExtensions.getTokenTrees(place.getGraph());
+        List<Integer> ids = new ArrayList<>();
+        for (int i = 0; i < tokentrees.size(); i++) {
+            TokenTree tree = tokentrees.get(i);
+            if (tree.contains(place)) {
+                ids.add(i);
+            }
+        }
+        return ids;
     }
 }
