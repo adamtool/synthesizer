@@ -17,9 +17,9 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.AdamExtensions;
-import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.logic.util.NotSolvableWitness;
+import uniolunisaar.adam.logic.util.PetriGameAnnotator;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -103,8 +103,7 @@ public class BDDPetriGame extends PetriGame {
             postset.put(t, new Pair<>(post_env, post));
         }
 
-        TokenTreeCreator.createAndAnnotateTokenTree(getNet());
-
+//        TokenTreeCreator.createAndAnnotateTokenTree(getNet());
         //        if (net.hasExtension("MAXTOKEN")) {
 //            TOKENCOUNT = (Integer) net.getExtension("MAXTOKEN");
 //            Logger.getInstance().addMessage("Maximal number of token: " + TOKENCOUNT + " (read from net)");
@@ -117,6 +116,14 @@ public class BDDPetriGame extends PetriGame {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+
+        if (!AdamExtensions.hasConcurrencyPreserving(getNet())) {
+            PetriGameAnnotator.annotateConcurrencyPreserving(getNet());
+        }
+
+        if (!AdamExtensions.hasMaxTokenCount(getNet())) {
+            PetriGameAnnotator.annotateMaxTokenCount(getNet());
+        }
 
         //todo:  all comments are old version, before cavarti
         // split places and add an id
