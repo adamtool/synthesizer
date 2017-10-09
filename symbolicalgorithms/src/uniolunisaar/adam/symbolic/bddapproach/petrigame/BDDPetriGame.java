@@ -17,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.logic.util.NotSolvableWitness;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -101,6 +102,8 @@ public class BDDPetriGame extends PetriGame {
             preset.put(t, new Pair<>(pre_env, pre));
             postset.put(t, new Pair<>(post_env, post));
         }
+
+        TokenTreeCreator.createAndAnnotateTokenTree(getNet());
 
         //        if (net.hasExtension("MAXTOKEN")) {
 //            TOKENCOUNT = (Integer) net.getExtension("MAXTOKEN");
