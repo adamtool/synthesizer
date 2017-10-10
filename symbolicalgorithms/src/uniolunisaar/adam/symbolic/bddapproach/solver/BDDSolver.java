@@ -210,7 +210,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             for (Transition t : getGame().getTransitions()[i - 1]) {
                 BDD place = bddfac.zero();
                 for (Place p : t.getPreset()) {
-                    if (!AdamExtensions.isEnviroment(p) && i == AdamExtensions.getToken(p)) {
+                    if (!AdamExtensions.isEnvironment(p) && i == AdamExtensions.getToken(p)) {
                         place.orWith(codePlace(p, pos, i));
                     }
                 }
@@ -272,7 +272,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!AdamExtensions.isEnviroment(place)) {
+                        if (!AdamExtensions.isEnvironment(place)) {
                             shared = true;
                         }
                     }
@@ -307,12 +307,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         int i = 0;
         for (Transition t : envTrans) {
             for (Place pre : t.getPreset()) {
-                if (AdamExtensions.isEnviroment(pre)) {
+                if (AdamExtensions.isEnvironment(pre)) {
                     pres[i] = AdamExtensions.getID(pre);
                 }
             }
             for (Place post : t.getPostset()) {
-                if (AdamExtensions.isEnviroment(post)) {
+                if (AdamExtensions.isEnvironment(post)) {
                     posts[i] = AdamExtensions.getID(post);
                 }
             }
@@ -440,7 +440,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD chosen(Transition t, int pos) {
         BDD c = getOne();
         for (Place p : t.getPreset()) {
-            if (!AdamExtensions.isEnviroment(p)) {
+            if (!AdamExtensions.isEnvironment(p)) {
                 // Sys places
 //                    //if pi=p and it's not top, then t has to be set to one (old version mit not top?)
 //                    BDD pl = codePlace(binID, offset).and(bddfac.nithVar(offset + PL_CODE_LEN + 1));
@@ -515,7 +515,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDD enabled(Transition t, int pos) {
         BDD en = getOne();
         for (Place place : t.getPreset()) {
-            if (AdamExtensions.isEnviroment(place)) {
+            if (AdamExtensions.isEnvironment(place)) {
                 // Env place
                 en.andWith(codePlace(place, pos, 0));
             } else {
@@ -557,7 +557,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
-                        if (AdamExtensions.isEnviroment(place)) {
+                        if (AdamExtensions.isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;
@@ -615,7 +615,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         List<Integer> postTokens = new ArrayList<>(visitedToken);
         // set the dcs for the places in the preset
         for (Place pre : pre_sys) {
-            if (!AdamExtensions.isEnviroment(pre)) { // jump over environment
+            if (!AdamExtensions.isEnvironment(pre)) { // jump over environment
                 int token = AdamExtensions.getToken(pre);
                 visitedToken.add(token);
                 all.andWith(codePlace(pre, 0, token));

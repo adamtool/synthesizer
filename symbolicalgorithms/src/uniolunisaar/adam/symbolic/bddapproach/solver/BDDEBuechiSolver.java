@@ -244,7 +244,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getGame().getPlaces()[i]) {
-                        if (AdamExtensions.isEnviroment(place)) {
+                        if (AdamExtensions.isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;

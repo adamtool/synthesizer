@@ -82,7 +82,7 @@ public class BDDPetriGame extends PetriGame {
             // fill sysTransition
             boolean add = true;
             for (Place place : pre) {
-                if (AdamExtensions.isEnviroment(place)) {
+                if (AdamExtensions.isEnvironment(place)) {
                     add = false;
                     pre_env.add(place);
                 }
@@ -93,7 +93,7 @@ public class BDDPetriGame extends PetriGame {
 
             // split the environmental places from pre- and postset 
             for (Place place : post) {
-                if (AdamExtensions.isEnviroment(place)) {
+                if (AdamExtensions.isEnvironment(place)) {
                     post_env.add(place);
                 }
             }
