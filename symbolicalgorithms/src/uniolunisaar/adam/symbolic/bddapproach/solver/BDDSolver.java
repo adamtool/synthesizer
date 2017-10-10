@@ -39,7 +39,7 @@ import uniolunisaar.adam.tools.Logger;
 public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPetriGame, W, BDDSolverOptions> {
 
     // BDD settings
-    private static BDDFactory bddfac;
+    private BDDFactory bddfac;
     private boolean initialized = false;
 
     // the length of the decision sets

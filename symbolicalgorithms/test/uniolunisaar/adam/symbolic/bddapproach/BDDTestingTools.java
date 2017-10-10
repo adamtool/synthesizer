@@ -28,10 +28,10 @@ public class BDDTestingTools {
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
         AdamTools.savePG2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
         if (hasStrategy) {
-            Assert.assertTrue(solv.existsWinningStrategy(), "Has winning strategy: ");
+            Assert.assertTrue(solv.existsWinningStrategy(), "Net: "+solv.getNet().getName() + " has winning strategy: ");
             printWinningStrategies(solv, file);
         } else {
-            Assert.assertFalse(solv.existsWinningStrategy(), "Has winning strategy: ");
+            Assert.assertFalse(solv.existsWinningStrategy(), "Net: "+solv.getNet().getName() + " has winning strategy: ");
         }
     }
 

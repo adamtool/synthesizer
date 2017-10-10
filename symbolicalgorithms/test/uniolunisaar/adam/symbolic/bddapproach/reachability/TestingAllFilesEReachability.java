@@ -45,6 +45,7 @@ public class TestingAllFilesEReachability {
             "simple.apt",
             "nondetNoStrat.apt",
             "notReachable.apt",
+            "unfair.apt",
             "nondetNoStrat",// should have no strategy, builds one voilating S3
             "nondet2.apt"// should have no strategy, builds one voilating S3
     ));
