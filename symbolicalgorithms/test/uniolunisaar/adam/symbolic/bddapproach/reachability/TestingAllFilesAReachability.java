@@ -45,7 +45,9 @@ public class TestingAllFilesAReachability {
             "myexampleNoStrat.apt",
             "myexample2WithEnvNoStrat.apt",
             "unfair.apt",
-            "burglar2.apt"
+            "burglar2.apt",
+            "oneTokenMultiChains0.apt",
+            "oneTokenMultiChains1.apt"
     ));
     private static final List<String> skip = new ArrayList<>(             Arrays.asList(
             "myexample2.apt" // has no env place

@@ -7,19 +7,18 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
-import net.sf.javabdd.BDDFactory;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.petrigame.TokenChain;
 import uniolunisaar.adam.ds.petrigame.TokenTree;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
@@ -388,9 +387,9 @@ public class BDDTools {
             }
             pre += envBin + ",\n" + tokens;
 
-            // Tokentrees
+            // Token chains
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                int size = AdamExtensions.getTokenTrees(game.getNet()).size();
+                int size = AdamExtensions.getTokenChains(game.getNet()).size();
                 for (int i = 0; i < size; i++) {
                     pre += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
                 }
@@ -457,9 +456,9 @@ public class BDDTools {
             }
             post += envBin_ + ",\n" + tokens_;
 
-            // Tokentrees
+            // Token chains
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                int size = AdamExtensions.getTokenTrees(game.getNet()).size();
+                int size = AdamExtensions.getTokenChains(game.getNet()).size();
                 for (int i = 0; i < size; i++) {
                     post += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
                 }
@@ -681,12 +680,24 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
-    public static List<Integer> getTreeIDs(Place place) {
+    public static List<Integer> getTreeIDsContainingPlace(Place place) {
         List<TokenTree> tokentrees = AdamExtensions.getTokenTrees(place.getGraph());
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < tokentrees.size(); i++) {
             TokenTree tree = tokentrees.get(i);
             if (tree.contains(place)) {
+                ids.add(i);
+            }
+        }
+        return ids;
+    }
+
+    public static List<Integer> getChainIDsContainingPlace(Place place) {
+        List<TokenChain> tokenchains = AdamExtensions.getTokenChains(place.getGraph());
+        List<Integer> ids = new ArrayList<>();
+        for (int i = 0; i < tokenchains.size(); i++) {
+            TokenChain chain = tokenchains.get(i);
+            if (chain.contains(place)) {
                 ids.add(i);
             }
         }

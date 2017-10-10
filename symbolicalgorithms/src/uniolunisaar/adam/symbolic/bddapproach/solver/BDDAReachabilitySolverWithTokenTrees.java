@@ -20,7 +20,7 @@ import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.util.AdamExtensions;
-import uniolunisaar.adam.logic.tokenflow.TokenChainGenerator;
+import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -45,10 +45,10 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
+public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability> {
 
-    private BDDDomain[] TOKENCHAIN_WON;
-    private BDDDomain[] TOKENCHAIN_ACTIVE;
+    private BDDDomain[] TOKENTREE_WON;
+    private BDDDomain[] TOKENTREE_ACT;
 
     /**
      * Creates a new universal reachability solver for a given game.
@@ -60,9 +60,9 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDAReachabilitySolver(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDAReachabilitySolverWithTokenTrees(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
-        TokenChainGenerator.createAndAnnotateTokenChains(getNet());
+        TokenTreeCreator.createAndAnnotateTokenTree(getNet());
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -81,8 +81,8 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         PLACES = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
-        TOKENCHAIN_WON = new BDDDomain[2];
-        TOKENCHAIN_ACTIVE = new BDDDomain[2];
+        TOKENTREE_WON = new BDDDomain[2];
+        TOKENTREE_ACT = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
@@ -101,10 +101,10 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
 //                }
             }
-            // one flag for each token chain (hell yeah this is expencive)
-            BigInteger nbChains = BigInteger.valueOf(2).pow(AdamExtensions.getTokenChains(getNet()).size());
-            TOKENCHAIN_WON[i] = getFactory().extDomain(nbChains);
-            TOKENCHAIN_ACTIVE[i] = getFactory().extDomain(nbChains);
+            // one flag for each tokentree
+            BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size());
+            TOKENTREE_WON[i] = getFactory().extDomain(nbTrees);
+            TOKENTREE_ACT[i] = getFactory().extDomain(nbTrees);
         }
         setDCSLength(getFactory().varNum() / 2);
     }
@@ -113,10 +113,12 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     /**
      */
     private BDD winningStates() {
-        // When token chain had been reached, then it also must had reached a reachable place
+        // Set all tokentrees to 1
+//        BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size()).add(BigInteger.valueOf(-1));
+// When token tree had been reached, then it also must had reached a reachable place
         BDD reach = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
-            reach.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[0].vars()[i]).imp(getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i])));
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            reach.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).imp(getFactory().ithVar(TOKENTREE_WON[0].vars()[i])));
         }
         return reach;
     }
@@ -131,9 +133,9 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         for (Place place : getGame().getNet().getPlaces()) {
             if (initial.getToken(place).getValue() > 0) {
                 if (getWinningCondition().getPlaces2Reach().contains(place)) {
-                    init.andWith(setChainIDs(place, 0, true, alreadySetIds)); // set all which are winning and initial to 1 on all chains
+                    init.andWith(setTreeIDs(place, 0, true, alreadySetIds)); // set all which are winning and initial to 1 on all trees
                 }
-                init.andWith(setChanActiveIDs(place, 0, true, alreadySetActIds));
+                init.andWith(setTreeActIDs(place, 0, true, alreadySetActIds));
             }
         }
 //        BDDTools.printDecodedDecisionSets(init, this, true);
@@ -151,62 +153,62 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
      * @param toOne
      * @return
      */
-    private BDD setChanActiveIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
+    private BDD setTreeActIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place);
-        for (Integer chanId : chainIds) {
+        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place);
+        for (Integer treeId : treeIds) {
             if (toOne) {
-                res.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[pos].vars()[chanId]));
+                res.andWith(getFactory().ithVar(TOKENTREE_ACT[pos].vars()[treeId]));
             } else {
-                res.andWith(getFactory().nithVar(TOKENCHAIN_ACTIVE[pos].vars()[chanId]));
+                res.andWith(getFactory().nithVar(TOKENTREE_ACT[pos].vars()[treeId]));
             }
         }
-        alreadySetIds.addAll(chainIds);
+        alreadySetIds.addAll(treeIds);
         return res;
     }
 
     /**
-     * Sets all token chain ids to the flag "toOne" and adds the ids to the list
+     * Sets all tokentreeids to the flag "toOne" and adds the ids to the list
      *
      * @param place
      * @param pos
      * @param toOne
      * @return
      */
-    private BDD setChainIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
+    private BDD setTreeIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place);
-        for (Integer chainId : chainIds) {
+        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place);
+        for (Integer treeId : treeIds) {
             if (toOne) {
-                res.andWith(getFactory().ithVar(TOKENCHAIN_WON[pos].vars()[chainId]));
+                res.andWith(getFactory().ithVar(TOKENTREE_WON[pos].vars()[treeId]));
             } else {
-                res.andWith(getFactory().nithVar(TOKENCHAIN_WON[pos].vars()[chainId]));
+                res.andWith(getFactory().nithVar(TOKENTREE_WON[pos].vars()[treeId]));
             }
         }
-        alreadySetIds.addAll(chainIds);
+        alreadySetIds.addAll(treeIds);
         return res;
     }
 
     private BDD setAllRemainingIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds, int pos) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
-                res.andWith(getFactory().nithVar(TOKENCHAIN_WON[pos].vars()[i]));
+                res.andWith(getFactory().nithVar(TOKENTREE_WON[pos].vars()[i]));
             }
             if (!alreadySetActIds.contains(i)) {
-                res.andWith(getFactory().nithVar(TOKENCHAIN_ACTIVE[pos].vars()[i]));
+                res.andWith(getFactory().nithVar(TOKENTREE_ACT[pos].vars()[i]));
             }
         }
         return res;
     }
 
-    private BDD setSuitableRemainingSuccChainIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds) {
+    private BDD setSuitableRemainingSuccTreeIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 // if pre not 1 => post 0
-                BDD pre = getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i]).not();
-                BDD post = getFactory().nithVar(TOKENCHAIN_WON[1].vars()[i]);
+                BDD pre = getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).not();
+                BDD post = getFactory().nithVar(TOKENTREE_WON[1].vars()[i]);
                 res.andWith(pre.impWith(post));
 //            res.andWith(post);
 //            System.out.println("id" + treeId);
@@ -214,19 +216,19 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             }
             if (!alreadySetActIds.contains(i)) {
                 // if pre not 1 => post 0
-                BDD pre = getFactory().ithVar(TOKENCHAIN_ACTIVE[0].vars()[i]).not();
-                BDD post = getFactory().nithVar(TOKENCHAIN_ACTIVE[1].vars()[i]);
+                BDD pre = getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).not();
+                BDD post = getFactory().nithVar(TOKENTREE_ACT[1].vars()[i]);
                 res.andWith(pre.impWith(post));
             }
         }
         return res;
     }
 
-    private BDD keepOnesForChains() {
+    private BDD keepOnesForTrees() {
         BDD ones = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
-            ones.andWith(getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i]).impWith(getFactory().ithVar(TOKENCHAIN_WON[1].vars()[i])));
-            ones.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[0].vars()[i]).impWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[1].vars()[i])));
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            ones.andWith(getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_WON[1].vars()[i])));
+            ones.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_ACT[1].vars()[i])));
         }
         return ones;
     }
@@ -285,24 +287,24 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 } else {
                     all.andWith(codePlace(0, 1, 0));
                 }
-                // update the token chains               
-                List<Integer> alreadyVisitedChainIds = new ArrayList<>();
-                List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
+                // update the tokentrees                
+                List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+                List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
-                    // if it's a reachable place set it's token chain to 1
+                    // if it's a reachable place set it's tokentrees to 1
                     if (getWinningCondition().getPlaces2Reach().contains(place)) {
-                        all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
+                        all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                     }
-                    all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
+                    all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
                 }
-                all.andWith(this.setSuitableRemainingSuccChainIDsToZero(alreadyVisitedChainIds, alreadyVisitedChainActIds));
+                all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds, alreadyVisitedTreeActIds));
 //                all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
                 dis.orWith(all);
             }
         }
         env.andWith(dis);
         // 1 for a chain in preset => 1 for the chain in postset
-        env.andWith(keepOnesForChains());
+        env.andWith(keepOnesForTrees());
         return env;
     }
 
@@ -354,17 +356,17 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 } else {
                     all.andWith(codePlace(0, 1, 0));
                 }
-                // update the token chains                
-                List<Integer> alreadyVisitedChainIds = new ArrayList<>();
-                List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
+                // update the tokentrees                
+                List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+                List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
-                    // if it's a reachable place set it's token chain to 1
+                    // if it's a reachable place set it's tokentrees to 1
                     if (getWinningCondition().getPlaces2Reach().contains(place)) {
-                        all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
+                        all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                     }
-                    all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
+                    all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
                 }
-                all.andWith(this.setSuitableRemainingSuccChainIDsToZero(alreadyVisitedChainIds, alreadyVisitedChainActIds));
+                all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds, alreadyVisitedTreeActIds));
 //                all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
                 dis.orWith(all);
             }
@@ -372,7 +374,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 
         mcut.andWith(dis);
         // 1 for a chain in preset => 1 for the chain in postset
-        mcut.andWith(keepOnesForChains());
+        mcut.andWith(keepOnesForTrees());
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
@@ -412,17 +414,17 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 // top'=0
                 all.andWith(TOP[1][i - 1].ithVar(0));
             }
-            // update the token chains                 
-            List<Integer> alreadyVisitedChainIds = new ArrayList<>();
-            List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
+            // update the tokentrees                
+            List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+            List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
-                // if it's a reachable place set it's tokenchains to 1
+                // if it's a reachable place set it's tokentrees to 1
                 if (getWinningCondition().getPlaces2Reach().contains(place)) {
-                    all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
+                    all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                 }
-                all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
+                all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
             }
-            all.andWith(this.setSuitableRemainingSuccChainIDsToZero(alreadyVisitedChainIds, alreadyVisitedChainActIds));
+            all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds, alreadyVisitedTreeActIds));
 //            all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
             sysN.orWith(all);
         }
@@ -445,9 +447,9 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
             sysT.andWith(impl);
         }
-        // keep token chain ids
-        sysT.andWith(TOKENCHAIN_WON[0].buildEquals(TOKENCHAIN_WON[1]));
-        sysT.andWith(TOKENCHAIN_ACTIVE[0].buildEquals(TOKENCHAIN_ACTIVE[1]));
+        // keep tokentree ids
+        sysT.andWith(TOKENTREE_WON[0].buildEquals(TOKENTREE_WON[1]));
+        sysT.andWith(TOKENTREE_ACT[0].buildEquals(TOKENTREE_ACT[1]));
         sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
@@ -457,7 +459,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 
         sys.andWith(ndetStates(0).not());
         // 1 for a chain in preset => 1 for the chain in postset
-        sys.andWith(keepOnesForChains());
+        sys.andWith(keepOnesForTrees());
         return sys;
     }
 
@@ -496,17 +498,17 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             // Positions in dcs not set with places of pre- or postset
             setNotAffectedPositions(all, visitedToken);
 
-            // update the token chains        
-            List<Integer> alreadyVisitedChainIds = new ArrayList<>();
-            List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
+            // update the tokentrees                
+            List<Integer> alreadyVisitedTreeIds = new ArrayList<>();
+            List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
-                // if it's a reachable place set it's token chains to 1
+                // if it's a reachable place set it's tokentrees to 1
                 if (getWinningCondition().getPlaces2Reach().contains(place)) {
-                    all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
+                    all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                 }
-                all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
+                all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
             }
-            all.andWith(this.setSuitableRemainingSuccChainIDsToZero(alreadyVisitedChainIds, alreadyVisitedChainActIds));
+            all.andWith(this.setSuitableRemainingSuccTreeIDsToZero(alreadyVisitedTreeIds, alreadyVisitedTreeActIds));
 //            all.andWith(this.setAllRemainingIDsToZero(alreadyVisitedTreeIds, 1));
 
             sysN.orWith(all);
@@ -531,9 +533,9 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
             sysT.andWith(impl);
         }
-        // keep token chains flags
-        sysT.andWith(TOKENCHAIN_WON[0].buildEquals(TOKENCHAIN_WON[1]));
-        sysT.andWith(TOKENCHAIN_ACTIVE[0].buildEquals(TOKENCHAIN_ACTIVE[1]));
+        // keep tokentree ids
+        sysT.andWith(TOKENTREE_WON[0].buildEquals(TOKENTREE_WON[1]));
+        sysT.andWith(TOKENTREE_ACT[0].buildEquals(TOKENTREE_ACT[1]));
         sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
@@ -544,7 +546,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         sys.andWith(ndetStates(0).not());
 
         // 1 for a chain in preset => 1 for the chain in postset
-        sys.andWith(keepOnesForChains());
+        sys.andWith(keepOnesForTrees());
         return sys;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
@@ -657,8 +659,8 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             variables.andWith(TOP[pos][i].set());
             variables.andWith(TRANSITIONS[pos][i].set());
         }
-        variables.andWith(TOKENCHAIN_WON[pos].set());
-        variables.andWith(TOKENCHAIN_ACTIVE[pos].set());
+        variables.andWith(TOKENTREE_WON[pos].set());
+        variables.andWith(TOKENTREE_ACT[pos].set());
         return variables;
     }
 
@@ -673,9 +675,9 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
-            preBimpSucc.andWith(TOKENCHAIN_WON[0].buildEquals(TOKENCHAIN_WON[1]));
-            preBimpSucc.andWith(TOKENCHAIN_ACTIVE[0].buildEquals(TOKENCHAIN_ACTIVE[1]));
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+            preBimpSucc.andWith(TOKENTREE_WON[0].buildEquals(TOKENTREE_WON[1]));
+            preBimpSucc.andWith(TOKENTREE_ACT[0].buildEquals(TOKENTREE_ACT[1]));
         }
         return preBimpSucc;
     }
@@ -736,11 +738,11 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
-        // The flags for the tokenchains, may have changed
-        restSource = restSource.exist(TOKENCHAIN_WON[0].set());
-        restTarget = restTarget.exist(TOKENCHAIN_WON[0].set());
-        restSource = restSource.exist(TOKENCHAIN_ACTIVE[0].set());
-        restTarget = restTarget.exist(TOKENCHAIN_ACTIVE[0].set());
+        // The flags for the tokentrees, may have changed
+        restSource = restSource.exist(TOKENTREE_WON[0].set());
+        restTarget = restTarget.exist(TOKENTREE_WON[0].set());
+        restSource = restSource.exist(TOKENTREE_ACT[0].set());
+        restTarget = restTarget.exist(TOKENTREE_ACT[0].set());
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
 
         // now test if the places not in pre- or postset of t stayed equal between source and target

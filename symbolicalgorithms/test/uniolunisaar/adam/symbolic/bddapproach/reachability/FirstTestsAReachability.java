@@ -90,21 +90,37 @@ public class FirstTestsAReachability {
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
-
+    
+    
     @Test
     public void testBurglar() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+        final String path = inputDir + "burglar" + File.separator;
+//        final String path = inputDir + "toyexamples" + File.separator;
+//        String name = "chains";
+        String name = "burglar";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        
+        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
+        System.out.println(solv.getNet().getName());
+//        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+//        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+
+    @Test
+    public void testBurglar2() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + "burglar" + File.separator;
 //        final String path = inputDir + "toyexamples" + File.separator;
 //        String name = "chains";
         String name = "burglar2";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         
-        System.out.println(AdamExtensions.getTokenTrees(solv.getNet()));
+        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
         System.out.println(solv.getNet().getName());
-        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
-
-        BDDTestingTools.testExample(solv, outputDir + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
