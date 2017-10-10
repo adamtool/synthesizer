@@ -390,9 +390,11 @@ public class BDDTools {
 
             // Tokentrees
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                for (int i = 0; i < AdamExtensions.getTokenTrees(game.getNet()).size(); i++) {
-                    pre += sol[counter++];
+                int size = AdamExtensions.getTokenTrees(game.getNet()).size();
+                for (int i = 0; i < size; i++) {
+                    pre += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
                 }
+                counter += size;
                 pre += "\n";
             }
 
@@ -457,9 +459,11 @@ public class BDDTools {
 
             // Tokentrees
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                for (int i = 0; i < AdamExtensions.getTokenTrees(game.getNet()).size(); i++) {
-                    post += sol[counter++];
+                int size = AdamExtensions.getTokenTrees(game.getNet()).size();
+                for (int i = 0; i < size; i++) {
+                    post += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
                 }
+                counter += size;
                 post += "\n";
             }
 
