@@ -483,7 +483,7 @@ public class BDDTools {
 //            }           
             // add overall bad
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                pre += sol[counter++] + "\n";
+                post += sol[counter++] + "\n";
             }
 
             // Loop state

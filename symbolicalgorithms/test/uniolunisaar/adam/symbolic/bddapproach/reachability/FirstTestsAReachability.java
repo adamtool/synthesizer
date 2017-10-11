@@ -59,11 +59,25 @@ public class FirstTestsAReachability {
     @Test
     public void testChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         testToyExamples("chains", true);
+        testToyExamples("chains0", false);
+        testToyExamples("chains1", false);
+    }
+    
+      @Test
+    public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+//        testToyExamples("oneTokenMultiChains2", false);
+//        testToyExamples("oneTokenMultiChains6", false);
+        testToyExamples("oneTokenMultiChains8", true);
     }
 
     @Test
     public void testType2() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         testToyExamples("type2", true);
+    }
+    
+    @Test
+    public void testOverallBad() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+        testToyExamples("overallBad0", false);
     }
     
     @Test
@@ -93,6 +107,21 @@ public class FirstTestsAReachability {
     
     
     @Test
+    public void testMyExampleNoStrat() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+        final String path = inputDir + "jhh" + File.separator;
+        String name = "myexampleWithSysNoStrat";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+        
+//        Transition t = solv.getNet().getTransition("t2");
+//        System.out.println(AdamExtensions.getTokenFlow(t).toString());
+//        System.out.println(AdamExtensions.getTokenTrees(solv.getNet()));
+//        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
+    
+    
+    @Test
     public void testBurglar() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + "burglar" + File.separator;
 //        final String path = inputDir + "toyexamples" + File.separator;
@@ -102,7 +131,9 @@ public class FirstTestsAReachability {
         
 //        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
 //        System.out.println(solv.getNet().getName());
-//        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+        Transition t = solv.getNet().getTransition("t4");
+        System.out.println(AdamExtensions.getTokenFlow(t).toString());
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);

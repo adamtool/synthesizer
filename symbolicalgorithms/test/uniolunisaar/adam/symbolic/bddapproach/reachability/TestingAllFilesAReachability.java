@@ -42,6 +42,7 @@ public class TestingAllFilesAReachability {
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "chains0.apt",
             "chains1.apt",
+            "myexampleWithSysNoStrat.apt",
             "myexampleNoStrat.apt",
             "myexample2WithEnvNoStrat.apt",
             "unfair.apt",
@@ -50,7 +51,9 @@ public class TestingAllFilesAReachability {
             "oneTokenMultiChains1.apt",
             "oneTokenMultiChains2.apt",
             "oneTokenMultiChains4.apt",
-            "oneTokenMultiChains5.apt"
+            "oneTokenMultiChains5.apt",
+            "oneTokenMultiChains6.apt",
+            "overallBad0.apt"
     ));
     private static final List<String> skip = new ArrayList<>(             Arrays.asList(
             "myexample2.apt" // has no env place

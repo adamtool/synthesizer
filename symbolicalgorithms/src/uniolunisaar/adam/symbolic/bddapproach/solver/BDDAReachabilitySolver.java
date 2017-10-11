@@ -104,8 +104,13 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     private BDD winningStates() {
         BDD ret = getOne();
         for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
-            ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
+            if (AdamExtensions.getConcurrencyPreserving(getNet())) {
+                ret.andWith(GOODCHAIN[0][i].ithVar(1));
+            } else {
+                ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
+            }
         }
+        ret.andWith(OBAD[0].ithVar(0));
         return ret;
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -134,6 +139,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
+//        System.out.println("Post:" + post.getId());
         if (getWinningCondition().getPlaces2Reach().contains(post)) { // it is a place2reach -> 1
             return GOODCHAIN[1][token].ithVar(1);
         }
@@ -143,7 +149,15 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
                 for (Place p : tokenFlow.getPreset()) {
-                    allPres.andWith(GOODCHAIN[0][AdamExtensions.getToken(p)].ithVar(1));
+//                    System.out.println("Pre: " + p.getId());
+                    int preToken = AdamExtensions.getToken(p);
+                    allPres.andWith(codePlace(p, 0, preToken));
+                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
+                }
+                if (tokenFlow.getPreset().isEmpty()) {
+                    allPres.andWith(GOODCHAIN[1][token].ithVar(0));
+                } else {
+                    allPres.andWith(GOODCHAIN[1][token].ithVar(1));
                 }
             }
         }
@@ -208,7 +222,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                             // all t_i'=0
                             inner.andWith(nothingChosen(1, i));
                             // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                            setGoodChainFlagForTransition(t, post, i);
+                            inner.andWith(setGoodChainFlagForTransition(t, post, i));
                         }
                         pl.orWith(inner);
                     }
@@ -224,12 +238,22 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                     all.andWith(codePlace(0, 0, 0));
                 }
                 if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-                    all.andWith(codePlace(post.get(0), 1, 0));
+                    Place postPlace = post.get(0);
+                    all.andWith(codePlace(postPlace, 1, 0));
                     // it is good if it was good, or is a reach place
-                    if (getWinningCondition().getPlaces2Reach().contains(post.get(0))) { // it is a place2reach -> 1
+                    if (getWinningCondition().getPlaces2Reach().contains(postPlace)) { // it is a place2reach -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        all.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+                        List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
+                        for (TokenFlow tfl : tfls) {
+                            if (tfl.getPostset().contains(postPlace)) {
+                                if (tfl.getPreset().isEmpty()) {
+                                    all.andWith(GOODCHAIN[1][0].ithVar(0));
+                                } else {
+                                    all.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+                                }
+                            }
+                        }
                     }
                 } else {
                     all.andWith(codePlace(0, 1, 0));
@@ -302,7 +326,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                         // all t_i'=0
                         all.andWith(nothingChosen(1, token));
                         // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                        setGoodChainFlagForTransition(t, post, token);
+                        all.andWith(setGoodChainFlagForTransition(t, post, token));
                     }
                 }
 
@@ -325,12 +349,22 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                     all.andWith(GOODCHAIN[0][0].ithVar(0));
                 }
                 if (!post.isEmpty()) {
-                    all.andWith(codePlace(post.get(0), 1, 0));
+                    Place postPlace = post.get(0);
+                    all.andWith(codePlace(postPlace, 1, 0));
                     // it is good if it was good, or is a reach place
-                    if (getWinningCondition().getPlaces2Reach().contains(post.get(0))) { // it is a place2reach -> 1
+                    if (getWinningCondition().getPlaces2Reach().contains(postPlace)) { // it is a place2reach -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        all.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+                        List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
+                        for (TokenFlow tfl : tfls) {
+                            if (tfl.getPostset().contains(postPlace)) {
+                                if (tfl.getPreset().isEmpty()) {
+                                    all.andWith(GOODCHAIN[1][0].ithVar(0));
+                                } else {
+                                    all.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+                                }
+                            }
+                        }
                     }
                 } else {
                     all.andWith(codePlace(0, 1, 0));
@@ -376,7 +410,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                         //pre_i=post_i'
                         inner.andWith(codePlace(post, 1, i));
                         // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                        setGoodChainFlagForTransition(t, post, i);
+                        inner.andWith(setGoodChainFlagForTransition(t, post, i));
                     }
                     pl.orWith(inner);
                 }
@@ -405,17 +439,20 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
             sysT.andWith(impl);
         }
-        // in top case just copy the good chain flag of the env place
-        sysT = sysT.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+        // in top part copy overallbad flag 
+        sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
         sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
         sys.andWith(sysT);
+        // keep the good chain flag for the environment, since there nothing could have changed        
+        sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
 
-        // copy overbad flag
-        sys.andWith(OBAD[0].buildEquals(OBAD[1]));
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
+
+        // overall bad state don't have any successor
+        sys.andWith(OBAD[0].ithVar(0));
 
         return sys.andWith(ndetStates(0).not());
     }
@@ -445,10 +482,8 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                     all.andWith(codePlace(post, 1, token));
                     // top'=0
                     all.andWith(TOP[1][token - 1].ithVar(0));
-                    // nocc'=1
-                    all.andWith(GOODCHAIN[1][token].ithVar(1));
                     // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                    setGoodChainFlagForTransition(t, post, token);
+                    all.andWith(setGoodChainFlagForTransition(t, post, token));
                 }
             }
 
@@ -461,8 +496,6 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             // sets the overall bad flag
             sysN.orWith(all.andWith(setOverallBad(t)));
         }
-        // in not top case keep the env goodchain flag
-        sysN = sysN.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
 
         sysN = (top.not()).impWith(sysN);
 
@@ -483,22 +516,25 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
             sysT.andWith(impl);
         }
-        // in top case just copy the good chain flag of the env place
-        sysT = sysT.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+        // in top part copy overallbad flag 
+        sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
         sysT = top.impWith(sysT);
 
         sys.andWith(sysN);
         sys.andWith(sysT);
+        // keep the good chain flag for the environment, since there nothing could have changed        
+        sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
 
-        // copy overbad flag
-        sys.andWith(OBAD[0].buildEquals(OBAD[1]));
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
+
+        // overall bad state don't have any successor
+        sys.andWith(OBAD[0].ithVar(0));
         return sys.andWith(ndetStates(0).not());
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-     /**
+    /**
      * Returns the winning decisionsets for the system players.
      *
      * In this case only an attractor to the reachable states.
@@ -654,8 +690,8 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     /**
-     * Only in not overall bad state there could have a transition fired.
-     * and the  good chain flag could had changed.
+     * Only in not overall bad state there could have a transition fired. and
+     * the good chain flag could had changed.
      *
      * @param t
      * @param source
