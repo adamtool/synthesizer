@@ -101,6 +101,8 @@ public class BDDPetriGame extends PetriGame {
             post.removeAll(post_env);
             preset.put(t, new Pair<>(pre_env, pre));
             postset.put(t, new Pair<>(post_env, post));
+//            System.out.println(t+"  pree  "+ preset.get(t).toString());
+//            System.out.println(t+"   post  "+postset.get(t).toString());
         }
 
 //        TokenTreeCreator.createAndAnnotateTokenTree(getNet());

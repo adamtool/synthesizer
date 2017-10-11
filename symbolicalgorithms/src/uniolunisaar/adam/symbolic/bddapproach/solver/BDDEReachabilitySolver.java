@@ -69,7 +69,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD initial() {
         BDD init = super.initial();
-                    BDDTools.printDecodedDecisionSets(init, this, true);
+//                    BDDTools.printDecodedDecisionSets(init, this, true);
         init.andWith(ndetStates(0).not());
         return init;
     }

@@ -344,10 +344,10 @@ public class BDDTools {
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
                         ) {
                     envBin += ", " + sol[counter++];
-                }
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for reachability
-                        ) {
-                    envBin += ", " + sol[counter++];
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for reachability
+                            ) {
+                        envBin += ", " + sol[counter++];
+                    }
                 }
             } else {
                 envBin = "-";
@@ -443,12 +443,11 @@ public class BDDTools {
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
                         ) {
                     envBin_ += ", " + sol[counter++];
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for buchi
+                            ) {
+                        envBin += ", " + sol[counter++];
+                    }
                 }
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for buchi
-                        ) {
-                    envBin += ", " + sol[counter++];
-                }
-
             } else {
                 envBin_ = "-";
             }

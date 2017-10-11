@@ -908,6 +908,59 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //        BDDTools.printDecodedDecisionSets(deadSysDCS(0).andWith(codePlace(getGame().getNet().getPlace("p"), 0, 1)).andWith(codePlace(getGame().getNet().getPlace("r"), 0, 2)), this, true);
         return Q_.andWith(wellformed());
     }
+    
+        /**
+     * Compare Algorithm for Buchi Games by Krish
+     *
+     * with strategy building from zimmermanns lecture script
+     *
+     * @return
+     */
+    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) {
+        BDD S = getBufferedDCSs().id();
+        BDD W = getZero();
+        BDD W_;
+        BDD B = buchiStates;
+        do {
+            B = B.and(S);
+            if (distance != null) {
+                distance.clear();
+            }
+            BDD R = attractor(B, false, S, distance);
+//            System.out.println("R states");
+//            BDDTools.printDecodedDecisionSets(R, this, true);
+//            System.out.println("END R staes");
+//            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
+//            BDDTools.printDecodedDecisionSets(R, this, true);
+            BDD Tr = S.and(R.not());
+//            System.out.println("TR states");
+//            BDDTools.printDecodedDecisionSets(Tr, this, true);
+//            System.out.println("END TR states");
+//            System.out.println("%%%%%%%%%%%%%%%% TR");
+//            BDDTools.printDecodedDecisionSets(Tr, this, true);         
+            W_ = attractor(Tr, true, S);
+
+//            System.out.println("W_ states");
+//            BDDTools.printDecodedDecisionSets(W_, this, true);
+//            System.out.println("END W_ states");
+//            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
+//            BDDTools.printDecodedDecisionSets(W_, this, true);
+            W = W.or(W_);
+            S.andWith(W_.not());
+        } while (!W_.isZero());
+        //        System.out.println("%%%%%%%%%%%% W");
+//        BDDTools.printDecodedDecisionSets(W, this, true);
+        W = W.not().and(getBufferedDCSs());
+        // Save attr0(recurm(F))\recurm(F) at position -1
+        if (distance != null) {
+//            attractor(B, false, getBufferedDCSs(), distance);
+//            System.out.println("hier" + distance.toString());
+            distance.put(-1, B);
+        }
+//        System.out.println("%%%%%%%%%%%% return");
+//        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
+        return W;
+    }
 
     /**
      * Calculates all states reachable from the initial state.

@@ -21,6 +21,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -274,7 +275,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
         }
         return Q_;
-    }
+    } 
     
     /**
      * Calculates a BDD representing the situations where a decision set is
@@ -632,6 +633,10 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             }
         }
         env.andWith(dis);
+        
+//        System.out.println("%%%%%%%%%%%%%%%%%%%%%");
+//        BDDTools.printDecisionSets(env,true);
+//        BDDTools.printDecodedDecisionSets(env, this, true);
         return env.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
@@ -904,7 +909,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         if (token != 0) {
-            variables.andWith(TYPE[pos][token - 1].set());
+            variables.andWith(TYPE[pos][token - 1].set()); 
         }
         return variables;
     }
