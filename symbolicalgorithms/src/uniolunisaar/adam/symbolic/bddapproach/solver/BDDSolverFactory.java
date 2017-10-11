@@ -73,7 +73,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     @Override
     protected BDDSolver<? extends WinningCondition> getABuchiSolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new BDDABuechiSolver(net, skipTests, new Buchi(false), options);
     }
 
 }

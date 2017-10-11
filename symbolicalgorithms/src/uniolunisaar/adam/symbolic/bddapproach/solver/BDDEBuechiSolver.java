@@ -280,6 +280,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
                     all.andWith(codePlace(0, 0, 0));
+                    all.andWith(NOCC[0][0].ithVar(0));
                 }
                 if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
                     all.andWith(codePlace(post.get(0), 1, 0));
