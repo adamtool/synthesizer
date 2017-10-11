@@ -340,7 +340,12 @@ public class BDDTools {
             if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                 envBin = pls[0].get(envBin);
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
+                        ) {
+                    envBin += ", " + sol[counter++];
+                }
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for reachability
                         ) {
                     envBin += ", " + sol[counter++];
                 }
@@ -361,9 +366,14 @@ public class BDDTools {
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
                     } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
                             ) {
                         tokens += sol[counter++] + ", ";
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for buchi
+                                ) {
+                            tokens += sol[counter++] + ", ";
+                        }
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
                     List<Transition> transitions = game.getTransitions()[i - 1];
@@ -385,6 +395,10 @@ public class BDDTools {
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // jump over good token chain for buchi
+                                ) {
+                            ++counter;
+                        }
                     }
 //                    for (int j = buf; j < counter; j++) {
 //                        System.out.print(sol[j]);
@@ -403,12 +417,14 @@ public class BDDTools {
 //                pre += "\n";
 //            }
             // add overall bad
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY
+                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) {
                 pre += sol[counter++] + "\n";
             }
 
             // Loop state
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
+            if ((solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
+                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) && sol[counter++] == 1) {
                 pre = "LOOP\n";
             }
             // %%%%%%%%%%%%%%%%%%%%%%%%%%% POST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -423,9 +439,14 @@ public class BDDTools {
             if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                 envBin_ = pls[0].get(envBin_);
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
                         ) {
                     envBin_ += ", " + sol[counter++];
+                }
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for buchi
+                        ) {
+                    envBin += ", " + sol[counter++];
                 }
 
             } else {
@@ -444,9 +465,14 @@ public class BDDTools {
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
                     } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
                             ) {
                         tokens_ += sol[counter++] + ", ";
+                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add good token chain for buchi
+                                ) {
+                            tokens_ += sol[counter++] + ", ";
+                        }
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
                     List<Transition> transitions = game.getTransitions()[i - 1];
@@ -468,6 +494,10 @@ public class BDDTools {
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
                     }
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // jump over good token chain for buchi
+                            ) {
+                        ++counter;
+                    }
                 }
             }
             post += envBin_ + ",\n" + tokens_;
@@ -482,12 +512,14 @@ public class BDDTools {
 //                post += "\n";
 //            }           
             // add overall bad
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY
+                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) {
                 post += sol[counter++] + "\n";
             }
 
             // Loop state
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
+            if ((solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
+                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) && sol[counter++] == 1) {
                 post = "LOOP";
             }
             out += pre + " ->\n" + post + "\n";

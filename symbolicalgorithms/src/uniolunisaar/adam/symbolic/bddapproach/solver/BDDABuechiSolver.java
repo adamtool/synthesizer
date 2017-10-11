@@ -90,8 +90,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         GOODCHAIN = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
-        LOOP = new BDDDomain[2];
         OBAD = new BDDDomain[2];
+        LOOP = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
@@ -113,8 +113,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
                 maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
-            LOOP[i] = getFactory().extDomain(2);
             OBAD[i] = getFactory().extDomain(2);
+            LOOP[i] = getFactory().extDomain(2);
         }
         setDCSLength(getFactory().varNum() / 2);
     }
