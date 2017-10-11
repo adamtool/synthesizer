@@ -24,7 +24,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -45,13 +45,19 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDABuechiSolver extends BDDSolver<Buchi> {
+public class BDDABuechiWithType2Solver extends BDDSolver<Buchi> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] NOCC;
     private BDDDomain[] LOOP;
     private BDDDomain[][] GOODCHAIN;
     private BDDDomain[] OBAD;
+    // Domains for predecessor and successor for each token
+    private BDDDomain[][] TYPE; // 1 means it is type 1, 0 means it is type2
+
+    // Precalculated BDDs (todo:necessary?)
+    private BDD system2 = null;
+    private BDD type2Trap = null;
 
     /**
      * Creates a new Buchi solver for a given game.
@@ -67,7 +73,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDABuechiSolver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDABuechiWithType2Solver(PetriNet net, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 
@@ -88,6 +94,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         PLACES = new BDDDomain[2][tokencount];
         NOCC = new BDDDomain[2][tokencount];
         GOODCHAIN = new BDDDomain[2][tokencount];
+        TYPE = new BDDDomain[2][tokencount - 1];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         LOOP = new BDDDomain[2];
@@ -106,6 +113,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
                 NOCC[i][j + 1] = getFactory().extDomain(2);
                 // good chains
                 GOODCHAIN[i][j + 1] = getFactory().extDomain(2);
+                // type
+                TYPE[i][j] = getFactory().extDomain(2);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
@@ -181,6 +190,285 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special loop stuff %%%%%%%%%%%%%%%%%%%%%%
 
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%
+    /**
+     * Calculates a BDD representing all situations where at least one place is
+     * type2 typed.
+     *
+     * Should be expensive, since it compares variables over wide ranges. This
+     * should be expensive for BDDs.
+     *
+     * @return BDD with at least one place is type2 typed.
+     */
+    private BDD type2() {
+        BDD type2 = getFactory().zero();
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            BDD type = TYPE[0][i - 1].ithVar(0);
+            // todo: really necessary? It is, but why? because I set all flags to zero when the token is not used in the bdd
+            if (!getGame().isConcurrencyPreserving()) {
+                type.andWith(codePlace(0, 0, i).not());
+            }
+            type2.orWith(type);
+        }
+//        return type2;
+        return type2;//.andWith(getWellformed());
+    }
+
+    /**
+     * Calculates a BDD representing all system2 transitions.
+     *
+     * @return BDD for all system2 transitions
+     */
+    private BDD sys2Transitions() {
+//        return sys2TransitionsNotCP();
+        if (getGame().isConcurrencyPreserving()) {
+            return sys2TransitionsCP();
+        } else {
+            return sys2TransitionsNotCP();
+        }
+    }
+
+    /**
+     * Calculates a BDD representing all system2 transitions for a concurrency
+     * preserving net.
+     *
+     * @return BDD for all system2 transitions for a concurrency preserving net.
+     */
+    private BDD sys2TransitionsCP() {
+        BDD sys2 = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre = t.getPreset();
+            BDD all = firable(t, false, 0);
+            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                BDD pl = getZero();
+                for (Place place : getGame().getPlaces()[i]) {
+                    if (AdamExtensions.isEnvironment(place)) {
+                        throw new RuntimeException("Should not appear!"
+                                + "An enviromental place could not appear here!");
+//                        continue;
+                    }
+                    BDD inner = getOne();
+                    inner.andWith(codePlace(place, 0, i));
+                    if (!pre.contains(place)) {
+                        // pi=pi'
+                        inner.andWith(codePlace(place, 1, i));
+                        // ti=ti'
+                        inner.andWith(commitmentsEqual(i));
+                        // nocc'=0
+                        inner.andWith(NOCC[1][i].ithVar(0));
+                        // gc'=gc
+                        inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+                    } else {
+                        Place post = getSuitableSuccessor(place, t);
+                        //pre_i=post_i'
+                        inner.andWith(codePlace(post, 1, i));
+                        // nocc'=1
+                        inner.andWith(NOCC[1][i].ithVar(1));
+                        // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
+                        inner.andWith(setGoodChainFlagForTransition(t, post, i));
+                    }
+                    pl.orWith(inner);
+                }
+                all.andWith(pl);
+                // top'=0
+                all.andWith(TOP[1][i - 1].ithVar(0));
+                // type = type'
+                all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+            }
+            sys2.orWith(all.andWith(setOverallBad(t)));
+        }
+        // set the newly occupation flag of the env place to zero
+        sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
+
+        // keep the good chain flag for the environment, since there nothing could have changed        
+        sys2 = sys2.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+
+        sys2.andWith(LOOP[0].ithVar(0));
+        sys2.andWith(LOOP[1].ithVar(0));
+
+        // p0=p0'        
+        sys2 = sys2.andWith(placesEqual(0));
+
+        // overall bad state don't have any successor
+        sys2.andWith(OBAD[0].ithVar(0));
+
+        sys2.orWith(loops());
+
+//        System.out.println("for wellformed");
+//        return sys2;//.andWith(wellformedTransition());
+        return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
+    }
+
+    /**
+     * Calculates a BDD representing all system2 transitions for a net which is
+     * not concurrency preserving.
+     *
+     * @return BDD for all system2 transitions for a concurrency preserving net.
+     */
+    private BDD sys2TransitionsNotCP() {
+        BDD sys2 = getZero();
+        for (Transition t : getGame().getSysTransition()) {
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, false, 0);
+
+            List<Integer> visitedToken = new ArrayList<>();
+
+            // set the dcs for the place of the postset 
+            for (Place post : t.getPostset()) {
+                int token = AdamExtensions.getToken(post);
+                if (token != 0) { // jump over environment
+                    visitedToken.add(token);
+                    //pre_i=post_j'
+                    all.andWith(codePlace(post, 1, token));
+                    // top'=0
+                    all.andWith(TOP[1][token - 1].ithVar(0));
+                    // type = type'
+                    all.andWith(TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]));
+                    // nocc'=1
+                    all.andWith(NOCC[1][token].ithVar(1));
+                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
+                    all.andWith(setGoodChainFlagForTransition(t, post, token));
+                } else {
+                    throw new RuntimeException("should not appear. No env place in sys2 transitions.");
+                }
+            }
+
+            // set the dcs for the places in the preset
+            setPresetAndNeededZeros(pre_sys, visitedToken, all);
+
+            // Positions in dcs not set with places of pre- or postset
+            setNotAffectedPositions(all, visitedToken);
+            sys2.orWith(all.andWith(setOverallBad(t)));
+        }
+        // set the newly occupation flag of the env place to zero
+        sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
+//            Tools.printDecodedDecisionSets(sys2, game, true);
+//        System.out.println("for ende");
+        // keep the good chain flag for the environment, since there nothing could have changed        
+        sys2 = sys2.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+
+        sys2.andWith(LOOP[0].ithVar(0));
+        sys2.andWith(LOOP[1].ithVar(0));
+
+        // p0=p0'        
+        sys2.andWith(placesEqual(0));
+
+        // overall bad state don't have any successor
+        sys2.andWith(OBAD[0].ithVar(0));
+
+        sys2.orWith(loops());
+//        System.out.println("for wellformed");
+//        return sys2;//.andWith(wellformedTransition());
+// wrong typed2 sets don't have succesor
+        sys2.andWith(wrongTypedType2DCS().not());
+        return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
+    }
+
+    /**
+     * Calculates a BDD representing all decisionsets from which the system
+     * players can play infinitely long without any further interaction with the
+     * environment.
+     *
+     * @return BDD for all decision set in the type2 trap, so from which the
+     * system players can play on their own infinitely long.
+     */
+    BDD type2Trap() {
+        // Fixpoint
+        BDD Q = getOne();
+        BDD Q_ = goodSysDCSForType2Trap();
+//        int counter = 0;
+        while (!Q_.equals(Q)) {
+//            System.out.println("first" +counter);
+//            if(counter++==1) {
+//                break;
+//            }
+            Q.free();
+            Q = Q_.andWith(wellformed());
+            BDD Q_shifted = shiftFirst2Second(Q);
+            // there is a predecessor (sys2) such that the transition is in the considered set of transitions
+            Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
+        }
+        return Q_;
+    }
+
+    /**
+     * Calculates a BDD representing the situations where a decision set is
+     * typed as type2, but is not contained in the type2 trap.
+     *
+     * @return BDD of wrongly type2 typed decision sets.
+     */
+    BDD wrongTypedType2DCS() {
+        // not(type2 => type2Trap)
+        return type2().andWith(getBufferedType2Trap().not());
+    }
+
+    /**
+     * Calculates a BDD representing the successors of the given 'trans' which
+     * are contained in the type2 trap.
+     *
+     * @param trans - the transition containing the successor for which the
+     * successor should be found in the type2 trap.
+     * @return the transitions where the successors of 'trans' have a successor
+     * int the type2 trap.
+     */
+    @Override
+    public BDD getGoodType2Succs(BDD trans) {
+        // shift to the successors
+        trans = trans.exist(getFirstBDDVariables());
+        trans = shiftSecond2First(trans);
+        // get only the good ones
+        trans = trans.and(getBufferedType2Trap());
+        return trans;
+    }
+
+    /**
+     * TODO: javadoc.
+     *
+     * @return
+     */
+    private BDD oldType2() {
+        BDD prev = wrongTypedType2DCS().not().and(wellformed());
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            prev = TYPE[0][i - 1].ithVar(0).ite(
+                    prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
+                    prev.id()).id();
+        }
+        return prev;
+    }
+
+    /**
+     * Calculates the transitions where 'state' is the predecessor and there
+     * exists a system2 transition.
+     *
+     * @param state - the predecessor to find the system2 transitions to.
+     * @return a BDD representing the type2 transitions starting with 'state'.
+     */
+    @Override
+    public BDD getSystem2SuccTransitions(BDD state) {
+        return state.and(getBufferedSystem2Transition());
+    }
+
+    /**
+     * States if a type2 flag is set in the decision set represented by 'bdd'.
+     *
+     * @param bdd - the bdd to check for the type2 flag.
+     * @return true if 'bdd' has a type2 flag set to true.
+     */
+    @Override
+    public boolean isType2(BDD bdd) {
+        return !bdd.and(type2()).isZero();
+    }
+
+    /**
+     * Calculates a BDD with all good situations for the system.
+     *
+     * @return BDD representing all good decision sets for the system.
+     */
+    private BDD goodSysDCSForType2Trap() {
+        return winningStates();//.andWith(getWellformed());
+    }
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%   
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Good when all visible token belong to a good chain.
@@ -204,21 +492,6 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         ret.andWith(OBAD[0].ithVar(0));
         return ret.and(buchi);
     }
-//    /**
-//     * Returns all states as a BDD which have a buchi place coded and this place
-//     * is newly occupied in this state.
-//     *
-//     * @return - All states with a newly occupied buchi place
-//     */
-//    private BDD winningStates() {
-//        BDD buchi = getZero();
-//        for (Place place : getWinningCondition().getBuchiPlaces()) {
-//            int token = AdamExtensions.getToken(place);
-//            // is a buchi place and is newly occupied, than it's a buchi state
-//            buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
-//        }
-//        return buchi.andWith(wellformed(0));
-//    }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 //%%%%%%%%%%%%%%%% ADAPTED to NOCC  / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -407,8 +680,13 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         env.andWith(dis);
         // overall bad state don't have any successor
         env.andWith(OBAD[0].ithVar(0));
+        
+        // wrong typed2 sets don't have succesor
+        env.andWith(wrongTypedType2DCS().not());
+        
+        
         env.orWith(loops());
-        return env;
+        return env.andWith(oldType2());
     }
 
     @Override
@@ -530,7 +808,11 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         mcut.andWith(dis);
         // overall bad state don't have any successor
         mcut.andWith(OBAD[0].ithVar(0));
-        mcut.orWith(loops());
+        
+        // wrong typed2 sets don't have succesor
+        mcut.andWith(wrongTypedType2DCS().not());
+        
+        mcut.orWith(loops());        
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
@@ -624,6 +906,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
 
         sys.orWith(loops());
 
+        sys.andWith(oldType2());
+        // wrong typed2 sets don't have succesor
+        sys.andWith(wrongTypedType2DCS().not());
         return sys.andWith(ndetStates(0).not());
     }
 
@@ -710,9 +995,53 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
 
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
+        
+        // wrong typed2 sets don't have succesor
+        sys.andWith(wrongTypedType2DCS().not());
 
         sys.orWith(loops());
         return sys.andWith(ndetStates(0).not());
+    }
+
+    //%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Overriden since the standard case only knows type1 places.
+     */
+    @Override
+    BDD enabled(Transition t, int pos) {
+        return enabled(t, true, pos);
+    }
+
+    /**
+     * Only adds the type2 behavior to the enabled function of the standard
+     * case.
+     *
+     * @param t - the transition which is checked to be enabled.
+     * @param type1 - the type to check
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing all decision sets where 't' is enabled in the
+     * given position 'pos' and with the correct type 'type1'.
+     */
+    private BDD enabled(Transition t, boolean type1, int pos) {
+        BDD en = super.enabled(t, pos);
+        for (Place place : t.getPreset()) {
+            if (!AdamExtensions.isEnvironment(place)) {
+                // Sys places
+                int token = AdamExtensions.getToken(place);
+                BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
+                en.andWith(type);
+            }
+        }
+        return en;//.andWith(getWellformed());
+    }
+
+    private BDD firable(Transition t, boolean type1, int pos) {
+        return enabled(t, type1, pos).andWith(chosen(t, pos));
+    }
+
+    @Override
+    boolean isFirable(Transition t, BDD source) {
+        return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
@@ -838,7 +1167,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriNet pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -851,7 +1180,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriNet pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -880,6 +1209,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(NOCC[pos][i].set());
             variables.andWith(GOODCHAIN[pos][i].set());
+            variables.andWith(TYPE[pos][i].set());
         }
         variables.andWith(LOOP[pos].set());
         variables.andWith(OBAD[pos].set());
@@ -905,6 +1235,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         BDD variables = super.getTokenVariables(pos, token);
         variables.andWith(NOCC[pos][token].set());
         variables.andWith(GOODCHAIN[pos][token].set());
+        variables.andWith(TYPE[pos][token - 1].set());
         return variables;
     }
 
@@ -922,6 +1253,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+            preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));
         }
         preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));
@@ -1004,6 +1336,21 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> {
 
         // now test if the places not in pre- or postset of t stayed equal between source and target
         return !(restTarget.and(restSource)).isZero();
+    }
+
+    BDD getBufferedType2Trap() {
+        if (type2Trap == null) {
+            type2Trap = type2Trap();
+        }
+        return type2Trap;
+    }
+
+    BDD getBufferedSystem2Transition() {
+        if (system2 == null) {
+            system2 = sys2Transitions();
+        }
+        return system2;
+//        return sys2Transitions();
     }
 
 }

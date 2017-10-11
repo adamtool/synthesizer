@@ -68,6 +68,24 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
+        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative
+        if (getGame().getEnvPlaces().isEmpty()) {
+            throw new NotSupportedGameException("BDD solving need at least one environment place.");
+        }
+        for (Set<Place> placeSets : getGame().getPlaces()) {
+            boolean hasSuccesor = false;
+            for (Place place : placeSets) {
+                if (!place.getPostset().isEmpty()) {
+                    hasSuccesor = true;
+                    break;
+                }
+            }
+            if (!hasSuccesor) {
+                throw new NotSupportedGameException("BDD solving need at least one succesor in the set of system places annotated with the same token. Set '"
+                        + placeSets.toString() + "' is missing a succesor.");
+            }
+        }
+
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

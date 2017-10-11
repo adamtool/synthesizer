@@ -35,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
 public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
-    private BDDDomain[][] TYPE;
+    private BDDDomain[][] TYPE; // 1 means it is type 1, 0 means it is type2
 
     // Precalculated BDDs (todo:necessary?)
     private BDD system2 = null;
@@ -275,6 +275,92 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         }
         return Q_;
     }
+    
+    /**
+     * Calculates a BDD representing the situations where a decision set is
+     * typed as type2, but is not contained in the type2 trap.
+     *
+     * @return BDD of wrongly type2 typed decision sets.
+     */
+    BDD wrongTypedType2DCS() {
+        // not(type2 => type2Trap)
+        return type2().andWith(getBufferedType2Trap().not());
+    }
+
+    /**
+     * Calculates a BDD representing the successors of the given 'trans' which
+     * are contained in the type2 trap.
+     *
+     * @param trans - the transition containing the successor for which the
+     * successor should be found in the type2 trap.
+     * @return the transitions where the successors of 'trans' have a successor
+     * int the type2 trap.
+     */
+    public BDD getGoodType2Succs(BDD trans) {
+        // shift to the successors
+        trans = trans.exist(getFirstBDDVariables());
+        trans = shiftSecond2First(trans);
+        // get only the good ones
+        trans = trans.and(getBufferedType2Trap());
+        return trans;
+    }
+
+//    private BDD mixedTypes(int pos) {
+//        BDD ret = getFactory().one();
+//        for (Transition t : getGame().getNet().getTransitions()) {
+//            BDD type1 = getOne();
+//            BDD typ2 = getOne();
+//            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
+//                for (Place p : t.getPreset()) {
+//                    if (!p.hasExtension("env")) {
+//                        type1.andWith(codePlace(p, pos, i).impWith(TYPE[pos][i - 1].ithVar(1)));
+//                        typ2.andWith(codePlace(p, pos, i).impWith(TYPE[pos][i - 1].ithVar(0)));
+//                    }
+//                }
+//            }
+//            ret.andWith(type1.orWith(typ2));
+//        }
+//        return ret;
+//    }
+    /**
+     * TODO: javadoc.
+     *
+     * @return
+     */
+    private BDD oldType2() {
+        BDD prev = wrongTypedType2DCS().not().and(wellformed());
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            prev = TYPE[0][i - 1].ithVar(0).ite(
+                    prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
+                    prev.id()).id();
+        }
+        return prev;
+    }
+
+    /**
+     * Calculates the transitions where 'state' is the predecessor and there
+     * exists a system2 transition.
+     *
+     * @param state - the predecessor to find the system2 transitions to.
+     * @return a BDD representing the type2 transitions starting with 'state'.
+     */
+    @Override
+    public BDD getSystem2SuccTransitions(BDD state) {
+        return state.and(getBufferedSystem2Transition());
+    }
+
+    /**
+     * States if a type2 flag is set in the decision set represented by 'bdd'.
+     *
+     * @param bdd - the bdd to check for the type2 flag.
+     * @return true if 'bdd' has a type2 flag set to true.
+     */
+    @Override
+    public boolean isType2(BDD bdd) {
+        return !bdd.and(type2()).isZero();
+    }
+
+    
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%    
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -431,89 +517,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         }
         return Q_;
     }
-
-    /**
-     * Calculates a BDD representing the situations where a decision set is
-     * typed as type2, but is not contained in the type2 trap.
-     *
-     * @return BDD of wrongly type2 typed decision sets.
-     */
-    BDD wrongTypedType2DCS() {
-        // not(type2 => type2Trap)
-        return type2().andWith(getBufferedType2Trap().not());
-    }
-
-    /**
-     * Calculates a BDD representing the successors of the given 'trans' which
-     * are contained in the type2 trap.
-     *
-     * @param trans - the transition containing the successor for which the
-     * successor should be found in the type2 trap.
-     * @return the transitions where the successors of 'trans' have a successor
-     * int the type2 trap.
-     */
-    public BDD getGoodType2Succs(BDD trans) {
-        // shift to the successors
-        trans = trans.exist(getFirstBDDVariables());
-        trans = shiftSecond2First(trans);
-        // get only the good ones
-        trans = trans.and(getBufferedType2Trap());
-        return trans;
-    }
-
-//    private BDD mixedTypes(int pos) {
-//        BDD ret = getFactory().one();
-//        for (Transition t : getGame().getNet().getTransitions()) {
-//            BDD type1 = getOne();
-//            BDD typ2 = getOne();
-//            for (int i = 1; i < getGame().getTOKENCOUNT(); ++i) {
-//                for (Place p : t.getPreset()) {
-//                    if (!p.hasExtension("env")) {
-//                        type1.andWith(codePlace(p, pos, i).impWith(TYPE[pos][i - 1].ithVar(1)));
-//                        typ2.andWith(codePlace(p, pos, i).impWith(TYPE[pos][i - 1].ithVar(0)));
-//                    }
-//                }
-//            }
-//            ret.andWith(type1.orWith(typ2));
-//        }
-//        return ret;
-//    }
-    /**
-     * TODO: javadoc.
-     *
-     * @return
-     */
-    private BDD oldType2() {
-        BDD prev = wrongTypedType2DCS().not().and(wellformed());
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-            prev = TYPE[0][i - 1].ithVar(0).ite(
-                    prev.restrict(TYPE[1][i - 1].ithVar(1)).id(),
-                    prev.id()).id();
-        }
-        return prev;
-    }
-
-    /**
-     * Calculates the transitions where 'state' is the predecessor and there
-     * exists a system2 transition.
-     *
-     * @param state - the predecessor to find the system2 transitions to.
-     * @return a BDD representing the type2 transitions starting with 'state'.
-     */
-    public BDD getSystem2SuccTransitions(BDD state) {
-        return state.and(getBufferedSystem2Transition());
-    }
-
-    /**
-     * States if a type2 flag is set in the decision set represented by 'bdd'.
-     *
-     * @param bdd - the bdd to check for the type2 flag.
-     * @return true if 'bdd' has a type2 flag set to true.
-     */
-    public boolean isType2(BDD bdd) {
-        return !bdd.and(type2()).isZero();
-    }
-
+    
+    
 //%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Overriden since for a safety objectiv is termination also OK. Only
