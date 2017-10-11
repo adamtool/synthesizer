@@ -40,9 +40,6 @@ import uniolunisaar.adam.tools.Logger;
  * any successor than a succesor with a selfloop has to be added.
  *
  *
- * TODO: Only works when there is at least one system place since this one is
- * used to create loop place.
- *
  * @author Manuel Gieseking
  */
 public class BDDEBuechiSolver extends BDDSolver<Buchi> {
@@ -58,7 +55,8 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
      * @param skipTests - should the tests for safe and bounded and other
      * preconditions be skipped?
      * @param opts - the options for the solver.
-     * @throws NotSupportedGameException - Thrown if the given net is not bounded.
+     * @throws NotSupportedGameException - Thrown if the given net is not
+     * bounded.
      * @throws NetNotSafeException - Thrown if the given net is not safe.
      * @throws NoSuitableDistributionFoundException - Thrown if the given net is
      * not annotated to which token each place belongs and the algorithm was not

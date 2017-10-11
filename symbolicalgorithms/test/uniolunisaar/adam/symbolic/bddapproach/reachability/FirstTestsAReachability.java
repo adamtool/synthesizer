@@ -100,8 +100,8 @@ public class FirstTestsAReachability {
         String name = "burglar";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         
-        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
-        System.out.println(solv.getNet().getName());
+//        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
+//        System.out.println(solv.getNet().getName());
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
@@ -116,9 +116,9 @@ public class FirstTestsAReachability {
         String name = "burglar2";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         
-        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
-        System.out.println(solv.getNet().getName());
-//        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+//        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
+//        System.out.println(solv.getNet().getName());
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);

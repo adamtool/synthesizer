@@ -30,6 +30,8 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * todo: adapt text but this ones uses token trees but has the problem that in this 
+ * way I set a tree to be good also when there a different chain merged in it.
  * Solves Petri games with a reachability objective by simply using an attractor
  * function. Don't need any type2 analysis or deadlock-avoiding constraint.
  *

@@ -339,7 +339,9 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                 envBin = pls[0].get(envBin);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
+                        ) {
                     envBin += ", " + sol[counter++];
                 }
             } else {
@@ -358,7 +360,9 @@ public class BDDTools {
                     tokens += "(" + pls[i].get(id) + ", ";
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
+                            ) {
                         tokens += sol[counter++] + ", ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -377,7 +381,9 @@ public class BDDTools {
                     tokens += "( - )\n";
 //                    int buf = counter;
                     counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over type2 or newly occ 
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
                     }
 //                    for (int j = buf; j < counter; j++) {
@@ -387,21 +393,25 @@ public class BDDTools {
             }
             pre += envBin + ",\n" + tokens;
 
-            // Token chains
+//            // Token chains
+//            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+//                int size = AdamExtensions.getTokenChains(game.getNet()).size();
+//                for (int i = 0; i < size; i++) {
+//                    pre += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
+//                }
+//                counter += size;
+//                pre += "\n";
+//            }
+            // add overall bad
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                int size = AdamExtensions.getTokenChains(game.getNet()).size();
-                for (int i = 0; i < size; i++) {
-                    pre += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
-                }
-                counter += size;
-                pre += "\n";
+                pre += sol[counter++] + "\n";
             }
 
             // Loop state
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI && sol[counter++] == 1) {
                 pre = "LOOP\n";
             }
-
+            // %%%%%%%%%%%%%%%%%%%%%%%%%%% POST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             String post = "";
             // Successor
             String envBin_ = "";
@@ -412,7 +422,9 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                 envBin_ = pls[0].get(envBin_);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
+                        ) {
                     envBin_ += ", " + sol[counter++];
                 }
 
@@ -431,7 +443,9 @@ public class BDDTools {
                     tokens_ += "(" + pls[i].get(id) + ",";
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
                         tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain for reachability
+                            ) {
                         tokens_ += sol[counter++] + ", ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -449,21 +463,27 @@ public class BDDTools {
                 } else {
                     tokens_ += "( - )\n";
                     counter += 1 + game.getTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
+                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
                     }
                 }
             }
             post += envBin_ + ",\n" + tokens_;
 
-            // Token chains
+//            // Token chains
+//            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+//                int size = AdamExtensions.getTokenChains(game.getNet()).size();
+//                for (int i = 0; i < size; i++) {
+//                    post += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
+//                }
+//                counter += size;
+//                post += "\n";
+//            }           
+            // add overall bad
             if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
-                int size = AdamExtensions.getTokenChains(game.getNet()).size();
-                for (int i = 0; i < size; i++) {
-                    post += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
-                }
-                counter += size;
-                post += "\n";
+                pre += sol[counter++] + "\n";
             }
 
             // Loop state
