@@ -25,6 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -151,9 +152,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //        return nearlyZero.andWith(codePlace(sys, pos, 0));
         BDD loop = getOne();
         int start = (pos == 0) ? 0 : getDcs_length();
-        for (int i = start; i < start + getDcs_length() - 1; i++) {
+        for (int i = start; i < start + getDcs_length() - 2; i++) {
             loop.andWith(getFactory().nithVar(i));
         }
+        loop.andWith(OBAD[pos].ithVar(0)); // bad flag
         loop.andWith(LOOP[pos].ithVar(1));
         return loop;
     }
@@ -357,7 +359,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         sys2.andWith(OBAD[0].ithVar(0));
 
         sys2.orWith(loops());
-//        System.out.println("for wellformed");
+        System.out.println("sys2 trans");
+        BDDTools.printDecisionSets(sys2, true);
 //        return sys2;//.andWith(wellformedTransition());
 // wrong typed2 sets don't have succesor
         return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
@@ -375,6 +378,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // Fixpoint
         BDD Q = getOne();
         BDD Q_ = goodSysDCSForType2Trap();
+        System.out.println("winning states");
+        BDDTools.printDecisionSets(Q_, true);
 //        int counter = 0;
         while (!Q_.equals(Q)) {
 //            System.out.println("first" +counter);
@@ -386,7 +391,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             BDD Q_shifted = shiftFirst2Second(Q);
             // there is a predecessor (sys2) such that the transition is in the considered set of transitions
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
-        }
+        }        
+        System.out.println("type 2 trap");
+        BDDTools.printDecodedDecisionSets(Q_, this, true);
         return Q_;
     }
 
@@ -475,7 +482,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             // is a buchi place and is newly occupied, than it's a buchi state
             buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
         }
-        buchi.andWith(wellformed(0));
+//        buchi.andWith(wellformed(0));
+//        System.out.println("buchi");
+        BDDTools.printDecisionSets(buchi, true);
         BDD ret = getOne();
         for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
             if (AdamExtensions.getConcurrencyPreserving(getNet())) {
@@ -1214,7 +1223,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(NOCC[pos][i].set());
             variables.andWith(GOODCHAIN[pos][i].set());
-            variables.andWith(TYPE[pos][i].set());
+            if (i < getGame().getMaxTokenCount() - 1) {
+                variables.andWith(TYPE[pos][i].set());
+            }
         }
         variables.andWith(LOOP[pos].set());
         variables.andWith(OBAD[pos].set());
@@ -1240,7 +1251,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         BDD variables = super.getTokenVariables(pos, token);
         variables.andWith(NOCC[pos][token].set());
         variables.andWith(GOODCHAIN[pos][token].set());
-        variables.andWith(TYPE[pos][token - 1].set());
+        if (token != 0) { // env has no type flag
+            variables.andWith(TYPE[pos][token - 1].set());
+        }
         return variables;
     }
 
@@ -1258,7 +1271,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-            preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));
+            if (i < getGame().getMaxTokenCount() - 1) {
+                preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));
+            }
         }
         preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));

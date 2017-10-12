@@ -38,17 +38,17 @@ public class FirstTestsABuchi {
         (new File(outputDir)).mkdirs();
     }
 
-//    private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
-//        final String path = inputDir + "toyExamples" + File.separator;
-//        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-////        System.out.println("ExStrat" + solv.existsWinningStrategy());
-////        solv.getGraphStrategy();
-////        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
-////        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
-//        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
-////        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat", solv.getGraphStrategy(), solv);
-//        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
-//    }
+    private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+        final String path = inputDir + "toyexamples" + File.separator;
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        System.out.println("ExStrat" + solv.existsWinningStrategy());
+//        solv.getGraphStrategy();
+//        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat", solv.getGraphStrategy(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
+    }
 //    
 //     private void testExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
 //        final String path = inputDir + File.separator;
@@ -62,10 +62,10 @@ public class FirstTestsABuchi {
 //        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
 //    }
 //
-//    @Test(enabled = true)
-//    public void testToyExampleType2A() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
-//        testToyExamples("type2A", true);
-//    }
+    @Test(enabled = true)
+    public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+        testToyExamples("oneTokenMultiChains2", true);
+    }
 //
 //    @Test(enabled = true)
 //    public void testToyExampleType2B() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {

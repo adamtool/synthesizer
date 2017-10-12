@@ -39,7 +39,9 @@ public class TestingAllFilesABuchi {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/forallbuechi/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallbuechi/";
-    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList());
+    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
+            "oneTokenMultiChains0.apt"
+    ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "myexample1.apt", // should have a strategy, but no system place
             "myexample2.apt" // no system place (fails because of no suitable annotation of token found)                
