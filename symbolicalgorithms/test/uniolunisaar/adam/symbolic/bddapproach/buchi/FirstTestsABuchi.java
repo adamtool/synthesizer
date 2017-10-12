@@ -62,11 +62,14 @@ public class FirstTestsABuchi {
 //        BDDTestingTools.testExample(solv, outputDir + name, hasStrat);
 //    }
 //
+
     @Test(enabled = true)
     public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
-        testToyExamples("oneTokenMultiChains5", true);
+        testToyExamples("oneTokenMultiChains2", true);
 //        testToyExamples("oneTokenMultiChains3", false);
 //        testToyExamples("oneTokenMultiChains4", false);
+//        testToyExamples("oneTokenMultiChains5", true);
+//        testToyExamples("oneTokenMultiChains6", false);
     }
 //
 //    @Test(enabled = true)

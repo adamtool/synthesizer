@@ -543,6 +543,9 @@ public class BDDTools {
 //            System.out.println(out);
 //            System.out.println(Arrays.toString(sol));
         }
+        if(out.equals("")) {
+            throw new RuntimeException("State has no solution."+dcs.isZero());
+        }
         return out;
     }
 
@@ -601,6 +604,8 @@ public class BDDTools {
 //            sb.append(", label=").append("\"").append(Tools.printDecodedDecisionSets(null, null, true)).append("\"");
 
             String value = getDecodedDecisionSets(state.getState(), solver);
+            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+            System.out.println(value);
             value = value.substring(0, value.indexOf("->"));
             sb.append(", label=\"").append(value).append("\"");
             sb.append(", xlabel=\"").append(state.getId()).append("\"");

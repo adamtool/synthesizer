@@ -1,11 +1,13 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Marking;
@@ -29,6 +31,15 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * Still has Problems:
+ * - first of all what is with infinite numbers of flow chains
+ * - type2trap not correct
+ * - some crazy errors for successors, already fixed but since then the main
+ * problem came up:
+ * - how to detect that we had reach a buchi place, and no enter a loop
+ * but this loop don't have a buchi place?
+ * 
+ * 
  * Todo: adapt all javadoc just copied of existiential buchi
  *
  * Problem what to do with the non-deterministic states? Already a fixed-point
@@ -360,8 +371,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         sys2.andWith(OBAD[0].ithVar(0));
 
         sys2.orWith(loops());
-        System.out.println("sys2 trans");
-        BDDTools.printDecisionSets(sys2, true);
+//        System.out.println("sys2 trans");
+//        BDDTools.printDecisionSets(sys2, true);
 //        return sys2;//.andWith(wellformedTransition());
 // wrong typed2 sets don't have succesor
         return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
@@ -1133,14 +1144,14 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
-//        try {
-//            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-//            BDDTools.saveStates2Pdf("./states", fixedPoint, this);
-//        } catch (IOException ex) {
-//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+            BDDTools.saveStates2Pdf("./states", fixedPoint, this);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         return fixedPoint;
     }
