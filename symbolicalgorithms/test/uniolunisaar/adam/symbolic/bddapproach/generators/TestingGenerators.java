@@ -55,7 +55,7 @@ public class TestingGenerators {
 //    private static final int countSecuritySystems = 8;
 
     // fast
-        private static final int countPhilsGuided = 1;
+    private static final int countPhilsGuided = 1;
     private static final int countPhils = 1;
     private static final int countClerksCP = 2;
     private static final int countClerksNonCP = 2;
@@ -70,7 +70,7 @@ public class TestingGenerators {
     private static final int countWD_machines = 2;
     private static final int countSecuritySystems = 1;
     private static final int countContainerPlaces = 1;
-    
+
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
@@ -231,6 +231,9 @@ public class TestingGenerators {
 
     @Test(dataProvider = "selfOrgaRobots")
     public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+        if (robots == 2 && destroyable == 2) {
+            return; // is not solvable (new determinism condition)
+        }
         final String path = outputDir + "selfOrgaRobots" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
@@ -315,7 +318,7 @@ public class TestingGenerators {
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
-    
+
 //    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Container terminal (more than one env place)
 //    @DataProvider(name = "conTerminal")
 //    public static Object[][] containerTerminal() {

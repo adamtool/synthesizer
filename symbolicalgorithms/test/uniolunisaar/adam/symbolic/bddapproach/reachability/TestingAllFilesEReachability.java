@@ -44,6 +44,7 @@ public class TestingAllFilesEReachability {
             "infiniteC.apt",
             "simple.apt",
             "nondetNoStrat.apt",
+            "nondet_s3_noStrat.apt",
             "notReachable.apt",
             "unfair.apt",
             "nondetNoStrat",// should have no strategy, builds one voilating S3

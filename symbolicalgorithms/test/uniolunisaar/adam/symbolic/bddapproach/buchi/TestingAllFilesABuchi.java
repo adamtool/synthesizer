@@ -37,18 +37,14 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingAllFilesABuchi {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/buechi/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
-    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
-            "finiteA.apt",
-            "infiniteB.apt",
-            "oneGoodInfEnv.apt"));
-    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
-            //                )
-            );
-    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
-            "nondet.apt" // should have no strategy, builds one voilating S3
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallbuechi/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/forallbuechi/";
+    private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList());
+    private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            "myexample1.apt", // should have a strategy, but no system place
+            "myexample2.apt" // no system place (fails because of no suitable annotation of token found)                
     ));
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass
     public void createFolder() {

@@ -454,8 +454,8 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
             //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
             // pi=pi'
             sysT.andWith(placesEqual(i));
-            // \not topi=>(ti=ti'\wedge nocc=nocc')
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[0][0].buildEquals(NOCC[1][0])));
+            // \not topi=>(ti=ti'\wedge nocc'=0) set to 0 enough see ncp case
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0)));
             // topi=> nocc'=1            
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
             sysT.andWith(impl).andWith(impl1);
@@ -532,7 +532,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
             //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
             // pi=pi'
             sysT.andWith(placesEqual(i));
-            // \not topi=>(ti=ti'\wedge nocc'=0)
+            // \not topi=>(ti=ti'\wedge nocc'=0) don't need equals since either it was set to 1 by a system transition or a previous top state (ergo no top state)
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0)));
             // topi=> nocc'=1            
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));

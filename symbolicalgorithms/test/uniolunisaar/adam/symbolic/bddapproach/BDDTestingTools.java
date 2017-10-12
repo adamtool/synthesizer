@@ -44,12 +44,12 @@ public class BDDTestingTools {
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
         boolean det = AdamTools.isDeterministic(strats.getSecond(), cover);
-        Assert.assertTrue(det, "Is deterministic");
+        Assert.assertTrue(det, strats.getSecond().getName() + " is deterministic");
         boolean res = AdamTools.restrictsEnvTransition(solv.getNet(), strats.getSecond());
-        Assert.assertFalse(res, "Restricts Environment Transitions");
+        Assert.assertFalse(res, strats.getSecond().getName() + " restricts Environment Transitions");
         if (!(solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.E_REACHABILITY))) {
             boolean dead = AdamTools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
-            Assert.assertTrue(dead, "Is Deadlock Avoiding");
+            Assert.assertTrue(dead, strats.getSecond().getName() + " is Deadlock Avoiding");
         }
         System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);

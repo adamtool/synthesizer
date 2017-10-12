@@ -69,22 +69,37 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative
+        // Need at least one env place
         if (getGame().getEnvPlaces().isEmpty()) {
             throw new NotSupportedGameException("BDD solving need at least one environment place.");
         }
-        for (Set<Place> placeSets : getGame().getPlaces()) {
-            boolean hasSuccesor = false;
-            for (Place place : placeSets) {
-                if (!place.getPostset().isEmpty()) {
-                    hasSuccesor = true;
-                    break;
-                }
-            }
-            if (!hasSuccesor) {
-                throw new NotSupportedGameException("BDD solving need at least one succesor in the set of system places annotated with the same token. Set '"
-                        + placeSets.toString() + "' is missing a succesor.");
+        // Need at least one sys place
+        boolean hasSystem = false;
+        for (Place p : getGame().getNet().getPlaces()) {
+            if (!AdamExtensions.isEnvironment(p)) {
+                hasSystem = true;
+                break;
             }
         }
+        if (!hasSystem) {
+            throw new NotSupportedGameException("BDD solving need at least one system place.");
+        }
+        // hopefully not neccessary anymore
+        // every set of system places annotated with the same token need at least one place in it, which has a transition in it postset
+//        for (int i = 1; i < getGame().getPlaces().length; i++) {
+//            Set<Place> placeSet = getGame().getPlaces()[i];
+//            boolean hasSuccesor = false;
+//            for (Place place : placeSet) {
+//                if (!place.getPostset().isEmpty()) {
+//                    hasSuccesor = true;
+//                    break;
+//                }
+//            }
+//            if (!hasSuccesor) {
+//                throw new NotSupportedGameException("BDD solving need at least one successor in the set of system places annotated with the same token. Set '"
+//                        + placeSet.toString() + "' is missing a succesor.");
+//            }
+//        }
 
     }
 
@@ -908,8 +923,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //        BDDTools.printDecodedDecisionSets(deadSysDCS(0).andWith(codePlace(getGame().getNet().getPlace("p"), 0, 1)).andWith(codePlace(getGame().getNet().getPlace("r"), 0, 2)), this, true);
         return Q_.andWith(wellformed());
     }
-    
-        /**
+
+    /**
      * Compare Algorithm for Buchi Games by Krish
      *
      * with strategy building from zimmermanns lecture script
