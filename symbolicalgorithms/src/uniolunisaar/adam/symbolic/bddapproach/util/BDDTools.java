@@ -342,12 +342,12 @@ public class BDDTools {
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                         ) {
-                    envBin += (sol[counter++] == 1) ? " *, " : (sol[counter - 1] == 0) ? " !*, " : " -, ";
+                    envBin += (sol[counter++] == 1) ? ", * " : (sol[counter - 1] == 0) ? ", !* " : ", - ";
                 }
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain 
                         ) {
-                    envBin += (sol[counter++] == 1) ? " g, " : (sol[counter - 1] == 0) ? " !g, " : " -, ";
+                    envBin += (sol[counter++] == 1) ? ", g " : (sol[counter - 1] == 0) ? ", !g " : ", - ";
                 }
             } else {
                 envBin = "-";
@@ -454,12 +454,12 @@ public class BDDTools {
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
                         ) {
-                    envBin_ += (sol[counter++] == 1) ? " *, " : (sol[counter - 1] == 0) ? " !*, " : " -, ";
+                    envBin_ += (sol[counter++] == 1) ? ",* " : (sol[counter - 1] == 0) ? ",!* " : ",- ";
                 }
                 if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
                         || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain 
                         ) {
-                    envBin_ += (sol[counter++] == 1) ? " g, " : (sol[counter - 1] == 0) ? " !g, " : " -, ";
+                    envBin_ += (sol[counter++] == 1) ? ",g " : (sol[counter - 1] == 0) ? ",!g, " : ",- ";
                 }
             } else {
                 envBin_ = "-";

@@ -41,6 +41,11 @@ public class BDDTestingTools {
 
     private static void printWinningStrategies(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
         Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
+        //        System.out.println("Save graph to pdf.");
+        BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
+//        System.out.println("Save petri game pdf.");
+        AdamTools.savePG2PDF(path + "_pg", strats.getSecond(), true);
+        
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
         boolean det = AdamTools.isDeterministic(strats.getSecond(), cover);
@@ -51,10 +56,6 @@ public class BDDTestingTools {
             boolean dead = AdamTools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
             Assert.assertTrue(dead, strats.getSecond().getName() + " is Deadlock Avoiding");
         }
-        System.out.println("Save graph to pdf.");
-        BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
-        System.out.println("Save petri game pdf.");
-        AdamTools.savePG2PDF(path + "_pg", strats.getSecond(), true);
     }
 
     private static void printWinningStratGraph(BDDSolver<? extends WinningCondition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {

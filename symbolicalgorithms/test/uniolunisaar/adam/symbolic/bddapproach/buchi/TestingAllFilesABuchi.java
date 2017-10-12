@@ -40,7 +40,9 @@ public class TestingAllFilesABuchi {
     private static final String inputDir = System.getProperty("examplesfolder") + "/forallbuechi/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallbuechi/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
-            "oneTokenMultiChains0.apt"
+            "oneTokenMultiChains0.apt",
+            "oneTokenMultiChains3.apt",
+            "oneTokenMultiChains4.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "myexample1.apt", // should have a strategy, but no system place

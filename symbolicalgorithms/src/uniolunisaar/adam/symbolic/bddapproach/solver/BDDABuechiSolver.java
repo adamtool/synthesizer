@@ -171,6 +171,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             term.andWith(firable(transition, pos).not());
         }
         term.andWith(getNotTop());
+        term.andWith(type2().not());
         return term;
     }
 
@@ -391,7 +392,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             BDD Q_shifted = shiftFirst2Second(Q);
             // there is a predecessor (sys2) such that the transition is in the considered set of transitions
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
-        }        
+        }
         System.out.println("type 2 trap");
         BDDTools.printDecodedDecisionSets(Q_, this, true);
         return Q_;
@@ -551,11 +552,13 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         if (getWinningCondition().getBuchiPlaces().contains(post)) { // it is a buchi -> 1
             return GOODCHAIN[1][token].ithVar(1);
         }
-        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
+        // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
         List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+        boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
+//                System.out.println(tokenFlow);
                 for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
                     int preToken = AdamExtensions.getToken(p);
@@ -563,14 +566,13 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
                 if (tokenFlow.getPreset().isEmpty()) {
-                    allPres.andWith(GOODCHAIN[1][token].ithVar(0));
-                } else {
-                    allPres.andWith(GOODCHAIN[1][token].ithVar(1));
+                    hasEmptyPreset = true;
+                    break;
                 }
             }
         }
-        ret.orWith(allPres);
-        return ret;
+        allPres.biimpWith(GOODCHAIN[1][token].ithVar(1));
+        return (hasEmptyPreset) ? GOODCHAIN[1][token].ithVar(0) : allPres;
     }
 
     private BDD setOverallBad(Transition t) {
@@ -890,10 +892,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             sysT.andWith(placesEqual(i));
             // \not topi=>(ti=ti'\wedge type'=type \wedge nocc=nocc' \wedge gc'=gc)
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0))
-                    .andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])
-                            .andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]))));
+                    .andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
             // topi=> nocc'=1            
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
+            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
             sysT.andWith(impl).andWith(impl1);
         }
         // in top case just copy the newly occupation flag of the env place
@@ -984,10 +986,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             sysT.andWith(placesEqual(i));
             // \not topi=>(ti=ti'\wedge nocc'=0)
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0))
-                    .andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]))
                     .andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
             // topi=> nocc'=1            
             BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
+            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
             sysT.andWith(impl).andWith(impl1);
         }
         // in top case just copy the newly occupation flag of the env place
@@ -1124,18 +1126,20 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
         BDD fixedPoint = buchi(distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
+        fixedPoint.andWith(wrongTypedDCS().not()); // todo: why does it not already worked with added not type to to endstates?
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
 //        try {
-//            BDDTools.saveStates2Pdf("./states", buchi(), this);
+//            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//            BDDTools.saveStates2Pdf("./states", fixedPoint, this);
 //        } catch (IOException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
 //        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
 //        }
+
         return fixedPoint;
     }
 
@@ -1284,7 +1288,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      * Only in not looping states and not overall bad state there could have a
      * transition fired.
      *
-     * good and nocc flag could have changed
+     * good and nocc flag and bad could have changed
      *
      * @param t
      * @param source
@@ -1352,6 +1356,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             restSource = restSource.exist(GOODCHAIN[0][i].set());
             restTarget = restTarget.exist(GOODCHAIN[0][i].set());
         }
+        restSource = restSource.exist(OBAD[0].set());
+        restTarget = restTarget.exist(OBAD[0].set());
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
 
         // now test if the places not in pre- or postset of t stayed equal between source and target

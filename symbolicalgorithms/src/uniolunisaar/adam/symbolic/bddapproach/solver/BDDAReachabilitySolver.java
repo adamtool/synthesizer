@@ -143,11 +143,13 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         if (getWinningCondition().getPlaces2Reach().contains(post)) { // it is a place2reach -> 1
             return GOODCHAIN[1][token].ithVar(1);
         }
-        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
+        // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
         List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+        boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
+//                System.out.println(tokenFlow);
                 for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
                     int preToken = AdamExtensions.getToken(p);
@@ -155,16 +157,42 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
                 if (tokenFlow.getPreset().isEmpty()) {
-                    allPres.andWith(GOODCHAIN[1][token].ithVar(0));
-                } else {
-                    allPres.andWith(GOODCHAIN[1][token].ithVar(1));
+                    hasEmptyPreset = true;
+                    break;
                 }
             }
         }
-        ret.orWith(allPres);
-        return ret;
+        allPres.biimpWith(GOODCHAIN[1][token].ithVar(1));
+        return (hasEmptyPreset) ? GOODCHAIN[1][token].ithVar(0) : allPres;
     }
 
+    // less restrictive version, let's it to often to 0. does it harm? don't now...
+//    private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
+////        System.out.println("Post:" + post.getId());
+//        if (getWinningCondition().getPlaces2Reach().contains(post)) { // it is a place2reach -> 1
+//            return GOODCHAIN[1][token].ithVar(1);
+//        }
+//        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
+//        BDD allPres = getOne();
+//        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+//        for (TokenFlow tokenFlow : fl) {
+//            if (tokenFlow.getPostset().contains(post)) {
+//                for (Place p : tokenFlow.getPreset()) {
+////                    System.out.println("Pre: " + p.getId());
+//                    int preToken = AdamExtensions.getToken(p);
+//                    allPres.andWith(codePlace(p, 0, preToken));
+//                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
+//                }
+//                if (tokenFlow.getPreset().isEmpty()) {
+//                    allPres.andWith(GOODCHAIN[1][token].ithVar(0));
+//                } else {
+//                    allPres.andWith(GOODCHAIN[1][token].ithVar(1));
+//                }
+//            }
+//        }
+//        ret.orWith(allPres);
+//        return ret;
+//    }
     private BDD setOverallBad(Transition t) {
         List<TokenFlow> fls = AdamExtensions.getTokenFlow(t);
         for (Place p : t.getPreset()) {
@@ -436,8 +464,10 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             // pi=pi'
             sysT.andWith(placesEqual(i));
             // \not topi=>(ti=ti'\wedge gc=gc')
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+//            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]))); (here)
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
             sysT.andWith(impl);
+            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));// todo: 12.10.2017 not really check but should be better than (here)
         }
         // in top part copy overallbad flag 
         sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
@@ -513,8 +543,10 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             // pi=pi'
             sysT.andWith(placesEqual(i));
             // \not topi=>(ti=ti'\wedge gc=gc')
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+//            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]))); // (here)
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i));
             sysT.andWith(impl);
+            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])); // todo: 12.10.2017 not really check but should be better than (here)
         }
         // in top part copy overallbad flag 
         sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
@@ -691,7 +723,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 
     /**
      * Only in not overall bad state there could have a transition fired. and
-     * the good chain flag could had changed.
+     * the good chain flag and overall bad could had changed.
      *
      * @param t
      * @param source
@@ -757,6 +789,8 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             restSource = restSource.exist(GOODCHAIN[0][i].set());
             restTarget = restTarget.exist(GOODCHAIN[0][i].set());
         }
+        restSource = restSource.exist(OBAD[0].set());
+        restTarget = restTarget.exist(OBAD[0].set());
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
 
         // now test if the places not in pre- or postset of t stayed equal between source and target
