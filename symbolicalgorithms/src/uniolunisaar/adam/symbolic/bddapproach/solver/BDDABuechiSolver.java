@@ -377,10 +377,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      */
     BDD type2Trap() {
         // Fixpoint
-        BDD Q = getOne();
-        BDD Q_ = goodSysDCSForType2Trap();
-        System.out.println("winning states");
-        BDDTools.printDecisionSets(Q_, true);
+        BDD Q = getZero();
+        BDD Q_ = winningStates();
+//        System.out.println("winning states");
+//        BDDTools.printDecisionSets(Q_, true);
 //        int counter = 0;
         while (!Q_.equals(Q)) {
 //            System.out.println("first" +counter);
@@ -388,13 +388,15 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //                break;
 //            }
             Q.free();
+            // add all sys2 succcessors
             Q = Q_.andWith(wellformed());
-            BDD Q_shifted = shiftFirst2Second(Q);
-            // there is a predecessor (sys2) such that the transition is in the considered set of transitions
-            Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
+            BDD succs = (getBufferedSystem2Transition().and(Q)).exist(getFirstBDDVariables());
+            succs = shiftFirst2Second(succs);
+            // delete all which don't have a sys2 successor
+            Q_ = ((getBufferedSystem2Transition().and(succs)).exist(getSecondBDDVariables())).and(Q);
         }
         System.out.println("type 2 trap");
-        BDDTools.printDecodedDecisionSets(Q_, this, true);
+//        BDDTools.printDecodedDecisionSets(Q_, this, true);
         return Q_;
     }
 
