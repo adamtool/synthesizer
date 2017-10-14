@@ -30,6 +30,13 @@ public class BDDSolverOptions extends SolverOptions {
         this.cacheSize = cacheSize;
     }
 
+    public BDDSolverOptions(boolean gg, boolean ggs, boolean pgs) {
+        super("bdd");
+        this.gg = gg;
+        this.ggs = ggs;
+        this.pgs = pgs;
+    }
+
     public void setLibraryName(String libraryName) {
         this.libraryName = libraryName;
     }

@@ -4,6 +4,9 @@ import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
 /**
  *
@@ -19,12 +22,12 @@ public class BDDGraph extends Graph<BDDState, Flow> {
         super(g);
     }
 
-    public BDDState addState(BDD state) {
-        return addState(state, -1);
+    public BDDState addState(BDD state, BDDSolver<? extends WinningCondition> solver) {
+        return addState(state, -1, solver);
     }
 
-    public BDDState addState(BDD state, int dist) {
-        return super.addState(new BDDState(state, dist));
+    public BDDState addState(BDD state, int dist, BDDSolver<? extends WinningCondition> solver) {
+        return super.addState(new BDDState(state, dist, BDDTools.getDecodedDecisionSets(state, solver)));
     }
 
     @Override

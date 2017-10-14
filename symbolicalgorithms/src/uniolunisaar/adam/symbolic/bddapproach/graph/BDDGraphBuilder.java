@@ -1,10 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.graph;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sf.javabdd.BDD;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
@@ -78,11 +75,11 @@ public class BDDGraphBuilder {
             addOneInitState(solver, graph, inits, todoStates, distance);
         } else { // is graph add all initial states
             // Create a bufferstate where all initial states are childs
-            BDDState in = graph.addState(solver.getOne());
+            BDDState in = graph.addState(solver.getOne(), solver);
             graph.setInitial(in);
             BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
             while (!init.isZero()) {
-                BDDState initSucc = graph.addState(init);
+                BDDState initSucc = graph.addState(init, solver);
                 initSucc.setMcut(solver.isEnvState(init));
                 graph.addFlow(in, initSucc, null);
                 todoStates.add(initSucc);
@@ -125,7 +122,7 @@ public class BDDGraphBuilder {
 
     void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
-        BDDState in = graph.addState(init);
+        BDDState in = graph.addState(init, solver);
         in.setMcut(solver.isEnvState(init));
         graph.setInitial(in);
         todoStates.add(in);
@@ -134,7 +131,7 @@ public class BDDGraphBuilder {
     void addAllSuccessors(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
-            addState(solver, graph, prev, todoStates, new BDDState(succ, -1));
+            addState(solver, graph, prev, todoStates, new BDDState(succ, -1, BDDTools.getDecodedDecisionSets(succ, solver)));
             if (oneRandom) {
                 return;
             }
@@ -192,7 +189,7 @@ public class BDDGraphBuilder {
             states = states.and(state.not());
             state = states.satOne(solver.getFirstBDDVariables(), false);
         }
-        return new BDDState(min, min_dist);
+        return new BDDState(min, min_dist, BDDTools.getDecodedDecisionSets(min, solver));
     }
 
     /**
@@ -259,11 +256,11 @@ public class BDDGraphBuilder {
         BDD nearestSuccs = distance.get(idx - 1); // there should be a successor in the previous iteration
         while (!succ.isZero()) {
             if (idx == 0) { // if we are already there every successor is OK
-                return new BDDState(succ, -1);
+                return new BDDState(succ, -1, BDDTools.getDecodedDecisionSets(succ, solver));
             }
             // otherwise choose one which is getting nearer to the reachable states        
             if (!succ.and(nearestSuccs).isZero()) {
-                return new BDDState(succ, idx - 1);
+                return new BDDState(succ, idx - 1, BDDTools.getDecodedDecisionSets(succ, solver));
             }
             succs.andWith(succ.not());
             succ = succs.satOne(solver.getFirstBDDVariables(), false);

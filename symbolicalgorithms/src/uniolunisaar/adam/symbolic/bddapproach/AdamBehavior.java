@@ -24,6 +24,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverOptions;
  */
 public class AdamBehavior {
 
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% EXISTS WINSTRAT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Calculates with the BDDSolver if a winning strategy exists for the a file
@@ -74,7 +75,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    public static boolean existsWinningStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.existsWinningStrategy();
     }
@@ -92,7 +93,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    public static boolean existsWinningStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.existsWinningStrategy();
     }
@@ -112,7 +113,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    public static boolean existsWinningStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.existsWinningStrategy();
@@ -134,7 +135,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    public static boolean existsWinningStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
         PetriNet net = game.getNet();
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
@@ -191,7 +192,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriNet getStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriNet getStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getStrategy();
     }
@@ -209,7 +210,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriNet getStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriNet getStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategy();
     }
@@ -229,7 +230,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriNet getStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriNet getStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategy();
@@ -251,7 +252,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriNet getStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriNet getStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         PetriNet net = game.getNet();
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
@@ -308,7 +309,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getGraphStrategy();
     }
@@ -326,7 +327,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphStrategy();
     }
@@ -346,7 +347,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphStrategy();
@@ -368,7 +369,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         PetriNet net = game.getNet();
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
@@ -425,7 +426,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGame(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getGraphGame();
     }
@@ -443,7 +444,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGame(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphGame();
     }
@@ -462,7 +463,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGraph(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGraph(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphGame();
@@ -483,7 +484,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGame(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         PetriNet net = game.getNet();
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
@@ -495,7 +496,7 @@ public class AdamBehavior {
      * Calculates with the BDDSolver winning strategies for the a file given by
      * the path.
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * The file in APT format has to be equipped with a suitable
      * WinningCondition. The solver options are set to the standards and no
@@ -517,7 +518,7 @@ public class AdamBehavior {
      * Calculates with the BDDSolver a winning strategy exists for the a file
      * given by the path.
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * The file in APT format has to be equipped with a suitable
      * WinningCondition. The solver instatiated with the given options and no
@@ -540,7 +541,7 @@ public class AdamBehavior {
      * Calculates with the BDDSolver a winning strategy exists for the given
      * Petri net.
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * Is has to be equipped with a suitable WinningCondition. The solver
      * options are set to the standards and no tests are skipped.
@@ -552,7 +553,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getStrategies();
     }
@@ -561,7 +562,7 @@ public class AdamBehavior {
      * Calculates with the BDDSolver a winning strategy exists for the given
      * Petri net.
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * Is has to be equipped with a suitable WinningCondition. The solver is
      * initiated with the given options and no tests are skipped.
@@ -574,7 +575,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategies();
     }
@@ -584,7 +585,7 @@ public class AdamBehavior {
      * Petri net.
      *
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * The solver is initiated with the given options and no tests are skipped.
      *
@@ -597,7 +598,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriNet> getStrategies(PetriNet net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategies();
@@ -608,7 +609,7 @@ public class AdamBehavior {
      * Petri game. ATTENTION a new PetriGame object is created from the net in
      * game.
      *
-     * THIS IS MUCH CHEAPER THEN CREATING THEM INDIVIDUALLY.
+     * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
      *
      * The solver is initiated with the given options and no tests are skipped.
      *
@@ -623,7 +624,7 @@ public class AdamBehavior {
      * @throws uniolunisaar.adam.ds.exceptions.NoStrategyExistentException
      * @throws uniolunisaar.adam.ds.exceptions.ParameterMissingException
      */
-    public static Pair<BDDGraph, PetriNet> getStrategies(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriNet> getStrategies(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         PetriNet net = game.getNet();
         AdamExtensions.setWinningCondition(net, win.getObjective());
         BDDSolver<? extends WinningCondition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);

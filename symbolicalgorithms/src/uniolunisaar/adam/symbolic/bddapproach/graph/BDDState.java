@@ -14,14 +14,16 @@ public class BDDState extends State {
     private boolean mcut;
     private int distance;
     private boolean special;
+    private String content;
 
     public BDDState(BDD state) {
-        this(state, -1);
+        this(state, -1, "");
     }
 
-    public BDDState(BDD state, int distance) {
+    public BDDState(BDD state, int distance, String content) {
         this.state = state;
         this.distance = distance;
+        this.content = content;
     }
 //
 //    @Override
@@ -99,6 +101,10 @@ public class BDDState extends State {
 
     public int getDistance() {
         return distance;
+    }
+
+    public String getContent() {
+        return content;
     }
 
 }
