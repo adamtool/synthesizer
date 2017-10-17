@@ -42,7 +42,9 @@ public class TestingAllFilesABuchi {
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "oneTokenMultiChains0.apt",
             "oneTokenMultiChains3.apt",
-            "oneTokenMultiChains4.apt"
+            "oneTokenMultiChains4.apt",
+            "oneTokenMultiChains5.apt",
+            "oneTokenMultiChains6.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "myexample1.apt", // should have a strategy, but no system place

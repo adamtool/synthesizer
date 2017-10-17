@@ -21,7 +21,6 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -388,7 +387,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         return trans;
     }
 
-       /**
+    /**
      * Calculates the transitions where 'state' is the predecessor and there
      * exists a system2 transition.
      *
@@ -674,6 +673,8 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
                         inner.andWith(codePlace(place, 1, i));
                         // ti=ti'
                         inner.andWith(commitmentsEqual(i));
+                        // type = type'
+//                        inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
                     } else {
                         //pre_i=post_i'
                         inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
