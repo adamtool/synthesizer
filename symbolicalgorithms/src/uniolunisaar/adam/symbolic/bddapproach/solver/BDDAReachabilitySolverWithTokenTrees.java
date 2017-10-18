@@ -30,10 +30,11 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
- * todo: adapt text but this ones uses token trees but has the problem that in this 
- * way I set a tree to be good also when there a different chain merged in it.
- * Solves Petri games with a reachability objective by simply using an attractor
- * function. Don't need any type2 analysis or deadlock-avoiding constraint.
+ * todo: adapt text but this ones uses token trees but has the problem that in
+ * this way I set a tree to be good also when there a different chain merged in
+ * it. Solves Petri games with a reachability objective by simply using an
+ * attractor function. Don't need any type2 analysis or deadlock-avoiding
+ * constraint.
  *
  * Problem what to do with the non-deterministic states? Already a fixed-point
  * combi of safety and reachability? It is not possible to totally omit them
@@ -590,11 +591,13 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         BDDGraph graph = super.getGraphGame();
         BDD reach = winningStates();
         for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-            if (!ndetStates(0).and(state.getState()).isZero()) {
-                state.setBad(true);
+            if (!graph.getInitial().equals(state)) {
+                if (!reach.and(state.getState()).isZero()) {
+                    state.setGood(true);
+                }
+                if (!ndetStates(0).and(state.getState()).isZero()) {
+                    state.setBad(true);
+                }
             }
         }
         return graph;

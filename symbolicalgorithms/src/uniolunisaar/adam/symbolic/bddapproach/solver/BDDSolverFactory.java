@@ -46,8 +46,8 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDASafetySolver getESafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected BDDESafetySolver getESafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        return new BDDESafetySolver(net, skipTests, new Safety(true), options);
     }
 
     @Override
@@ -57,22 +57,22 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDSolver<Reachability> getEReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDEReachabilitySolver getEReachabilitySolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDEReachabilitySolver(pn, skipTests, new Reachability(true), opts);
     }
 
     @Override
-    protected BDDSolver<? extends WinningCondition> getAReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDAReachabilitySolver getAReachabilitySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDAReachabilitySolver(net, skipTests, new Reachability(false), options);
     }
 
     @Override
-    protected BDDSolver<Buchi> getEBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDEBuechiSolver getEBuchiSolver(PetriNet pn, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDEBuechiSolver(pn, skipTests, new Buchi(true), opts);
     }
 
     @Override
-    protected BDDSolver<? extends WinningCondition> getABuchiSolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDABuechiSolver getABuchiSolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         return new BDDABuechiSolver(net, skipTests, new Buchi(false), options);
     }
 
