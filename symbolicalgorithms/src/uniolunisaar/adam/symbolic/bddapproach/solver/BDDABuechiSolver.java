@@ -268,16 +268,20 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                         inner.andWith(commitmentsEqual(i));
                         // nocc'=0
                         inner.andWith(NOCC[1][i].ithVar(0));
-                        // gc'=gc
-                        inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+                        // if !reset ->gc'=gc and reset -> gc'=0
+                        inner.andWith(reset().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+                        inner.andWith(reset().impWith(GOODCHAIN[1][i].ithVar(0)));
                     } else {
                         Place post = getSuitableSuccessor(place, t);
                         //pre_i=post_i'
                         inner.andWith(codePlace(post, 1, i));
                         // nocc'=1
                         inner.andWith(NOCC[1][i].ithVar(1));
-                        // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                        inner.andWith(setGoodChainFlagForTransition(t, post, i));
+                        // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
+                        BDD goodchain = setGoodChainFlagForTransition(t, post, i);
+                        // if !reset ->gc'=godd and reset -> gc'=0
+                        inner.andWith(reset().not().impWith(goodchain));
+                        inner.andWith(reset().impWith(GOODCHAIN[1][i].ithVar(0)));
                     }
                     pl.orWith(inner);
                 }
@@ -292,8 +296,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // set the newly occupation flag of the env place to zero
         sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
 
-        // keep the good chain flag for the environment, since there nothing could have changed        
-        sys2 = sys2.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+// keep the good chain flag for the environment, since there nothing could have changed        
+        // if !reset ->gc'=gc and reset -> gc'=0
+        sys2.andWith(reset().not().impWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0])));
+        sys2.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
 
         sys2.andWith(LOOP[0].ithVar(0));
         sys2.andWith(LOOP[1].ithVar(0));
@@ -337,8 +343,11 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                     all.andWith(TYPE[1][token - 1].ithVar(0));
                     // nocc'=1
                     all.andWith(NOCC[1][token].ithVar(1));
-                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                    all.andWith(setGoodChainFlagForTransition(t, post, token));
+                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
+                    BDD goodchain = setGoodChainFlagForTransition(t, post, token);
+                    // if !reset ->gc'=godd and reset -> gc'=0
+                    all.andWith(reset().not().impWith(goodchain));
+                    all.andWith(reset().impWith(GOODCHAIN[1][token].ithVar(0)));
                 } else {
                     throw new RuntimeException("should not appear. No env place in sys2 transitions.");
                 }
@@ -356,7 +365,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //            Tools.printDecodedDecisionSets(sys2, game, true);
 //        System.out.println("for ende");
         // keep the good chain flag for the environment, since there nothing could have changed        
-        sys2 = sys2.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+        // if !reset ->gc'=gc and reset -> gc'=0
+        sys2.andWith(reset().not().impWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0])));
+        sys2.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
 
         sys2.andWith(LOOP[0].ithVar(0));
         sys2.andWith(LOOP[1].ithVar(0));
@@ -386,9 +397,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     BDD type2Trap() {
         // Fixpoint
         BDD Q = getZero();
-        BDD Q_ = winningStates();
-//        System.out.println("winning states");
-//        BDDTools.printDecisionSets(Q_, true);
+        BDD Q_ = winningStatesForType2Trap();
+        System.out.println("winning states");
+        BDDTools.printDecisionSets(Q_, true);
+        BDDTools.printDecodedDecisionSets(Q_, this, true);
 //        int counter = 0;
         while (!Q_.equals(Q)) {
 //            System.out.println("first" +counter);
@@ -403,8 +415,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             // delete all which don't have a sys2 successor
             Q_ = ((getBufferedSystem2Transition().and(succs)).exist(getSecondBDDVariables())).and(Q);
         }
-//        System.out.println("type 2 trap");
-//        BDDTools.printDecodedDecisionSets(Q_, this, true);
+        System.out.println("type 2 trap");
+        BDDTools.printDecodedDecisionSets(Q_, this, true);
         return Q_;
     }
 
@@ -472,19 +484,37 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return !bdd.and(type2()).isZero();
     }
 
-    /**
-     * Calculates a BDD with all good situations for the system.
-     *
-     * @return BDD representing all good decision sets for the system.
+ /**
+     * Good when all not type2 typed visible token belong to a good chain.
      */
-    private BDD goodSysDCSForType2Trap() {
-        return winningStates();//.andWith(getWellformed());
+    private BDD winningStatesForType2Trap() {
+//        BDD buchi = getZero();
+//        for (Place place : getWinningCondition().getBuchiPlaces()) {
+//            int token = AdamExtensions.getToken(place);
+//            // is a buchi place and is newly occupied, than it's a buchi state
+//            buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
+//        }
+//        buchi.andWith(wellformed(0));
+//        System.out.println("buchi");
+//        BDDTools.printDecisionSets(buchi, true);
+        BDD ret = getOne();
+        for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+            BDD pos;
+            if (AdamExtensions.getConcurrencyPreserving(getNet())) {
+                pos = GOODCHAIN[0][i].ithVar(1);
+            } else {
+                pos = GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i));
+            }
+            ret.andWith(pos);
+        }
+        ret.andWith(OBAD[0].ithVar(0));
+        return ret;//.and(buchi);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%   
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
-     * Good when all visible token belong to a good chain.
+     * Good when all not type2 typed visible token belong to a good chain.
      */
     private BDD winningStates() {
 //        BDD buchi = getZero();
@@ -498,11 +528,19 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //        BDDTools.printDecisionSets(buchi, true);
         BDD ret = getOne();
         for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+            BDD pos;
             if (AdamExtensions.getConcurrencyPreserving(getNet())) {
-                ret.andWith(GOODCHAIN[0][i].ithVar(1));
+                pos = GOODCHAIN[0][i].ithVar(1);
+                if (i != 0) {
+                    pos.orWith(TYPE[0][i - 1].ithVar(0));
+                }
             } else {
-                ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
+                pos = GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i));
+                if (i != 0) {
+                    pos.orWith(TYPE[0][i - 1].ithVar(0));
+                }
             }
+            ret.andWith(pos);
         }
         ret.andWith(OBAD[0].ithVar(0));
         return ret;//.and(buchi);
