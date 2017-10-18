@@ -589,11 +589,13 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         BDDGraph graph = super.getGraphGame();
         BDD reach = winningStates();
         for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-            if (!ndetStates(0).and(state.getState()).isZero()) {
-                state.setBad(true);
+            if (!graph.getInitial().equals(state)) {
+                if (!reach.and(state.getState()).isZero()) {
+                    state.setGood(true);
+                }
+                if (!ndetStates(0).and(state.getState()).isZero()) {
+                    state.setBad(true);
+                }
             }
         }
         return graph;

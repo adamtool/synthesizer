@@ -35,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesInFolder {
+public class TestingAllFilesASafety {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
