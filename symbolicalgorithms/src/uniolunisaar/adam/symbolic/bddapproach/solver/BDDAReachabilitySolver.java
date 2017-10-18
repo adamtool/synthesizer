@@ -605,7 +605,10 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         BDD reach = winningStates();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
+            }
+            if (!ndetStates(0).and(state.getState()).isZero()) {
+                state.setBad(true);
             }
         }
         return graph;
@@ -625,7 +628,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
             }
         }
         return strat;

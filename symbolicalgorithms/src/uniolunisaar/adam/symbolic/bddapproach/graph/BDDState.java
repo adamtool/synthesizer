@@ -13,7 +13,8 @@ public class BDDState extends State {
     private final BDD state;
     private boolean mcut;
     private int distance;
-    private boolean special;
+    private boolean good;
+    private boolean bad;
     private String content;
 
     public BDDState(BDD state) {
@@ -91,12 +92,20 @@ public class BDDState extends State {
         return Objects.equals(this.state, succ);
     }
 
-    public boolean isSpecial() {
-        return special;
+    public boolean isBad() {
+        return bad;
     }
 
-    public void setSpecial(boolean special) {
-        this.special = special;
+    public void setBad(boolean bad) {
+        this.bad = bad;
+    }
+
+    public boolean isGood() {
+        return good;
+    }
+
+    public void setGood(boolean good) {
+        this.good = good;
     }
 
     public int getDistance() {

@@ -397,7 +397,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     BDD type2Trap() {
         // Fixpoint
         BDD Q = getZero();
-        BDD Q_ = winningStatesForType2Trap();
+        BDD Q_ = winningStates();//winningStatesForType2Trap();
         System.out.println("winning states");
         BDDTools.printDecisionSets(Q_, true);
         BDDTools.printDecodedDecisionSets(Q_, this, true);
@@ -484,7 +484,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return !bdd.and(type2()).isZero();
     }
 
- /**
+    /**
+     * No, it should also start with they are either type2 or on a good chain.
+     *
      * Good when all not type2 typed visible token belong to a good chain.
      */
     private BDD winningStatesForType2Trap() {
@@ -1243,7 +1245,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
         BDD fixedPoint = buchi(distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
-        fixedPoint.andWith(wrongTypedDCS().not()); // todo: why does it not already worked with added not type to to endstates?
+//        fixedPoint.andWith(wrongTypedDCS().not()); // todo: why does it not already worked with added not type to to endstates?
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -1264,8 +1266,13 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     public BDDGraph getGraphGame() {
         BDDGraph graph = super.getGraphGame();
         for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+            if (!graph.getInitial().equals(state)) {
+                if (!winningStates().and(state.getState()).isZero()) {
+                    state.setGood(true);
+                }
+                if (!ndetStates(0).orWith(wrongTypedDCS().and(state.getState())).isZero()) {
+                    state.setBad(true);
+                }
             }
         }
 //        System.out.println("loops");
@@ -1291,7 +1298,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
             }
         }
         return strat;

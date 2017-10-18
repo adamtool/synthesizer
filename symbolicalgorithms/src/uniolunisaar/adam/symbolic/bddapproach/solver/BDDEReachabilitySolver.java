@@ -18,7 +18,6 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDReachabilityGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -139,7 +138,10 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         BDD reach = reach();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
+            }            
+            if (!ndetStates(0).and(state.getState()).isZero()) {
+                state.setBad(true);
             }
         }
         return graph;
@@ -159,7 +161,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!reach().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
             }
         }
         return strat;

@@ -170,7 +170,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
         BDD bad = bad();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !bad.and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setBad(true);
             }
         }
         return graph;

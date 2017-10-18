@@ -30,11 +30,11 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
- * todo: adapt text but this ones uses chains but has the problem that in this 
+ * todo: adapt text but this ones uses chains but has the problem that in this
  * way really every chain must be good, also when the system can decide to not
- * use them.
- * Solves Petri games with a reachability objective by simply using an attractor
- * function. Don't need any type2 analysis or deadlock-avoiding constraint.
+ * use them. Solves Petri games with a reachability objective by simply using an
+ * attractor function. Don't need any type2 analysis or deadlock-avoiding
+ * constraint.
  *
  * Problem what to do with the non-deterministic states? Already a fixed-point
  * combi of safety and reachability? It is not possible to totally omit them
@@ -590,7 +590,10 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         BDD reach = winningStates();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
+            }
+            if (!ndetStates(0).and(state.getState()).isZero()) {
+                state.setBad(true);
             }
         }
         return graph;
@@ -610,7 +613,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
             }
         }
         return strat;

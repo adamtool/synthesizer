@@ -801,7 +801,10 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         BDDGraph graph = super.getGraphGame();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
+            }
+            if (!ndetStates(0).and(state.getState()).isZero()) {
+                state.setBad(true);
             }
         }
 //        System.out.println("loops");
@@ -827,7 +830,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setGood(true);
             }
         }
         return strat;

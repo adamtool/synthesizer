@@ -550,8 +550,10 @@ public class BDDTools {
     }
 
     public static String states2Dot(BDD bdds, BDDSolver<? extends WinningCondition> solver) {
-        final String mcutShape = "diamond";
-        final String sysShape = "box";
+//        final String mcutShape = "diamond";
+//        final String sysShape = "box";
+        final String mcutColor = "white";
+        final String sysColor = "gray";
 
         StringBuilder sb = new StringBuilder();
         sb.append("digraph GraphGame {\n");
@@ -562,10 +564,11 @@ public class BDDTools {
         int state_nb = 0;
         while (!bdd.isZero()) {
             // mcut?
-            String shape = (solver.isEnvState(bdd)) ? mcutShape : sysShape;
+//            String shape = (solver.isEnvState(bdd)) ? mcutShape : sysShape;
+            String color = (solver.isEnvState(bdd)) ? mcutColor : sysColor;
             int penwidth = (false) ? 8 : 1;
             // Drawing
-            sb.append(state_nb++).append("[shape=").append(shape);
+            sb.append(state_nb++).append("[shape=box, color=").append(color);
             sb.append(", height=0.5, width=0.5, fixedsize=false,  penwidth=").append(penwidth);
 //            sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
 //            sb.append(", label=").append("\"").append(Tools.printDecodedDecisionSets(null, null, true)).append("\"");
@@ -585,8 +588,10 @@ public class BDDTools {
     }
 
     public static String graph2Dot(BDDGraph g, BDDSolver<? extends WinningCondition> solver) {
-        final String mcutShape = "diamond";
-        final String sysShape = "box";
+//        final String mcutShape = "diamond";
+//        final String sysShape = "box";
+        final String mcutColor = "white";
+        final String sysColor = "gray";
 
         StringBuilder sb = new StringBuilder();
         sb.append("digraph GraphGame {\n");
@@ -595,10 +600,12 @@ public class BDDTools {
         sb.append("#states\n");
         for (BDDState state : g.getStates()) {
             // mcut?
-            String shape = (state.isMcut()) ? mcutShape : sysShape;
-            int penwidth = (state.isSpecial()) ? 8 : 1;
+//            String shape = (state.isMcut()) ? mcutShape : sysShape;
+            String color = (solver.isEnvState(state.getState())) ? mcutColor : sysColor;
+            int penwidth = (state.isBad()) ? 8 : 1;
+            String shape = (state.isGood()) ? "doubleoctagon" : "box";
             // Drawing
-            sb.append(state.getId()).append("[shape=").append(shape);
+            sb.append(state.getId()).append("[shape=").append(shape).append(", style=filled, fillcolor=").append(color);
             sb.append(", height=0.5, width=0.5, fixedsize=false,  penwidth=").append(penwidth);
 //            sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
 //            sb.append(", label=").append("\"").append(Tools.printDecodedDecisionSets(null, null, true)).append("\"");

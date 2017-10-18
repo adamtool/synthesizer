@@ -836,7 +836,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         BDDGraph graph = super.getGraphGame();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !badSysDCS().and(state.getState()).isZero()) {
-                state.setSpecial(true);
+                state.setBad(true);
             }
         }
         return graph;
