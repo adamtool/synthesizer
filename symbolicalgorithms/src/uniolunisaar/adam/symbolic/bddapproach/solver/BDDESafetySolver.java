@@ -19,7 +19,6 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.TokenFlow;
 import uniolunisaar.adam.ds.util.AdamExtensions;
-import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -53,6 +52,10 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      */
     BDDESafetySolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
+        // Need at least one env place
+        if (getGame().getEnvPlaces().isEmpty()) {
+            throw new NotSupportedGameException("BDD solving need at least one environment place.");
+        }
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

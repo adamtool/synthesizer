@@ -68,11 +68,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
-        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative
-        // Need at least one env place
-        if (getGame().getEnvPlaces().isEmpty()) {
-            throw new NotSupportedGameException("BDD solving need at least one environment place.");
-        }
+        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative     
         // Need at least one sys place
         boolean hasSystem = false;
         for (Place p : getGame().getNet().getPlaces()) {

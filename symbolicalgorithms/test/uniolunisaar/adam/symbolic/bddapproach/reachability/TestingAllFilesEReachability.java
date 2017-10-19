@@ -50,9 +50,10 @@ public class TestingAllFilesEReachability {
             "nondetNoStrat",// should have no strategy, builds one voilating S3
             "nondet2.apt"// should have no strategy, builds one voilating S3
     ));
-    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
-            //                )
-            );
+    private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            "unfair2.apt" // has two env token
+    )
+    );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
             "nondet.apt", // should have a strategy
             "nondetWithBack.apt", // should have a strategy
