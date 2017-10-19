@@ -42,10 +42,10 @@ public class TestingAllFilesESafety {
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "decision1.apt",
             "twoDecisions1.apt",
-            "OneTransitionSys1.apt",
-            "OneTransitionBoth2.apt",
-            "OneTransitionEnv3.apt",
-            "OneTransitionEnv1.apt"
+            "oneTransitionSys1.apt",
+            "oneTransitionBoth2.apt",
+            "oneTransitionEnv3.apt",
+            "oneTransitionEnv1.apt"            
            ));
     private static final List<String> skip = new ArrayList<>(//Arrays.asList(
 //    )

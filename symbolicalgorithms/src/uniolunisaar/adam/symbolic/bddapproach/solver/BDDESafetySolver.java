@@ -146,7 +146,8 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-        ret.or(getBufferedNDet()).orWith(deadSysDCS(0));
+        ret = ret.or(getBufferedNDet());
+        ret.orWith(deadSysDCS(0));
         return ret;
     }
 
@@ -663,26 +664,6 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         return graph;
-    }
-
-    @Override
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
-        HashMap<Integer, BDD> distance = new HashMap<>();
-        BDD win = calcWinningDCSs(distance);
-        super.setBufferedWinDCSs(win);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-        BDDGraph strat = BDDReachabilityGraphBuilder.getInstance().builtGraphStrategy(this, distance);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!winningStates().and(state.getState()).isZero()) {
-                state.setBad(true);
-            }
-        }
-        return strat;
     }
 
     @Override
