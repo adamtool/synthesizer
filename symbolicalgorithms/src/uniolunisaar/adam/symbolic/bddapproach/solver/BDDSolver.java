@@ -28,6 +28,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
 
@@ -68,7 +69,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
-        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative     
+        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
+        // Need at least one env place
+        if (getGame().getEnvPlaces().isEmpty()) {
+            throw new NotSupportedGameException("BDD solving need at least one environment place.");
+        }
         // Need at least one sys place
         boolean hasSystem = false;
         for (Place p : getGame().getNet().getPlaces()) {
@@ -176,6 +181,39 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             }
         }
         setDCSLength(getFactory().varNum() / 2);
+    }
+
+    String decodeDCS(byte[] dcs, int pos) {
+        StringBuilder sb = new StringBuilder();
+        // Env place
+        sb.append("(");
+        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
+        sb.append(")").append("\n");
+        for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+            sb.append("(");
+            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
+            sb.append(", ");
+            sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+            sb.append(", ");
+            sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            sb.append(")").append("\n");
+        }
+        return sb.toString();
+    }
+
+    public String decode(byte[] dcs) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 2; i++) {
+            if (BDDTools.notUsedByBin(dcs, getDcs_length(), i)) {
+                sb.append("(not defined)\n");
+            } else {
+                sb.append(decodeDCS(dcs, i));
+            }
+            if (i == 0) {
+                sb.append(" -> \n");
+            }
+        }
+        return sb.toString();
     }
 
     /**

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
+import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
@@ -296,6 +297,108 @@ public class BDDTools {
         return out;
     }
 
+    public static String getPlaceIDByBin(byte[] dcs, BDDDomain bddDomain, Set<Place> places, boolean cp) {
+        int[] ids = bddDomain.vars();
+        String id = "";
+        String zero = "";
+        for (int i = 0; i < ids.length; i++) {
+            id += dcs[ids[i]];
+            zero += "0";
+        }
+        if (!cp && id.equals(zero)) {
+            return "-";
+        }
+        for (Place p : places) {
+            if (id.equals(place2BinID(p, ids.length))) {
+                return p.getId();
+            }
+        }
+        return id;
+    }
+
+    public static String getTopFlagByBin(byte[] dcs, BDDDomain bddDomain) {
+        byte topFlag = dcs[bddDomain.vars()[0]];
+        return (topFlag == 1) ? "T" : (topFlag == 0) ? "!T" : "-";
+    }
+
+    public static String getTransitionsByBin(byte[] dcs, BDDDomain bddDomain, List<Transition> transitions) {
+        int[] ids = bddDomain.vars();
+        StringBuilder sb = new StringBuilder("{");
+        boolean added = false;
+        for (int j = 0; j < transitions.size(); ++j) {
+            Transition trans = transitions.get(j);
+            byte t = dcs[ids[j]];
+            if (t == 1) {
+                if (added) {
+                    sb.append(", ");
+                } else {
+                    added = true;
+                }
+                sb.append(trans.getId());
+            } else if (t == -1) {
+                if (added) {
+                    sb.append(", ");
+                } else {
+                    added = true;
+                }
+                sb.append("-").append(trans.getId());
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public static String getGoodChainFlagByBin(byte[] dcs, BDDDomain bddDomain) {
+        byte gcFlag = dcs[bddDomain.vars()[0]];
+        return (gcFlag == 1) ? "g" : (gcFlag == 0) ? "!g" : "-";
+    }
+
+    public static String getNewlyOccupiedFlagByBin(byte[] dcs, BDDDomain bddDomain) {
+        byte gcFlag = dcs[bddDomain.vars()[0]];
+        return (gcFlag == 1) ? "*" : (gcFlag == 0) ? "!*" : "-";
+    }
+
+    public static String getTypeFlagByBin(byte[] dcs, BDDDomain bddDomain) {
+        byte typeFlag = dcs[bddDomain.vars()[0]];
+        return (typeFlag == 1) ? "1" : (typeFlag == 0) ? "2" : "-";
+    }
+
+    public static boolean notUsedByBin(byte[] dcs, int dcs_length, int pos) {
+        int add = (pos == 0) ? 0 : dcs_length;
+        for (int j = add; j < dcs_length + add; j++) {
+            if (dcs[j] != -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String getOverallBadByBin(byte[] dcs, BDDDomain bddDomain) {
+        byte oBadFlag = dcs[bddDomain.vars()[0]];
+        return (oBadFlag == 1) ? "BAD" : (oBadFlag == 0) ? "ok" : "-";
+    }
+
+    public static boolean isLoopByBin(byte[] dcs, BDDDomain bddDomain) {
+        return dcs[bddDomain.vars()[0]] == 1;
+    }
+
+    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
+        String out = "";
+        @SuppressWarnings("unchecked")
+        List<byte[]> l = dcs.allsat();
+        for (byte[] sol : l) {
+            // required for buddy library
+            if (sol == null) {
+                continue;
+            }
+            out += solver.decode(sol) + "\n\n";
+        }
+        if (out.equals("")) {
+            throw new RuntimeException("State has no solution." + dcs.isZero());
+        }
+        return out;
+    }
+
     /**
      * Do not fit when domains aren't created in the exact expected order. This
      * could be fixed by using PLACES[0][i - 1].vars() to get the indizes of the
@@ -305,7 +408,7 @@ public class BDDTools {
      * @param solver
      * @return
      */
-    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
+    public static String getDecodedDecisionSetsWithoutDomains(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
         BDDPetriGame game = solver.getGame();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
@@ -327,7 +430,6 @@ public class BDDTools {
             if (sol == null) {
                 continue;
             }
-
             String pre = "";
             int counter = 0;
             // Enviroment
@@ -543,8 +645,8 @@ public class BDDTools {
 //            System.out.println(out);
 //            System.out.println(Arrays.toString(sol));
         }
-        if(out.equals("")) {
-            throw new RuntimeException("State has no solution."+dcs.isZero());
+        if (out.equals("")) {
+            throw new RuntimeException("State has no solution." + dcs.isZero());
         }
         return out;
     }
@@ -784,4 +886,5 @@ public class BDDTools {
         }
         return ids;
     }
+
 }

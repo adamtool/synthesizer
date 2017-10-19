@@ -49,7 +49,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * @param skipTests - should the tests for safe and bounded and other
      * preconditions be skipped?
      * @param opts - the options for the solver.
-     * @throws NotSupportedGameException - Thrown if the given net is not bounded.
+     * @throws NotSupportedGameException - Thrown if the given net is not
+     * bounded.
      * @throws NetNotSafeException - Thrown if the given net is not safe.
      * @throws NoSuitableDistributionFoundException - Thrown if the given net is
      * not annotated to which token each place belongs and the algorithm was not
@@ -117,6 +118,27 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         setDCSLength(getFactory().varNum() / 2);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    @Override
+    String decodeDCS(byte[] dcs, int pos) {
+        StringBuilder sb = new StringBuilder();
+        // Env place
+        sb.append("(");
+        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
+        sb.append(")").append("\n");
+        for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+            sb.append("(");
+            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
+            sb.append(", ");
+            sb.append(BDDTools.getTypeFlagByBin(dcs, TYPE[pos][j]));
+            sb.append(", ");
+            sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+            sb.append(", ");
+            sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            sb.append(")").append("\n");
+        }
+        return sb.toString();
+    }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%
     /**
@@ -275,8 +297,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             Q_ = ((getBufferedSystem2Transition().and(Q_shifted)).exist(getSecondBDDVariables())).and(Q);
         }
         return Q_;
-    } 
-    
+    }
+
     /**
      * Calculates a BDD representing the situations where a decision set is
      * typed as type2, but is not contained in the type2 trap.
@@ -361,9 +383,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         return !bdd.and(type2()).isZero();
     }
 
-    
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%    
-
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Calculates a BDD with all possible situations containing a bad place.
@@ -518,8 +538,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         }
         return Q_;
     }
-    
-    
+
 //%%%%%%%%%%%%%%%% ADAPTED to type2 / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Overriden since for a safety objectiv is termination also OK. Only
@@ -633,7 +652,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             }
         }
         env.andWith(dis);
-        
+
 //        System.out.println("%%%%%%%%%%%%%%%%%%%%%");
 //        BDDTools.printDecisionSets(env,true);
 //        BDDTools.printDecodedDecisionSets(env, this, true);
@@ -909,7 +928,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         if (token != 0) {
-            variables.andWith(TYPE[pos][token - 1].set()); 
+            variables.andWith(TYPE[pos][token - 1].set());
         }
         return variables;
     }

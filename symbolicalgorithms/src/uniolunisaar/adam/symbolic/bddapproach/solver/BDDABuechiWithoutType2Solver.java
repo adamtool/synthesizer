@@ -25,6 +25,7 @@ import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -119,6 +120,38 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         setDCSLength(getFactory().varNum() / 2);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    @Override
+    String decodeDCS(byte[] dcs, int pos) {
+        StringBuilder sb = new StringBuilder();
+        if (BDDTools.isLoopByBin(dcs, LOOP[pos])) {
+            sb.append("LOOP");
+        } else {
+            // Env place
+            sb.append("(");
+            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
+            sb.append(", ");
+            sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][0]));
+            sb.append(", ");
+            sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
+            sb.append(")").append("\n");
+            for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+                sb.append("(");
+                sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
+                sb.append(", ");
+                sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][j + 1]));
+                sb.append(", ");
+                sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
+                sb.append(", ");
+                sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+                sb.append(", ");
+                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                sb.append(")").append("\n");
+            }
+            sb.append(BDDTools.getOverallBadByBin(dcs, OBAD[pos]));
+        }
+        return sb.toString();
+    }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special loop stuff %%%%%%%%%%%%%%%%%%%%
     /**
