@@ -40,6 +40,12 @@ public class TestingAllFilesESafety {
     private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
+            "decision1.apt",
+            "twoDecisions1.apt",
+            "OneTransitionSys1.apt",
+            "OneTransitionBoth2.apt",
+            "OneTransitionEnv3.apt",
+            "OneTransitionEnv1.apt"
            ));
     private static final List<String> skip = new ArrayList<>(//Arrays.asList(
 //    )
