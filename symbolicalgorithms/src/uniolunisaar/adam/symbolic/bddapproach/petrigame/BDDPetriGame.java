@@ -129,15 +129,19 @@ public class BDDPetriGame extends PetriGame {
 
         //todo:  all comments are old version, before cavarti
         // split places and add an id
+        int add = getEnvPlaces().isEmpty() ? 1 : 0;
+        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt() + add];
+        if (add == 1) { // add empty set when no env place existend
+            places[0] = new HashSet<>();
+            AdamExtensions.setMaxToken(getNet(), AdamExtensions.getMaxTokenCount(getNet()) + 1);
+        }
         int additional = (isConcurrencyPreserving()) ? 0 : 1;
-        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
         for (Place place : getNet().getPlaces()) {
             int token = AdamExtensions.getToken(place);
             if (places[token] == null) {
                 places[token] = new HashSet<>();
             }
-            int add = additional;
-            AdamExtensions.setID(place, places[token].size() + add);
+            AdamExtensions.setID(place, places[token].size() + additional);
             places[token].add(place);
         }
 

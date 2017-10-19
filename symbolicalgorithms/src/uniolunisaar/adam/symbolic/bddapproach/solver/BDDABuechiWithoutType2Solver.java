@@ -95,7 +95,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         LOOP = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
             NOCC[i][0] = getFactory().extDomain(2);
             GOODCHAIN[i][0] = getFactory().extDomain(2);
@@ -235,6 +235,9 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         buchi.andWith(wellformed(0));
         BDD ret = getOne();
         for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+            if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
+                continue;
+            }
             if (AdamExtensions.getConcurrencyPreserving(getNet())) {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1));
             } else {
@@ -845,6 +848,9 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                     state.setGood(true);
                 }
                 if (!ndetStates(0).and(state.getState()).isZero()) {
+                    state.setBad(true);
+                }
+                if (!OBAD[0].ithVar(1).and(state.getState()).isZero()) {
                     state.setBad(true);
                 }
             }

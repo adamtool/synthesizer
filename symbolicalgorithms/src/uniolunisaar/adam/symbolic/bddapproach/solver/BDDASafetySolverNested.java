@@ -99,7 +99,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {

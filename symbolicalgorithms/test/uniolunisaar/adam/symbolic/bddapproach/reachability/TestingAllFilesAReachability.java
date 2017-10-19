@@ -45,6 +45,7 @@ public class TestingAllFilesAReachability {
             "myexampleWithSysNoStrat.apt",
             "myexampleNoStrat.apt",
             "myexample2WithEnvNoStrat.apt",
+            "myexample2WithFlowNoStrat.apt",
             "unfair.apt",
             "burglar2.apt",
             "oneTokenMultiChains0.apt",
@@ -55,9 +56,10 @@ public class TestingAllFilesAReachability {
             "oneTokenMultiChains6.apt",
             "overallBad0.apt"
     ));
-    private static final List<String> skip = new ArrayList<>(             Arrays.asList(
-            "myexample2.apt" // has no env place
-                            )
+    private static final List<String> skip = new ArrayList<>(   
+//                  Arrays.asList(
+//            "myexample2.apt" // has no flow annotation
+//                            )
             );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 

@@ -76,7 +76,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         OBAD = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
             GOODCHAIN[i][0] = getFactory().extDomain(2);
             //for any token
@@ -136,6 +136,9 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
     private BDD winningStates() {
         BDD ret = getOne();
         for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+            if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
+                continue;
+            }
             if (AdamExtensions.getConcurrencyPreserving(getNet())) {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1));
             } else {
@@ -143,7 +146,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-        ret.orWith(getBufferedNDet()).orWith(deadSysDCS(0));
+        ret.or(getBufferedNDet()).orWith(deadSysDCS(0));
         return ret;
     }
 
