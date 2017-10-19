@@ -128,13 +128,16 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         sb.append(")").append("\n");
         for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
-            sb.append(", ");
-            sb.append(BDDTools.getTypeFlagByBin(dcs, TYPE[pos][j]));
-            sb.append(", ");
-            sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
-            sb.append(", ");
-            sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            sb.append(sid);
+            if (!sid.equals("-")) {
+                sb.append(", ");
+                sb.append(BDDTools.getTypeFlagByBin(dcs, TYPE[pos][j]));
+                sb.append(", ");
+                sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+                sb.append(", ");
+                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            }
             sb.append(")").append("\n");
         }
         return sb.toString();

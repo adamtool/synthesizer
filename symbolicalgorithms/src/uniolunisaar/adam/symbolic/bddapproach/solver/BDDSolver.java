@@ -70,21 +70,21 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     BDDSolver(PetriNet net, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(new BDDPetriGame(net, skipTests), winCon, opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
-        // Need at least one env place
-        if (getGame().getEnvPlaces().isEmpty()) {
-            throw new NotSupportedGameException("BDD solving need at least one environment place.");
-        }
-        // Need at least one sys place
-        boolean hasSystem = false;
-        for (Place p : getGame().getNet().getPlaces()) {
-            if (!AdamExtensions.isEnvironment(p)) {
-                hasSystem = true;
-                break;
-            }
-        }
-        if (!hasSystem) {
-            throw new NotSupportedGameException("BDD solving need at least one system place.");
-        }
+//        // Need at least one env place
+//        if (getGame().getEnvPlaces().isEmpty()) {
+//            throw new NotSupportedGameException("BDD solving need at least one environment place.");
+//        }
+//        // Need at least one sys place
+//        boolean hasSystem = false;
+//        for (Place p : getGame().getNet().getPlaces()) {
+//            if (!AdamExtensions.isEnvironment(p)) {
+//                hasSystem = true;
+//                break;
+//            }
+//        }
+//        if (!hasSystem) {
+//            throw new NotSupportedGameException("BDD solving need at least one system place.");
+//        }
         // hopefully not neccessary anymore
         // every set of system places annotated with the same token need at least one place in it, which has a transition in it postset
 //        for (int i = 1; i < getGame().getPlaces().length; i++) {
@@ -187,15 +187,19 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
+        String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving());
+        sb.append(id);
         sb.append(")").append("\n");
         for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
-            sb.append(", ");
-            sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
-            sb.append(", ");
-            sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            sb.append(sid);
+            if (!sid.equals("-")) {
+                sb.append(", ");
+                sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+                sb.append(", ");
+                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+            }
             sb.append(")").append("\n");
         }
         return sb.toString();

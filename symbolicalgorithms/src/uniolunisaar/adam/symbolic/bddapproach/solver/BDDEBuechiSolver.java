@@ -118,19 +118,25 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         } else {
             // Env place
             sb.append("(");
-            sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
-            sb.append(", ");
-            sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][0]));
+            String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving());
+            sb.append(id);
+            if (!id.equals("-")) {
+                sb.append(", ");
+                sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][0]));
+            }
             sb.append(")").append("\n");
             for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
                 sb.append("(");
-                sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving()));
-                sb.append(", ");
-                sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][j + 1]));
-                sb.append(", ");
-                sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
-                sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
+                sb.append(sid);
+                if (!sid.equals("-")) {
+                    sb.append(", ");
+                    sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][j + 1]));
+                    sb.append(", ");
+                    sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+                    sb.append(", ");
+                    sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                }
                 sb.append(")").append("\n");
             }
         }
