@@ -38,6 +38,11 @@ public class TestingSomeFilesESafety {
     @Test(enabled = true)
     public void testOneTransitionBoth1() throws Exception {
         testJHH("oneTransitionBoth1", true);
+    }  
+    
+    @Test(enabled = true)
+    public void testOneTransitionSys3() throws Exception {
+        testJHH("oneTransitionSys3", true);
     }
     
     @Test(enabled = true)
