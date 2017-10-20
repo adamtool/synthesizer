@@ -49,4 +49,9 @@ public class TestingSomeFilesESafety {
     public void testOneTransitionEnv1() throws Exception {
         testJHH("oneTransitionEnv1", false);
     }
+    
+    @Test(enabled = true)
+    public void testDecision1() throws Exception {
+        testJHH("decision1", false);
+    }
 }
