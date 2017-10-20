@@ -27,7 +27,7 @@ public class TestingSomeFilesESafety {
     }
 
     private void testJHH(String name, boolean hasStrat) throws Exception {
-        final String path = inputDir + "jhh" + File.separator;
+        final String path = inputDir + "toyexamples" + File.separator;
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);

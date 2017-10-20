@@ -47,8 +47,8 @@ public class TestingAllFilesABuchi {
             "oneTokenMultiChains6.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
-            "myexample1.apt", // should have a strategy, but no system place
-            "myexample2.apt" // no system place (fails because of no suitable annotation of token found)                
+//            "myexample1.apt", // should have a strategy, but no system place
+            "myexample2.apt" // fails because of no suitable annotation of token found
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 

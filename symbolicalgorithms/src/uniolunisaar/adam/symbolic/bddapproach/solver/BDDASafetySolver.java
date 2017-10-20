@@ -58,20 +58,20 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    /**
-     * Creates the variables for this solver. This have to be overriden since
-     * the type flag has to be coded additionally.
-     *
-     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
-     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
-     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
-     *
-     * TODO: is this ordering more expensive, since the types are all together
-     * at the end?
-     *
-     * But at least problem for my output functions in BDDTools, since I use
-     * explicit counting.
-     */
+//    /**
+//     * Creates the variables for this solver. This have to be overriden since
+//     * the type flag has to be coded additionally.
+//     *
+//     * Codierung: p_i_0 - Environment Token n - TokenCount type 1 = 1 type 2 = 0
+//     * |p_i_0|p_i_1|top|t_1|...|t_m| ...
+//     * |p_i_n|top|t_1|...|t_m|type_1|...|type_n|
+//     *
+//     * TODO: is this ordering more expensive, since the types are all together
+//     * at the end?
+//     *
+//     * But at least problem for my output functions in BDDTools, since I use
+//     * explicit counting.
+//     */
 //    @Override
 //    void createVariables() {
 //        super.createVariables();

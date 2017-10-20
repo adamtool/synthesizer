@@ -51,12 +51,6 @@ public class TestingAllFilesESafety {
 //    )
             );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
-//            "nondet2WithStratByGameSolving.apt", // should have a strategy
-//            "missDeadlock.apt", // should have a strategy
-//            "nondet_withBad.apt", // should have no strategy, builds one voilating S3
-//            "nondet2WithSys.apt", // should have no strategy, builds one violating S3
-//            "nondet2.apt", // should have no strategy, builds one violating S3
-//            "nondet.apt" // should have no strategy, builds one voilating S3
     ));
 
     @BeforeClass
