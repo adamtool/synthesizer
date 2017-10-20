@@ -2,7 +2,6 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +22,6 @@ import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDReachabilityGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
@@ -145,10 +143,35 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
             }
         }
-        ret.andWith(OBAD[0].ithVar(1));
+        ret.andWith(OBAD[0].ithVar(0));
+        ret.andWith(term(0));
         ret = ret.or(getBufferedNDet());
         ret.orWith(deadSysDCS(0));
         return ret;
+    }
+
+    /**
+     * Calculates a BDD representing all decision sets where no transition is
+     * enabled.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor.
+     * @return BDD representing the terminating situations.
+     */
+    private BDD term(int pos) {
+        BDD notEn = getOne();
+        Set<Transition> trans = getGame().getNet().getTransitions();
+        for (Transition transition : trans) {
+            notEn.andWith(enabled(transition, pos).not());
+        }
+//        BDD notCh = getOne();
+//        for (Transition transition : trans) {
+//            if (!getGame().getSysTransition().contains(transition)) {
+//                notCh.andWith(chosen(transition, pos).not());
+//            }
+//        }
+//        BDD termType1 = notEn.orWith(type2().andWith(notCh));
+//        return termType1;//.and(getWellformed());
+        return notEn;
     }
 
     /**

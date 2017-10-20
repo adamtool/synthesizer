@@ -26,7 +26,7 @@ public class TestingSomeFilesESafety {
         (new File(outputDir)).mkdirs();
     }
 
-    private void testJHH(String name, boolean hasStrat) throws Exception {
+    private void testToy(String name, boolean hasStrat) throws Exception {
         final String path = inputDir + "toyexamples" + File.separator;
 //        Logger.getInstance().setVerbose(true);
 
@@ -37,21 +37,36 @@ public class TestingSomeFilesESafety {
 
     @Test(enabled = true)
     public void testOneTransitionBoth1() throws Exception {
-        testJHH("oneTransitionBoth1", true);
-    }  
-    
+        testToy("oneTransitionBoth1", true);
+    }
+
     @Test(enabled = true)
     public void testOneTransitionSys3() throws Exception {
-        testJHH("oneTransitionSys3", true);
+        testToy("oneTransitionSys3", true);
     }
-    
+
     @Test(enabled = true)
     public void testOneTransitionEnv1() throws Exception {
-        testJHH("oneTransitionEnv1", false);
+        testToy("oneTransitionEnv1", false);
+    }
+
+    @Test(enabled = true)
+    public void testDecision1() throws Exception {
+        testToy("decision1", false);
     }
     
     @Test(enabled = true)
-    public void testDecision1() throws Exception {
-        testJHH("decision1", false);
+    public void testInfiniteBad() throws Exception {
+        testToy("infiniteBad", false);
+    }
+
+    @Test(enabled = true)
+    public void testEscape11() throws Exception {
+        final String path = inputDir + "escape" + File.separator;
+//        Logger.getInstance().setVerbose(true);
+        String name = "escape11";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
 }

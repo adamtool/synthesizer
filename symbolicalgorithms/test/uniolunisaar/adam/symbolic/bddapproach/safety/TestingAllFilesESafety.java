@@ -45,13 +45,14 @@ public class TestingAllFilesESafety {
             "oneTransitionSys1.apt",
             "oneTransitionBoth2.apt",
             "oneTransitionEnv3.apt",
-            "oneTransitionEnv1.apt"            
-           ));
-    private static final List<String> skip = new ArrayList<>(//Arrays.asList(
-//    )
-            );
-    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
+            "oneTransitionEnv1.apt",
+            "escape11.apt",
+            "infiniteBad.apt"
     ));
+    private static final List<String> skip = new ArrayList<>(//Arrays.asList(
+            //    )
+            );
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass
     public void createFolder() {
