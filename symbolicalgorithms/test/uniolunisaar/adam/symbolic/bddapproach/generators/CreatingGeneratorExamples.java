@@ -17,6 +17,7 @@ import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.generators.CarRouting;
 import uniolunisaar.adam.generators.Clerks;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
@@ -27,6 +28,7 @@ import uniolunisaar.adam.generators.Workflow;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.Tools;
 
@@ -115,6 +117,17 @@ public class CreatingGeneratorExamples {
     @Test
     public void testSecuritySystem() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testSecuritySystem(4, true);
+    }
+
+    @Test
+    public void testERouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+        testERouting(2, 2, true);
+    }
+    
+
+    @Test
+    public void testARouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+        testARouting(2, 2, true);
     }
 
     private void testPhilosophersGuided(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
@@ -220,6 +233,32 @@ public class CreatingGeneratorExamples {
         Tools.savePN(path + name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testERouting(int nb_routings, int nb_cars, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "routing" + File.separator;
+        String name = "Erouting_" + nb_routings + "_cars_" + nb_cars;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate routing...");
+        PetriNet pn = CarRouting.createEReachabilityVersion(nb_routings, nb_cars, true);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testARouting(int nb_routings, int nb_cars, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "routing" + File.separator;
+        String name = "Arouting_" + nb_routings + "_cars_" + nb_cars;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate routing...");
+        PetriNet pn = CarRouting.createAReachabilityVersion(nb_routings, nb_cars, true);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 }

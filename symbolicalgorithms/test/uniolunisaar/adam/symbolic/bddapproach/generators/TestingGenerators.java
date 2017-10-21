@@ -71,6 +71,8 @@ public class TestingGenerators {
     private static final int countWD_machines = 2;
     private static final int countSecuritySystems = 1;
     private static final int countContainerPlaces = 1;
+    private static final int countRoutingEReachRoutes= 2;
+    private static final int countRoutingEReachCars = 5;
 
     @BeforeClass
     public void createFolder() {
@@ -320,6 +322,32 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
+//        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Security System
+//    @DataProvider(name = "ERouting")
+//    public static Object[][] existsRouting() {
+//        Object[][] out = new Object[countE][2];
+//        for (int i = 0; i < countSecuritySystems; i++) {
+//            out[i][0] = i + 2;
+//            out[i][1] = true;
+//        }
+//        return out;
+//    }
+//
+//    @Test(dataProvider = "secSystem")
+//    public void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+//        final String path = outputDir + "securitySystem" + File.separator;
+//        String name = intrudingPoints + "_secSystems";
+//        File f = new File(path);
+//        f.mkdir();
+//        System.out.println("Generate security System...");
+//        PetriNet pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
+////        Tools.savePN(path+name, pn);
+//        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+//    }
+
+    
 //    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Container terminal (more than one env place)
 //    @DataProvider(name = "conTerminal")
 //    public static Object[][] containerTerminal() {
