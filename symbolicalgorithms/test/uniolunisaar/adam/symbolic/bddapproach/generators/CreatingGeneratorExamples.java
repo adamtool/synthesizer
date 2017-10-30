@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
+import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
@@ -25,7 +26,9 @@ import uniolunisaar.adam.generators.RobotCell;
 import uniolunisaar.adam.generators.SecuritySystem;
 import uniolunisaar.adam.generators.SelfOrganizingRobots;
 import uniolunisaar.adam.generators.Workflow;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
@@ -123,7 +126,6 @@ public class CreatingGeneratorExamples {
     public void testERouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testERouting(2, 2, true);
     }
-    
 
     @Test
     public void testARouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
@@ -258,7 +260,15 @@ public class CreatingGeneratorExamples {
         PetriNet pn = CarRouting.createAReachabilityVersion(nb_routings, nb_cars, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
-        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDGraph gg = solv.getGraphGame();
+        BDDTools.saveGraph2PDF(path + name + "_graphgame", gg, solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
+        Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
+        String gtikz = BDDTools.graph2Tikz(strats.getFirst(), solv);
+        String ggtikz = BDDTools.graph2Tikz(gg, solv);
+        String pgtikz = AdamTools.pg2Tikz(strats.getSecond());
+        Tools.saveFile(path + name + "_g.tex", gtikz);
+        Tools.saveFile(path + name + "_gg.tex", ggtikz);
+        Tools.saveFile(path + name + "_pg.tex", pgtikz);
     }
 }

@@ -47,11 +47,16 @@ public class TestingAllFilesESafety {
             "oneTransitionEnv3.apt",
             "oneTransitionEnv1.apt",
             "escape11.apt",
-            "infiniteBad.apt"
+            "infiniteBad.apt",
+            "infflowchains.apt"
     ));
-    private static final List<String> skip = new ArrayList<>(//Arrays.asList(
-            //    )
-            );
+    private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            "unfair7.apt", // two env token
+            "unfair8.apt", // two env token
+            "unfair9.apt", // two env token
+            "unfair10.apt" // two env token
+    )
+    );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass

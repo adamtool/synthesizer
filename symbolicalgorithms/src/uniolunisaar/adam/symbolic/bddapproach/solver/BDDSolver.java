@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,9 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
+import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
+import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
@@ -101,7 +105,6 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //                        + placeSet.toString() + "' is missing a succesor.");
 //            }
 //        }
-
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

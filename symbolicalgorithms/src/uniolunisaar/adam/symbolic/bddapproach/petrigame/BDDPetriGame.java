@@ -3,13 +3,16 @@ package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
+import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
@@ -53,6 +56,21 @@ public class BDDPetriGame extends PetriGame {
             if (witness != null) {
                 throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
             }
+            // only one env token is allowed (todo: do it less expensive ?)
+            for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
+                CoverabilityGraphNode next = iterator.next();
+                Marking m = next.getMarking();
+                boolean first = false;
+                for (Place place : pn.getPlaces()) {
+                    if (m.getToken(place).getValue() > 0 && AdamExtensions.isEnvironment(place)) {
+                        if (first) {
+                            throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
+                        }
+                        first = true;
+                    }
+                }
+            }
+
         } else {
             Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe or"
                     + " belongs to the class of solvable Petri games!", false);
@@ -129,11 +147,10 @@ public class BDDPetriGame extends PetriGame {
 
         //todo:  all comments are old version, before cavarti
         // split places and add an id
-        int add = getEnvPlaces().isEmpty() ? 1 : 0;
-        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt() + add];
-        if (add == 1) { // add empty set when no env place existend
+//        int add = getEnvPlaces().isEmpty() ? 1 : 0;
+        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
+        if (getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
             places[0] = new HashSet<>();
-            AdamExtensions.setMaxToken(getNet(), AdamExtensions.getMaxTokenCount(getNet()) + 1);
         }
         int additional = (isConcurrencyPreserving()) ? 0 : 1;
         for (Place place : getNet().getPlaces()) {

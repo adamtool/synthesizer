@@ -144,7 +144,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-        ret.andWith(term(0));
+//        ret.andWith(term(0));
         ret = ret.or(getBufferedNDet());
         ret.orWith(deadSysDCS(0));
         return ret;
