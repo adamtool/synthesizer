@@ -65,9 +65,9 @@ public class FirstTestsAReachability {
     
       @Test
     public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
-//        testToyExamples("oneTokenMultiChains2", false);
+        testToyExamples("oneTokenMultiChains3", true);
 //        testToyExamples("oneTokenMultiChains6", false);
-        testToyExamples("oneTokenMultiChains8", true);
+//        testToyExamples("oneTokenMultiChains8", true);
     }
 
     @Test
