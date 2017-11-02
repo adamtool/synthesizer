@@ -546,7 +546,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 continue;
             }
             BDD pos;
-            if (AdamExtensions.getConcurrencyPreserving(getNet())) {
+            if (AdamExtensions.isConcurrencyPreserving(getNet())) {
                 pos = GOODCHAIN[0][i].ithVar(1);
             } else {
                 pos = GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i));
@@ -578,7 +578,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 continue;
             }
             BDD pos;
-            if (AdamExtensions.getConcurrencyPreserving(getNet())) {
+            if (AdamExtensions.isConcurrencyPreserving(getNet())) {
                 pos = GOODCHAIN[0][i].ithVar(1);
                 if (i != 0) {
                     pos.orWith(TYPE[0][i - 1].ithVar(0));

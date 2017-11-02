@@ -238,7 +238,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
             if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
                 continue;
             }
-            if (AdamExtensions.getConcurrencyPreserving(getNet())) {
+            if (AdamExtensions.isConcurrencyPreserving(getNet())) {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1));
             } else {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
