@@ -27,7 +27,9 @@ public class BDDGraph extends Graph<BDDState, Flow> {
     }
 
     public BDDState addState(BDD state, int dist, BDDSolver<? extends WinningCondition> solver) {
-        return super.addState(new BDDState(state, dist, BDDTools.getDecodedDecisionSets(state, solver)));
+        String value = BDDTools.getDecodedDecisionSets(state, solver);
+        value = value.substring(0, value.indexOf("->"));
+        return super.addState(new BDDState(state, dist, value));
     }
 
     @Override

@@ -131,7 +131,9 @@ public class BDDGraphBuilder {
     void addAllSuccessors(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
-            addState(solver, graph, prev, todoStates, new BDDState(succ, -1, BDDTools.getDecodedDecisionSets(succ, solver)));
+            String value = BDDTools.getDecodedDecisionSets(succ, solver);
+            value = value.substring(0, value.indexOf("->"));
+            addState(solver, graph, prev, todoStates, new BDDState(succ, -1, value));
             if (oneRandom) {
                 return;
             }
@@ -189,7 +191,9 @@ public class BDDGraphBuilder {
             states = states.and(state.not());
             state = states.satOne(solver.getFirstBDDVariables(), false);
         }
-        return new BDDState(min, min_dist, BDDTools.getDecodedDecisionSets(min, solver));
+        String value = BDDTools.getDecodedDecisionSets(min, solver);
+        value = value.substring(0, value.indexOf("->"));
+        return new BDDState(min, min_dist, value);
     }
 
     /**
@@ -256,11 +260,15 @@ public class BDDGraphBuilder {
         BDD nearestSuccs = distance.get(idx - 1); // there should be a successor in the previous iteration
         while (!succ.isZero()) {
             if (idx == 0) { // if we are already there every successor is OK
-                return new BDDState(succ, -1, BDDTools.getDecodedDecisionSets(succ, solver));
+                String value = BDDTools.getDecodedDecisionSets(succ, solver);
+                value = value.substring(0, value.indexOf("->"));
+                return new BDDState(succ, -1, value);
             }
             // otherwise choose one which is getting nearer to the reachable states        
             if (!succ.and(nearestSuccs).isZero()) {
-                return new BDDState(succ, idx - 1, BDDTools.getDecodedDecisionSets(succ, solver));
+                String value = BDDTools.getDecodedDecisionSets(succ, solver);
+                value = value.substring(0, value.indexOf("->"));
+                return new BDDState(succ, idx - 1, value);
             }
             succs.andWith(succ.not());
             succ = succs.satOne(solver.getFirstBDDVariables(), false);
