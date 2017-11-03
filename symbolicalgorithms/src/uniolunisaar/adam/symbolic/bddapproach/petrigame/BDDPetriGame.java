@@ -145,21 +145,26 @@ public class BDDPetriGame extends PetriGame {
             PetriGameAnnotator.annotateMaxTokenCount(getNet());
         }
 
-        //todo:  all comments are old version, before cavarti
-        // split places and add an id
+        try {
+            //todo:  all comments are old version, before cavarti
+            // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;
-        places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
-        if (getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
-            places[0] = new HashSet<>();
-        }
-        int additional = (isConcurrencyPreserving()) ? 0 : 1;
-        for (Place place : getNet().getPlaces()) {
-            int token = AdamExtensions.getToken(place);
-            if (places[token] == null) {
-                places[token] = new HashSet<>();
+            places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
+            if (getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
+                places[0] = new HashSet<>();
             }
-            AdamExtensions.setID(place, places[token].size() + additional);
-            places[token].add(place);
+            int additional = (isConcurrencyPreserving()) ? 0 : 1;
+            for (Place place : getNet().getPlaces()) {
+                int token = AdamExtensions.getToken(place);
+                if (places[token] == null) {
+                    places[token] = new HashSet<>();
+                }
+                AdamExtensions.setID(place, places[token].size() + additional);
+                places[token].add(place);
+            }
+        } catch (Exception e) {
+            Logger.getInstance().addErrorMessage("Sorry, most likely you did s.th. wrong with the annotation of the token.", e);
+            throw e;
         }
 
         // todo: test no two places in one group are marked at the same time        
