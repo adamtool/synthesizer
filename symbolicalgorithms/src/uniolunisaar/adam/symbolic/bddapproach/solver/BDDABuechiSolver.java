@@ -32,10 +32,11 @@ import uniolunisaar.adam.tools.Logger;
 
 /**
  * Still has Problems: - first of all what is with infinite numbers of flow
- * chains - type2trap not correct - some crazy errors for successors, already
- * fixed but since then the main problem came up: - how to detect that we had
- * reach a buchi place, and no enter a loop but this loop don't have a buchi
- * place?
+ * chains 
+ * 
+ * to avoid reaching a buchi place, setting it on a good chain and then entering 
+ * a loop, without buchi place, we reset the good chain flag, when all token 
+ * had been good.
  *
  *
  * Todo: adapt all javadoc just copied of existiential buchi

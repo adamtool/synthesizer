@@ -1,12 +1,14 @@
 package uniolunisaar.adam.symbolic.bddapproach.buchi;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
+import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
@@ -16,11 +18,13 @@ import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.Tools;
 
 /**
  *
@@ -38,8 +42,9 @@ public class FirstTestsABuchi {
         (new File(outputDir)).mkdirs();
     }
 
-    private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+    private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
         final String path = inputDir + "toyexamples" + File.separator;
+//        AdamTools.savePG2PDF(outputDir + name, Tools.getPetriNet(path + name + ".apt"), false);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        System.out.println("ExStrat" + solv.existsWinningStrategy());
 //        solv.getGraphStrategy();
@@ -64,7 +69,7 @@ public class FirstTestsABuchi {
 //
 
     @Test(enabled = true)
-    public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
+    public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
 //        testToyExamples("oneTokenMultiChains0", false);
         testToyExamples("oneTokenMultiChains1", true); // need type2 strategy
 //        testToyExamples("oneTokenMultiChains2", true);
@@ -84,10 +89,11 @@ public class FirstTestsABuchi {
 //        testToyExamples("finiteA", false); // should be false
 //    }
 //
-//    @Test
-//    public void testToyExampleInfiniteA() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
-//        testToyExamples("infiniteA", true); // should be true
-//    }
+
+    @Test
+    public void testToyExampleInfiniteFlowChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+        testToyExamples("infiniteChains", true); // should be true
+    }
 //
 //    @Test
 //    public void testToyExampleInfiniteB() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
