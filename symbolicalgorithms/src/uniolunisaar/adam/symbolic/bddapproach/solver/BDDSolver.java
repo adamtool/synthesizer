@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,9 +14,6 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
-import uniol.apt.analysis.coverability.CoverabilityGraph;
-import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
-import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
@@ -529,8 +525,18 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         return c;//.andWith(getWellformed());
     }
 
+    /**
+     *
+     * @param t
+     * @param source
+     * @param target
+     * @return
+     */
     public boolean hasFired(Transition t, BDD source, BDD target) {
-        if (!isFirable(t, source)) {
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+        if (!isFirable(t, source)) { // here source tested 
             return false;
         }
         // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
@@ -1302,6 +1308,25 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             }
         }
         return null;
+    }
+
+    /**
+     * Searches for all transitions which could have been fired to get the
+     * target BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    public List<Transition> getAllTransitions(BDD source, BDD target) {
+        List<Transition> ret = new ArrayList<>();
+        for (Transition t : getNet().getTransitions()) {
+            if (hasFired(t, source, target)) {
+                ret.add(t);
+            }
+        }
+        return ret;
     }
 
     /**

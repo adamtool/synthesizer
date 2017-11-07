@@ -1,5 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
+import java.util.List;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.Transition;
 
@@ -18,4 +19,5 @@ public interface BDDType2Solver {
     public BDD getFirstBDDVariables();
 
     public Transition getTransition(BDD source, BDD target);
+    public List<Transition> getAllTransitions(BDD source, BDD target);
 }

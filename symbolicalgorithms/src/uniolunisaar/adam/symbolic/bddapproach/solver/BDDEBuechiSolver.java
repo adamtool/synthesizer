@@ -771,7 +771,10 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
             return false;
         }
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
-
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+        
         if (!isFirable(t, source)) {
             return false;
         }

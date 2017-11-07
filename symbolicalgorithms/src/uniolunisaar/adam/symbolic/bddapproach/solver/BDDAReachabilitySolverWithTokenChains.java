@@ -704,6 +704,10 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      */
     @Override
     public boolean hasFired(Transition t, BDD source, BDD target) {
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+
         if (!isFirable(t, source)) {
             return false;
         }

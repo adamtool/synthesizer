@@ -113,12 +113,12 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    
     @Override
     String decodeDCS(byte[] dcs, int pos) {
         // todo: should be adapted to TOKENTREE_WON and _ACT
         return super.decodeDCS(dcs, pos);
     }
+
     /**
      */
     private BDD winningStates() {
@@ -706,6 +706,10 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      */
     @Override
     public boolean hasFired(Transition t, BDD source, BDD target) {
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+
         if (!isFirable(t, source)) {
             return false;
         }
