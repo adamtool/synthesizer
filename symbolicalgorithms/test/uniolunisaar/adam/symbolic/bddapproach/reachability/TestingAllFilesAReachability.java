@@ -55,8 +55,8 @@ public class TestingAllFilesAReachability {
             "oneTokenMultiChains5.apt",
             "oneTokenMultiChains6.apt",
             "overallBad0.apt",
-            "newLateChain.apt",
-            "newLateToken1.apt",
+//            "newLateChain.apt", // only when we have to be deadlock-avoiding
+//            "newLateToken1.apt",// only when we have to be deadlock-avoiding
             "twoDecisions1.apt",
             "infiniteFlowChains2.apt"                   
     ));

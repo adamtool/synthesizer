@@ -386,6 +386,46 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     public boolean isType2(BDD bdd) {
         return !bdd.and(type2()).isZero();
     }
+        /**
+     * Searches for a system2 transition which could have been fired to get the
+     * target BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    @Override
+    public Transition getSystem2Transition(BDD source, BDD target) {
+        for (Transition t : getGame().getSysTransition()) {
+            if (hasFiredSystem2(t, source, target)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public boolean hasFiredSystem2(Transition t, BDD source, BDD target) {
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+        if (!isFirable(t, source)) { // here source tested 
+            return false;
+        }
+
+        boolean cp = AdamExtensions.isConcurrencyPreserving(getNet());
+        BDD trans = source.and(shiftFirst2Second(target));
+        BDD out;
+
+//        if (cp) {
+//            out = sys2TransitionCP(t).andWith(trans);
+//        } else {
+//            out = sys2TransitionNotCP(t).andWith(trans);
+//        }
+    return false;
+//        return !out.isZero();
+    }
+    
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%    
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%

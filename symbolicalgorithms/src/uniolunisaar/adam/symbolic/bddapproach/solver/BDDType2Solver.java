@@ -18,6 +18,5 @@ public interface BDDType2Solver {
 
     public BDD getFirstBDDVariables();
 
-    public Transition getTransition(BDD source, BDD target);
-    public List<Transition> getAllTransitions(BDD source, BDD target);
+    public Transition getSystem2Transition(BDD source, BDD target);
 }

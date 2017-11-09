@@ -86,7 +86,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
                 // one ... (the same by all the others)
 //                BDD succ = succs.fullSatOne();
 
-                Transition t = solver.getTransition(state, succ);
+                Transition t = solver.getSystem2Transition(state, succ);
                 Transition strat_t = strategy.createTransition();
                 strat_t.setLabel(t.getId());
                 // add preset edges

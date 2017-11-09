@@ -314,23 +314,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
     }
 
-    /**
-     * Calculates a BDD representing all system2 transitions.
-     *
-     * @return BDD for all system2 transitions
-     */
-    private BDD sys2Transitions() {
-//        return sys2TransitionsNotCP();
-        if (getGame().isConcurrencyPreserving()) {
-            return sys2TransitionsCP();
-        } else {
-            return sys2TransitionsNotCP();
-        }
-    }
-
     private BDD sys2TransitionCP(Transition t) {
         Set<Place> pre = t.getPreset();
-        BDD all = firable(t, false, 0);
+        BDD sys2 = firable(t, false, 0);
         for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
             BDD pl = getZero();
             for (Place place : getGame().getPlaces()[i]) {
@@ -369,27 +355,16 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 }
                 pl.orWith(inner);
             }
-            all.andWith(pl);
+            sys2.andWith(pl);
             // top'=0
-            all.andWith(TOP[1][i - 1].ithVar(0));
+            sys2.andWith(TOP[1][i - 1].ithVar(0));
             // type = type'
-            all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+            sys2.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
         }
-        all.andWith(setOverallBad(t));
-        return all;
-    }
-
-    /**
-     * Calculates a BDD representing all system2 transitions for a concurrency
-     * preserving net.
-     *
-     * @return BDD for all system2 transitions for a concurrency preserving net.
-     */
-    private BDD sys2TransitionsCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            sys2.orWith(sys2TransitionCP(t));
-        }
+        sys2.andWith(setOverallBad(t));
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
         // set the newly occupation flag of the env place to zero
 //        sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
 
@@ -402,8 +377,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         sys2.andWith(LOOP[1].ithVar(0));
 
         // p0=p0'        
-        sys2 = sys2.andWith(placesEqual(0));
-
+        sys2.andWith(placesEqual(0));
         // overall bad state don't have any successor
         sys2.andWith(OBAD[0].ithVar(0));
 
@@ -413,9 +387,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
     }
 
-    private BDD sys2TransitionsNotCP(Transition t) {
+    private BDD sys2TransitionNotCP(Transition t) {
         Set<Place> pre_sys = t.getPreset();
-        BDD all = firable(t, false, 0);
+        BDD sys2 = firable(t, false, 0);
 
         List<Integer> visitedToken = new ArrayList<>();
 
@@ -425,21 +399,21 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             if (token != 0) { // jump over environment
                 visitedToken.add(token);
                 //pre_i=post_j'
-                all.andWith(codePlace(post, 1, token));
+                sys2.andWith(codePlace(post, 1, token));
                 // top'=0
-                all.andWith(TOP[1][token - 1].ithVar(0));
+                sys2.andWith(TOP[1][token - 1].ithVar(0));
                 // type'=0
-                all.andWith(TYPE[1][token - 1].ithVar(0));
+                sys2.andWith(TYPE[1][token - 1].ithVar(0));
                 // nocc'=1
 //                    all.andWith(NOCC[1][token].ithVar(1));
                 // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
                 BDD goodchain = setGoodChainFlagForTransition(t, post, token);
                 // if !reset ->gc'=godd and reset -> gc'=0
-                all.andWith(resetType2().not().impWith(goodchain));
+                sys2.andWith(resetType2().not().impWith(goodchain));
                 if (!getWinningCondition().getBuchiPlaces().contains(post)) {
-                    all.andWith(resetType2().impWith(GOODCHAIN[1][token].ithVar(0)));
+                    sys2.andWith(resetType2().impWith(GOODCHAIN[1][token].ithVar(0)));
                 } else {
-                    all.andWith(GOODCHAIN[1][token].ithVar(1));
+                    sys2.andWith(GOODCHAIN[1][token].ithVar(1));
                 }
             } else {
                 throw new RuntimeException("should not appear. No env place in sys2 transitions.");
@@ -447,25 +421,16 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
 
         // set the dcs for the places in the preset
-        setPresetAndNeededZeros(pre_sys, visitedToken, all);
+        setPresetAndNeededZeros(pre_sys, visitedToken, sys2);
 
         // Positions in dcs not set with places of pre- or postset
-        setNotAffectedPositionsType2(all, visitedToken);
-        all.andWith(setOverallBad(t));
-        return all;
-    }
-
-    /**
-     * Calculates a BDD representing all system2 transitions for a net which is
-     * not concurrency preserving.
-     *
-     * @return BDD for all system2 transitions for a concurrency preserving net.
-     */
-    private BDD sys2TransitionsNotCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            sys2.orWith(sys2TransitionsNotCP(t));
-        }
+        setNotAffectedPositionsType2(sys2, visitedToken);
+        sys2.andWith(setOverallBad(t));
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // set the newly occupation flag of the env place to zero
+//        sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
         // set the newly occupation flag of the env place to zero
 //        sys2 = sys2.andWith(NOCC[1][0].ithVar(0));
 //            Tools.printDecodedDecisionSets(sys2, game, true);
@@ -646,6 +611,45 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         ret.andWith(OBAD[0].ithVar(0));
         ret.andWith(ndetStates(0).not());
         return ret;//.and(buchi);
+    }
+
+    /**
+     * Searches for a system2 transition which could have been fired to get the
+     * target BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    @Override
+    public Transition getSystem2Transition(BDD source, BDD target) {
+        for (Transition t : getGame().getSysTransition()) {
+            if (hasFiredSystem2(t, source, target)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public boolean hasFiredSystem2(Transition t, BDD source, BDD target) {
+        if (hasTop(source)) { // in a top state nothing could have been fired
+            return false;
+        }
+        if (!isFirable(t, source)) { // here source tested 
+            return false;
+        }
+
+        boolean cp = AdamExtensions.isConcurrencyPreserving(getNet());
+        BDD trans = source.and(shiftFirst2Second(target));
+        BDD out;
+
+        if (cp) {
+            out = sys2TransitionCP(t).andWith(trans);
+        } else {
+            out = sys2TransitionNotCP(t).andWith(trans);
+        }
+        return !out.isZero();
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%   
@@ -1625,6 +1629,16 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return !(restTarget.and(restSource)).isZero();
     }
 
+    BDD getSystem2Transitions() {
+        BDD sys = getZero();
+        boolean cp = getGame().isConcurrencyPreserving();
+        for (Transition t : getGame().getSysTransition()) {
+            sys.orWith(cp ? sys2TransitionCP(t) : sys2TransitionNotCP(t));
+        }
+        // no nondeterministic successors
+        return sys;//.andWith(ndet(1).not().andWith(ndet(0).not()));
+    }
+
     BDD getBufferedType2Trap() {
         if (type2Trap == null) {
             type2Trap = type2Trap();
@@ -1634,7 +1648,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
     BDD getBufferedSystem2Transition() {
         if (system2 == null) {
-            system2 = sys2Transitions();
+            system2 = getSystem2Transitions();
         }
         return system2;
 //        return sys2Transitions();

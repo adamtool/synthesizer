@@ -44,16 +44,18 @@ public class TestingAllFilesABuchi {
             "oneTokenMultiChains3.apt",
             "oneTokenMultiChains4.apt",
 //            "oneTokenMultiChains5.apt", infinitely many token chains
+//            "infiniteChains.apt", infinitely many token chains
             "oneTokenMultiChains6.apt",
             "infiniteChains1.apt",
             "type2_0.apt",
+            "myexample1.apt",
+            "myexample2.apt",
             "myexample11.apt",
             "myexample12.apt",
             "myexample21.apt"
+//            "myexample22.apt" infinitely many token chains
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
-//            "myexample1.apt", // should have a strategy, but no system place
-            "myexample2.apt" // fails because of no suitable annotation of token found
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 

@@ -854,9 +854,9 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
         // if purely system transition
         if (cp) {
-            out = sysTransitionCP(t).andWith(trans);
+            out = sysTransitionCP(t).and(trans);
         } else {
-            out = sysTransitionNotCP(t).andWith(trans);
+            out = sysTransitionNotCP(t).and(trans);
         }
         if (!out.isZero()) {
             return true;
@@ -1294,7 +1294,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     public Transition getTransition(BDD source, BDD target) {
         for (Transition t : getNet().getTransitions()) {
-            if (hasFiredManually(t, source, target)) {
+            if (hasFired(t, source, target)) {
                 return t;
             }
         }

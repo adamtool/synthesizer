@@ -65,7 +65,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         // reach other type2-places, but its also a valid strategy to let them stuck there, because we can play
         // infinitely long on our own.
         if (firstType2State && sol.isType2(prevState.getState())) {
-            System.out.println("add special" + prevMarking.toString());
+//            System.out.println("add special" + prevMarking.toString());
             BDD succs = sol.getSystem2SuccTransitions(prevState.getState());
             // is there a firable transition ?
             if (!succs.isZero()) {
@@ -77,7 +77,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
 //                System.out.println("succ");
 //                BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
 //                        List<Transition> trans = solver.getAllTransitions(prevState.getState(), succ);
-                    Transition t = solver.getTransition(prevState.getState(), succ);
+                    Transition t = sol.getSystem2Transition(prevState.getState(), succ);
 //                        for (Transition t : trans) {
 //                        if (usedTransitions.contains(t)) {
 //                            continue;
@@ -87,9 +87,9 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
                         continue;
                     }
 
-                    BDDTools.printDecodedDecisionSets(prevState.getState(), (BDDSolver) solver, true);
-                    System.out.println(" outer " + t);
-                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+//                    BDDTools.printDecodedDecisionSets(prevState.getState(), (BDDSolver) solver, true);
+//                    System.out.println(" outer " + t);
+//                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
 //                        usedTransitions.add(t);
 //                    visitedType2Markings = new HashMap<>();
 //                    type2Step(sol, strategy, prevState.getState(), new ArrayList<>(prevMarking));
@@ -149,14 +149,14 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
                 succs = solver.getGoodType2Succs(succs);
                 while (!succs.isZero()) { // search as long as you found a good one (since not all BDD are uniquely solvable (not all flags are set to everytime for type2 transitions :$)
                     succ = succs.satOne(solver.getFirstBDDVariables(), false);
-                    t = solver.getTransition(prev, succ);
+                    t = solver.getSystem2Transition(prev, succ);
                     if (t == null) {
                         succs = succs.andWith(succ.not());
                         continue;
                     }
-                    BDDTools.printDecodedDecisionSets(prev, (BDDSolver) solver, true);
-                    System.out.println(" inner " + t);
-                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+//                    BDDTools.printDecodedDecisionSets(prev, (BDDSolver) solver, true);
+//                    System.out.println(" inner " + t);
+//                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
                     newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
                     visitedStates.put(succ, new ArrayList<>(prevMarking));
                     break;// found one
@@ -188,7 +188,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
 
 //                List<Transition> trans = solver.getAllTransitions(state, succ);
 //                if (t == null) {
-                    Transition t = solver.getTransition(state, succ);
+                    Transition t = solver.getSystem2Transition(state, succ);
                     if (t == null) {
                         succs = succs.andWith(succ.not());
                         continue;
