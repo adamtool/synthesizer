@@ -33,6 +33,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
+@Deprecated
 public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType2Solver {
 
     // Domains for predecessor and successor for each token
@@ -595,7 +596,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
 
-    @Override
+//    @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
@@ -697,7 +698,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         }
     }
 
-    @Override
+//    @Override
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
@@ -754,7 +755,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    @Override
+//    @Override
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
         BDD sys1 = getMcut().not();

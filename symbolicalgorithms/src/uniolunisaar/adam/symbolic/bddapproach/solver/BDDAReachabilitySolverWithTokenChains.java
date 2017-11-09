@@ -30,6 +30,8 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * Never really finished. The idea with token chains never really worked out well.
+ *
  * todo: adapt text but this ones uses chains but has the problem that in this
  * way really every chain must be good, also when the system can decide to not
  * use them. Solves Petri games with a reachability objective by simply using an
@@ -48,6 +50,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
+@Deprecated
 public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachability> {
 
     private BDDDomain[] TOKENCHAIN_WON;
@@ -240,7 +243,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         return ones;
     }
 
-    @Override
+//    @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
@@ -315,7 +318,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         return env;
     }
 
-    @Override
+//    @Override
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
@@ -385,7 +388,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    @Override
+//    @Override
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
         BDD sys = getMcut().not();
@@ -470,7 +473,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         return sys;
     }
 
-    @Override
+//    @Override
     BDD sysTransitionsNotCP() {
         // Only useable if it's not an mcut
         BDD sys = getMcut().not();
@@ -703,7 +706,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      * @return
      */
     @Override
-    public boolean hasFired(Transition t, BDD source, BDD target) {
+    public boolean hasFiredManually(Transition t, BDD source, BDD target) {
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;
         }

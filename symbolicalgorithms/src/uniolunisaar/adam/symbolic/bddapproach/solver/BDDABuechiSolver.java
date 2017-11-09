@@ -269,6 +269,52 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     /**
+     * Every good chain flag has to be reset, if all chain had been good. (apart
+     * from env)
+     *
+     * @return
+     */
+    private BDD resetType2() {
+        BDD res = getOne();
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+            res.andWith(GOODCHAIN[0][i].ithVar(1));
+        }
+        return res;
+    }
+
+    void setNotAffectedPositionsType2(BDD all, List<Integer> visitedToken) {
+        // Positions in dcs not set with places of pre- or postset
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            if (visitedToken.contains(i)) { // jump over already visited token
+                continue;
+            }
+            BDD pl = getZero();
+            for (Place place : getGame().getPlaces()[i]) {
+                // only sys places which are not within the preset of t
+                // are possible to occure here
+                BDD inner = getOne();
+                inner.andWith(codePlace(place, 0, i));
+                // pi=pi'
+                inner.andWith(codePlace(place, 1, i));
+                // ti=ti'
+                inner.andWith(commitmentsEqual(i));
+                // top'=0
+                inner.andWith(TOP[1][i - 1].ithVar(0));
+                // type = type'
+                inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+                // nocc'=0
+                inner.andWith(NOCC[1][i].ithVar(0));
+                // if !reset ->gc'=gc and reset -> gc'=0
+                inner.andWith(resetType2().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+                inner.andWith(resetType2().impWith(GOODCHAIN[1][i].ithVar(0)));
+                pl.orWith(inner);
+            }
+            BDD zero = notUsedToken(0, i).and(notUsedToken(1, i));
+            all.andWith(pl.orWith(zero));
+        }
+    }
+
+    /**
      * Calculates a BDD representing all system2 transitions.
      *
      * @return BDD for all system2 transitions
@@ -690,6 +736,22 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return init;
     }
 
+    /**
+     * Every good chain flag has to be reset, if all chain had been good.
+     *
+     * @return
+     */
+    private BDD reset() {
+        BDD res = getOne();
+        for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+            if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
+                continue;
+            }
+            res.andWith(GOODCHAIN[0][i].ithVar(1));
+        }
+        return res;
+    }
+
     private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
 //        System.out.println("Post:" + post.getId());
         if (getWinningCondition().getBuchiPlaces().contains(post)) { // it is a buchi -> 1
@@ -738,155 +800,6 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return OBAD[1].ithVar(0);
     }
 
-    /**
-     * Every good chain flag has to be reset, if all chain had been good.
-     *
-     * @return
-     */
-    private BDD reset() {
-        BDD res = getOne();
-        for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
-            if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
-                continue;
-            }
-            res.andWith(GOODCHAIN[0][i].ithVar(1));
-        }
-        return res;
-    }
-
-    /**
-     * Every good chain flag has to be reset, if all chain had been good. (apart
-     * from env)
-     *
-     * @return
-     */
-    private BDD resetType2() {
-        BDD res = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
-            res.andWith(GOODCHAIN[0][i].ithVar(1));
-        }
-        return res;
-    }
-
-    @Override
-    BDD envTransitionsCP() {
-        BDD env = getMcut();
-        BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
-                Set<Place> pre_sys = t.getPreset();
-                BDD all = firable(t, 0); // the transition should be enabled and choosen!
-                // Systempart
-                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-                    BDD pl = getZero();
-                    for (Place place : getGame().getPlaces()[i]) {
-                        if (AdamExtensions.isEnvironment(place)) {
-                            throw new RuntimeException("Should not appear!"
-                                    + "An enviromental place could not appear here!");
-                            //                            continue;
-                        }
-                        BDD inner = getOne();
-                        inner.andWith(codePlace(place, 0, i));
-                        if (!pre_sys.contains(place)) { // the place wasn't in the preset of the transition, thus nothing can be changed here
-                            // pi=pi'
-                            inner.andWith(codePlace(place, 1, i));
-                            // ti=ti'
-                            inner.andWith(commitmentsEqual(i));
-                            // top'=0
-                            inner.andWith(TOP[1][i - 1].ithVar(0));
-                            // type = type'
-                            inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
-                            // nocc'=0
-                            inner.andWith(NOCC[1][i].ithVar(0));
-                            // if !reset ->gc'=gc and reset -> gc'=0
-                            inner.andWith(reset().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
-                            inner.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
-                        } else { // the place was in the preset of the transition, thus find a suitable sucessor and code it
-                            Place post = getSuitableSuccessor(place, t);
-                            //pre_i=post_i'
-                            inner.andWith(codePlace(post, 1, i));
-                            // top'=1
-                            inner.andWith(TOP[1][i - 1].ithVar(1));
-                            // type'=1 (only allow to choose a new type after resolving top
-                            all.andWith(TYPE[1][i - 1].ithVar(1));
-                            // all t_i'=0
-                            inner.andWith(nothingChosen(1, i));
-                            // occ' = 0 (newly occupied only in the case where we solve the top)
-                            inner.andWith(NOCC[1][i].ithVar(0));
-                            // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
-                            BDD goodchain = setGoodChainFlagForTransition(t, post, i);
-                            // if !reset ->gc'=godd and reset -> gc'=0
-                            inner.andWith(reset().not().impWith(goodchain));
-                            if (!getWinningCondition().getBuchiPlaces().contains(post)) {
-                                inner.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
-                            } else {
-                                inner.andWith(GOODCHAIN[1][i].ithVar(1));
-                            }
-                        }
-                        // keep goodchain flag for type2
-                        inner.andWith(TYPE[0][i - 1].ithVar(0).impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
-                        pl.orWith(inner);
-                    }
-                    all.andWith(pl);
-                }
-                // Environmentpart                
-                // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
-                if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-                    all.andWith(codePlace(pre.get(0), 0, 0));
-                } else {
-                    all.andWith(codePlace(0, 0, 0));
-                    all.andWith(GOODCHAIN[0][0].ithVar(0));
-                    all.andWith(NOCC[0][0].ithVar(0));
-                }
-                if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-                    Place postPlace = post.get(0);
-                    all.andWith(codePlace(postPlace, 1, 0));
-                    // occ' = 1 
-                    all.andWith(NOCC[1][0].ithVar(1));
-                    BDD goodchain = getOne();
-                    // it is good if it was good, or is a buchi place
-                    if (getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is a buchi place -> 1
-                        goodchain.andWith(GOODCHAIN[1][0].ithVar(1));
-                        all.andWith(GOODCHAIN[1][0].ithVar(1));
-                    } else {
-                        List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
-                        for (TokenFlow tfl : tfls) {
-                            if (tfl.getPostset().contains(postPlace)) {
-                                if (tfl.getPreset().isEmpty()) {
-                                    goodchain.andWith(GOODCHAIN[1][0].ithVar(0));
-                                } else {
-                                    goodchain.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
-                                }
-                            }
-                        }
-                    }
-                    // if !reset ->gc'=godd and reset -> gc'=0
-                    all.andWith(reset().not().impWith(goodchain));
-                    if (!getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is not a buchi place -> 1                   
-                        all.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
-                    }
-                } else {
-                    all.andWith(codePlace(0, 1, 0));
-                    all.andWith(NOCC[1][0].ithVar(0));
-                    all.andWith(GOODCHAIN[1][0].ithVar(0));
-                }
-                dis.orWith(all.andWith(setOverallBad(t)));
-            }
-        }
-        env.andWith(LOOP[0].ithVar(0));
-        env.andWith(LOOP[1].ithVar(0));
-        env.andWith(dis);
-        // overall bad state don't have any successor
-        env.andWith(OBAD[0].ithVar(0));
-
-        // bad states don't have succesors
-        env.andWith(wrongTypedDCS().not());
-        env.orWith(loops());
-        return env;
-    }
-
     @Override
     BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
@@ -931,179 +844,103 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
     }
 
-    void setNotAffectedPositionsType2(BDD all, List<Integer> visitedToken) {
-        // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-            if (visitedToken.contains(i)) { // jump over already visited token
-                continue;
-            }
-            BDD pl = getZero();
-            for (Place place : getGame().getPlaces()[i]) {
-                // only sys places which are not within the preset of t
-                // are possible to occure here
-                BDD inner = getOne();
-                inner.andWith(codePlace(place, 0, i));
-                // pi=pi'
-                inner.andWith(codePlace(place, 1, i));
-                // ti=ti'
-                inner.andWith(commitmentsEqual(i));
-                // top'=0
-                inner.andWith(TOP[1][i - 1].ithVar(0));
-                // type = type'
-                inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
-                // nocc'=0
-                inner.andWith(NOCC[1][i].ithVar(0));
-                // if !reset ->gc'=gc and reset -> gc'=0
-                inner.andWith(resetType2().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
-                inner.andWith(resetType2().impWith(GOODCHAIN[1][i].ithVar(0)));
-                pl.orWith(inner);
-            }
-            BDD zero = notUsedToken(0, i).and(notUsedToken(1, i));
-            all.andWith(pl.orWith(zero));
-        }
-    }
-
     @Override
-    BDD envTransitionsNotCP() {
-        BDD mcut = getMcut();
-        BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
-                Set<Place> pre_sys = t.getPreset();
-                BDD all = firable(t, 0);
-
-                List<Integer> visitedToken = new ArrayList<>();
-
-                // set the dcs for the place of the postset 
-                for (Place post : t.getPostset()) {
-                    int token = AdamExtensions.getToken(post);
-                    if (token != 0) { // jump over environment
-                        visitedToken.add(token);
-                        //pre_i=post_j'
-                        all.andWith(codePlace(post, 1, token));
-                        // top'=1
-                        all.andWith(TOP[1][token - 1].ithVar(1));
-                        // type'=1 (only allow to choose a new type after resolving top
-                        all.andWith(TYPE[1][token - 1].ithVar(1));
-                        // all t_i'=0
-                        all.andWith(nothingChosen(1, token));
-                        // occ' = 0 (newly occupied only in the case where we solve the top)
-                        all.andWith(NOCC[1][token].ithVar(0));
-                        // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
-                        BDD goodchain = setGoodChainFlagForTransition(t, post, token);
-                        // if !reset ->gc'=godd and reset -> gc'=0
-                        all.andWith(reset().not().impWith(goodchain));
-                        if (!getWinningCondition().getBuchiPlaces().contains(post)) {
-                            all.andWith(reset().andWith(TYPE[0][token - 1].ithVar(1)).impWith(GOODCHAIN[1][token].ithVar(0)));
+    BDD envPart(Transition t) {
+        BDD env = super.envPart(t);
+        // todo: one environment token case
+        List<Place> pre = getGame().getSplittedPreset(t).getFirst();
+        List<Place> post = getGame().getSplittedPostset(t).getFirst();
+        if (pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all                    
+            env.andWith(GOODCHAIN[0][0].ithVar(0));
+            env.andWith(NOCC[0][0].ithVar(0));
+        }
+        if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
+            Place postPlace = post.get(0);
+            // occ' = 1 
+            env.andWith(NOCC[1][0].ithVar(1));
+            BDD goodchain = getOne();
+            // it is good if it was good, or is a buchi place
+            if (getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is a buchi place -> 1
+                goodchain.andWith(GOODCHAIN[1][0].ithVar(1));
+                env.andWith(GOODCHAIN[1][0].ithVar(1));
+            } else {
+                List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
+                for (TokenFlow tfl : tfls) {
+                    if (tfl.getPostset().contains(postPlace)) {
+                        if (tfl.getPreset().isEmpty()) {
+                            goodchain.andWith(GOODCHAIN[1][0].ithVar(0));
                         } else {
-                            all.andWith(GOODCHAIN[1][token].ithVar(1));
+                            goodchain.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
                         }
                     }
                 }
-
-                // set the dcs for the places in the preset
-                setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-                // --------------------------
-                // Positions in dcs not set with places of pre- or postset
-                setNotAffectedPositions(all, visitedToken);
-
-                // --------------------------
-                // Environmentpart
-                // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
-                if (!pre.isEmpty()) {
-                    all.andWith(codePlace(pre.get(0), 0, 0));
-                } else {
-                    all.andWith(codePlace(0, 0, 0));
-                    all.andWith(NOCC[0][0].ithVar(0));
-                    all.andWith(GOODCHAIN[0][0].ithVar(0));
-                }
-                if (!post.isEmpty()) {
-                    Place postPlace = post.get(0);
-                    all.andWith(codePlace(postPlace, 1, 0));
-                    all.andWith(NOCC[1][0].ithVar(1));
-                    BDD goodchain = getOne();
-                    // it is good if it was good, or is a buchi place
-                    if (getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is a buchi place -> 1
-                        goodchain.andWith(GOODCHAIN[1][0].ithVar(1));
-                        all.andWith(GOODCHAIN[1][0].ithVar(1));
-                    } else {
-                        List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
-                        for (TokenFlow tfl : tfls) {
-                            if (tfl.getPostset().contains(postPlace)) {
-                                if (tfl.getPreset().isEmpty()) {
-                                    goodchain.andWith(GOODCHAIN[1][0].ithVar(0));
-                                } else {
-                                    goodchain.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
-                                }
-                            }
-                        }
-                    }
-                    // if !reset ->gc'=godd and reset -> gc'=0
-                    all.andWith(reset().not().impWith(goodchain));
-                    if (!getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is not a buchi place -> 1
-                        all.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
-                    }
-                } else {
-                    all.andWith(codePlace(0, 1, 0));
-                    all.andWith(NOCC[1][0].ithVar(0));
-                    all.andWith(GOODCHAIN[1][0].ithVar(0));
-                }
-                dis.orWith(all.andWith(setOverallBad(t)));
             }
+            // if !reset ->gc'=godd and reset -> gc'=0
+            env.andWith(reset().not().impWith(goodchain));
+            if (!getWinningCondition().getBuchiPlaces().contains(postPlace)) { // it is not a buchi place -> 1                   
+                env.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
+            }
+        } else {
+            env.andWith(NOCC[1][0].ithVar(0));
+            env.andWith(GOODCHAIN[1][0].ithVar(0));
         }
-        mcut.andWith(LOOP[0].ithVar(0));
-        mcut.andWith(LOOP[1].ithVar(0));
-
-        mcut.andWith(dis);
+        env.andWith(setOverallBad(t));
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.        
+        env.andWith(LOOP[0].ithVar(0));
+        env.andWith(LOOP[1].ithVar(0));
         // overall bad state don't have any successor
-        mcut.andWith(OBAD[0].ithVar(0));
+        env.andWith(OBAD[0].ithVar(0));
+        // bad states don't have successors
+        env.andWith(wrongTypedDCS().not());
 
-        // bad states don't have succesors
-        mcut.andWith(wrongTypedDCS().not());
-
-        mcut.orWith(loops());
-        return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
+        env.orWith(loops());
+        return env;
     }
 
     @Override
-    BDD sysTransitionsCP() {
-        // Only useable if it's not an mcut
-        BDD sys = getMcut().not();
-
-        // not all tops are zero
-        BDD top = getTop();
-
-        // normal part
-        BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre = t.getPreset();
-            BDD all = firable(t, 0);
+    BDD envTransitionCP(Transition t) {
+        if (!getGame().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, 0); // the transition should be enabled and choosen!
+            // Systempart
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                for (Place place : getGame().getPlaces()[i]) {
+                    if (AdamExtensions.isEnvironment(place)) {
+                        throw new RuntimeException("Should not appear!"
+                                + "An enviromental place could not appear here!");
+                        //                            continue;
+                    }
                     BDD inner = getOne();
                     inner.andWith(codePlace(place, 0, i));
-                    if (!pre.contains(place)) {
+                    if (!pre_sys.contains(place)) { // the place wasn't in the preset of the transition, thus nothing can be changed here
                         // pi=pi'
                         inner.andWith(codePlace(place, 1, i));
                         // ti=ti'
                         inner.andWith(commitmentsEqual(i));
-                        // type'=type
+                        // top'=0
+                        inner.andWith(TOP[1][i - 1].ithVar(0));
+                        // type = type'
                         inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
                         // nocc'=0
                         inner.andWith(NOCC[1][i].ithVar(0));
                         // if !reset ->gc'=gc and reset -> gc'=0
                         inner.andWith(reset().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
                         inner.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
-                    } else {
+                    } else { // the place was in the preset of the transition, thus find a suitable sucessor and code it
                         Place post = getSuitableSuccessor(place, t);
                         //pre_i=post_i'
                         inner.andWith(codePlace(post, 1, i));
-                        // nocc'=1
-                        inner.andWith(NOCC[1][i].ithVar(1));
+                        // top'=1
+                        inner.andWith(TOP[1][i - 1].ithVar(1));
+                        // type'=1 (only allow to choose a new type after resolving top
+                        inner.andWith(TYPE[1][i - 1].ithVar(1));
+                        // all t_i'=0
+                        inner.andWith(nothingChosen(1, i));
+                        // occ' = 0 (newly occupied only in the case where we solve the top)
+                        inner.andWith(NOCC[1][i].ithVar(0));
                         // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
                         BDD goodchain = setGoodChainFlagForTransition(t, post, i);
                         // if !reset ->gc'=godd and reset -> gc'=0
@@ -1119,20 +956,61 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                     pl.orWith(inner);
                 }
                 all.andWith(pl);
-                // top'=0
-                all.andWith(TOP[1][i - 1].ithVar(0));
             }
-            sysN.orWith(all.andWith(setOverallBad(t)));
+            // Environmentpart                
+            all.andWith(envPart(t));
+            return all;
         }
-        // in not top case set the newly occupation flag of the env place to zero
-        sysN = sysN.andWith(NOCC[1][0].ithVar(0));
-        // keep the good chain flag for the environment, since there nothing could have changed        
-        // if !reset ->gc'=gc and reset -> gc'=0
-        sysN.andWith(reset().not().impWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0])));
-        sysN.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
+        return getZero();
+    }
 
-        sysN = (top.not()).impWith(sysN);
+    @Override
+    BDD envTransitionNotCP(Transition t) {
+        if (!getGame().getSysTransition().contains(t)) {
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, 0);
+            List<Integer> visitedToken = new ArrayList<>();
+            // set the dcs for the place of the postset 
+            for (Place post : t.getPostset()) {
+                int token = AdamExtensions.getToken(post);
+                if (token != 0) { // jump over environment
+                    visitedToken.add(token);
+                    //pre_i=post_j'
+                    all.andWith(codePlace(post, 1, token));
+                    // top'=1
+                    all.andWith(TOP[1][token - 1].ithVar(1));
+                    // type'=1 (only allow to choose a new type after resolving top
+                    all.andWith(TYPE[1][token - 1].ithVar(1));
+                    // all t_i'=0
+                    all.andWith(nothingChosen(1, token));
+                    // occ' = 0 (newly occupied only in the case where we solve the top)
+                    all.andWith(NOCC[1][token].ithVar(0));
+                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
+                    BDD goodchain = setGoodChainFlagForTransition(t, post, token);
+                    // if !reset ->gc'=godd and reset -> gc'=0
+                    all.andWith(reset().not().impWith(goodchain));
+                    if (!getWinningCondition().getBuchiPlaces().contains(post)) {
+                        all.andWith(reset().andWith(TYPE[0][token - 1].ithVar(1)).impWith(GOODCHAIN[1][token].ithVar(0)));
+                    } else {
+                        all.andWith(GOODCHAIN[1][token].ithVar(1));
+                    }
+                }
+            }
+            // set the dcs for the places in the preset
+            setPresetAndNeededZeros(pre_sys, visitedToken, all);
+            // --------------------------
+            // Positions in dcs not set with places of pre- or postset
+            setNotAffectedPositions(all, visitedToken);
+            // --------------------------
+            // Environmentpart
+            all.andWith(envPart(t));
+            return all;
+        }
+        return getZero();
+    }
 
+    @Override
+    BDD sysTopPart() {
         // top part
         BDD sysT = getOne();
         for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
@@ -1166,7 +1044,75 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         sysT = sysT.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // in top part copy overallbad flag 
         sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
-        sysT = top.impWith(sysT);
+
+        return sysT;
+    }
+
+    @Override
+    BDD sysTransitionCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut
+        BDD sys = getMcut().not();
+        // not all tops are zero
+        BDD top = getTop();
+
+        // normal part
+        Set<Place> pre = t.getPreset();
+        BDD sysN = firable(t, 0);
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            BDD pl = getZero();
+            for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                BDD inner = getOne();
+                inner.andWith(codePlace(place, 0, i));
+                if (!pre.contains(place)) {
+                    // pi=pi'
+                    inner.andWith(codePlace(place, 1, i));
+                    // ti=ti'
+                    inner.andWith(commitmentsEqual(i));
+                    // type'=type
+                    inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+                    // nocc'=0
+                    inner.andWith(NOCC[1][i].ithVar(0));
+                    // if !reset ->gc'=gc and reset -> gc'=0
+                    inner.andWith(reset().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+                    inner.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
+                } else {
+                    Place post = getSuitableSuccessor(place, t);
+                    //pre_i=post_i'
+                    inner.andWith(codePlace(post, 1, i));
+                    // nocc'=1
+                    inner.andWith(NOCC[1][i].ithVar(1));
+                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
+                    BDD goodchain = setGoodChainFlagForTransition(t, post, i);
+                    // if !reset ->gc'=godd and reset -> gc'=0
+                    inner.andWith(reset().not().impWith(goodchain));
+                    if (!getWinningCondition().getBuchiPlaces().contains(post)) {
+                        inner.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
+                    } else {
+                        inner.andWith(GOODCHAIN[1][i].ithVar(1));
+                    }
+                }
+                // keep goodchain flag for type2
+                inner.andWith(TYPE[0][i - 1].ithVar(0).impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
+                pl.orWith(inner);
+            }
+            sysN.andWith(pl);
+            // top'=0
+            sysN.andWith(TOP[1][i - 1].ithVar(0));
+        }
+        sysN.andWith(setOverallBad(t));
+        // in not top case set the newly occupation flag of the env place to zero
+        sysN.andWith(NOCC[1][0].ithVar(0));
+        // keep the good chain flag for the environment, since there nothing could have changed        
+        // if !reset ->gc'=gc and reset -> gc'=0
+        sysN.andWith(reset().not().impWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0])));
+        sysN.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
+        sysN = (top.not()).impWith(sysN);
+
+        // top part
+        BDD sysT = top.impWith(sysTopPart());
 
         sys.andWith(sysN);
         sys.andWith(sysT);
@@ -1176,13 +1122,10 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
-
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
-
         // bad states don't have succesors
         sys.andWith((wrongTypedDCS().or(ndetStates(0))).not());
-
         sys.orWith(loops());
 
 //        System.out.println("sys trans");
@@ -1210,109 +1153,74 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD sysTransitionsNotCP() {
+    BDD sysTransitionNotCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
         // Only useable if it's not an mcut
         BDD sys = getMcut().not();
-
         // not all tops are zero
         BDD top = getTop();
 
         // normal part        
-        BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre_sys = t.getPreset();
-            BDD all = firable(t, 0);
+        Set<Place> pre_sys = t.getPreset();
+        BDD sysN = firable(t, 0);
 
-            List<Integer> visitedToken = new ArrayList<>();
+        List<Integer> visitedToken = new ArrayList<>();
 
-            // set the dcs for the place of the postset 
-            for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
-                if (token != 0) { // jump over environment, could not appear...
-                    visitedToken.add(token);
-                    //pre_i=post_j'
-                    all.andWith(codePlace(post, 1, token));
-                    // top'=0
-                    all.andWith(TOP[1][token - 1].ithVar(0));
-                    // nocc'=1
-                    all.andWith(NOCC[1][token].ithVar(1));
-                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
-                    BDD goodchain = setGoodChainFlagForTransition(t, post, token);
-                    // if !reset ->gc'=godd and reset -> gc'=0
-                    all.andWith(reset().not().impWith(goodchain));
-                    if (!getWinningCondition().getBuchiPlaces().contains(post)) {
-                        all.andWith(reset().andWith(TYPE[0][token - 1].ithVar(1)).impWith(GOODCHAIN[1][token].ithVar(0)));
-                    } else {
-                        all.andWith(GOODCHAIN[1][token].ithVar(1));
-                    }
+        // set the dcs for the place of the postset 
+        for (Place post : t.getPostset()) {
+            int token = AdamExtensions.getToken(post);
+            if (token != 0) { // jump over environment, could not appear...
+                visitedToken.add(token);
+                //pre_i=post_j'
+                sysN.andWith(codePlace(post, 1, token));
+                // top'=0
+                sysN.andWith(TOP[1][token - 1].ithVar(0));
+                // nocc'=1
+                sysN.andWith(NOCC[1][token].ithVar(1));
+                // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 
+                BDD goodchain = setGoodChainFlagForTransition(t, post, token);
+                // if !reset ->gc'=godd and reset -> gc'=0
+                sysN.andWith(reset().not().impWith(goodchain));
+                if (!getWinningCondition().getBuchiPlaces().contains(post)) {
+                    sysN.andWith(reset().andWith(TYPE[0][token - 1].ithVar(1)).impWith(GOODCHAIN[1][token].ithVar(0)));
+                } else {
+                    sysN.andWith(GOODCHAIN[1][token].ithVar(1));
                 }
             }
-
-            // set the dcs for the places in the preset
-            setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-            // Positions in dcs not set with places of pre- or postset
-            setNotAffectedPositions(all, visitedToken);
-
-            sysN.orWith(all.andWith(setOverallBad(t)));
         }
+        // set the dcs for the places in the preset
+        setPresetAndNeededZeros(pre_sys, visitedToken, sysN);
+        // Positions in dcs not set with places of pre- or postset
+        setNotAffectedPositions(sysN, visitedToken);
+        sysN.andWith(setOverallBad(t));
+
         // in not top case set the newly occupation flag of the env place to zero
-        sysN = sysN.andWith(NOCC[1][0].ithVar(0));
+        sysN.andWith(NOCC[1][0].ithVar(0));
         // keep the good chain flag for the environment, since there nothing could have changed        
         // if !reset ->gc'=gc and reset -> gc'=0
         sysN.andWith(reset().not().impWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0])));
         sysN.andWith(reset().impWith(GOODCHAIN[1][0].ithVar(0)));
-
         sysN = (top.not()).impWith(sysN);
 
         // top part
-        BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-//            // \not topi=>topi'=0
-//            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
-//            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
-//            sysT.andWith(topPart);
-            // topi'=0
-            sysT.andWith(TOP[1][i - 1].ithVar(0));
-            // type = type' todo: document anpassen
-            //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
-            // pi=pi'
-            sysT.andWith(placesEqual(i));
-            // \not topi=>(ti=ti'\wedge nocc'=0)
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0))
-                    .andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
-            // topi=> nocc'=1            
-            BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
-            sysT.andWith(impl).andWith(impl1);
-            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-//            // if !reset ->gc'=gc and reset -> gc'=0
-//            sysT.andWith(reset().not().impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
-//            sysT.andWith(reset().andWith(TYPE[0][i - 1].ithVar(1)).impWith(GOODCHAIN[1][i].ithVar(0)));
-//            // keep goodchain flag for type2
-//            sysT.andWith(TYPE[0][i - 1].ithVar(0).impWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i])));
-        }
-        // in top case just copy the newly occupation flag of the env place
-        sysT = sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
-        // in top case just copy the good chain flag of the env place
-        sysT = sysT.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
-        // in top part copy overallbad flag 
-        sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
-        sysT = top.impWith(sysT);
+        BDD sysT = top.impWith(sysTopPart());
 
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut
         sys.andWith(sysN);
         sys.andWith(sysT);
         sys.andWith(LOOP[0].ithVar(0));
         sys.andWith(LOOP[1].ithVar(0));
-
         // p0=p0'        
-        sys = sys.andWith(placesEqual(0));
-
+        sys.andWith(placesEqual(0));
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
-
         // bad states don't have succesors
         sys.andWith((wrongTypedDCS().or(ndetStates(0))).not());
-
         sys.orWith(loops());
         return sys;
     }
@@ -1605,7 +1513,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      * @return
      */
     @Override
-    public boolean hasFired(Transition t, BDD source, BDD target) {
+    @Deprecated
+    public boolean hasFiredManually(Transition t, BDD source, BDD target) {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
         if (!source.and(LOOP[0].ithVar(1)).isZero() || !source.and(OBAD[0].ithVar(1)).isZero()) {
             return false;
@@ -1620,21 +1529,20 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             return false;
         }
 
-        BDD trans = source.and(shiftFirst2Second(target));
-        if (AdamExtensions.isConcurrencyPreserving(getNet())) {
-            sys2TransitionCP(t).andWith(trans);
-        } else {
-            sys2TransitionsNotCP(t).andWith(trans);
-        }
-        if (!trans.isZero()) {
-            return true;
-        } else {
-            if(!trans.and(type2()).isZero()) {
-                return false;
-            }
-        }
+//        BDD trans = source.and(shiftFirst2Second(target));
+//        if (AdamExtensions.isConcurrencyPreserving(getNet())) {
+//            sys2TransitionCP(t).andWith(trans);
+//        } else {
+//            sys2TransitionsNotCP(t).andWith(trans);
+//        }
+//        if (!trans.isZero()) {
+//            return true;
+//        } else {
+//            if(!trans.and(type2()).isZero()) {
+//                return false;
+//            }
+//        }
         // here the preset of t is fitting the source (and the commitment set)! Do not need to test it extra
-
         // shouldn't this code do the same as the rest? but still won't fix the problem that there is the 
         // possibility that t hasn't fired because of the NOCC or the GOODCHAIN-flag
 //        System.out.println("drin");

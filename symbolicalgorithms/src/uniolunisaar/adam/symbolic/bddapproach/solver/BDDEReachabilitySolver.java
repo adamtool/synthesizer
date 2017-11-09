@@ -105,21 +105,8 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
      * @return
      */
     @Override
-    BDD sysTransitionsNotCP() {
-        BDD sys = super.sysTransitionsNotCP();
-        sys.andWith(ndetStates(0).not());
-        return sys;
-    }
-
-    /**
-     * Non-deterministic states don't have any successor. This allows to avoid
-     * non-deterministic strategies.
-     *
-     * @return
-     */
-    @Override
-    BDD sysTransitionsCP() {
-        BDD sys = super.sysTransitionsCP();
+    BDD getSystemTransitions() {
+        BDD sys = super.getSystemTransitions();
         sys.andWith(ndetStates(0).not());
         return sys;
     }
@@ -139,7 +126,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
                 state.setGood(true);
-            }            
+            }
             if (!ndetStates(0).and(state.getState()).isZero()) {
                 state.setBad(true);
             }

@@ -167,18 +167,14 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         return type2;//.andWith(getWellformed());
     }
 
-    /**
-     * Calculates a BDD representing all system2 transitions.
-     *
-     * @return BDD for all system2 transitions
-     */
-    private BDD sys2Transitions() {
-//        return sys2TransitionsNotCP();
-        if (getGame().isConcurrencyPreserving()) {
-            return sys2TransitionsCP();
-        } else {
-            return sys2TransitionsNotCP();
+    BDD getSystem2Transitions() {
+        BDD sys = getZero();
+        boolean cp = getGame().isConcurrencyPreserving();
+        for (Transition t : getGame().getSysTransition()) {
+            sys.orWith(cp ? sys2TransitionCP(t) : sys2TransitionNotCP(t));
         }
+        // no nondeterministic successors
+        return sys;//.andWith(ndet(1).not().andWith(ndet(0).not()));
     }
 
     /**
@@ -187,45 +183,38 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
      *
      * @return BDD for all system2 transitions for a concurrency preserving net.
      */
-    private BDD sys2TransitionsCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre = t.getPreset();
-            BDD all = firable(t, false, 0);
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-                BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {
-                    if (AdamExtensions.isEnvironment(place)) {
-                        throw new RuntimeException("Should not appear!"
-                                + "An enviromental place could not appear here!");
+    private BDD sys2TransitionCP(Transition t) {
+        Set<Place> pre = t.getPreset();
+        BDD sys2 = firable(t, false, 0);
+        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            BDD pl = getZero();
+            for (Place place : getGame().getPlaces()[i]) {
+                if (AdamExtensions.isEnvironment(place)) {
+                    throw new RuntimeException("Should not appear!"
+                            + "An enviromental place could not appear here!");
 //                        continue;
-                    }
-                    BDD inner = getOne();
-                    inner.andWith(codePlace(place, 0, i));
-                    if (!pre.contains(place)) {
-                        // pi=pi'
-                        inner.andWith(codePlace(place, 1, i));
-                        // ti=ti'
-                        inner.andWith(commitmentsEqual(i));
-                    } else {
-                        //pre_i=post_i'
-                        inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
-                    }
-                    pl.orWith(inner);
                 }
-                all.andWith(pl);
-                // top'=0
-                all.andWith(TOP[1][i - 1].ithVar(0));
-                // type = type'
-                all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+                BDD inner = getOne();
+                inner.andWith(codePlace(place, 0, i));
+                if (!pre.contains(place)) {
+                    // pi=pi'
+                    inner.andWith(codePlace(place, 1, i));
+                    // ti=ti'
+                    inner.andWith(commitmentsEqual(i));
+                } else {
+                    //pre_i=post_i'
+                    inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
+                }
+                pl.orWith(inner);
             }
-            sys2.orWith(all);
+            sys2.andWith(pl);
+            // top'=0
+            sys2.andWith(TOP[1][i - 1].ithVar(0));
+            // type = type'
+            sys2.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
         }
-//        System.out.println("for ende");
         // p0=p0'        
-        sys2 = sys2.andWith(placesEqual(0));
-//        System.out.println("for wellformed");
-//        return sys2;//.andWith(wellformedTransition());
+        sys2.andWith(placesEqual(0));
         return sys2;//.andWith(wellformedTransition());
     }
 
@@ -235,39 +224,29 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
      *
      * @return BDD for all system2 transitions for a concurrency preserving net.
      */
-    private BDD sys2TransitionsNotCP() {
-        BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre_sys = t.getPreset();
-            BDD all = firable(t, false, 0);
-
-            List<Integer> visitedToken = new ArrayList<>();
-
-            // set the dcs for the place of the postset 
-            for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
-                if (token != 0) { // jump over environment
-                    visitedToken.add(token);
-                    //pre_i=post_j'
-                    all.andWith(codePlace(post, 1, token));
-                    // top'=0
-                    all.andWith(TOP[1][token - 1].ithVar(0));
-                    // type = type'
-                    all.andWith(TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]));
-                } else {
-                    throw new RuntimeException("should not appear. No env place in sys2 transitions.");
-                }
+    private BDD sys2TransitionNotCP(Transition t) {
+        Set<Place> pre_sys = t.getPreset();
+        BDD sys2 = firable(t, false, 0);
+        List<Integer> visitedToken = new ArrayList<>();
+        // set the dcs for the place of the postset 
+        for (Place post : t.getPostset()) {
+            int token = AdamExtensions.getToken(post);
+            if (token != 0) { // jump over environment
+                visitedToken.add(token);
+                //pre_i=post_j'
+                sys2.andWith(codePlace(post, 1, token));
+                // top'=0
+                sys2.andWith(TOP[1][token - 1].ithVar(0));
+                // type = type'
+                sys2.andWith(TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]));
+            } else {
+                throw new RuntimeException("should not appear. No env place in sys2 transitions.");
             }
-
-            // set the dcs for the places in the preset
-            setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-            // Positions in dcs not set with places of pre- or postset
-            setNotAffectedPositions(all, visitedToken);
-            sys2.orWith(all);
         }
-//            Tools.printDecodedDecisionSets(sys2, game, true);
-//        System.out.println("for ende");
+        // set the dcs for the places in the preset
+        setPresetAndNeededZeros(pre_sys, visitedToken, sys2);
+        // Positions in dcs not set with places of pre- or postset
+        setNotAffectedPositions(sys2, visitedToken);
         // p0=p0'        
         sys2.andWith(placesEqual(0));
 //        System.out.println("for wellformed");
@@ -500,86 +479,6 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
     }
 
     @Override
-    BDD envTransitionsCP() {
-        BDD env = getMcut();
-        BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
-                Set<Place> pre_sys = t.getPreset();
-                BDD all = firable(t, true, 0);
-                // Systempart
-                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-                    BDD pl = getZero();
-                    for (Place place : getGame().getPlaces()[i]) {
-                        if (AdamExtensions.isEnvironment(place)) {
-                            throw new RuntimeException("Should not appear!"
-                                    + "An enviromental place could not appear here!");
-                            //                            continue;
-                        }
-                        BDD inner = getOne();
-                        inner.andWith(codePlace(place, 0, i));
-                        if (!pre_sys.contains(place)) {
-                            // pi=pi'
-                            inner.andWith(codePlace(place, 1, i));
-                            // ti=ti'
-                            inner.andWith(commitmentsEqual(i));
-                            // top'=0
-                            inner.andWith(TOP[1][i - 1].ithVar(0));
-                            // type = type'
-                            inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
-                        } else {
-                            Place postPlace = getSuitableSuccessor(place, t);
-                            //pre_i=post_i'
-                            inner.andWith(codePlace(postPlace, 1, i));
-                            // top'=1
-                            inner.andWith(TOP[1][i - 1].ithVar(1));
-                            // type'=1 (only allow to choose a new type after resolving top
-                            all.andWith(TYPE[1][i - 1].ithVar(1));
-                            // all t_i'=0
-                            inner.andWith(nothingChosen(1, i));
-                        }
-                        pl.orWith(inner);
-                    }
-                    all.andWith(pl);
-                }
-                // Environmentpart                
-                // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
-                if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-                    all.andWith(codePlace(pre.get(0), 0, 0));
-                } else {
-                    all.andWith(codePlace(0, 0, 0));
-                }
-                if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-                    all.andWith(codePlace(post.get(0), 1, 0));
-                } else {
-                    all.andWith(codePlace(0, 1, 0));
-                };
-//                if (t.getId().equals("t3")) {
-//                    System.out.println("transition " + t);
-//                    BDDTools.printDecisionSets(all, true);
-//                    BDDTools.printDecodedDecisionSets(all, this, true);
-//                }
-                dis.orWith(all);
-            }
-        }
-        env.andWith(dis);
-//        env.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
-//        System.out.println("%%%%%%%%%%%%%%%%%%%%%");
-//        BDDTools.printDecisionSets(env,true);
-//        BDDTools.printDecodedDecisionSets(env, this, true);       
-        // env.andWith(wellformed(1));//.andWith(wellformedTransition()));
-//        
-//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@ type2");
-//        BDDTools.printDecodedDecisionSets(getBufferedType2Trap(), this, true);
-//        BDDTools.printDecisionSets(getBufferedType2Trap(), true);
-        // bad states don't have succesors
-        env.andWith(badStates().not());
-        return env;
-    }
-
-    @Override
     BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(TYPE[pos][token - 1].ithVar(0));
@@ -615,107 +514,92 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
     }
 
     @Override
-    BDD envTransitionsNotCP() {
-        BDD mcut = getMcut();
-        BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
-                Set<Place> pre_sys = t.getPreset();
-                BDD all = firable(t, true, 0);
-
-                List<Integer> visitedToken = new ArrayList<>();
-
-                // set the dcs for the place of the postset 
-                for (Place post : t.getPostset()) {
-                    int token = AdamExtensions.getToken(post);
-                    if (token != 0) { // jump over environment
-                        visitedToken.add(token);
-                        //pre_i=post_j'
-                        all.andWith(codePlace(post, 1, token));
-                        // top'=1
-                        all.andWith(TOP[1][token - 1].ithVar(1));
-                        // type'=1 (only allow to choose a new type after resolving top
-                        all.andWith(TYPE[1][token - 1].ithVar(1));
-                        // all t_i'=0
-                        all.andWith(nothingChosen(1, token));
-                    }
-                }
-
-                // set the dcs for the places in the preset
-                setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-                // --------------------------
-                // Positions in dcs not set with places of pre- or postset
-                setNotAffectedPositions(all, visitedToken);
-
-                // --------------------------
-                // Environmentpart
-                // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
-                if (!pre.isEmpty()) {
-                    all.andWith(codePlace(pre.get(0), 0, 0));
-                } else {
-                    all.andWith(codePlace(0, 0, 0));
-                }
-                if (!post.isEmpty()) {
-                    all.andWith(codePlace(post.get(0), 1, 0));
-                } else {
-                    all.andWith(codePlace(0, 1, 0));
-                }
-                dis.orWith(all);
-            }
-        }
-
-        mcut.andWith(dis);
-        // bad states don't have succesors
-        mcut.andWith(badStates().not());
-        return mcut;//.andWith(wellformed(1));//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
-    }
-
-    @Override
-    BDD sysTransitionsCP() {
-        // Only useable if it's not an mcut
-        BDD sys1 = getMcut().not();
-        // no successors for bad states
-        sys1.andWith(badSysDCS().not());
-
-        // not all tops are zero
-        BDD top = getTop();
-
-        // normal part
-        BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre = t.getPreset();
+    BDD envTransitionCP(Transition t) {
+        if (!getGame().getSysTransition().contains(t)) {
+            Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, true, 0);
+            // Systempart
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                for (Place place : getGame().getPlaces()[i]) {
+                    if (AdamExtensions.isEnvironment(place)) {
+                        throw new RuntimeException("Should not appear!"
+                                + "An enviromental place could not appear here!");
+                        //                            continue;
+                    }
                     BDD inner = getOne();
                     inner.andWith(codePlace(place, 0, i));
-                    if (!pre.contains(place)) {
+                    if (!pre_sys.contains(place)) {
                         // pi=pi'
                         inner.andWith(codePlace(place, 1, i));
                         // ti=ti'
                         inner.andWith(commitmentsEqual(i));
+                        // top'=0
+                        inner.andWith(TOP[1][i - 1].ithVar(0));
                         // type = type'
-//                        inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
+                        inner.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]));
                     } else {
+                        Place postPlace = getSuitableSuccessor(place, t);
                         //pre_i=post_i'
-                        inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
+                        inner.andWith(codePlace(postPlace, 1, i));
+                        // top'=1
+                        inner.andWith(TOP[1][i - 1].ithVar(1));
+                        // type'=1 (only allow to choose a new type after resolving top
+                        all.andWith(TYPE[1][i - 1].ithVar(1));
+                        // all t_i'=0
+                        inner.andWith(nothingChosen(1, i));
                     }
                     pl.orWith(inner);
                 }
                 all.andWith(pl);
-                // top'=0
-                all.andWith(TOP[1][i - 1].ithVar(0));
-                // type = type' I can't say anothing about if it is still type2
-//                all.andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])); // todo: changed
             }
-            sysN.orWith(all);
+            // Environmentpart                
+            all.andWith(envPart(t));
+            // bad states don't have succesors
+            all.andWith(badStates().not());
+            return all;
         }
-        sysN = (top.not()).impWith(sysN);
+        return getZero();
+    }
 
+    @Override
+    BDD envTransitionNotCP(Transition t) {
+        if (!getGame().getSysTransition().contains(t)) {
+            Set<Place> pre_sys = t.getPreset();
+            BDD all = firable(t, true, 0);
+            List<Integer> visitedToken = new ArrayList<>();
+            // set the dcs for the place of the postset 
+            for (Place post : t.getPostset()) {
+                int token = AdamExtensions.getToken(post);
+                if (token != 0) { // jump over environment
+                    visitedToken.add(token);
+                    //pre_i=post_j'
+                    all.andWith(codePlace(post, 1, token));
+                    // top'=1
+                    all.andWith(TOP[1][token - 1].ithVar(1));
+                    // type'=1 (only allow to choose a new type after resolving top
+                    all.andWith(TYPE[1][token - 1].ithVar(1));
+                    // all t_i'=0
+                    all.andWith(nothingChosen(1, token));
+                }
+            }
+            // set the dcs for the places in the preset
+            setPresetAndNeededZeros(pre_sys, visitedToken, all);
+            // --------------------------
+            // Positions in dcs not set with places of pre- or postset
+            setNotAffectedPositions(all, visitedToken);
+            // --------------------------
+            // Environmentpart
+            all.andWith(envPart(t));
+            // bad states don't have succesors
+            all.andWith(badStates().not());
+            return all;
+        }
+        return getZero();
+    }
+
+    @Override
+    BDD sysTopPart() {
         // top part
         BDD sysT = getOne();
         for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
@@ -733,118 +617,33 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
             sysT.andWith(impl);
         }
-        sysT = top.impWith(sysT);
+        return sysT;
+    }
 
-        sys1.andWith(sysN);
-        sys1.andWith(sysT);
-        // p0=p0'        
-        sys1 = sys1.andWith(placesEqual(0));
-
+    @Override
+    BDD sysTransitionCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut        
+        BDD sys1 = super.sysTransitionCP(t);
         // bad states don't have succesors
         sys1.andWith(badStates().not());
-
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
 
     @Override
-    BDD sysTransitionsNotCP() {
-        // Only useable if it's not an mcut
-        BDD sys1 = getMcut().not();
-        // no successors for already reached states
-//        sys1.andWith(reach(0).not());
-
-        // not all tops are zero
-        BDD top = getTop();
-
-        // normal part        
-        BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
-            Set<Place> pre_sys = t.getPreset();
-            BDD all = firable(t, 0);
-
-            List<Integer> visitedToken = new ArrayList<>();
-
-            // set the dcs for the place of the postset 
-            for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
-                if (token != 0) { // jump over environment, could not appear...
-                    visitedToken.add(token);
-                    //pre_i=post_j'
-                    all.andWith(codePlace(post, 1, token));
-                    // top'=0
-                    all.andWith(TOP[1][token - 1].ithVar(0));
-                    // predecessor was set -> type = type'
-//                    BDD typeEQ = TYPE[0][token - 1].buildEquals(TYPE[1][token - 1]);
-//                    all.andWith(codePlace(0, 0, token).not().impWith(typeEQ)); // todo: changed
-                }
-            }
-
-            // set the dcs for the places in the preset
-            setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
-            // Positions in dcs not set with places of pre- or postset
-            setNotAffectedPositions(all, visitedToken);
-
-//            if(t.getId().equals("t2")){
-//                System.out.println("t2 succesors");
-//                BDDTools.printDecisionSets(all, true);
-//                BDDTools.printDecodedDecisionSets(all, this, true);
-//                System.out.println("t2 finished");
-//            }
-            sysN.orWith(all);
-        }
-//        System.out.println("sysN");
-//        BDDTools.printDecodedDecisionSets(sysN, this, true);
-//        System.out.println("end sysN");
-
-        sysN = (top.not()).impWith(sysN);
-
-        // top part
-        BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
-//            // \not topi=>topi'=0
-//            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
-//            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
-//            sysT.andWith(topPart);
-            // topi'=0
-            sysT.andWith(TOP[1][i - 1].ithVar(0));
-            // type = type' todo: document anpassen
-            //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
-            // pi=pi'
-            sysT.andWith(placesEqual(i));
-            // \not topi=>ti=ti'\wedge type=type'
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
-            sysT.andWith(impl);
-        }
-        sysT = top.impWith(sysT);
-
-        sys1.andWith(sysN);
-        sys1.andWith(sysT);
-        // p0=p0'        
-        sys1 = sys1.andWith(placesEqual(0));
-
-//        Place r = getNet().getPlace("r");
-//        Place q = getNet().getPlace("q");
-//        Place p = getNet().getPlace("p");
-////        Place env = getNet().getPlace("ENV");
-//        Place env = getNet().getPlace("env1");
-//        BDD output = sys1.and(codePlace(r, 0, AdamExtensions.getToken(r)));
-//        output.andWith(codePlace(q, 0, AdamExtensions.getToken(q)));
-//        output.andWith(codePlace(p, 0, AdamExtensions.getToken(p)));
-//        output.andWith(codePlace(env, 0, 0));
-////        output.andWith(codePlace(env,0,0).not());
-//        output.andWith(TYPE[0][AdamExtensions.getToken(r) - 1].ithVar(1));
-//        output.andWith(TOP[0][AdamExtensions.getToken(r) - 1].ithVar(0));
-//        output.andWith(TYPE[0][AdamExtensions.getToken(q) - 1].ithVar(1));
-//        output.andWith(TOP[0][AdamExtensions.getToken(q) - 1].ithVar(0));
-//        output.andWith(TYPE[0][AdamExtensions.getToken(p) - 1].ithVar(1));
-////        output.andWith(TOP[0][AdamExtensions.getToken(p) - 1].ithVar(0));
-//        BDDTools.printDecodedDecisionSets(output, this, true);
-//TODO: mache den oldtype stuff
+    BDD sysTransitionNotCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut        
+        BDD sys1 = super.sysTransitionNotCP(t);
         // bad states don't have succesors
         sys1.andWith(badStates().not());
-        return sys1;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
+//        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
+        return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
 
 //    @Override
@@ -1012,7 +811,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
 
     BDD getBufferedSystem2Transition() {
         if (system2 == null) {
-            system2 = sys2Transitions();
+            system2 = getSystem2Transitions();
         }
         return system2;
 //        return sys2Transitions();

@@ -29,6 +29,9 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * Currently I don't see any possibilty to get a universal buchi solver without
+ * a type2 strategy calculated separately.
+ * 
  * Todo: adapt all javadoc just copied of existiential buchi
  *
  * Problem what to do with the non-deterministic states? Already a fixed-point
@@ -46,6 +49,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
+@Deprecated
 public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
@@ -359,7 +363,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         return OBAD[1].ithVar(0);
     }
 
-    @Override
+//    @Override
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
@@ -492,7 +496,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         }
     }
 
-    @Override
+//    @Override
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
@@ -577,7 +581,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         return mcut;//.andWith(wellformedTransition());//.andWith(oldType2());//.andWith(wellformedTransition()));
     }
 
-    @Override
+//    @Override
     BDD sysTransitionsCP() {
         // Only useable if it's not an mcut
         BDD sys = getMcut().not();
@@ -670,7 +674,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         return sys.andWith(ndetStates(0).not());
     }
 
-    @Override
+//    @Override
     BDD sysTransitionsNotCP() {
         // Only useable if it's not an mcut
         BDD sys = getMcut().not();
@@ -991,7 +995,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * @return
      */
     @Override
-    public boolean hasFired(Transition t, BDD source, BDD target) {
+    public boolean hasFiredManually(Transition t, BDD source, BDD target) {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
         if (!source.and(LOOP[0].ithVar(1)).isZero() || !source.and(OBAD[0].ithVar(1)).isZero()) {
             return false;

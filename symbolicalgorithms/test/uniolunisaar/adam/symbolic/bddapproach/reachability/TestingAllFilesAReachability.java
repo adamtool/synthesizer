@@ -57,8 +57,8 @@ public class TestingAllFilesAReachability {
             "overallBad0.apt",
             "newLateChain.apt",
             "newLateToken1.apt",
-            "twoDecisions1.apt"
-                   
+            "twoDecisions1.apt",
+            "infiniteFlowChains2.apt"                   
     ));
     private static final List<String> skip = new ArrayList<>(   
 //                  Arrays.asList(

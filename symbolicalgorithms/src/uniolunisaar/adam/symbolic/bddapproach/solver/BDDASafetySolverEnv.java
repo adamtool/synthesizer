@@ -19,11 +19,11 @@ import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
 /**
- * Problem ist hier habe ich nur die Gewinnregion um mit der Umgebung die aus
- * Systemsicht schlechten Situationen zu erreichen. Daraus
+ * Never really finished
  *
  * @author Manuel Gieseking
  */
+@Deprecated
 public class BDDASafetySolverEnv extends BDDSolver<Safety> {
 
     /**

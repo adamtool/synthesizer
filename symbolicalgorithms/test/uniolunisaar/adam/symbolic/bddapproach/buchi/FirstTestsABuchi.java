@@ -75,7 +75,7 @@ public class FirstTestsABuchi {
 //        testToyExamples("oneTokenMultiChains2", true);
 //        testToyExamples("oneTokenMultiChains3", false);
 //        testToyExamples("oneTokenMultiChains4", false);
-//        testToyExamples("oneTokenMultiChains5", false);
+//        testToyExamples("oneTokenMultiChains5", true); // infinite token chains
 //        testToyExamples("oneTokenMultiChains6", false);
     }
 //

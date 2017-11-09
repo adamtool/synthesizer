@@ -43,10 +43,13 @@ public class TestingAllFilesABuchi {
             "oneTokenMultiChains0.apt",
             "oneTokenMultiChains3.apt",
             "oneTokenMultiChains4.apt",
-            "oneTokenMultiChains5.apt",
+//            "oneTokenMultiChains5.apt", infinitely many token chains
             "oneTokenMultiChains6.apt",
             "infiniteChains1.apt",
-            "type2_0.apt"
+            "type2_0.apt",
+            "myexample11.apt",
+            "myexample12.apt",
+            "myexample21.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
 //            "myexample1.apt", // should have a strategy, but no system place
