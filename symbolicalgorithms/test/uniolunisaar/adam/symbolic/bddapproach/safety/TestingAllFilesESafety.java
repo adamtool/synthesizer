@@ -48,7 +48,8 @@ public class TestingAllFilesESafety {
             "oneTransitionEnv1.apt",
             "escape11.apt",
             "infiniteBad.apt",
-            "infflowchains.apt"
+            "infflowchains.apt",
+            "infflowchains2.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair7.apt", // two env token

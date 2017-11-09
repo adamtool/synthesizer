@@ -1010,6 +1010,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
+        List<Integer> usedToken = new ArrayList<>();
         Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
         // Environment place
         // todo: one environment token case
@@ -1017,7 +1018,9 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         BDD restTarget = target.id();
         if (!post.getFirst().isEmpty()) {
             manTarget.andWith(codePlace(post.getFirst().get(0), 0, 0));
+            manTarget.andWith(NOCC[0][0].ithVar(1));
             restTarget = restTarget.exist(getTokenVariables(0, 0));
+            usedToken.add(0);
         }
 
         // System places        
@@ -1026,7 +1029,15 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         for (Place p : postSys) {
             int token = AdamExtensions.getToken(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
+            if (post.getFirst().isEmpty()) { // single system transition
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(0));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(1));
+            } else {
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(1));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(0));
+            }
             restTarget = restTarget.exist(getTokenVariables(0, token));
+            usedToken.add(token);
         }
         manTarget.andWith(sysPlacesTarget);
 
@@ -1050,9 +1061,12 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
         // The flag indication that the place is newly occupied, may have changed
         for (int i = 0; i < getGame().getMaxTokenCountInt(); i++) {
-            restSource = restSource.exist(NOCC[0][i].set());
+            if (!usedToken.contains(i)) {
+                restSource = restSource.exist(NOCC[0][i].set());
+                restTarget.andWith(NOCC[0][i].ithVar(0));
+            }
             restTarget = restTarget.exist(NOCC[0][i].set());
-            restSource = restSource.exist(GOODCHAIN[0][i].set());
+//            restSource = restSource.exist(GOODCHAIN[0][i].set());
             restTarget = restTarget.exist(GOODCHAIN[0][i].set());
         }
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%

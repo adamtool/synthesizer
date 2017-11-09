@@ -48,7 +48,8 @@ public class TestingAllFilesEReachability {
             "notReachable.apt",
             "unfair.apt",
             "nondetNoStrat",// should have no strategy, builds one voilating S3
-            "nondet2.apt"// should have no strategy, builds one voilating S3
+            "nondet2.apt",// should have no strategy, builds one voilating S3,
+            "twoDecisions1.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair2.apt" // has two env token

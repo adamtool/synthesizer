@@ -1,5 +1,6 @@
 package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDType2Solver;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
 /**
  * @author Manuel Gieseking
@@ -63,36 +65,107 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         // reach other type2-places, but its also a valid strategy to let them stuck there, because we can play
         // infinitely long on our own.
         if (firstType2State && sol.isType2(prevState.getState())) {
+            System.out.println("add special" + prevMarking.toString());
             BDD succs = sol.getSystem2SuccTransitions(prevState.getState());
             // is there a firable transition ?
             if (!succs.isZero()) {
-                succs = sol.getGoodType2Succs(succs);
+                succs = sol.getGoodType2Succs(succs); // find a good one
                 List<Transition> usedTransitions = new ArrayList<>();
                 while (!succs.isZero()) {
-                    if (!succs.isZero()) {
-                        BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
+//                    if (!succs.isZero()) {
+                    BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
 //                System.out.println("succ");
 //                BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
-                        List<Transition> trans = solver.getAllTransitions(prevState.getState(), succ);
-//                Transition t = solver.getTransition(state, succ);
-                        for (Transition t : trans) {
-                            if (usedTransitions.contains(t)) {
-                                continue;
-                            }
-                            System.out.println(t);
-                            usedTransitions.add(t);
-                            visitedType2Markings = new HashMap<>();
-                            type2Step(sol, strategy, prevState.getState(), new ArrayList<>(prevMarking), t);
-                        }
+//                        List<Transition> trans = solver.getAllTransitions(prevState.getState(), succ);
+                    Transition t = solver.getTransition(prevState.getState(), succ);
+//                        for (Transition t : trans) {
+//                        if (usedTransitions.contains(t)) {
+//                            continue;
+//                        }
+                    if (t == null || usedTransitions.contains(t)) {
                         succs = succs.andWith(succ.not());
+                        continue;
                     }
+
+                    BDDTools.printDecodedDecisionSets(prevState.getState(), (BDDSolver) solver, true);
+                    System.out.println(" outer " + t);
+                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+//                        usedTransitions.add(t);
+//                    visitedType2Markings = new HashMap<>();
+//                    type2Step(sol, strategy, prevState.getState(), new ArrayList<>(prevMarking));
+                    addType2Strat(sol, strategy, prevState.getState(), succ, t, new ArrayList<>(prevMarking));
+//                        }
+                    usedTransitions.add(t);
+                    succs = succs.andWith(succ.not());
+//                    }
                 }
             }
             firstType2State = false;
         }
     }
 
-    private void type2Step(BDDType2Solver solver, PetriNet strategy, BDD state, List<Place> marking, Transition t) {
+    private boolean addNewSuccessor(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
+        Transition strat_t = strategy.createTransition();
+        strat_t.setLabel(t.getId());
+        // add preset edges
+        for (Place p : t.getPreset()) {
+            Place place = getSuitablePredecessor(p.getId(), prevMarking);
+            strategy.createFlow(place, strat_t);
+            prevMarking.remove(place);
+        }
+
+        if (visitedStates.containsKey(succ)) {
+            for (Place p : t.getPostset()) {
+                Place place = getSuitablePredecessor(p.getId(), visitedStates.get(succ));
+                strategy.createFlow(strat_t, place);
+            }
+            return false;
+        } else {
+            for (Place p : t.getPostset()) {
+                Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
+                AdamExtensions.setOrigID(strat_p, p.getId());
+                strat_p.copyExtensions(p);
+                strategy.createFlow(strat_t, strat_p);
+                prevMarking.add(strat_p);
+            }
+            return true;
+        }
+    }
+
+    private void addType2Strat(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
+        Map<BDD, List<Place>> visitedStates = new HashMap<>();
+        visitedStates.put(prev, new ArrayList<>(prevMarking));
+
+        // Add first successor
+        boolean newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
+        visitedStates.put(succ, new ArrayList<>(prevMarking));
+        while (newOne) { // as long as new successors had been added
+            prev = succ;
+            // find a suitable new one
+            BDD succs = solver.getSystem2SuccTransitions(prev);
+            // is there any firable transition ?
+            if (!succs.isZero()) {
+                // is there a good one?
+                succs = solver.getGoodType2Succs(succs);
+                while (!succs.isZero()) { // search as long as you found a good one (since not all BDD are uniquely solvable (not all flags are set to everytime for type2 transitions :$)
+                    succ = succs.satOne(solver.getFirstBDDVariables(), false);
+                    t = solver.getTransition(prev, succ);
+                    if (t == null) {
+                        succs = succs.andWith(succ.not());
+                        continue;
+                    }
+                    BDDTools.printDecodedDecisionSets(prev, (BDDSolver) solver, true);
+                    System.out.println(" inner " + t);
+                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+                    newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
+                    visitedStates.put(succ, new ArrayList<>(prevMarking));
+                    break;// found one
+                }
+            }
+        }
+    }
+
+    private void type2Step(BDDType2Solver solver, PetriNet strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");
@@ -103,60 +176,68 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
             succs = solver.getGoodType2Succs(succs);
 
 //            List<Transition> usedTransitions = new ArrayList<>();
-//            while (!succs.isZero()) {
-            if (!succs.isZero()) {
+            while (!succs.isZero()) {
+                if (!succs.isZero()) {
 // todo: the same?               
-                BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
+                    BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
 //                System.out.println("succ");
 //                BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
 // todo: if fullSatOne used, then chosed bad one, should take one till got a good
-                // one ... (the same by all the others)
+                    // one ... (the same by all the others)
 //                BDD succ = succs.fullSatOne();
 
 //                List<Transition> trans = solver.getAllTransitions(state, succ);
-                if (t == null) {
-                    t = solver.getTransition(state, succ);
-                }
+//                if (t == null) {
+                    Transition t = solver.getTransition(state, succ);
+                    if (t == null) {
+                        succs = succs.andWith(succ.not());
+                        continue;
+                    }
+//                }
 //                for (Transition t : trans) {
 //                List<Place> m = new ArrayList<>(marking);
-//                    System.out.println(t);
+//
+//                    BDDTools.printDecodedDecisionSets(state, (BDDSolver) solver, true);
+//                    System.out.println(" inner " + t);
+//                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
 //                    if (usedTransitions.contains(t)) {
 //                        succs = succs.andWith(succ.not());
 //                        continue;
 //                    }
 //                    usedTransitions.add(t);
-                Transition strat_t = strategy.createTransition();
-                strat_t.setLabel(t.getId());
-                // add preset edges
-                for (Place p : t.getPreset()) {
-                    Place place = getSuitablePredecessor(p.getId(), marking);
-                    strategy.createFlow(place, strat_t);
-                    marking.remove(place);
-                }
+                    Transition strat_t = strategy.createTransition();
+                    strat_t.setLabel(t.getId());
+                    // add preset edges
+                    for (Place p : t.getPreset()) {
+                        Place place = getSuitablePredecessor(p.getId(), marking);
+                        strategy.createFlow(place, strat_t);
+                        marking.remove(place);
+                    }
 //                System.out.println("from");
 //                Tools.printDecodedDecisionSets(state, game, true);
 //
 //                System.out.println("to");
 //                Tools.printDecodedDecisionSets(succ, game, true);
 
-                if (visitedType2Markings.containsKey(succ)) {
-                    for (Place p : t.getPostset()) {
-                        Place place = getSuitablePredecessor(p.getId(), visitedType2Markings.get(succ));
-                        strategy.createFlow(strat_t, place);
+                    if (visitedType2Markings.containsKey(succ)) {
+                        for (Place p : t.getPostset()) {
+                            Place place = getSuitablePredecessor(p.getId(), visitedType2Markings.get(succ));
+                            strategy.createFlow(strat_t, place);
+                        }
+                        break;
+                    } else {
+                        for (Place p : t.getPostset()) {
+                            Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
+                            AdamExtensions.setOrigID(strat_p, p.getId());
+                            strat_p.copyExtensions(p);
+                            strategy.createFlow(strat_t, strat_p);
+                            marking.add(strat_p);
+                        }
+                        type2Step(solver, strategy, succ, new ArrayList<>(marking));
                     }
-//                    break;
-                } else {
-                    for (Place p : t.getPostset()) {
-                        Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
-                        AdamExtensions.setOrigID(strat_p, p.getId());
-                        strat_p.copyExtensions(p);
-                        strategy.createFlow(strat_t, strat_p);
-                        marking.add(strat_p);
-                    }
-                    type2Step(solver, strategy, succ, new ArrayList<>(marking), null);
-                }
 
 //                succs = succs.andWith(succ.not());
+                }
             }
         } else {
             System.out.println("Nothing fireable in type2 place");

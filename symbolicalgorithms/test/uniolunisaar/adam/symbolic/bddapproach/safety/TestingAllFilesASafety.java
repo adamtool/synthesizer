@@ -54,9 +54,10 @@ public class TestingAllFilesASafety {
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
             "envSkipsSys.apt",
-            "robots_false.apt"));
+            "robots_false.apt",
+            "myexample4.apt"));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
-//            "container.apt", // takes to long ... 
+            //            "container.apt", // takes to long ... 
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token

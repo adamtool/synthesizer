@@ -774,7 +774,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;
         }
-        
+
         if (!isFirable(t, source)) {
             return false;
         }
@@ -784,13 +784,16 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
         Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
+        List<Integer> usedToken = new ArrayList<>();
         // Environment place
         // todo: one environment token case
         BDD manTarget = getOne();
         BDD restTarget = target.id();
         if (!post.getFirst().isEmpty()) {
             manTarget.andWith(codePlace(post.getFirst().get(0), 0, 0));
+            manTarget.andWith(NOCC[0][0].ithVar(1));
             restTarget = restTarget.exist(getTokenVariables(0, 0));
+            usedToken.add(0);
         }
 
         // System places        
@@ -799,7 +802,15 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         for (Place p : postSys) {
             int token = AdamExtensions.getToken(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
+            if (post.getFirst().isEmpty()) { // single system transition
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(0));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(1));
+            } else {
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(1));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(0));
+            }
             restTarget = restTarget.exist(getTokenVariables(0, token));
+            usedToken.add(token);
         }
         manTarget.andWith(sysPlacesTarget);
 
@@ -823,8 +834,10 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
         // The flag indication that the place is newly occupied, may have changed
         for (int i = 0; i < getGame().getMaxTokenCountInt(); i++) {
-            restSource = restSource.exist(NOCC[0][i].set());
-            restTarget = restTarget.exist(NOCC[0][i].set());
+            if (!usedToken.contains(i)) {
+                restSource = restSource.exist(NOCC[0][i].set());
+                restTarget.andWith(NOCC[0][i].ithVar(0));
+            }
         }
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
 
