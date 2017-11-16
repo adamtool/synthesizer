@@ -61,6 +61,11 @@ public class TestingSomeFilesESafety {
     }
 
     @Test(enabled = true)
+    public void testInfiniteBadWithEscape() throws Exception {
+        testToy("infiniteBadWithEscape", true);
+    }
+
+    @Test(enabled = true)
     public void testInfFlowChains() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
 //        Logger.getInstance().setVerbose(true);
