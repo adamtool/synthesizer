@@ -230,7 +230,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         List<Integer> visitedToken = new ArrayList<>();
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getToken(post);
+            int token = AdamExtensions.getPartition(post);
             if (token != 0) { // jump over environment
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -334,7 +334,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
     private BDD baddcs(int pos) {
         BDD bad = getZero();
         for (Place place : getWinningCondition().getBadPlaces()) {
-            bad.orWith(codePlace(place, pos, AdamExtensions.getToken(place)));
+            bad.orWith(codePlace(place, pos, AdamExtensions.getPartition(place)));
         }
         return bad;
     }
@@ -500,7 +500,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         for (Place place : t.getPreset()) {
             if (!AdamExtensions.isEnvironment(place)) {
                 // Sys places
-                int token = AdamExtensions.getToken(place);
+                int token = AdamExtensions.getPartition(place);
                 BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
                 en.andWith(type);
             }
@@ -609,7 +609,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
             List<Integer> visitedToken = new ArrayList<>();
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
+                int token = AdamExtensions.getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'

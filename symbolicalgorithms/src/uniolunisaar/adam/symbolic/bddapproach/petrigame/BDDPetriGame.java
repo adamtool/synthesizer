@@ -155,7 +155,7 @@ public class BDDPetriGame extends PetriGame {
             }
             int additional = (isConcurrencyPreserving()) ? 0 : 1;
             for (Place place : getNet().getPlaces()) {
-                int token = AdamExtensions.getToken(place);
+                int token = AdamExtensions.getPartition(place);
                 if (places[token] == null) {
                     places[token] = new HashSet<>();
                 }

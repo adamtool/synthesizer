@@ -60,7 +60,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     private BDD reach() {
         BDD reach = getZero();
         for (Place place : getWinningCondition().getPlaces2Reach()) {
-            reach.orWith(codePlace(place, 0, AdamExtensions.getToken(place)));
+            reach.orWith(codePlace(place, 0, AdamExtensions.getPartition(place)));
         }
         return reach;
     }

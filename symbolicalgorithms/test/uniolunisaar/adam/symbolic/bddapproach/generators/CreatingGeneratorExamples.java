@@ -130,6 +130,7 @@ public class CreatingGeneratorExamples {
     @Test
     public void testARouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testARouting(2, 2, true);
+        testAReRouting(2, 2, true);
     }
 
     private void testPhilosophersGuided(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
@@ -270,5 +271,26 @@ public class CreatingGeneratorExamples {
         Tools.saveFile(path + name + "_g.tex", gtikz);
         Tools.saveFile(path + name + "_gg.tex", ggtikz);
         Tools.saveFile(path + name + "_pg.tex", pgtikz);
+    }
+
+    private void testAReRouting(int nb_routings, int nb_cars, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "routing" + File.separator;
+        String name = "ARErouting_" + nb_routings + "_cars_" + nb_cars;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate routing...");
+        PetriNet pn = CarRouting.createAReachabilityVersionWithRerouting(nb_routings, nb_cars, true);
+        AdamTools.savePN(path + name, pn, true, true);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        BDDGraph gg = solv.getGraphGame();
+//        BDDTools.saveGraph2PDF(path + name + "_graphgame", gg, solv);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+//        Pair<BDDGraph, PetriNet> strats = solv.getStrategies();
+//        String gtikz = BDDTools.graph2Tikz(strats.getFirst(), solv);
+//        String ggtikz = BDDTools.graph2Tikz(gg, solv);
+//        String pgtikz = AdamTools.pg2Tikz(strats.getSecond());
+//        Tools.saveFile(path + name + "_g.tex", gtikz);
+//        Tools.saveFile(path + name + "_gg.tex", ggtikz);
+//        Tools.saveFile(path + name + "_pg.tex", pgtikz);
     }
 }

@@ -395,7 +395,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getToken(post);
+            int token = AdamExtensions.getPartition(post);
             if (token != 0) { // jump over environment
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -770,7 +770,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //                System.out.println(tokenFlow);
                 for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
-                    int preToken = AdamExtensions.getToken(p);
+                    int preToken = AdamExtensions.getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
@@ -794,7 +794,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 }
             }
             if (!hasFlow) {
-                int token = AdamExtensions.getToken(p);
+                int token = AdamExtensions.getPartition(p);
                 BDD preBad = codePlace(p, 0, token);
                 preBad.andWith(GOODCHAIN[0][token].ithVar(0));
                 BDD ret = preBad.impWith(OBAD[1].ithVar(1));
@@ -976,7 +976,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             List<Integer> visitedToken = new ArrayList<>();
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
+                int token = AdamExtensions.getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -1176,7 +1176,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getToken(post);
+            int token = AdamExtensions.getPartition(post);
             if (token != 0) { // jump over environment, could not appear...
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -1255,7 +1255,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         for (Place place : t.getPreset()) {
             if (!AdamExtensions.isEnvironment(place)) {
                 // Sys places
-                int token = AdamExtensions.getToken(place);
+                int token = AdamExtensions.getPartition(place);
                 BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
                 en.andWith(type);
             }
@@ -1581,7 +1581,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = AdamExtensions.getToken(p);
+            int token = AdamExtensions.getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             if (post.getFirst().isEmpty()) { // single system transition
                 sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(0));
@@ -1609,7 +1609,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getToken(p)));
+            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getPartition(p)));
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%

@@ -50,7 +50,9 @@ public class TestingAllFilesESafety {
             "escape11.apt",
             "infiniteBad.apt",
             "infflowchains.apt", // creates infinitely many flow chains
-            "infflowchains2.apt"
+            "infflowchains2.apt",
+            "multipleFlowChains2.apt",
+            "multipleFlowChains7.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair7.apt", // two env token

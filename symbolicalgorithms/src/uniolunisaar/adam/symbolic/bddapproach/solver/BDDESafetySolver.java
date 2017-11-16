@@ -144,7 +144,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-//        ret.andWith(term(0));
+        ret.andWith(term(0));
         ret = ret.or(getBufferedNDet());
         ret.orWith(deadSysDCS(0));
         return ret;
@@ -231,7 +231,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 //                System.out.println(tokenFlow);
                 for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
-                    int preToken = AdamExtensions.getToken(p);
+                    int preToken = AdamExtensions.getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
@@ -282,7 +282,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
                 }
             }
             if (!hasFlow) {
-                int token = AdamExtensions.getToken(p);
+                int token = AdamExtensions.getPartition(p);
                 BDD preBad = codePlace(p, 0, token);
                 preBad.andWith(GOODCHAIN[0][token].ithVar(0));
                 BDD ret = preBad.impWith(OBAD[1].ithVar(1));
@@ -439,7 +439,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getToken(post);
+                int token = AdamExtensions.getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -570,7 +570,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         List<Integer> visitedToken = new ArrayList<>();
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getToken(post);
+            int token = AdamExtensions.getPartition(post);
             if (token != 0) { // jump over environment, could not appear...
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -785,7 +785,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = AdamExtensions.getToken(p);
+            int token = AdamExtensions.getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             restTarget = restTarget.exist(getTokenVariables(0, token));
         }
@@ -805,7 +805,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getToken(p)));
+            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getPartition(p)));
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%

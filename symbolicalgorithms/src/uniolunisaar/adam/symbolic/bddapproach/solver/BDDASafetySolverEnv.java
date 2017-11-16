@@ -87,7 +87,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
     private BDD badPlaces() {
         BDD reach = getZero();
         for (Place place : getWinningCondition().getBadPlaces()) {
-            reach.orWith(codePlace(place, 0, AdamExtensions.getToken(place)));
+            reach.orWith(codePlace(place, 0, AdamExtensions.getPartition(place)));
         }
         return reach;
     }
