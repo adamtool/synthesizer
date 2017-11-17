@@ -32,8 +32,8 @@ import uniolunisaar.adam.tools.Logger;
 public class BDDESafetySolver extends BDDSolver<Safety> {
 
     // Domains for predecessor and successor for each token
-    private BDDDomain[][] GOODCHAIN;
-    private BDDDomain[] OBAD;
+    private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
+    private BDDDomain[] OBAD; // from the side of the environment
 
     /**
      * Creates a new existential safety solver for a given game.
@@ -272,7 +272,8 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 //        ret.orWith(allPres);
 //        return ret;
 //    }
-    private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place
+    private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
+        BDD exPreBad = getZero();
         List<TokenFlow> fls = AdamExtensions.getTokenFlow(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
@@ -285,11 +286,10 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
                 int token = AdamExtensions.getPartition(p);
                 BDD preBad = codePlace(p, 0, token);
                 preBad.andWith(GOODCHAIN[0][token].ithVar(0));
-                BDD ret = preBad.impWith(OBAD[1].ithVar(1));
-                return ret;
+                exPreBad.orWith(preBad);
             }
         }
-        return OBAD[1].ithVar(0);
+        return exPreBad.ite(OBAD[1].ithVar(1), OBAD[1].ithVar(0));
     }
 
     @Override

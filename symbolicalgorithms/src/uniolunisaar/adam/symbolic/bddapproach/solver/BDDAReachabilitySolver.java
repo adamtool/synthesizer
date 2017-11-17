@@ -229,6 +229,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 //        return ret;
 //    }
     private BDD setOverallBad(Transition t) {
+        BDD exPreBad = getZero();
         List<TokenFlow> fls = AdamExtensions.getTokenFlow(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
@@ -241,11 +242,10 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
                 int token = AdamExtensions.getPartition(p);
                 BDD preBad = codePlace(p, 0, token);
                 preBad.andWith(GOODCHAIN[0][token].ithVar(0));
-                BDD ret = preBad.impWith(OBAD[1].ithVar(1));
-                return ret;
+                exPreBad.orWith(preBad);
             }
         }
-        return OBAD[1].ithVar(0);
+        return exPreBad.ite(OBAD[1].ithVar(1), OBAD[1].ithVar(0));
     }
 
     @Override

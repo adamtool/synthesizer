@@ -101,6 +101,20 @@ public class FirstTestsABuchi {
 //        testToyExamples("type2_0", false); // should be false
         testToyExamples("type2_1", true); // should be true
     }
+    
+    @Test
+        public void testMyExamples() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+        final String path = inputDir + "jhh" + File.separator;
+//        AdamTools.savePG2PDF(outputDir + name, Tools.getPetriNet(path + name + ".apt"), false);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + "myexample12" + ".apt", true);
+//        System.out.println("ExStrat" + solv.existsWinningStrategy());
+//        solv.getGraphStrategy();
+//        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat_d5", g, solv);
+        BDDTools.saveGraph2PDF(outputDir + "myexample12" + "_graphgame", solv.getGraphGame(), solv);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_gg_strat", solv.getGraphStrategy(), solv);
+        BDDTestingTools.testExample(solv, outputDir + "myexample12", false);
+    }
 //
 //    @Test
 //    public void testToyExampleDecInLoop() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
