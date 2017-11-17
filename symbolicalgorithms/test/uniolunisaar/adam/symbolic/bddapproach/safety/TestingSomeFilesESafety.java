@@ -62,7 +62,8 @@ public class TestingSomeFilesESafety {
 
     @Test(enabled = true)
     public void testInfiniteBadWithEscape() throws Exception {
-        testToy("infiniteBadWithEscape", true);
+//        testToy("infiniteBadWithEscape", true);
+        testToy("infiniteBadWithEscape2", true);
     }
 
     @Test(enabled = true)
