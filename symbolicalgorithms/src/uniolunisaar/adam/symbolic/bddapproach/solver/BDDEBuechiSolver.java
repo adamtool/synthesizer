@@ -197,7 +197,9 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
 //        // add loop
         loops.orWith(loopState(0).andWith(loopState(1)));
 //        System.out.println("end states");
-//        BDDTools.printDecodedDecisionSets(term.and(buchi), this, true);
+//System.out.println("term abnd buchi");
+//        BDDTools.printDecodedDecisionSets(loops.andWith(wellformed(0)), this, true);
+//        System.out.println("tern abd");
 //        BDDTools.printDecisionSets(term.and(buchi), true);
 //        System.out.println("END");
         return loops.andWith(wellformed(0));
@@ -319,13 +321,12 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         // but then calling this method e.g. for hasFired won't work as expected.
         env.andWith(LOOP[0].ithVar(0));
         env.andWith(LOOP[1].ithVar(0));
-
-        env.orWith(loops());
         return env;
     }
 
     @Override
     BDD envTransitionCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0); // the transition should be enabled and choosen!
@@ -365,13 +366,14 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
             }
             // Environmentpart                
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     @Override
     BDD envTransitionNotCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -401,9 +403,9 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
 
             // Environmentpart                
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     @Override

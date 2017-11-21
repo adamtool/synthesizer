@@ -100,12 +100,16 @@ public class BDDGraphBuilder {
 //            System.out.println(!prev.getState().and(solver.getMcut()).isZero());
             BDD succs = (envState) ? solver.getEnvSuccTransitions(prev.getState()) : solver.getSystemSuccTransitions(prev.getState());
 
+            
 //            if (prev.getId() == 1) {
 //                BDDTools.printDecisionSets(prev.getState(), true);
 //                System.out.println("is env" + envState);
 //                BDDTools.printDecodedDecisionSets(succs, solver, true);
 //            }
             if (!succs.isZero()) {// is there a firable transition ?
+//                BDDTools.printDecodedDecisionSets(succs, solver, true);
+//System.out.println("TRANS");
+//                BDDTools.printDecodedDecisionSets(solver.getBufferedSystemTransitions(), solver, true);
                 // shift successors to the first variables
                 succs = solver.getSuccs(succs).and(states);
 //                System.out.println("succcs");

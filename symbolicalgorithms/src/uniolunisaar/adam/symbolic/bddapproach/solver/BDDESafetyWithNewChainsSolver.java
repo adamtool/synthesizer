@@ -2,6 +2,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,12 +17,14 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.TokenFlow;
 import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
@@ -29,9 +32,10 @@ import uniolunisaar.adam.tools.Logger;
 /**
  * @author Manuel Gieseking
  */
-public class BDDESafetySolver extends BDDSolver<Safety> {
+public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
     // Domains for predecessor and successor for each token
+    private BDDDomain[] LOOP;
     private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
     private BDDDomain[] OBAD; // from the side of the environment
 
@@ -49,7 +53,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDESafetySolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDESafetyWithNewChainsSolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 
@@ -71,6 +75,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         GOODCHAIN = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
+        LOOP = new BDDDomain[2];
         OBAD = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
@@ -90,6 +95,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
                 maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
+            LOOP[i] = getFactory().extDomain(2);
             OBAD[i] = getFactory().extDomain(2);
         }
         setDCSLength(getFactory().varNum() / 2);
@@ -99,33 +105,100 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
     @Override
     String decodeDCS(byte[] dcs, int pos) {
         StringBuilder sb = new StringBuilder();
-        // Env place
-        sb.append("(");
-        String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving());
-        sb.append(id);
-        if (!id.equals("-")) {
-            sb.append(", ");
-            sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
-        }
-        sb.append(")").append("\n");
-        for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+        if (BDDTools.isLoopByBin(dcs, LOOP[pos])) {
+            sb.append("LOOP");
+        } else {
+            // Env place
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
-            sb.append(sid);
-            if (!sid.equals("-")) {
+            String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving());
+            sb.append(id);
+            if (!id.equals("-")) {
                 sb.append(", ");
-                sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
-                sb.append(", ");
-                sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
-                sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
             }
             sb.append(")").append("\n");
+            for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+                sb.append("(");
+                String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
+                sb.append(sid);
+                if (!sid.equals("-")) {
+                    sb.append(", ");
+                    sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
+                    sb.append(", ");
+                    sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
+                    sb.append(", ");
+                    sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                }
+                sb.append(")").append("\n");
+            }
+            sb.append(BDDTools.getOverallBadByBin(dcs, OBAD[pos]));
+            sb.append("\n");
         }
-        sb.append(BDDTools.getOverallBadByBin(dcs, OBAD[pos]));
-        sb.append("\n");
         return sb.toString();
     }
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special loop stuff %%%%%%%%%%%%%%%%%%%%
+    /**
+     *
+     * Problem for concurrency preserving nets, since there zero is an id of a
+     * place and so it is posible to have this loopState as a sen
+     *
+     * Since they are only id's it's also not possible to code e.g. a sys place
+     * at the env position.
+     *
+     * So added a new LOOP variable which should be 0 at any case a apart from
+     * the loop state
+     *
+     * @param pos
+     * @return
+     */
+    private BDD loopState(int pos) {
+//        Place sys = this.getGame().getPlaces()[0].iterator().next();
+//        BDD nearlyZero = this.getZero().exist(PLACES[pos][0].domain());
+//        BDDTools.printDecisionSets(nearlyZero, true);
+//        return nearlyZero.andWith(codePlace(sys, pos, 0));
+        BDD loop = getOne();
+        int start = (pos == 0) ? 0 : getDcs_length();
+        for (int i = start; i < start + getDcs_length() - 2; i++) {
+            loop.andWith(getFactory().nithVar(i));
+        }
+        loop.andWith(OBAD[pos].ithVar(0)); // bad flag
+        loop.andWith(LOOP[pos].ithVar(1));
+        return loop;
+    }
+
+    /**
+     * @param pos
+     * @return
+     */
+    private BDD endStates(int pos) {
+        BDD term = getOne();
+        Set<Transition> trans = getGame().getNet().getTransitions();
+        for (Transition transition : trans) {
+            term.andWith(firable(transition, pos).not());
+        }
+        term.andWith(getNotTop());
+        return term;
+    }
+
+    private BDD loops() {
+//        BDD cobuchi = winningStates();
+        BDD term = endStates(0);
+        // Terminating not buchi states add selfloop
+//        BDD termNBuchi = term.and(buchi.not().andWith(wellformed(0)));
+// add selfloop to every terminating state
+        BDD loops = term.andWith(preBimpSucc());
+        // Terminating buchi states add transition to new looping state (all 
+//        loops.orWith(term.and(buchi).and(loopState(1)));
+//        // add loop
+        loops.orWith(loopState(0).andWith(loopState(1)));
+//        System.out.println("end states");
+//        BDDTools.printDecodedDecisionSets(term.and(buchi), this, true);
+//        BDDTools.printDecisionSets(term.and(buchi), true);
+//        System.out.println("END");
+        return loops.andWith(wellformed(0));
+    }
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special loop stuff %%%%%%%%%%%%%%%%%%%%%%
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
@@ -144,36 +217,35 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-//        ret.andWith(term(0)); Not necessary since no new chain can be created
+//        ret.andWith(term(0));
         ret = ret.or(getBufferedNDet());
         ret.orWith(deadSysDCS(0));
         return ret;
     }
 
-    /**
-     * Calculates a BDD representing all decision sets where no transition is
-     * enabled.
-     *
-     * @param pos - 0 for the predecessor variables and 1 for the successor.
-     * @return BDD representing the terminating situations.
-     */
-    private BDD term(int pos) {
-        BDD notEn = getOne();
-        Set<Transition> trans = getGame().getNet().getTransitions();
-        for (Transition transition : trans) {
-            notEn.andWith(enabled(transition, pos).not());
-        }
-//        BDD notCh = getOne();
+//    /**
+//     * Calculates a BDD representing all decision sets where no transition is
+//     * enabled.
+//     *
+//     * @param pos - 0 for the predecessor variables and 1 for the successor.
+//     * @return BDD representing the terminating situations.
+//     */
+//    private BDD term(int pos) {
+//        BDD notEn = getOne();
+//        Set<Transition> trans = getGame().getNet().getTransitions();
 //        for (Transition transition : trans) {
-//            if (!getGame().getSysTransition().contains(transition)) {
-//                notCh.andWith(chosen(transition, pos).not());
-//            }
+//            notEn.andWith(enabled(transition, pos).not());
 //        }
-//        BDD termType1 = notEn.orWith(type2().andWith(notCh));
-//        return termType1;//.and(getWellformed());
-        return notEn;
-    }
-
+////        BDD notCh = getOne();
+////        for (Transition transition : trans) {
+////            if (!getGame().getSysTransition().contains(transition)) {
+////                notCh.andWith(chosen(transition, pos).not());
+////            }
+////        }
+////        BDD termType1 = notEn.orWith(type2().andWith(notCh));
+////        return termType1;//.and(getWellformed());
+//        return notEn;
+//    }
     /**
      * Calculates a BDD representing all decision sets where the system decided
      * not to choose any enabled transition, but there exists at least one.
@@ -197,6 +269,14 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 
 //%%%%%%%%%%%%%%%% ADAPTED to NOCC  / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
     @Override
+    BDD wellformed(int pos) {
+        BDD well = super.wellformed(pos);
+        well.andWith(LOOP[pos].ithVar(0));
+        well.orWith(loopState(pos));
+        return well;
+    }
+
+    @Override
     public BDD initial() {
         BDD init = super.initial();
         // all initial places which are marked as bad are on a good chain (for the environment)
@@ -213,6 +293,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
             init.andWith(GOODCHAIN[0][i].ithVar(good ? 1 : 0));
         }
+        init.andWith(LOOP[0].ithVar(0));
         init.andWith(OBAD[0].ithVar(0));
         return init;
     }
@@ -367,6 +448,10 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
         // overall bad state don't have any successor
+
+        env.andWith(LOOP[0].ithVar(0));
+        env.andWith(LOOP[1].ithVar(0));
+
         env.andWith(OBAD[0].ithVar(0));
         return env;
     }
@@ -379,6 +464,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      */
     @Override
     BDD envTransitionCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0); // the transition should be enabled and choosen!
@@ -419,9 +505,9 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
             // Environmentpart                
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     /**
@@ -431,6 +517,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      */
     @Override
     BDD envTransitionNotCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -462,9 +549,9 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 
             // Environmentpart                
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     /**
@@ -538,12 +625,18 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         // Only useable if it's not an mcut
         sys.andWith(sysN);
         sys.andWith(sysT);
+
+        sys.andWith(LOOP[0].ithVar(0));
+        sys.andWith(LOOP[1].ithVar(0));
+
         // keep the good chain flag for the environment, since there nothing could have changed        
         sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // p0=p0'        
         sys.andWith(placesEqual(0));
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
+
+        sys.orWith(loops());
 
         return sys;
     }
@@ -598,12 +691,15 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         // Only useable if it's not an mcut
         sys.andWith(sysN);
         sys.andWith(sysT);
+        sys.andWith(LOOP[0].ithVar(0));
+        sys.andWith(LOOP[1].ithVar(0));
         // keep the good chain flag for the environment, since there nothing could have changed        
         sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
+        sys.orWith(loops());
         return sys;
     }
 
@@ -623,9 +719,11 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-        BDD fixedPoint = attractor(winningStates(), true, distance).not().and(getBufferedDCSs());
-        //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
-        Logger.getInstance().addMessage("... calculation of fixpoint done.");
+//        BDD fixedPoint = attractor(winningStates(), true, distance).not().and(getBufferedDCSs());
+        BDD fixedPoint = buchi(winningStates(), distance, false).not().and(getBufferedDCSs());
+//        BDDTools.printDecodedDecisionSets(loops(), this, true);
+//        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
+//        Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -650,6 +748,35 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
             }
         }
         return graph;
+    }
+
+    @Override
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+        HashMap<Integer, BDD> distance = new HashMap<>();
+        BDD win = calcWinningDCSs(distance);
+        super.setBufferedWinDCSs(win);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
+//        BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        BDDGraph strat = BDDGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        // delete the added loops
+        List<Flow> removeFlows = new ArrayList<>();
+        for (Flow flow : strat.getFlows()) {
+            if (flow.getTransition() == null) {
+                removeFlows.add(flow);
+            }
+        }
+        strat.removeFlows(removeFlows);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
+        for (BDDState state : strat.getStates()) { // mark all special states
+            if (!winningStates().and(state.getState()).isZero()) {
+                state.setGood(true);
+            }
+        }
+        return strat;
     }
 
     @Override
@@ -699,6 +826,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(GOODCHAIN[pos][i].set());
         }
+        variables.andWith(LOOP[pos].set());
         variables.andWith(OBAD[pos].set());
         return variables;
     }
@@ -738,6 +866,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
         }
+        preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));
         return preBimpSucc;
     }
@@ -755,6 +884,9 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
     @Deprecated
     public boolean hasFiredManually(Transition t, BDD source, BDD target) {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
+        if (!source.and(LOOP[0].ithVar(1)).isZero() || !source.and(OBAD[0].ithVar(1)).isZero()) {
+            return false;
+        }
         if (!source.and(OBAD[0].ithVar(1)).isZero()) {
             return false;
         }

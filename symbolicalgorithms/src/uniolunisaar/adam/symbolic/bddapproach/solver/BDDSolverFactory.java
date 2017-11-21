@@ -2,12 +2,15 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
+import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.ds.petrigame.TokenFlow;
+import uniolunisaar.adam.ds.util.AdamExtensions;
 import uniolunisaar.adam.logic.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
@@ -46,7 +49,15 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDESafetySolver getESafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDSolver<Safety> getESafetySolver(PetriNet net, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        // if it creates a new token chain, use the co-Buchi solver
+        for (Transition t : net.getTransitions()) {
+            for (TokenFlow tfl : AdamExtensions.getTokenFlow(t)) {
+                if(tfl.getPreset().isEmpty()) {
+                    return new BDDESafetyWithNewChainsSolver(net, skipTests, new Safety(true), options);
+                }
+            }
+        }
         return new BDDESafetySolver(net, skipTests, new Safety(true), options);
     }
 

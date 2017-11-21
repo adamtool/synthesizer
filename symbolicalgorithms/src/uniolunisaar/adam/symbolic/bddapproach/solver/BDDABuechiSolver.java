@@ -1,13 +1,11 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Marking;
@@ -897,13 +895,12 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         env.andWith(OBAD[0].ithVar(0));
         // bad states don't have successors
         env.andWith(wrongTypedDCS().not());
-
-        env.orWith(loops());
         return env;
     }
 
     @Override
     BDD envTransitionCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0); // the transition should be enabled and choosen!
@@ -962,13 +959,14 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             }
             // Environmentpart                
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     @Override
     BDD envTransitionNotCP(Transition t) {
+        BDD env = loops();
         if (!getGame().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -1007,9 +1005,9 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             // --------------------------
             // Environmentpart
             all.andWith(envPart(t));
-            return all;
+            env.orWith(all);
         }
-        return getZero();
+        return env;
     }
 
     @Override
@@ -1272,58 +1270,58 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-    /**
-     * Compare Algorithm for Buchi Games by Krish
-     *
-     * with strategy building from zimmermanns lecture script
-     *
-     * @return
-     */
-    private BDD buchi(Map<Integer, BDD> distance) {
-        BDD S = getBufferedDCSs().id();
-        BDD W = getZero();
-        BDD W_;
-        BDD B = winningStates();
-        do {
-            B = B.and(S);
-            if (distance != null) {
-                distance.clear();
-            }
-            BDD R = attractor(B, false, S, distance);
-//            System.out.println("R states");
-//            BDDTools.printDecodedDecisionSets(R, this, true);
-//            System.out.println("END R staes");
-//            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
-//            BDDTools.printDecodedDecisionSets(R, this, true);
-            BDD Tr = S.and(R.not());
-//            System.out.println("TR states");
-//            BDDTools.printDecodedDecisionSets(Tr, this, true);
-//            System.out.println("END TR states");
-//            System.out.println("%%%%%%%%%%%%%%%% TR");
-//            BDDTools.printDecodedDecisionSets(Tr, this, true);         
-            W_ = attractor(Tr, true, S);
-
-//            System.out.println("W_ states");
-//            BDDTools.printDecodedDecisionSets(W_, this, true);
-//            System.out.println("END W_ states");
-//            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
-//            BDDTools.printDecodedDecisionSets(W_, this, true);
-            W = W.or(W_);
-            S.andWith(W_.not());
-        } while (!W_.isZero());
-        //        System.out.println("%%%%%%%%%%%% W");
-//        BDDTools.printDecodedDecisionSets(W, this, true);
-        W = W.not().and(getBufferedDCSs());
-        // Save attr0(recurm(F))\recurm(F) at position -1
-        if (distance != null) {
-//            attractor(B, false, getBufferedDCSs(), distance);
-//            System.out.println("hier" + distance.toString());
-            distance.put(-1, B);
-        }
-//        System.out.println("%%%%%%%%%%%% return");
-//        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
-        return W;
-    }
+//    /**
+//     * Compare Algorithm for Buchi Games by Krish
+//     *
+//     * with strategy building from zimmermanns lecture script
+//     *
+//     * @return
+//     */
+//    private BDD buchi(Map<Integer, BDD> distance) {
+//        BDD S = getBufferedDCSs().id();
+//        BDD W = getZero();
+//        BDD W_;
+//        BDD B = winningStates();
+//        do {
+//            B = B.and(S);
+//            if (distance != null) {
+//                distance.clear();
+//            }
+//            BDD R = attractor(B, false, S, distance);
+////            System.out.println("R states");
+////            BDDTools.printDecodedDecisionSets(R, this, true);
+////            System.out.println("END R staes");
+////            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% attr reach ");
+////            BDDTools.printDecodedDecisionSets(R, this, true);
+//            BDD Tr = S.and(R.not());
+////            System.out.println("TR states");
+////            BDDTools.printDecodedDecisionSets(Tr, this, true);
+////            System.out.println("END TR states");
+////            System.out.println("%%%%%%%%%%%%%%%% TR");
+////            BDDTools.printDecodedDecisionSets(Tr, this, true);         
+//            W_ = attractor(Tr, true, S);
+//
+////            System.out.println("W_ states");
+////            BDDTools.printDecodedDecisionSets(W_, this, true);
+////            System.out.println("END W_ states");
+////            System.out.println("%%%%%%%%%%%%%%%% atrrroktor TR");
+////            BDDTools.printDecodedDecisionSets(W_, this, true);
+//            W = W.or(W_);
+//            S.andWith(W_.not());
+//        } while (!W_.isZero());
+//        //        System.out.println("%%%%%%%%%%%% W");
+////        BDDTools.printDecodedDecisionSets(W, this, true);
+//        W = W.not().and(getBufferedDCSs());
+//        // Save attr0(recurm(F))\recurm(F) at position -1
+//        if (distance != null) {
+////            attractor(B, false, getBufferedDCSs(), distance);
+////            System.out.println("hier" + distance.toString());
+//            distance.put(-1, B);
+//        }
+////        System.out.println("%%%%%%%%%%%% return");
+////        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
+//        return W;
+//    }
 
     /**
      * Returns the winning decisionsets for the system players
@@ -1336,20 +1334,20 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = buchi(distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
+        BDD fixedPoint = buchi(winningStates(), distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
 //        fixedPoint.andWith(wrongTypedDCS().not()); // todo: why does it not already worked with added not type to to endstates?
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
-        try {
-            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-            BDDTools.saveStates2Pdf("./states", fixedPoint, this);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//            BDDTools.saveStates2Pdf("./states", fixedPoint, this);
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BDDABuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
         return fixedPoint;
     }

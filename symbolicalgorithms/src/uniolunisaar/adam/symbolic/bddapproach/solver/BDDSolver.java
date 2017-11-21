@@ -973,6 +973,17 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * @return
      */
     BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) {
+        return buchi(buchiStates, distance, true);
+    }
+
+    /**
+     * Compare Algorithm for Buchi Games by Krish
+     *
+     * with strategy building from zimmermanns lecture script
+     *
+     * @return
+     */
+    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance, boolean player1) {
         BDD S = getBufferedDCSs().id();
         BDD W = getZero();
         BDD W_;
@@ -982,7 +993,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             if (distance != null) {
                 distance.clear();
             }
-            BDD R = attractor(B, false, S, distance);
+            BDD R = attractor(B, !player1, S, distance);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
@@ -994,7 +1005,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);         
-            W_ = attractor(Tr, true, S);
+            W_ = attractor(Tr, player1, S);
 
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
@@ -1364,10 +1375,14 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     public BDD getSystemSuccTransitions(BDD state) {
+//        System.out.println("sys");
+//        BDDTools.getDecodedDecisionSets(state.and(getBufferedSystemTransitions()), this);
         return state.and(getBufferedSystemTransitions());
     }
 
     public BDD getEnvSuccTransitions(BDD state) {
+//        System.out.println("env");
+//        BDDTools.printDecodedDecisionSets((getBufferedEnvTransitions()), this, true);
         return state.and(getBufferedEnvTransitions());
     }
 

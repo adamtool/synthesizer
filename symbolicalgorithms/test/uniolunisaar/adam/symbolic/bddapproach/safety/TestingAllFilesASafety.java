@@ -62,7 +62,9 @@ public class TestingAllFilesASafety {
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
             "wf_2_3_pg_reversible.apt", // currently unbounded
-            "sendingprotocolTwo.apt"// two environment token
+            "sendingprotocolTwo.apt",// two environment token
+            "toMakeCP.apt",// two environment token
+            "madeCP.apt"// two environment token
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
             "nondet2WithStratByGameSolving.apt", // should have a strategy
