@@ -3,6 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +35,12 @@ import uniolunisaar.adam.tools.Logger;
  */
 public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
+    private Set<Transition>[] forNewChains;
+
     // Domains for predecessor and successor for each token
     private BDDDomain[] LOOP;
     private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
+    private BDDDomain[][] NEWCHAIN; // responsable transition id for the creation of this chain
     private BDDDomain[] OBAD; // from the side of the environment
 
     /**
@@ -55,6 +59,21 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      */
     BDDESafetyWithNewChainsSolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
+        // calculate the transitions which are responsible for creating a new chain
+        // and safe them suitably
+        forNewChains = (Set<Transition>[]) new Set<?>[getGame().getMaxTokenCountInt()];
+        for (int i = 0; i < getGame().getMaxTokenCountInt(); i++) {
+            forNewChains[i] = new HashSet<>();
+        }
+        for (Transition t : net.getTransitions()) {
+            for (TokenFlow tfl : AdamExtensions.getTokenFlow(t)) {
+                if (tfl.getPreset().isEmpty()) {
+                    for (Place post : tfl.getPostset()) {
+                        forNewChains[AdamExtensions.getPartition(post)].add(t);
+                    }
+                }
+            }
+        }
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -50,7 +50,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * able to detect it on its own.
      */
     BDDESafetySolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, win, opts);
+        super(net, skipTests, win, opts);    
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,29 +150,29 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         return ret;
     }
 
-    /**
-     * Calculates a BDD representing all decision sets where no transition is
-     * enabled.
-     *
-     * @param pos - 0 for the predecessor variables and 1 for the successor.
-     * @return BDD representing the terminating situations.
-     */
-    private BDD term(int pos) {
-        BDD notEn = getOne();
-        Set<Transition> trans = getGame().getNet().getTransitions();
-        for (Transition transition : trans) {
-            notEn.andWith(enabled(transition, pos).not());
-        }
-//        BDD notCh = getOne();
+//    /**
+//     * Calculates a BDD representing all decision sets where no transition is
+//     * enabled.
+//     *
+//     * @param pos - 0 for the predecessor variables and 1 for the successor.
+//     * @return BDD representing the terminating situations.
+//     */
+//    private BDD term(int pos) {
+//        BDD notEn = getOne();
+//        Set<Transition> trans = getGame().getNet().getTransitions();
 //        for (Transition transition : trans) {
-//            if (!getGame().getSysTransition().contains(transition)) {
-//                notCh.andWith(chosen(transition, pos).not());
-//            }
+//            notEn.andWith(enabled(transition, pos).not());
 //        }
-//        BDD termType1 = notEn.orWith(type2().andWith(notCh));
-//        return termType1;//.and(getWellformed());
-        return notEn;
-    }
+////        BDD notCh = getOne();
+////        for (Transition transition : trans) {
+////            if (!getGame().getSysTransition().contains(transition)) {
+////                notCh.andWith(chosen(transition, pos).not());
+////            }
+////        }
+////        BDD termType1 = notEn.orWith(type2().andWith(notCh));
+////        return termType1;//.and(getWellformed());
+//        return notEn;
+//    }
 
     /**
      * Calculates a BDD representing all decision sets where the system decided
