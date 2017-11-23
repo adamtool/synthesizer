@@ -993,7 +993,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
             if (distance != null) {
                 distance.clear();
             }
-            BDD R = attractor(B, !player1, S, distance);
+            BDD R = player1 ? attractor(B, !player1, S, distance) : attractor(B, !player1, S);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
@@ -1005,7 +1005,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);         
-            W_ = attractor(Tr, player1, S);
+            W_ = player1 ? attractor(Tr, player1, S) : attractor(Tr, player1, S, distance);
 
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);
@@ -1022,7 +1022,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
         if (distance != null) {
 //            attractor(B, false, getBufferedDCSs(), distance);
 //            System.out.println("hier" + distance.toString());
-            distance.put(-1, B);
+            if (player1) {
+                distance.put(-1, B);
+            } else {
+                distance.put(-1, B.not().and(getBufferedDCSs()));
+            }
         }
 //        System.out.println("%%%%%%%%%%%% return");
 //        BDDTools.printDecodedDecisionSets(endStates(0), this, true);

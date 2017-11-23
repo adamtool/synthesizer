@@ -45,14 +45,15 @@ public class TestingAllFilesESafety {
             "oneTransitionSys1.apt",
             "oneTransitionBoth2.apt",
             "oneTransitionEnv3.apt",
-//            "oneTransitionSys3.apt", // should be true, late new chain
             "oneTransitionEnv1.apt",
             "escape11.apt",
             "infiniteBad.apt",
             "infflowchains.apt", // creates infinitely many flow chains
             "infflowchains2.apt",
+            "infflowchains6.apt",
             "multipleFlowChains2.apt",
-            "multipleFlowChains7.apt"
+            "multipleFlowChains7.apt",
+            "infflowchains_env_0.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair7.apt", // two env token

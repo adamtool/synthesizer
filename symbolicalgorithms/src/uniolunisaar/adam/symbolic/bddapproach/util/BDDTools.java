@@ -352,6 +352,33 @@ public class BDDTools {
         byte gcFlag = dcs[bddDomain.vars()[0]];
         return (gcFlag == 1) ? "g" : (gcFlag == 0) ? "!g" : "-";
     }
+    
+    public static String getDependentFlagByBin(byte[] dcs, BDDDomain bddDomain, int nb_partitions) {
+         int[] ids = bddDomain.vars();
+        StringBuilder sb = new StringBuilder("{");    
+        boolean added = false;
+        for (int j = 0; j < nb_partitions; ++j) {
+            byte t = dcs[ids[j]];
+            if (t == 1) {
+                if (added) {
+                    sb.append(", ");
+                } else {
+                    added = true;
+                }
+                sb.append(j);
+            } 
+//            else if (t == -1) {
+//                if (added) {
+//                    sb.append(", ");
+//                } else {
+//                    added = true;
+//                }
+//                sb.append("-").append(trans.getId());
+//            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
 
     public static String getNewlyOccupiedFlagByBin(byte[] dcs, BDDDomain bddDomain) {
         byte gcFlag = dcs[bddDomain.vars()[0]];
@@ -886,5 +913,7 @@ public class BDDTools {
         }
         return ids;
     }
+
+    
 
 }

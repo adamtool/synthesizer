@@ -25,7 +25,7 @@ import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
@@ -35,12 +35,10 @@ import uniolunisaar.adam.tools.Logger;
  */
 public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
-    private Set<Transition>[] forNewChains;
-
     // Domains for predecessor and successor for each token
     private BDDDomain[] LOOP;
     private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
-    private BDDDomain[][] NEWCHAIN; // responsable transition id for the creation of this chain
+    private BDDDomain[][] DEP_ON_NEWCHAIN; // partition id of the creating token on which this partition depends on
     private BDDDomain[] OBAD; // from the side of the environment
 
     /**
@@ -59,21 +57,6 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      */
     BDDESafetyWithNewChainsSolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
-        // calculate the transitions which are responsible for creating a new chain
-        // and safe them suitably
-        forNewChains = (Set<Transition>[]) new Set<?>[getGame().getMaxTokenCountInt()];
-        for (int i = 0; i < getGame().getMaxTokenCountInt(); i++) {
-            forNewChains[i] = new HashSet<>();
-        }
-        for (Transition t : net.getTransitions()) {
-            for (TokenFlow tfl : AdamExtensions.getTokenFlow(t)) {
-                if (tfl.getPreset().isEmpty()) {
-                    for (Place post : tfl.getPostset()) {
-                        forNewChains[AdamExtensions.getPartition(post)].add(t);
-                    }
-                }
-            }
-        }
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,6 +75,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         int tokencount = getGame().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         GOODCHAIN = new BDDDomain[2][tokencount];
+//        DEP_ON_NEWCHAIN = new BDDDomain[2][tokencount - 1];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         LOOP = new BDDDomain[2];
@@ -107,6 +91,10 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
                 // good chains
                 GOODCHAIN[i][j + 1] = getFactory().extDomain(2);
+                // dependet flags
+                BigInteger tokens = BigInteger.valueOf(2);
+                tokens = tokens.pow(tokencount - 1);
+//                DEP_ON_NEWCHAIN[i][j] = getFactory().extDomain(tokens);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
@@ -143,6 +131,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 if (!sid.equals("-")) {
                     sb.append(", ");
                     sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
+//                    sb.append(", ");
+//                    sb.append(BDDTools.getDependentFlagByBin(dcs, DEP_ON_NEWCHAIN[pos][j], getGame().getMaxTokenCountInt()));
                     sb.append(", ");
                     sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                     sb.append(", ");
@@ -777,8 +767,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-//        BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
-        BDDGraph strat = BDDGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+//        BDDGraph strat = BDDGraphBuilder.getInstance().builtGraphStrategy(this, distance);
         // delete the added loops
         List<Flow> removeFlows = new ArrayList<>();
         for (Flow flow : strat.getFlows()) {
