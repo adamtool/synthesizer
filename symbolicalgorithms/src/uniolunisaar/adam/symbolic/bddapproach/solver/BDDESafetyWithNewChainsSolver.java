@@ -3,7 +3,6 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         int tokencount = getGame().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         GOODCHAIN = new BDDDomain[2][tokencount];
-//        DEP_ON_NEWCHAIN = new BDDDomain[2][tokencount - 1];
+        DEP_ON_NEWCHAIN = new BDDDomain[2][tokencount - 1];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         LOOP = new BDDDomain[2];
@@ -94,7 +93,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 // dependet flags
                 BigInteger tokens = BigInteger.valueOf(2);
                 tokens = tokens.pow(tokencount - 1);
-//                DEP_ON_NEWCHAIN[i][j] = getFactory().extDomain(tokens);
+                DEP_ON_NEWCHAIN[i][j] = getFactory().extDomain(tokens);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
@@ -131,8 +130,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 if (!sid.equals("-")) {
                     sb.append(", ");
                     sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
-//                    sb.append(", ");
-//                    sb.append(BDDTools.getDependentFlagByBin(dcs, DEP_ON_NEWCHAIN[pos][j], getGame().getMaxTokenCountInt()));
+                    sb.append(", ");
+                    sb.append(BDDTools.getDependentFlagByBin(dcs, DEP_ON_NEWCHAIN[pos][j], getGame().getMaxTokenCountInt()));
                     sb.append(", ");
                     sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                     sb.append(", ");
@@ -301,6 +300,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 }
             }
             init.andWith(GOODCHAIN[0][i].ithVar(good ? 1 : 0));
+            if (i != 0) {
+                init.andWith(DEP_ON_NEWCHAIN[0][i - 1].ithVar(0));
+            }
         }
         init.andWith(LOOP[0].ithVar(0));
         init.andWith(OBAD[0].ithVar(0));
@@ -332,7 +334,73 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             }
         }
         allPres.biimpWith(GOODCHAIN[1][token].ithVar(1));
-        return (hasEmptyPreset) ? GOODCHAIN[1][token].ithVar(0) : allPres;
+        if (hasEmptyPreset) {
+            // if all other visible token which are dependent on the creation of
+            // this new chain already are bad, we can create a new bad chain
+            BDD allBad = getOne();
+            BDD dependent = getZero();
+            for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+                if (i != token) {
+                    BDD dep = getFactory().ithVar(DEP_ON_NEWCHAIN[0][i - 1].vars()[token - 1]);
+                    dependent = dependent.or(dep);
+//                    dependent.orWith(getFactory().nithVar(DEP_ON_NEWCHAIN[0][i - 1].vars()[token - 1])); // or not dependent
+//                    if (!AdamExtensions.isConcurrencyPreserving(getNet())) {
+//                        dependent.orWith(codePlace(0, 0, i));
+//                    } 
+//                    if (t.getId().equals("t3")) {
+//                        System.out.println("asdf"+i);
+//                        BDDTools.printDecodedDecisionSets(dependent, this, true);
+//                        BDDTools.printDecisionSets(dependent, true);
+//                    }
+                    allBad.andWith(dep.impWith(GOODCHAIN[0][i].ithVar(1)));// dependent -> bad
+                }
+            }
+//            if (getGame().getMaxTokenCount() == 2) {
+//                return GOODCHAIN[1][token].ithVar(0);
+//            }
+//            if (t.getId().equals("t3")) {
+//                System.out.println("asdf");
+//                BDDTools.printDecodedDecisionSets(allBad, this, true);
+//                BDDTools.printDecisionSets(allBad, true);
+//            }
+            allBad.andWith(dependent);
+            return allBad.biimpWith(GOODCHAIN[1][token].ithVar(1));
+//return GOODCHAIN[1][token].ithVar(0);
+        }
+        return allPres;
+    }
+
+    private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
+        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+        BDD dep = getOne();
+        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+            boolean hasEmptyPreset = false;
+            BDD exOne = getZero();
+            for (TokenFlow tokenFlow : fl) {
+                if (tokenFlow.getPostset().contains(post)) {
+//                System.out.println(tokenFlow);
+                    for (Place p : tokenFlow.getPreset()) {
+//                    System.out.println("Pre: " + p.getId());
+                        int preToken = AdamExtensions.getPartition(p);
+                        BDD pos = codePlace(p, 0, preToken);
+                        pos.andWith(getFactory().ithVar(DEP_ON_NEWCHAIN[0][preToken - 1].vars()[i - 1]));
+                        exOne.orWith(pos);
+                    }
+                    if (tokenFlow.getPreset().isEmpty()) {
+                        hasEmptyPreset = true;
+                        break;
+                    }
+                }
+            }
+            if (i == token && hasEmptyPreset) {
+                dep.andWith(getFactory().ithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[token - 1]));
+            } else {
+                // if there is one place in the preset connected with a chain which has a flag for this chain set to 1, set one, otherwise it's zero.
+                dep.andWith(exOne.ite(getFactory().ithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[i - 1]), getFactory().nithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[i - 1])));
+            }
+        }
+//        BDDTools.printDecodedDecisionSets(dep, this, true);
+        return dep;
     }
 
     // less restrictive version, let's it to often to 0. does it harm? don't now...
@@ -386,6 +454,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(GOODCHAIN[pos][token].ithVar(0));
+        zero.andWith(DEP_ON_NEWCHAIN[pos][token - 1].ithVar(0));
         return zero;
     }
 
@@ -410,6 +479,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 inner.andWith(TOP[1][i - 1].ithVar(0));
                 // gc'=gc
                 inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+                // donc' = donc
+                inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
                 pl.orWith(inner);
             }
             BDD zero = notUsedToken(0, i).and(notUsedToken(1, i));
@@ -497,6 +568,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                         inner.andWith(TOP[1][i - 1].ithVar(0));
                         // gc'=gc
                         inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+                        // donc' = donc
+                        inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
                     } else { // the place was in the preset of the transition, thus find a suitable sucessor and code it
                         Place post = getSuitableSuccessor(place, t);
                         //pre_i=post_i'
@@ -507,6 +580,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                         inner.andWith(nothingChosen(1, i));
                         // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
                         inner.andWith(setGoodChainFlagForTransition(t, post, i));
+                        // donc'=1 iff ...
+                        inner.andWith(setDependentFlagForTransition(t, post, i));
                     }
                     pl.orWith(inner);
                 }
@@ -546,6 +621,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                     all.andWith(nothingChosen(1, token));
                     // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
                     all.andWith(setGoodChainFlagForTransition(t, post, token));
+                    // donc'=1 iff ...
+                    all.andWith(setDependentFlagForTransition(t, post, token));
                 }
             }
 
@@ -573,6 +650,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         BDD sysT = super.sysTopPart();
         for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
             sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));// todo: 12.10.2017 not really check but should be better than (the here tag from 6.11.2017)
+            sysT.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
         }
         // in top part copy overallbad flag 
         sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
@@ -609,12 +687,16 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                     inner.andWith(commitmentsEqual(i));
                     // gc'=gc
                     inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+                    // donc' = donc
+                    inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
                 } else {
                     Place post = getSuitableSuccessor(place, t);
                     //pre_i=post_i'
                     inner.andWith(codePlace(post, 1, i));
                     // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
                     inner.andWith(setGoodChainFlagForTransition(t, post, i));
+                    // donc'=1 iff ...
+                    inner.andWith(setDependentFlagForTransition(t, post, i));
                 }
                 pl.orWith(inner);
             }
@@ -681,6 +763,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 sysN.andWith(TOP[1][token - 1].ithVar(0));
                 // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
                 sysN.andWith(setGoodChainFlagForTransition(t, post, token));
+                // donc'=1 iff ...
+                sysN.andWith(setDependentFlagForTransition(t, post, token));
             }
         }
         // set the dcs for the places in the preset
@@ -834,6 +918,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         BDD variables = super.getVariables(pos);
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             variables.andWith(GOODCHAIN[pos][i].set());
+            if (i != 0) {
+                variables.andWith(DEP_ON_NEWCHAIN[pos][i - 1].set());
+            }
         }
         variables.andWith(LOOP[pos].set());
         variables.andWith(OBAD[pos].set());
@@ -858,6 +945,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         variables.andWith(GOODCHAIN[pos][token].set());
+        if (token != 0) {
+            variables.andWith(DEP_ON_NEWCHAIN[pos][token - 1].set());
+        }
         return variables;
     }
 
@@ -874,6 +964,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
+            if (i != 0) {
+                preBimpSucc.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
+            }
         }
         preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
         preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));

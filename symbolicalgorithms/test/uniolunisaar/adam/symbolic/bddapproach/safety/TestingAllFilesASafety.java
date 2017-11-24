@@ -72,7 +72,10 @@ public class TestingAllFilesASafety {
             "nondet_withBad.apt", // should have no strategy, builds one voilating S3
             "nondet2WithSys.apt", // should have no strategy, builds one violating S3
             "nondet2.apt", // should have no strategy, builds one violating S3
-            "nondet.apt" // should have no strategy, builds one voilating S3
+            "nondet.apt", // should have no strategy, builds one voilating S3
+            "nondet_jhh1.apt", // should have no strategy, and also detects this
+            "nondet_jhh2.apt", // should have no strategy, and also detects this
+            "nondet_jhh3.apt" // should have no strategy, builds one violating S3
     ));
 
     @BeforeClass

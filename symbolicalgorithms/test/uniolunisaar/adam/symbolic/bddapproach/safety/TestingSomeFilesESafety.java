@@ -78,6 +78,15 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
+    @Test(enabled = true)
+    public void testInfFlowChains2() throws Exception {
+        final String path = inputDir + "infflowchains" + File.separator;
+//        Logger.getInstance().setVerbose(true);
+        String name = "infflowchains2";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
 
     @Test(enabled = true)
     public void testInfFlowChains5() throws Exception {
