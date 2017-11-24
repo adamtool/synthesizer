@@ -28,10 +28,10 @@ public class BDDTestingTools {
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
         AdamTools.savePG2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
         if (hasStrategy) {
-            Assert.assertTrue(solv.existsWinningStrategy(), "Net: "+solv.getNet().getName() + " has winning strategy: ");
+            Assert.assertTrue(solv.existsWinningStrategy(), "Net: " + solv.getNet().getName() + " has winning strategy: ");
             printWinningStrategies(solv, file);
         } else {
-            Assert.assertFalse(solv.existsWinningStrategy(), "Net: "+solv.getNet().getName() + " has winning strategy: ");
+            Assert.assertFalse(solv.existsWinningStrategy(), "Net: " + solv.getNet().getName() + " has winning strategy: ");
         }
     }
 
@@ -45,7 +45,7 @@ public class BDDTestingTools {
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
 //        System.out.println("Save petri game pdf.");
         AdamTools.savePG2PDF(path + "_pg", strats.getSecond(), true);
-        
+
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
         boolean det = AdamTools.isDeterministic(strats.getSecond(), cover);
@@ -53,8 +53,10 @@ public class BDDTestingTools {
         boolean res = AdamTools.restrictsEnvTransition(solv.getNet(), strats.getSecond());
         Assert.assertFalse(res, strats.getSecond().getName() + " restricts Environment Transitions");
         if (!(solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.E_REACHABILITY))) {
-            boolean dead = AdamTools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
-            Assert.assertTrue(dead, strats.getSecond().getName() + " is Deadlock Avoiding");
+            if (!solv.getWinningCondition().getObjective().equals(WinningCondition.Objective.E_SAFETY)) { // todo: we have to develop a notion for deadlock-avoiding but ok when goal reached
+                boolean dead = AdamTools.isDeadlockAvoiding(solv.getNet(), strats.getSecond(), cover);
+                Assert.assertTrue(dead, strats.getSecond().getName() + " is Deadlock Avoiding");
+            }
         }
     }
 

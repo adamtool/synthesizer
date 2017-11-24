@@ -128,6 +128,18 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
+    
+     @Test(enabled = true)
+    public void testNewChains() throws Exception {
+        final String path = inputDir + "newchains" + File.separator;
+//        Logger.getInstance().setVerbose(true);
+//        String name = "newchainForget"; // true
+        String name = "newchainForget_1"; // false
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+//        BDDTestingTools.testExample(solv, outputDir + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
 
     @Test(enabled = true)
     public void testEscape11() throws Exception {

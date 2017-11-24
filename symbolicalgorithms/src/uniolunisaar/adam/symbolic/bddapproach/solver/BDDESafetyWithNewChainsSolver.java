@@ -325,7 +325,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //                    System.out.println("Pre: " + p.getId());
                     int preToken = AdamExtensions.getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
-                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
+                    BDD goodOrDependentOfGood = GOODCHAIN[0][preToken].ithVar(1);
+                    allPres.andWith(goodOrDependentOfGood);
                 }
                 if (tokenFlow.getPreset().isEmpty()) {
                     hasEmptyPreset = true;
