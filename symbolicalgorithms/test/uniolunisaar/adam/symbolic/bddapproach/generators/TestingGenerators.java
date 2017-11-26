@@ -19,6 +19,7 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.generators.Clerks;
+import uniolunisaar.adam.generators.LoopUnrolling;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
 import uniolunisaar.adam.generators.RobotCell;
@@ -71,8 +72,9 @@ public class TestingGenerators {
     private static final int countWD_machines = 2;
     private static final int countSecuritySystems = 1;
     private static final int countContainerPlaces = 1;
-    private static final int countRoutingEReachRoutes= 2;
+    private static final int countRoutingEReachRoutes = 2;
     private static final int countRoutingEReachCars = 5;
+    private static final int countLoopUnrollings = 5;
 
     @BeforeClass
     public void createFolder() {
@@ -322,6 +324,45 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Loop Unrolling
+    @DataProvider(name = "loopUnrolling")
+    public static Object[][] loopUnrolling() {
+        Object[][] out = new Object[countLoopUnrollings][2];
+        for (int i = 0; i < countLoopUnrollings; i++) {
+            out[i][0] = i + 1;
+            out[i][1] = false;
+        }
+        return out;
+    }
+
+    @Test(dataProvider = "loopUnrolling")
+    public void testLoopUnrollingWithNewChain(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "loopUnrollingWithNewChain" + File.separator;
+        String name = nb_unrollings + "_unrollings";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate loop unrolling example...");
+        PetriNet pn = LoopUnrolling.createESafetyVersion(nb_unrollings, true, true);
+//        Tools.savePN(path+name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+    
+    @Test(dataProvider = "loopUnrolling")
+    public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "loopUnrolling" + File.separator;
+        String name = nb_unrollings + "_unrollings";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate loop unrolling example...");
+        PetriNet pn = LoopUnrolling.createESafetyVersion(nb_unrollings, false, true);
+//        Tools.savePN(path+name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, path + name, true);
+    }
+
 //        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Security System
 //    @DataProvider(name = "ERouting")
 //    public static Object[][] existsRouting() {
@@ -346,8 +387,6 @@ public class TestingGenerators {
 ////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, path + name, hasStrategy);
 //    }
-
-    
 //    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Container terminal (more than one env place)
 //    @DataProvider(name = "conTerminal")
 //    public static Object[][] containerTerminal() {

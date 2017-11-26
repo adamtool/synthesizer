@@ -30,6 +30,13 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
+ * Problems: 
+ * - infinite number of token chain, when the newly created chain
+ * overrides the bad chain flag of a former version of the chain
+ * - it's strongly dependent on the partition we chose
+ * since the token ids are the partitions (possibly this
+ * creates some problems)
+ * 
  * @author Manuel Gieseking
  */
 public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
