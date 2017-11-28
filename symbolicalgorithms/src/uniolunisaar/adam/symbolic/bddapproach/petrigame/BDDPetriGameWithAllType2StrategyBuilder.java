@@ -1,6 +1,5 @@
 package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +51,165 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     @Override
     void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
+        // Must be a solver with type2 ability
+        BDDType2Solver sol = (BDDType2Solver) solver;
+        // we only should do something if there are type2 places
+        if (sol.isType2(prevState.getState())) {
+            BDD succs = sol.getSystem2SuccTransitions(prevState.getState());
+            // is there a firable system 2 transition ?
+            if (!succs.isZero()) {
+                succs = sol.getGoodType2Succs(succs); // get all good successors
+                while (!succs.isZero()) {
+                    BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
+                    List<Transition> trans = sol.getAllSystem2Transition(prevState.getState(), succ);
+                    if (trans.isEmpty()) {
+                        succs = succs.andWith(succ.not());
+                        continue;
+                    }
+                    boolean foundTransition = false;
+                    for (Transition t : trans) {
+                        if (t == null) {
+                            continue;
+                        }
+                        foundTransition = true;
+                        addType2Strat(sol, strategy, prevState.getState(), succ, t, new ArrayList<>(prevMarking), new HashMap<>());
+                        succs = succs.andWith(succ.not());
+                    }
+                    if (!foundTransition) {
+                        succs = succs.andWith(succ.not());
+                    }
+                }
+            }
+        }
+    }
+
+    private void addType2Strat(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking, Map<BDD, List<Place>> visitedStates) {
+        // if already added this transition to this marking, skip
+        if (alreadyAdded(t, prevMarking)) {
+            return;
+        }
+//        System.out.println("$$$$$$$$$$$$$$$$ ADD NEW STRAT" + t);
+        visitedStates.put(prev, new ArrayList<>(prevMarking));
+//        System.out.println("--- add BDD : ");
+//        BDDTools.printDecodedDecisionSets(prev, (BDDSolver) solver, true);
+
+        // Add first successor
+        boolean newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
+        visitedStates.put(succ, new ArrayList<>(prevMarking));
+//        System.out.println("FIRST");
+//        BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+        if (newOne) { // as long as new successors had been added
+            prev = succ;
+            // find a suitable new one
+            BDD succs = solver.getSystem2SuccTransitions(prev);
+            // is there any firable transition ?
+            if (!succs.isZero()) {
+                // is there a good one?
+                succs = solver.getGoodType2Succs(succs);
+                while (!succs.isZero()) { // search as long as you found a good one (since not all BDD are uniquely solvable (not all flags are set to everytime for type2 transitions :$)
+//                    System.out.println("solve new one");
+                    succ = succs.satOne(solver.getFirstBDDVariables(), false);
+                    List<Transition> trans = solver.getAllSystem2Transition(prev, succ);
+//                    System.out.println("trnas " + trans.toString());
+                    if (trans.isEmpty()) {
+                        succs = succs.andWith(succ.not());
+                        continue;
+                    }
+                    List<Transition> goodSys2Transitions = new ArrayList<>();
+                    for (Transition tr : trans) {
+                        if (tr == null || goodSys2Transitions.contains(tr)) {
+                            continue;
+                        }
+                        // add only a new successor when not already added
+                        if (!alreadyAdded(tr, prevMarking)) {
+                            goodSys2Transitions.add(tr);
+                        }
+                    }
+                    for (int i = 0; i < goodSys2Transitions.size(); i++) {
+                        Transition tr = goodSys2Transitions.get(i);
+//                        if (i == goodSys2Transitions.size() - 1) { // last one add the strategy
+//                            newOne = addNewSuccessor(strategy, visitedStates, succ, tr, prevMarking);
+//                            if (newOne) {
+//                                visitedStates.put(succ, new ArrayList<>(prevMarking));
+//                            }
+//                            System.out.println("--- add BDD : ");
+//                            BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
+//                        } else { // there is more than one good successor
+//                            System.out.println("more than one");
+                        addType2Strat(solver, strategy, prev, succ, tr, new ArrayList<>(prevMarking), new HashMap<>(visitedStates));
+//                        }
+                    }
+                    succs = succs.andWith(succ.not());
+                }
+            }
+        }
+    }
+
+    private boolean alreadyAdded(Transition t, List<Place> prevMarking) {
+//        System.out.println("test transition" + t);
+        for (Place p : t.getPreset()) {
+            Place place = getSuitablePredecessor(p.getId(), prevMarking);
+            boolean isSucc = false;
+            for (Transition post : place.getPostset()) {
+                if (post.getLabel().equals(t.getId())) {
+                    isSucc = true;
+                }
+            }
+            if (!isSucc && place.getPostset().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean addNewSuccessor(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
+//        System.out.println("really add transition" + t);
+//        for (BDD bdd : visitedStates.keySet()) {
+//            BDDTools.printDecisionSets(bdd, true);
+//        }
+//        System.out.println("the successor");
+//        BDDTools.printDecisionSets(succ, true);
+        Transition strat_t = strategy.createTransition();
+        strat_t.setLabel(t.getId());
+        // add preset edges
+        for (Place p : t.getPreset()) {
+            Place place = getSuitablePredecessor(p.getId(), prevMarking);
+            strategy.createFlow(place, strat_t);
+            prevMarking.remove(place);
+        }
+
+        if (visitedStates.containsKey(succ)) {
+            for (Place p : t.getPostset()) {
+                Place place = getSuitablePredecessor(p.getId(), visitedStates.get(succ));
+                strategy.createFlow(strat_t, place);
+            }
+            return false;
+        } else {
+            for (Place p : t.getPostset()) {
+                Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
+                AdamExtensions.setOrigID(strat_p, p.getId());
+                strat_p.copyExtensions(p);
+                strategy.createFlow(strat_t, strat_p);
+                prevMarking.add(strat_p);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * has a problem for forallBuchi/toyexamples/type2_2
+     *
+     * @param solver
+     * @param graph
+     * @param strategy
+     * @param prevState
+     * @param prevMarking
+     * @deprecated
+     */
+    //@Override
+    @Deprecated
+    void addSpecialStateBehaviourOld(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+        super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net
 //        strategy.setName("Winning strategy of the system players of the net '" + solver.getNet().getName() + "' with type 2");
@@ -93,7 +251,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
 //                        usedTransitions.add(t);
 //                    visitedType2Markings = new HashMap<>();
 //                    type2Step(sol, strategy, prevState.getState(), new ArrayList<>(prevMarking));
-                    addType2Strat(sol, strategy, prevState.getState(), succ, t, new ArrayList<>(prevMarking));
+                    addType2StratOld(sol, strategy, prevState.getState(), succ, t, new ArrayList<>(prevMarking));
 //                        }
                     usedTransitions.add(t);
                     succs = succs.andWith(succ.not());
@@ -104,7 +262,12 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         }
     }
 
-    private boolean addNewSuccessor(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
+    /**
+     * has a problem for forallBuchi/toyexamples/type2_2
+     *
+     */
+    @Deprecated
+    private boolean addNewSuccessorOld(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
         Transition strat_t = strategy.createTransition();
         strat_t.setLabel(t.getId());
         // add preset edges
@@ -132,12 +295,17 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         }
     }
 
-    private void addType2Strat(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
+    /**
+     * has a problem for forallBuchi/toyexamples/type2_2
+     *
+     */
+    @Deprecated
+    private void addType2StratOld(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
         Map<BDD, List<Place>> visitedStates = new HashMap<>();
         visitedStates.put(prev, new ArrayList<>(prevMarking));
 
         // Add first successor
-        boolean newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
+        boolean newOne = addNewSuccessorOld(strategy, visitedStates, succ, t, prevMarking);
         visitedStates.put(succ, new ArrayList<>(prevMarking));
         while (newOne) { // as long as new successors had been added
             prev = succ;
@@ -157,7 +325,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
 //                    BDDTools.printDecodedDecisionSets(prev, (BDDSolver) solver, true);
 //                    System.out.println(" inner " + t);
 //                    BDDTools.printDecodedDecisionSets(succ, (BDDSolver) solver, true);
-                    newOne = addNewSuccessor(strategy, visitedStates, succ, t, prevMarking);
+                    newOne = addNewSuccessorOld(strategy, visitedStates, succ, t, prevMarking);
                     visitedStates.put(succ, new ArrayList<>(prevMarking));
                     break;// found one
                 }
@@ -165,6 +333,11 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         }
     }
 
+    /**
+     * old version for only one successor
+     *
+     */
+    @Deprecated
     private void type2Step(BDDType2Solver solver, PetriNet strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
