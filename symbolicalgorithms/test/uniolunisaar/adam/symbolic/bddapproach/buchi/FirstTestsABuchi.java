@@ -99,7 +99,8 @@ public class FirstTestsABuchi {
     @Test
     public void testType2() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
 //        testToyExamples("type2_0", false); // should be false
-        testToyExamples("type2_1", true); // should be true
+//        testToyExamples("type2_1", true); // should be true
+        testToyExamples("type2_2", true); // should be true
     }
     
     @Test

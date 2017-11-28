@@ -303,6 +303,26 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         return null;
     }
 
+    /**
+     * Searches for a all system2 transitions which could have been fired to get
+     * the target BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    @Override
+    public List<Transition> getAllSystem2Transition(BDD source, BDD target) {
+        List<Transition> all = new ArrayList<>();
+        for (Transition t : getGame().getSysTransition()) {
+            if (hasFiredSystem2(t, source, target)) {
+                all.add(t);
+            }
+        }
+        return all;
+    }
+
     public boolean hasFiredSystem2(Transition t, BDD source, BDD target) {
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;

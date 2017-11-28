@@ -630,6 +630,26 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         return null;
     }
 
+    /**
+     * Searches for a all system2 transitions which could have been fired to get the
+     * target BDD of the source BDD.
+     *
+     * @param source - the source BDD.
+     * @param target - the target BDD.
+     * @return - A transition which could have been fired to connect source and
+     * target.
+     */
+    @Override
+    public List<Transition> getAllSystem2Transition(BDD source, BDD target) {
+        List<Transition> all = new ArrayList<>();
+        for (Transition t : getGame().getSysTransition()) {
+            if (hasFiredSystem2(t, source, target)) {
+                all.add(t);
+            }
+        }
+        return all;
+    }
+
     public boolean hasFiredSystem2(Transition t, BDD source, BDD target) {
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;
@@ -1027,7 +1047,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             sysT.andWith(placesEqual(i));
             // \not topi=>(ti=ti'\wedge type'=type \wedge nocc=nocc' \wedge gc'=gc)
             BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i)
-//                    .andWith(NOCC[1][i].ithVar(0))
+                    //                    .andWith(NOCC[1][i].ithVar(0))
                     .andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
             // topi=> nocc'=1            
 //            BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
@@ -1322,7 +1342,6 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 ////        BDDTools.printDecodedDecisionSets(endStates(0), this, true);
 //        return W;
 //    }
-
     /**
      * Returns the winning decisionsets for the system players
      *
