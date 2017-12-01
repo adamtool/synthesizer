@@ -168,7 +168,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
 //            BDDTools.printDecisionSets(bdd, true);
 //        }
 //        System.out.println("the successor");
-//        BDDTools.printDecisionSets(succ, true);
+//        BDDTools.pr intDecisionSets(succ, true);
         Transition strat_t = strategy.createTransition();
         strat_t.setLabel(t.getId());
         // add preset edges

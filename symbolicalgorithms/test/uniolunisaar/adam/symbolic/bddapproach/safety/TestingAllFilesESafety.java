@@ -55,7 +55,8 @@ public class TestingAllFilesESafety {
             "multipleFlowChains7.apt",
             "infflowchains_env_0.apt",
             "infflowchainsOneGoodOneBad_1.apt",
-            "newchainForget_1.apt"
+            "newchainForget_1.apt",
+            "infiniteFiniteFlowChains.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair7.apt", // two env token

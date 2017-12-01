@@ -23,8 +23,8 @@ public class BDDTestingTools {
 
     public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
         AdamTools.savePG2PDF(file, solv.getNet(), false);
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv.getGame());
         AdamTools.savePG2PDF(file + "_debug", solv.getNet(), true, solv.getGame().getMaxTokenCountInt());
         if (hasStrategy) {

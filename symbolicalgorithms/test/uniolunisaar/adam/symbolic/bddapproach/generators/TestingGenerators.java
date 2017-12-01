@@ -74,7 +74,7 @@ public class TestingGenerators {
     private static final int countContainerPlaces = 1;
     private static final int countRoutingEReachRoutes = 2;
     private static final int countRoutingEReachCars = 5;
-    private static final int countLoopUnrollings = 5;
+    private static final int countLoopUnrollings = 3;
 
     @BeforeClass
     public void createFolder() {
@@ -345,8 +345,8 @@ public class TestingGenerators {
         PetriNet pn = LoopUnrolling.createESafetyVersion(nb_unrollings, true, true);
 //        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
-//        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
     
     @Test(dataProvider = "loopUnrolling")
