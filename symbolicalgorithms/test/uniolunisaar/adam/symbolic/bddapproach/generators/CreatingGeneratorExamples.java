@@ -20,6 +20,7 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.generators.CarRouting;
 import uniolunisaar.adam.generators.Clerks;
+import uniolunisaar.adam.generators.ContainerTerminal;
 import uniolunisaar.adam.generators.ManufactorySystem;
 import uniolunisaar.adam.generators.Philosopher;
 import uniolunisaar.adam.generators.RobotCell;
@@ -131,6 +132,22 @@ public class CreatingGeneratorExamples {
     public void testARouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testARouting(2, 2, true);
         testAReRouting(2, 2, true);
+    }
+
+    @Test
+    public void testContainerTerminal() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+        testContainerTerminal(2);
+    }
+
+    private void testContainerTerminal(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "containterTerminal" + File.separator;
+        String name = count + "_container";
+        File f = new File(path);
+        f.mkdir();
+        PetriNet pn = ContainerTerminal.createSafetyVersion(count, true);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
+        BDDTestingTools.testExample(solv, path + name, true);
     }
 
     private void testPhilosophersGuided(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {

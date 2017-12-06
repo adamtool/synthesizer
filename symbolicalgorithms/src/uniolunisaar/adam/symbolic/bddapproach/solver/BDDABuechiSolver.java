@@ -275,7 +275,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     private BDD resetType2() {
         BDD res = getOne();
         for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
-            res.andWith(GOODCHAIN[0][i].ithVar(1));
+            res.andWith(GOODCHAIN[0][i].ithVar(1)).andWith(TYPE[0][i - 1].ithVar(0));
         }
         return res;
     }
@@ -604,6 +604,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             } else {
                 pos = (GOODCHAIN[0][i].ithVar(1).andWith(TYPE[0][i - 1].ithVar(0))).orWith(codePlace(0, 0, i));
             }
+            pos.orWith(TYPE[0][i - 1].ithVar(1)); // only the type2 place have to be on a good chain and has to be reset
             ret.andWith(pos);
         }
         ret.andWith(OBAD[0].ithVar(0));
@@ -631,8 +632,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     /**
-     * Searches for a all system2 transitions which could have been fired to get the
-     * target BDD of the source BDD.
+     * Searches for a all system2 transitions which could have been fired to get
+     * the target BDD of the source BDD.
      *
      * @param source - the source BDD.
      * @param target - the target BDD.
@@ -769,7 +770,12 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
                 continue;
             }
-            res.andWith(GOODCHAIN[0][i].ithVar(1));
+            if (i == 0) {
+                res.andWith(GOODCHAIN[0][i].ithVar(1));
+            } else {
+                res.andWith(GOODCHAIN[0][i].ithVar(1).andWith(TYPE[0][i - 1].ithVar(1)));
+                res.orWith(TYPE[0][i - 1].ithVar(0));
+            }
         }
         return res;
     }
