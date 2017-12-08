@@ -43,7 +43,7 @@ import uniolunisaar.adam.tools.Tools;
 @Test
 public class CreatingGeneratorExamples {
 
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/generators/";
 
     @BeforeClass
     public void createFolder() {
@@ -138,11 +138,11 @@ public class CreatingGeneratorExamples {
 
     @Test
     public void testContainerTerminal() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
-        testContainerTerminal(2); //net not safe
+//        testContainerTerminal(2); //net not safe, more than one env token!
     }
 
     private void testContainerTerminal(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
-        final String path = outputDir + "containterTerminal" + File.separator;
+        final String path = outputDir + "containerTerminal" + File.separator;
         String name = count + "_container";
         File f = new File(path);
         f.mkdir();
