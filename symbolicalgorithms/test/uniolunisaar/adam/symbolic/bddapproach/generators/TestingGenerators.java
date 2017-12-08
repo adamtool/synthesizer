@@ -346,7 +346,7 @@ public class TestingGenerators {
 //        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, path + name, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
     
     @Test(dataProvider = "loopUnrolling")

@@ -98,7 +98,9 @@ public class CreatingGeneratorExamples {
     @Test
     public void testSelfOrganizingRobots() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testSelfOrgaRobots(2, 1, true);
-//        testSelfOrgaRobots(3, 2);
+//        testSelfOrgaRobots(3, 1, true);
+//        testSelfOrgaRobots(2, 2, false); // not solvable ndet?
+//        testSelfOrgaRobots(3, 2, true); // not solvable ndet?
 //        testSelfOrgaRobots(4, 1);
     }
 
@@ -131,12 +133,12 @@ public class CreatingGeneratorExamples {
     @Test
     public void testARouting() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testARouting(2, 2, true);
-        testAReRouting(2, 2, true);
+        testAReRouting(2, 2, false); // wanted to build it with true, but it correctly has no strategy, because of the scheduling
     }
 
     @Test
     public void testContainerTerminal() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
-        testContainerTerminal(2);
+        testContainerTerminal(2); //net not safe
     }
 
     private void testContainerTerminal(int count) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
@@ -213,9 +215,9 @@ public class CreatingGeneratorExamples {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate robots ...");
-        PetriNet pn = SelfOrganizingRobots.generate(robots, destroyable, true, true);
+        PetriNet pn = SelfOrganizingRobots.generate(robots, destroyable, true, false);
         Tools.savePN(path + name, pn);
-        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
