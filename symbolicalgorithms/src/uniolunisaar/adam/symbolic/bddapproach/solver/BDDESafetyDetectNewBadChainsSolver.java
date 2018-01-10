@@ -37,7 +37,8 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
+@Deprecated
+public class BDDESafetyDetectNewBadChainsSolver extends BDDSolver<Safety> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[] LOOP;
@@ -59,7 +60,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDESafetyWithNewChainsSolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDESafetyDetectNewBadChainsSolver(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(net, skipTests, win, opts);
     }
 
@@ -330,7 +331,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //                    System.out.println("Pre: " + p.getId());
                     int preToken = AdamExtensions.getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
-                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
+                    BDD goodOrDependentOfGood = GOODCHAIN[0][preToken].ithVar(1);
+                    allPres.andWith(goodOrDependentOfGood);
                 }
                 if (tokenFlow.getPreset().isEmpty()) {
                     hasEmptyPreset = true;
@@ -339,7 +341,40 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             }
         }
         allPres.biimpWith(GOODCHAIN[1][token].ithVar(1));
-        return (hasEmptyPreset) ? GOODCHAIN[1][token].ithVar(0) : allPres;
+        if (hasEmptyPreset) {
+            // if all other visible token which are dependent on the creation of
+            // this new chain already are bad, we can create a new bad chain
+            BDD allBad = getOne();
+            BDD dependent = getZero();
+            for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+                if (i != token) {
+                    BDD dep = getFactory().ithVar(DEP_ON_NEWCHAIN[0][i - 1].vars()[token - 1]);
+                    dependent = dependent.or(dep);
+//                    dependent.orWith(getFactory().nithVar(DEP_ON_NEWCHAIN[0][i - 1].vars()[token - 1])); // or not dependent
+//                    if (!AdamExtensions.isConcurrencyPreserving(getNet())) {
+//                        dependent.orWith(codePlace(0, 0, i));
+//                    } 
+//                    if (t.getId().equals("t3")) {
+//                        System.out.println("asdf"+i);
+//                        BDDTools.printDecodedDecisionSets(dependent, this, true);
+//                        BDDTools.printDecisionSets(dependent, true);
+//                    }
+                    allBad.andWith(dep.impWith(GOODCHAIN[0][i].ithVar(1)));// dependent -> bad
+                }
+            }
+//            if (getGame().getMaxTokenCount() == 2) {
+//                return GOODCHAIN[1][token].ithVar(0);
+//            }
+//            if (t.getId().equals("t3")) {
+//                System.out.println("asdf");
+//                BDDTools.printDecodedDecisionSets(allBad, this, true);
+//                BDDTools.printDecisionSets(allBad, true);
+//            }
+            allBad.andWith(dependent);
+            return allBad.biimpWith(GOODCHAIN[1][token].ithVar(1));
+//return GOODCHAIN[1][token].ithVar(0);
+        }
+        return allPres;
     }
 
     private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
