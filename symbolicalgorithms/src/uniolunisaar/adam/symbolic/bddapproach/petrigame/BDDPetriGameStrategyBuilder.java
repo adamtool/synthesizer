@@ -44,6 +44,7 @@ public class BDDPetriGameStrategyBuilder {
     public PetriNet builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
         PetriNet strategy = new PetriNet("Winning strategy of the system players of the net '" + solver.getNet().getName() + "'.");
+        AdamExtensions.setWinningCondition(strategy, AdamExtensions.getWinningCondition(solver.getNet()));
         BDDState init = graph.getInitial();
         // create the initial places
         List<Place> initial = new ArrayList<>();
