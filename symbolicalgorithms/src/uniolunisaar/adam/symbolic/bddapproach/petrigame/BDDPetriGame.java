@@ -163,7 +163,7 @@ public class BDDPetriGame extends PetriGame {
                 places[token].add(place);
             }
         } catch (Exception e) {
-            Logger.getInstance().addErrorMessage("Sorry, most likely you did s.th. wrong with the annotation of the token.", e);
+            Logger.getInstance().addError("Sorry, most likely you did s.th. wrong with the annotation of the token.", e);
             throw e;
         }
 
