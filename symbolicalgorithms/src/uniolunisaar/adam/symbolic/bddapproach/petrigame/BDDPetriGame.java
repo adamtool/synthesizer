@@ -54,7 +54,7 @@ public class BDDPetriGame extends PetriGame {
             CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
             NotSolvableWitness witness = AdamTools.isSolvablePetriGame(pn, cover);
             if (witness != null) {
-                throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
+//                throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
             }
             // only one env token is allowed (todo: do it less expensive ?)
             for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
