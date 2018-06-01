@@ -382,7 +382,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //        sys2.orWith(loops());
 //        System.out.println("for wellformed");
 //        return sys2;//.andWith(wellformedTransition());
-        return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
+        return sys2.andWith(getBufferedNDet().not());//.andWith(wellformedTransition());
     }
 
     private BDD sys2TransitionNotCP(Transition t) {
@@ -452,7 +452,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 //        BDDTools.printDecisionSets(sys2, true);
 //        return sys2;//.andWith(wellformedTransition());
 // wrong typed2 sets don't have succesor
-        return sys2.andWith(ndetStates(0).not());//.andWith(wellformedTransition());
+        return sys2.andWith(getBufferedNDet().not());//.andWith(wellformedTransition());
     }
 
     /**
@@ -608,7 +608,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             ret.andWith(pos);
         }
         ret.andWith(OBAD[0].ithVar(0));
-        ret.andWith(ndetStates(0).not());
+        ret.andWith(getBufferedNDet().not());
         return ret;//.and(buchi);
     }
 
@@ -706,7 +706,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
             ret.andWith(pos);
         }
         ret.andWith(OBAD[0].ithVar(0));
-        ret.andWith((ndetStates(0).orWith(wrongTypedDCS())).not());
+        ret.andWith((getBufferedNDet().or(wrongTypedDCS())).not());
         return ret;//.and(buchi);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -755,7 +755,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
         init.andWith(LOOP[0].ithVar(0));
         init.andWith(OBAD[0].ithVar(0));
-        init.andWith(ndetStates(0).not());
+        init.andWith(getBufferedNDet().not());
         return init;
     }
 
@@ -1154,7 +1154,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
         // bad states don't have succesors
-        sys.andWith((wrongTypedDCS().or(ndetStates(0))).not());
+        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not());
         sys.orWith(loops());
 
 //        System.out.println("sys trans");
@@ -1249,7 +1249,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
         // bad states don't have succesors
-        sys.andWith((wrongTypedDCS().or(ndetStates(0))).not());
+        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not());
         sys.orWith(loops());
         return sys;
     }

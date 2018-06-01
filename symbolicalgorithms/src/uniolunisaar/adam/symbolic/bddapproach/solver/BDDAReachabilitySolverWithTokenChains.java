@@ -136,7 +136,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     @Override
     BDD initial() {
         BDD init = super.initial();
-        init.andWith(ndetStates(0).not());
+        init.andWith(getBufferedNDet().not());
         Marking initial = getNet().getInitialMarking();
         List<Integer> alreadySetIds = new ArrayList<>();
         List<Integer> alreadySetActIds = new ArrayList<>();
@@ -467,7 +467,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
 
-        sys.andWith(ndetStates(0).not());
+        sys.andWith(getBufferedNDet().not());
         // 1 for a chain in preset => 1 for the chain in postset
         sys.andWith(keepOnesForChains());
         return sys;
@@ -553,7 +553,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
 //TODO: mache den oldtype stuff
-        sys.andWith(ndetStates(0).not());
+        sys.andWith(getBufferedNDet().not());
 
         // 1 for a chain in preset => 1 for the chain in postset
         sys.andWith(keepOnesForChains());
@@ -574,7 +574,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD goodReach = winningStates().andWith(ndetStates(0).not()).andWith(wellformed(0));
+        BDD goodReach = winningStates().andWith(getBufferedNDet().not()).andWith(wellformed(0));
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
         BDD fixedPoint = attractor(goodReach, false, distance);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
@@ -602,7 +602,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
                 if (!reach.and(state.getState()).isZero()) {
                     state.setGood(true);
                 }
-                if (!ndetStates(0).and(state.getState()).isZero()) {
+                if (!getBufferedNDet().and(state.getState()).isZero()) {
                     state.setBad(true);
                 }
             }

@@ -312,7 +312,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         }
         init.andWith(LOOP[0].ithVar(0));
         init.andWith(OBAD[0].ithVar(0));
-        init.andWith(ndetStates(0).not());
+        init.andWith(getBufferedNDet().not());
         return init;
     }
 
@@ -671,7 +671,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 
         sys.orWith(loops());
 
-        return sys.andWith(ndetStates(0).not());
+        return sys.andWith(getBufferedNDet().not());
     }
 
 //    @Override
@@ -759,7 +759,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         sys.andWith(OBAD[0].ithVar(0));
 
         sys.orWith(loops());
-        return sys.andWith(ndetStates(0).not());
+        return sys.andWith(getBufferedNDet().not());
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
@@ -851,7 +851,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                 if (!winningStates().and(state.getState()).isZero()) {
                     state.setGood(true);
                 }
-                if (!ndetStates(0).and(state.getState()).isZero()) {
+                if (!getBufferedNDet().and(state.getState()).isZero()) {
                     state.setBad(true);
                 }
                 if (!OBAD[0].ithVar(1).and(state.getState()).isZero()) {

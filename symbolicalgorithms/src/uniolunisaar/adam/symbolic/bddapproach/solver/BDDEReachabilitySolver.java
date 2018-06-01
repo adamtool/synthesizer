@@ -69,7 +69,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     BDD initial() {
         BDD init = super.initial();
 //                    BDDTools.printDecodedDecisionSets(init, this, true);
-        init.andWith(ndetStates(0).not());
+        init.andWith(getBufferedNDet().not());
         return init;
     }
 
@@ -87,7 +87,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD goodReach = reach().andWith(ndetStates(0).not()).andWith(wellformed(0));
+        BDD goodReach = reach().andWith(getBufferedNDet().not()).andWith(wellformed(0));
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
         BDD fixedPoint = attractor(goodReach, false, distance);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
@@ -107,7 +107,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD getSystemTransitions() {
         BDD sys = super.getSystemTransitions();
-        sys.andWith(ndetStates(0).not());
+        sys.andWith(getBufferedNDet().not());
         return sys;
     }
 
@@ -127,7 +127,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
                 state.setGood(true);
             }
-            if (!ndetStates(0).and(state.getState()).isZero()) {
+            if (!getBufferedNDet().and(state.getState()).isZero()) {
                 state.setBad(true);
             }
         }

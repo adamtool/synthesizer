@@ -324,6 +324,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      * Calculates a BDD with all situations where nondeterminism has been
      * encountered.
      *
+     * This is for the original Defition with checking ndet within the strategy.
+     * Since our scheduling does not considere every marking, some non
+     * determinism could be overseen. Thus, we changed the definition of non
+     * determinism for the Petri game itself and check now non determinism of
+     * strategy transitions within the original Net.
+     *
      * @param pos - 0 for the predecessor variables and 1 for the successor
      * variables.
      *
@@ -357,6 +363,49 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
     }
 
     /**
+     * Calculates a BDD with all situations where nondeterminism has been
+     * encountered.
+     *
+     * Since our scheduling does not considere every marking, some non
+     * determinism with the originial version could be overseen.
+     *
+     * Thus, here we changed the definition of non determinism for the Petri
+     * game itself and check now non determinism of strategy transitions within
+     * the original Net.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor
+     * variables.
+     *
+     * @return BDD with all nondeterministic situations.
+     */
+    BDD ndetStates2(int pos) {
+        BDD nondet = getZero();
+        Set<Transition> trans = getGame().getNet().getTransitions();
+        for (Transition t1 : trans) {
+            for (Transition t2 : trans) {
+                if (!t1.equals(t2)) {
+                    // sharing a system place?
+                    Set<Place> pre1 = t1.getPreset();
+                    Set<Place> pre2 = t2.getPreset();
+                    Set<Place> intersect = new HashSet<>(pre1);
+                    intersect.retainAll(pre2);
+                    boolean shared = false;
+                    for (Place place : intersect) {
+                        if (!AdamExtensions.isEnvironment(place)) {
+                            shared = true;
+                        }
+                    }
+                    if (shared && this.getGame().eventuallyEnabled(t1, t2)) { // here check added for firing in the original game
+                        BDD first = chosen(t1, pos).andWith(chosen(t2, pos));
+                        nondet = nondet.orWith(first);
+                    }
+                }
+            }
+        }
+        return nondet;//.andWith(wellformed());
+    }
+
+    /**
      * There could ndet states be missed because of the scheduling. A conjecture
      * is that it is enough to take the states where ndet encountered and add
      * all of those states with which we could reach such states by firing
@@ -370,7 +419,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
      */
     BDD ndetEncountered() {
         BDD Q = getOne();
-        BDD Q_ = ndetStates(0);
+        BDD Q_ = getBufferedNDet();
         Set<Transition> envTrans = getGame().getEnvTransitions();
         int[] pres = new int[envTrans.size()];
         int[] posts = new int[envTrans.size()];
@@ -1446,7 +1495,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDPe
 
     BDD getBufferedNDet() {
         if (ndet == null) {
-            ndet = ndetStates(0);
+//            ndet = ndetStates(0);
+            ndet = ndetStates2(0);
             //fixes one special case of the ndet problem but takes longer
 //            ndet = ndetEncountered();
         }

@@ -47,7 +47,6 @@ public class TestingAllFilesASafety {
             "vsp__adam_machines.apt",
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
             "nondet.apt",
-            "nondet2.apt",
             "nondet_withBad.apt", // has a strategy since nondet is overseen
             "nondet2WithSys.apt", // has a strategy since nondet is overseen
             "nondet_s3_noStrat.apt",
@@ -55,9 +54,21 @@ public class TestingAllFilesASafety {
             "firstExamplePaper_extended.apt",
             "envSkipsSys.apt",
             "robots_false.apt",
-            "myexample4.apt"));
+            "myexample4.apt",
+            "nondet_withBad.apt",
+            "nondet2WithSys.apt",
+            "nondet2.apt",
+            "nondet_jhh1.apt",
+            "nondet_jhh3.apt",
+            "nondet2SelectionToken.apt",
+            "robinhood.apt",
+            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
+            "nondet2WithStratByGameSolving.apt" // should have a strategy for the original definition of ndet
+    ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
-            //            "container.apt", // takes to long ... 
+            "container.apt", // takes to long ... 
+            "container_withoutAnnotation.apt", // takes to long
+
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
             "myexample7.apt", // has two environment token
@@ -66,17 +77,16 @@ public class TestingAllFilesASafety {
             "toMakeCP.apt",// two environment token
             "madeCP.apt"// two environment token
     ));
-    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
-            "nondet2WithStratByGameSolving.apt", // should have a strategy
-            "missDeadlock.apt", // should have a strategy
-            "nondet_withBad.apt", // should have no strategy, builds one voilating S3
-            "nondet2WithSys.apt", // should have no strategy, builds one violating S3
-            "nondet2.apt", // should have no strategy, builds one violating S3
-            "nondet.apt", // should have no strategy, builds one voilating S3
-            "nondet_jhh1.apt", // should have no strategy, and also detects this
-            "nondet_jhh2.apt", // should have no strategy, and also detects this
-            "nondet_jhh3.apt" // should have no strategy, builds one violating S3
-    ));
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
+            //            "missDeadlock.apt", // should have a strategy
+            //            "nondet_withBad.apt", // should have no strategy, builds one voilating S3
+            //            "nondet2WithSys.apt", // should have no strategy, builds one violating S3
+            //            "nondet2.apt", // should have no strategy, builds one violating S3
+            //            "nondet.apt", // should have no strategy, builds one voilating S3
+            //            "nondet_jhh1.apt", // should have no strategy, and also detects this
+            //            "nondet_jhh2.apt", // should have no strategy, and also detects this
+            //            "nondet_jhh3.apt" // should have no strategy, builds one violating S3
+            ));
 
     @BeforeClass
     public void createFolder() {
@@ -106,12 +116,12 @@ public class TestingAllFilesASafety {
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NotSupportedGameException, ParameterMissingException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
-        if (notSupported.contains(file.getName())) {
-            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
-        } else {
+//        if (notSupported.contains(file.getName())) {
+//            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
+//            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+//        } else {
             String output = outputDir + file.getName().split(".apt")[0];
             BDDTestingTools.testExample(solv, output, hasStrategy);
-        }
+//        }
     }
 }
