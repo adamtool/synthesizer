@@ -49,7 +49,8 @@ public class TestingAllFilesEReachability {
             "unfair.apt",
             "nondetNoStrat",// should have no strategy, builds one voilating S3
             "nondet2.apt",// should have no strategy, builds one voilating S3,
-            "twoDecisions1.apt"
+            "twoDecisions1.apt",
+            "unfairEnv.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "unfair2.apt" // has two env token
