@@ -105,6 +105,19 @@ public class CreatingGeneratorExamples {
     }
 
     @Test
+    public void testSelfOrganizingRobotsNew() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+        testSelfOrgaRobotsNew(1, 1, 1, false);
+        testSelfOrgaRobotsNew(1, 1, 2, false);
+        testSelfOrgaRobotsNew(1, 1, 3, false);
+        testSelfOrgaRobotsNew(1, 2, 1, true);        
+        testSelfOrgaRobotsNew(1, 2, 2, false);
+        testSelfOrgaRobotsNew(1, 2, 3, false);
+        testSelfOrgaRobotsNew(2, 2, 1, true);        
+//        testSelfOrgaRobotsNew(2, 2, 2, false);
+//        testSelfOrgaRobotsNew(2, 2, 3, false);
+    }
+
+    @Test
     public void testManufactorySystem() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testManu(2);
         testManu(3);
@@ -216,6 +229,18 @@ public class CreatingGeneratorExamples {
         f.mkdir();
         System.out.println("Generate robots ...");
         PetriNet pn = SelfOrganizingRobots.generate(robots, destroyable, true, false);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testSelfOrgaRobotsNew(int robots, int tools, int phases, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "selfOrgaRobotsNewVersion" + File.separator;
+        String name = "R" + robots + "T" + tools + "P" + phases;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate robots ...");
+        PetriNet pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);

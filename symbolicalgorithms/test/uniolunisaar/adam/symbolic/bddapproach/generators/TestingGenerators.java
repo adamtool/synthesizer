@@ -66,6 +66,9 @@ public class TestingGenerators {
     private static final int countRobotCell_destr = 2;
     private static final int countSelfOrga_rb = 1;
     private static final int countSelfOrga_destr = 2;
+    private static final int countSelfOrgaNew_rb = 1;
+    private static final int countSelfOrgaNew_tool = 1;
+    private static final int countSelfOrgaNew_ph = 2;
     private static final int countCM_machines = 1;
     private static final int countCM_pieces = 2;
 //    private static final int countWD_machines = 9;
@@ -236,15 +239,44 @@ public class TestingGenerators {
 
     @Test(dataProvider = "selfOrgaRobots")
     public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
-        if (robots == 2 && destroyable == 2) {
-            return; // is not solvable (new determinism condition)
-        }
+//        if (robots == 2 && destroyable == 2) {
+//            return; // is not solvable (new determinism condition)
+//        }
         final String path = outputDir + "selfOrgaRobots" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate robots ...");
         PetriNet pn = SelfOrganizingRobots.generate(robots, destroyable, true, true);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% self organizing robots new version
+    @DataProvider(name = "selfOrgaRobotsNew")
+    public static Object[][] selfOrgaRobotsNew() {
+        Object[][] out = new Object[countSelfOrgaNew_rb * countSelfOrgaNew_tool * countSelfOrgaNew_ph][4];
+        for (int i = 0; i < countSelfOrgaNew_rb; i++) {
+            for (int j = 0; j < countSelfOrgaNew_tool; j++) {
+                for (int k = 0; k < countSelfOrgaNew_ph; k++) {
+                    out[i * countSelfOrgaNew_tool * countSelfOrgaNew_ph + j * countSelfOrgaNew_ph + k][0] = i + 1;
+                    out[i * countSelfOrgaNew_tool * countSelfOrgaNew_ph + j * countSelfOrgaNew_ph + k][1] = i + 1 + j;
+                    out[i * countSelfOrgaNew_tool * countSelfOrgaNew_ph + j * countSelfOrgaNew_ph + k][2] = k + 1;
+                    out[i * countSelfOrgaNew_tool * countSelfOrgaNew_ph + j * countSelfOrgaNew_ph + k][3] = i + j > k;
+                }
+            }
+        }
+        return out;
+    }
+
+    @Test(dataProvider = "selfOrgaRobotsNew")
+    public void testSelfOrgaRobotsNew(int robots, int tools, int phases, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "selfOrgaRobotsNew" + File.separator;
+        String name = "R" + robots + "T" + tools + "P" + phases;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate robots R" + robots + "T" + tools + "P" + phases + " ...");
+        PetriNet pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -348,7 +380,7 @@ public class TestingGenerators {
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
-    
+
     @Test(dataProvider = "loopUnrolling")
     public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "loopUnrolling" + File.separator;
