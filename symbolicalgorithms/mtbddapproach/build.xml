@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="adam_symbolic_bdd" default="jar">
+<project name="adam_symbolic_mtbdd" default="jar">
 
-	<dirname property="symbolic.bdd.basedir" file="${ant.file.adam_symbolic_bdd}"/>
+	<dirname property="symbolic.mtbdd.basedir" file="${ant.file.adam_symbolic_mtbdd}"/>
 
 <!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTS %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
-	<property file="${symbolic.bdd.basedir}/build.properties"/>
+	<property file="${symbolic.mtbdd.basedir}/build.properties"/>
 	<import file="${mainfolder}/build_macros.xml" optional="false"/>
-	<include file="${mainfolder}/build_targets.xml" as="symbolic.bdd.fu" optional="false" />
+	<include file="${mainfolder}/build_targets.xml" as="symbolic.mtbdd.fu" optional="false" />
 
 <!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PATHs %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
 
-	<union id="symbolic.bdd.jar.res">    	
+	<union id="symbolic.mtbdd.jar.res">    	
 <!--			<zipfileset includes="**/*.class" src="${mainfolder}/lib/apt/apt.jar"/>
 			<zipfileset includes="**/*.stg" src="${mainfolder}/lib/apt/apt.jar"/>		
 			<zipfileset includes="**/*.class" src="${mainfolder}/logic/adam_logics.jar"/>-->
@@ -25,28 +25,28 @@
 
 <!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% DELEGATES %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
 	<target name="test" depends="loadProperties" description="Runs all tests">
-		<antcall target="symbolic.bdd.fu.test"/>
+		<antcall target="symbolic.mtbdd.fu.test"/>
 			<!--<ant antfile="${logics.basedir}/build_logics.xml" target="test"></ant>	-->	
 	</target>
 	<target name="test-method" depends="loadProperties" description="Runs the tests of a specific method">
-		<antcall target="symbolic.bdd.fu.test-method"/>
+		<antcall target="symbolic.mtbdd.fu.test-method"/>
 	</target>
 	<target name="test-class" depends="loadProperties" description="Runs the tests of a specific class">
-		<antcall target="symbolic.bdd.fu.test-class"/>
+		<antcall target="symbolic.mtbdd.fu.test-class"/>
 	</target>
 	<target name="jar" depends="loadProperties" description="Builds a jar with all its dependencies">
-		<antcall target="symbolic.bdd.fu.jar"/>
+		<antcall target="symbolic.mtbdd.fu.jar"/>
 	</target>
 	<target name="jar-standalone" depends="loadProperties" description="Builds a jar with all its dependencies">
-		<antcall target="symbolic.bdd.fu.jar-standalone"/>
+		<antcall target="symbolic.mtbdd.fu.jar-standalone"/>
 	</target>
 	<target name="javadoc" depends="loadProperties" description="Creates the JavaDoc of this package.">
-		<antcall target="symbolic.bdd.fu.javadoc"/>
+		<antcall target="symbolic.mtbdd.fu.javadoc"/>
 	</target>
 	<target name="clean" depends="loadProperties" description="Cleans all temporary files.">
-		<antcall target="symbolic.bdd.fu.clean"/>
+		<antcall target="symbolic.mtbdd.fu.clean"/>
 	</target>
 	<target name="clean-all" depends="loadProperties" description="Cleans all temporary files including the reports">
-		<antcall target="symbolic.bdd.fu.clean-all"/>
+		<antcall target="symbolic.mtbdd.fu.clean-all"/>
 	</target>
 </project>
