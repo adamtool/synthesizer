@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
@@ -17,6 +16,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.generators.Clerks;
 import uniolunisaar.adam.generators.LoopUnrolling;
@@ -102,7 +102,7 @@ public class TestingGenerators {
         String name = count + "_phils";
         File f = new File(path);
         f.mkdir();
-        PetriNet pn = Philosopher.generateGuided2(count, true, true);
+        PetriGame pn = Philosopher.generateGuided2(count, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -124,7 +124,7 @@ public class TestingGenerators {
         String name = count + "_phils";
         File f = new File(path);
         f.mkdir();
-        PetriNet pn = Philosopher.generateIndividual(count, true, true);
+        PetriGame pn = Philosopher.generateIndividual(count, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -146,7 +146,7 @@ public class TestingGenerators {
         String name = count + "_clerks";
         File f = new File(path);
         f.mkdir();
-        PetriNet pn = Clerks.generateCP(count, true, true);
+        PetriGame pn = Clerks.generateCP(count, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -169,7 +169,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate clerks ...");
-        PetriNet pn = Clerks.generateNonCP(count, true, true);
+        PetriGame pn = Clerks.generateNonCP(count, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -192,7 +192,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate factory...");
-        PetriNet pn = ManufactorySystem.generate(machines, true, true, true);
+        PetriGame pn = ManufactorySystem.generate(machines, true, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -218,7 +218,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate robots ...");
-        PetriNet pn = RobotCell.generate(robots, destroyable, true);
+        PetriGame pn = RobotCell.generate(robots, destroyable, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -247,7 +247,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate robots ...");
-        PetriNet pn = SelfOrganizingRobots.generate(robots, destroyable, true, true);
+        PetriGame pn = SelfOrganizingRobots.generate(robots, destroyable, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -276,7 +276,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate robots R" + robots + "T" + tools + "P" + phases + " ...");
-        PetriNet pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
+        PetriGame pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -302,7 +302,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate Workflow...");
-        PetriNet pn = Workflow.generateNewAnnotationPoster(machines, pieces, true, true);
+        PetriGame pn = Workflow.generateNewAnnotationPoster(machines, pieces, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -325,7 +325,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate watchdog...");
-        PetriNet pn = Watchdog.generate(machines, false, false, true);
+        PetriGame pn = Watchdog.generate(machines, false, false, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
@@ -349,7 +349,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate security System...");
-        PetriNet pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
+        PetriGame pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
 //        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
@@ -374,7 +374,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate loop unrolling example...");
-        PetriNet pn = LoopUnrolling.createESafetyVersion(nb_unrollings, true, true);
+        PetriGame pn = LoopUnrolling.createESafetyVersion(nb_unrollings, true, true);
 //        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
@@ -388,7 +388,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate loop unrolling example...");
-        PetriNet pn = LoopUnrolling.createESafetyVersion(nb_unrollings, false, true);
+        PetriGame pn = LoopUnrolling.createESafetyVersion(nb_unrollings, false, true);
 //        Tools.savePN(path+name, pn);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
@@ -413,7 +413,7 @@ public class TestingGenerators {
 //        File f = new File(path);
 //        f.mkdir();
 //        System.out.println("Generate security System...");
-//        PetriNet pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
+//        PetriGame pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
 ////        Tools.savePN(path+name, pn);
 //        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 ////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
@@ -437,7 +437,7 @@ public class TestingGenerators {
 //        File f = new File(path);
 //        f.mkdir();
 //        System.out.println("Generate container terminal...");
-//        PetriNet pn = ContainerTerminal.createSafetyVersion(containerPlaces, true);
+//        PetriGame pn = ContainerTerminal.createSafetyVersion(containerPlaces, true);
 ////        Tools.savePN(path+name, pn);
 //        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 ////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);

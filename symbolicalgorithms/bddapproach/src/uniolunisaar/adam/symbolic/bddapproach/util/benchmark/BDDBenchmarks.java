@@ -4,6 +4,7 @@ import uniol.apt.adt.pn.PetriNet;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.solver.SolverOptions;
+import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -76,11 +77,11 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(Solver<? extends PetriGame, ? extends WinningCondition, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<? extends SolvingObject<? extends PetriGame, ? extends WinningCondition>, ? extends SolverOptions> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 
-    public Solver<? extends PetriGame, ? extends WinningCondition, ? extends SolverOptions> getSolver() {
+    public Solver<? extends SolvingObject<? extends PetriGame, ? extends WinningCondition>, ? extends SolverOptions> getSolver() {
         return Benchmarks.getInstance().getSolver();
     }
 

@@ -16,12 +16,13 @@ import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
-import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGame;
+import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrigame.TokenChain;
 import uniolunisaar.adam.ds.petrigame.TokenTree;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -41,7 +42,7 @@ public class BDDTools {
         return new StringBuilder(binID).reverse().toString();
     }
 
-    public static String place2BinID(Place s3, BDDPetriGame game, int token) {
+    public static String place2BinID(Place s3, BDDSolvingObject game, int token) {
         int digits = getBinLength(game, token);
         return place2BinID(s3, digits);
     }
@@ -154,9 +155,9 @@ public class BDDTools {
         }
     }
 
-    public static int getBinLength(BDDPetriGame game, int token) {
+    public static int getBinLength(BDDSolvingObject game, int token) {
         int add = (game.isConcurrencyPreserving()) ? -1 : 0;
-        return Integer.toBinaryString(game.getPlaces()[token].size() + add).length();
+        return Integer.toBinaryString(game.getDevidedPlaces()[token].size() + add).length();
     }
 
     /**
@@ -169,12 +170,12 @@ public class BDDTools {
      */
     @Deprecated
     public static String getDecodedDecisionSetsDeprecated(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
-        BDDPetriGame game = solver.getGame();
+        BDDSolvingObject<? extends WinningCondition> game = solver.getSolvingObject();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
-            for (Place pl : game.getPlaces()[i]) {
+            for (Place pl : game.getDevidedPlaces()[i]) {
                 pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
             }
         }
@@ -223,7 +224,7 @@ public class BDDTools {
                         tokens += sol[counter++] + ", ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
+                    List<Transition> transitions = game.getDevidedTransitions()[i - 1];
                     for (int j = 0; j < transitions.size(); ++j) {
                         Transition trans = transitions.get(j);
                         byte t = sol[counter++];
@@ -236,7 +237,7 @@ public class BDDTools {
                     tokens += "})\n";
                 } else {
                     tokens += "( - )\n";
-                    counter += 1 + game.getTransitions()[i - 1].size();
+                    counter += 1 + game.getDevidedTransitions()[i - 1].size();
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
@@ -273,7 +274,7 @@ public class BDDTools {
                         tokens_ += sol[counter++] + ", ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
+                    List<Transition> transitions = game.getDevidedTransitions()[i - 1];
                     for (int j = 0; j < transitions.size(); ++j) {
                         Transition trans = transitions.get(j);
                         byte t = sol[counter++];
@@ -286,7 +287,7 @@ public class BDDTools {
                     tokens_ += "})\n";
                 } else {
                     tokens_ += "( - )\n";
-                    counter += 1 + game.getTransitions()[i - 1].size();
+                    counter += 1 + game.getDevidedTransitions()[i - 1].size();
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
@@ -436,12 +437,12 @@ public class BDDTools {
      * @return
      */
     public static String getDecodedDecisionSetsWithoutDomains(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
-        BDDPetriGame game = solver.getGame();
+        BDDSolvingObject<? extends WinningCondition> game = solver.getSolvingObject();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
-            for (Place pl : game.getPlaces()[i]) {
+            for (Place pl : game.getDevidedPlaces()[i]) {
                 pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
             }
         }
@@ -508,7 +509,7 @@ public class BDDTools {
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
+                    List<Transition> transitions = game.getDevidedTransitions()[i - 1];
                     for (int j = 0; j < transitions.size(); ++j) {
                         Transition trans = transitions.get(j);
                         byte t = sol[counter++];
@@ -522,7 +523,7 @@ public class BDDTools {
                 } else {
                     tokens += "( - )\n";
 //                    int buf = counter;
-                    counter += 1 + game.getTransitions()[i - 1].size();
+                    counter += 1 + game.getDevidedTransitions()[i - 1].size();
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
@@ -619,7 +620,7 @@ public class BDDTools {
                         tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
-                    List<Transition> transitions = game.getTransitions()[i - 1];
+                    List<Transition> transitions = game.getDevidedTransitions()[i - 1];
                     for (int j = 0; j < transitions.size(); ++j) {
                         Transition trans = transitions.get(j);
                         byte t = sol[counter++];
@@ -632,7 +633,7 @@ public class BDDTools {
                     tokens_ += "})\n";
                 } else {
                     tokens_ += "( - )\n";
-                    counter += 1 + game.getTransitions()[i - 1].size();
+                    counter += 1 + game.getDevidedTransitions()[i - 1].size();
                     if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
                             || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
@@ -890,8 +891,8 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
-    public static List<Integer> getTreeIDsContainingPlace(Place place) {
-        List<TokenTree> tokentrees = AdamExtensions.getTokenTrees(place.getGraph());
+    public static List<Integer> getTreeIDsContainingPlace(Place place, PetriGame game) {
+        List<TokenTree> tokentrees = AdamExtensions.getTokenTrees(game);
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < tokentrees.size(); i++) {
             TokenTree tree = tokentrees.get(i);
@@ -902,8 +903,8 @@ public class BDDTools {
         return ids;
     }
 
-    public static List<Integer> getChainIDsContainingPlace(Place place) {
-        List<TokenChain> tokenchains = AdamExtensions.getTokenChains(place.getGraph());
+    public static List<Integer> getChainIDsContainingPlace(Place place, PetriGame game) {
+        List<TokenChain> tokenchains = AdamExtensions.getTokenChains(game);
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < tokenchains.size(); i++) {
             TokenChain chain = tokenchains.get(i);

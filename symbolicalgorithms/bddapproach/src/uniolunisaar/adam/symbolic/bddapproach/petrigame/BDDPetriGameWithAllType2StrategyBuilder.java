@@ -5,17 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.javabdd.BDD;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDType2Solver;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
 /**
  * @author Manuel Gieseking
@@ -49,7 +48,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         // Must be a solver with type2 ability
         BDDType2Solver sol = (BDDType2Solver) solver;
@@ -83,7 +82,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         }
     }
 
-    private void addType2Strat(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking, Map<BDD, List<Place>> visitedStates) {
+    private void addType2Strat(BDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking, Map<BDD, List<Place>> visitedStates) {
         // if already added this transition to this marking, skip
         if (alreadyAdded(t, prevMarking)) {
             return;
@@ -162,7 +161,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         return true;
     }
 
-    private boolean addNewSuccessor(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
+    private boolean addNewSuccessor(PetriGame strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
 //        System.out.println("really add transition" + t);
 //        for (BDD bdd : visitedStates.keySet()) {
 //            BDDTools.printDecisionSets(bdd, true);
@@ -208,7 +207,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      */
     //@Override
     @Deprecated
-    void addSpecialStateBehaviourOld(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviourOld(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net
@@ -267,7 +266,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      *
      */
     @Deprecated
-    private boolean addNewSuccessorOld(PetriNet strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
+    private boolean addNewSuccessorOld(PetriGame strategy, Map<BDD, List<Place>> visitedStates, BDD succ, Transition t, List<Place> prevMarking) {
         Transition strat_t = strategy.createTransition();
         strat_t.setLabel(t.getId());
         // add preset edges
@@ -300,7 +299,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      *
      */
     @Deprecated
-    private void addType2StratOld(BDDType2Solver solver, PetriNet strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
+    private void addType2StratOld(BDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
         Map<BDD, List<Place>> visitedStates = new HashMap<>();
         visitedStates.put(prev, new ArrayList<>(prevMarking));
 
@@ -338,7 +337,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      *
      */
     @Deprecated
-    private void type2Step(BDDType2Solver solver, PetriNet strategy, BDD state, List<Place> marking) {
+    private void type2Step(BDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");

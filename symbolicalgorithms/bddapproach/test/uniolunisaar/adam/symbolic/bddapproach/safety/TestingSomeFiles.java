@@ -136,8 +136,8 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet2WithSys";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -156,8 +156,8 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet_withBad";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
 //        PetriNet strat = solv.getStrategy();
 //        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
@@ -171,8 +171,8 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet2WithStratByGameSolving";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
 //        PetriNet strat = solv.getStrategy();
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphenGame", solv.getGraphGame(), solv);
@@ -187,8 +187,8 @@ public class TestingSomeFiles {
         final String path = inputDir + "deadlock" + File.separator;
         final String name = "missDeadlock";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -219,6 +219,17 @@ public class TestingSomeFiles {
     public void testNotCP() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + "notConcurrencyPreservingTests" + File.separator;
         final String name = "ncp0";
+//        Logger.getInstance().setVerbose(true);
+
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+    
+    @Test(enabled = true)
+    public void testForbiddingTransitionOnce() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException {
+        final String path = inputDir + "toyexamples" + File.separator;
+        final String name = "forbiddingTransitionOnce";
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);

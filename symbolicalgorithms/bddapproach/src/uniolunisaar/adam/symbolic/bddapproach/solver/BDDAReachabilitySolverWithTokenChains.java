@@ -9,7 +9,6 @@ import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Marking;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
@@ -19,7 +18,8 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.logic.tokenflow.TokenChainGenerator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -30,7 +30,8 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
- * Never really finished. The idea with token chains never really worked out well.
+ * Never really finished. The idea with token chains never really worked out
+ * well.
  *
  * todo: adapt text but this ones uses chains but has the problem that in this
  * way really every chain must be good, also when the system can decide to not
@@ -66,9 +67,9 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDAReachabilitySolverWithTokenChains(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, win, opts);
-        TokenChainGenerator.createAndAnnotateTokenChains(getNet());
+    BDDAReachabilitySolverWithTokenChains(PetriGame game, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(game, skipTests, win, opts);
+        TokenChainGenerator.createAndAnnotateTokenChains(getGame());
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,7 +84,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      */
     @Override
     void createVariables() {
-        int tokencount = getGame().getMaxTokenCountInt();
+        int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
@@ -92,23 +93,23 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
-            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+            PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
                 // Place
-                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
+                PLACES[i][j + 1] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[j + 1].size() + add);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
                 BigInteger maxTrans = BigInteger.valueOf(2);
-                int anzTransitions = getGame().getTransitions()[j].size();
+                int anzTransitions = getSolvingObject().getDevidedTransitions()[j].size();
 //                if (anzTransitions > 0) { todo: problem when there are no transitions
                 maxTrans = maxTrans.pow(anzTransitions);
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
 //                }
             }
             // one flag for each token chain (hell yeah this is expencive)
-            BigInteger nbChains = BigInteger.valueOf(2).pow(AdamExtensions.getTokenChains(getNet()).size());
+            BigInteger nbChains = BigInteger.valueOf(2).pow(AdamExtensions.getTokenChains(getGame()).size());
             TOKENCHAIN_WON[i] = getFactory().extDomain(nbChains);
             TOKENCHAIN_ACTIVE[i] = getFactory().extDomain(nbChains);
         }
@@ -127,7 +128,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     private BDD winningStates() {
         // When token chain had been reached, then it also must had reached a reachable place
         BDD reach = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenChains(getGame()).size(); i++) {
             reach.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[0].vars()[i]).imp(getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i])));
         }
         return reach;
@@ -137,12 +138,12 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     BDD initial() {
         BDD init = super.initial();
         init.andWith(getBufferedNDet().not());
-        Marking initial = getNet().getInitialMarking();
+        Marking initial = getGame().getInitialMarking();
         List<Integer> alreadySetIds = new ArrayList<>();
         List<Integer> alreadySetActIds = new ArrayList<>();
-        for (Place place : getGame().getNet().getPlaces()) {
+        for (Place place : getGame().getPlaces()) {
             if (initial.getToken(place).getValue() > 0) {
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     init.andWith(setChainIDs(place, 0, true, alreadySetIds)); // set all which are winning and initial to 1 on all chains
                 }
                 init.andWith(setChanActiveIDs(place, 0, true, alreadySetActIds));
@@ -165,7 +166,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      */
     private BDD setChanActiveIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place);
+        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place, getGame());
         for (Integer chanId : chainIds) {
             if (toOne) {
                 res.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[pos].vars()[chanId]));
@@ -187,7 +188,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
      */
     private BDD setChainIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place);
+        List<Integer> chainIds = BDDTools.getChainIDsContainingPlace(place, getGame());
         for (Integer chainId : chainIds) {
             if (toOne) {
                 res.andWith(getFactory().ithVar(TOKENCHAIN_WON[pos].vars()[chainId]));
@@ -201,7 +202,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
 
     private BDD setAllRemainingIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds, int pos) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenChains(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 res.andWith(getFactory().nithVar(TOKENCHAIN_WON[pos].vars()[i]));
             }
@@ -214,7 +215,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
 
     private BDD setSuitableRemainingSuccChainIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenChains(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 // if pre not 1 => post 0
                 BDD pre = getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i]).not();
@@ -236,7 +237,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
 
     private BDD keepOnesForChains() {
         BDD ones = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenChains(getGame()).size(); i++) {
             ones.andWith(getFactory().ithVar(TOKENCHAIN_WON[0].vars()[i]).impWith(getFactory().ithVar(TOKENCHAIN_WON[1].vars()[i])));
             ones.andWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[0].vars()[i]).impWith(getFactory().ithVar(TOKENCHAIN_ACTIVE[1].vars()[i])));
         }
@@ -247,14 +248,14 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
                 // Systempart
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
-                    for (Place place : getGame().getPlaces()[i]) {
+                    for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                         if (AdamExtensions.isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
@@ -284,8 +285,8 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
                 }
                 // Environmentpart                
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -302,7 +303,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
                 List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
                     // if it's a reachable place set it's token chain to 1
-                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                         all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
                     }
                     all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
@@ -322,8 +323,8 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
 
@@ -353,8 +354,8 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
                 // --------------------------
                 // Environmentpart
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) {
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -371,7 +372,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
                 List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
                     // if it's a reachable place set it's token chain to 1
-                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                         all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
                     }
                     all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
@@ -400,12 +401,12 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
 
         // normal part
         BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
                     inner.andWith(codePlace(place, 0, i));
                     if (!pre.contains(place)) {
@@ -429,7 +430,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
             List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
                 // if it's a reachable place set it's tokenchains to 1
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
                 }
                 all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
@@ -485,7 +486,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
 
         // normal part        
         BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
 
@@ -513,7 +514,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
             List<Integer> alreadyVisitedChainActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
                 // if it's a reachable place set it's token chains to 1
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     all.andWith(setChainIDs(place, 1, true, alreadyVisitedChainIds));
                 }
                 all.andWith(setChanActiveIDs(place, 1, true, alreadyVisitedChainActIds));
@@ -631,11 +632,11 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     }
 
     @Override
-    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -643,12 +644,12 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     }
 
     @Override
-    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -690,7 +691,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < AdamExtensions.getTokenChains(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenChains(getGame()).size(); i++) {
             preBimpSucc.andWith(TOKENCHAIN_WON[0].buildEquals(TOKENCHAIN_WON[1]));
             preBimpSucc.andWith(TOKENCHAIN_ACTIVE[0].buildEquals(TOKENCHAIN_ACTIVE[1]));
         }
@@ -719,7 +720,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
-        Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
+        Pair<List<Place>, List<Place>> post = getSolvingObject().getSplittedPostset(t);
         // Environment place
         // todo: one environment token case
         BDD manTarget = getOne();
@@ -744,7 +745,7 @@ public class BDDAReachabilitySolverWithTokenChains extends BDDSolver<Reachabilit
         }
 
         // Create now a copy of the source with all positions set to -1 where preset is set
-        Pair<List<Place>, List<Place>> pre = getGame().getSplittedPreset(t);
+        Pair<List<Place>, List<Place>> pre = getSolvingObject().getSplittedPreset(t);
         // todo: one environment token case
         BDD restSource = source.id();
         if (!pre.getFirst().isEmpty()) {

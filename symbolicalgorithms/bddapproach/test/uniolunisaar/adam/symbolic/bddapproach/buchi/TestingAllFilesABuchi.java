@@ -88,8 +88,8 @@ public class TestingAllFilesABuchi {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
         if (notSupported.contains(file.getName())) {
-            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+            CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
         } else {
             String output = outputDir + file.getName().split(".apt")[0];
             BDDTestingTools.testExample(solv, output, hasStrategy);

@@ -66,8 +66,8 @@ public class FirstTests {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, false);
@@ -78,8 +78,8 @@ public class FirstTests {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondetNoStrat";
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
+        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, false);

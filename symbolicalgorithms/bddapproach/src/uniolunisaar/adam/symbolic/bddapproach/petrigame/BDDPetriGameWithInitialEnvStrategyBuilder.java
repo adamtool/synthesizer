@@ -2,12 +2,12 @@ package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
 import java.util.HashSet;
 import java.util.Set;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -47,9 +47,8 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
      * @return
      */
     @Override
-    public PetriNet builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
-        PetriNet strategy = super.builtStrategy(solver, graph);
-        PetriNet net = solver.getGame().getNet();
+    public PetriGame builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
+        PetriGame strategy = super.builtStrategy(solver, graph);
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy
         for (Place place : strategy.getPlaces()) {
@@ -65,7 +64,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
         // add the enviroment strategy
         while (!todo.isEmpty()) {
             Place pre = todo.iterator().next();
-            Place orig = net.getPlace(AdamExtensions.getOrigID(pre));
+            Place orig = solver.getGame().getPlace(AdamExtensions.getOrigID(pre));
             for (Transition t : orig.getPostset()) {
                 if (trans.contains(t)) { // it's a single enviroment transition -> add
                     // Create the new Transition

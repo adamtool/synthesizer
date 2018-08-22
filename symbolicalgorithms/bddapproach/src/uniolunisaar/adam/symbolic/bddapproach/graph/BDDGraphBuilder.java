@@ -55,7 +55,7 @@ public class BDDGraphBuilder {
     private BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, boolean strategy, int depth, Map<Integer, BDD> distance) {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
-                + solver.getNet().getName());
+                + solver.getGame().getName());
         BDD states = (strategy) ? solver.getBufferedWinDCSs() : solver.getBufferedDCSs();
 //        BDD states = solver.getWinDCSs();
 

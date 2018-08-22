@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
@@ -16,7 +15,8 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -57,8 +57,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDASafetySolverNested(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, win, opts);
+    BDDASafetySolverNested(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(game, skipTests, win, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,7 +93,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     @Override
     void createVariables() {
-        int tokencount = getGame().getMaxTokenCountInt();
+        int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
         TOP = new BDDDomain[2][tokencount - 1];
@@ -101,18 +101,18 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
-            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+            PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
                 // Place
-                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
+                PLACES[i][j + 1] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[j + 1].size() + add);
                 // type
                 TYPE[i][j] = getFactory().extDomain(2);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
                 BigInteger maxTrans = BigInteger.valueOf(2);
-                maxTrans = maxTrans.pow(getGame().getTransitions()[j].size());
+                maxTrans = maxTrans.pow(getSolvingObject().getDevidedTransitions()[j].size());
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
         }
@@ -125,11 +125,11 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getGame().getPlaces()[0], getGame().isConcurrencyPreserving()));
+        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving()));
         sb.append(")").append("\n");
         for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getGame().getPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
             sb.append(sid);
             if (!sid.equals("-")) {
                 sb.append(", ");
@@ -137,7 +137,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
                 sb.append(", ");
                 sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                 sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getGame().getTransitions()[j]));
+                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getSolvingObject().getDevidedTransitions()[j]));
             }
             sb.append(")").append("\n");
         }
@@ -190,7 +190,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     private BDD sys2TransitionsNotCP() {
         BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, false, 0);
 
@@ -236,12 +236,12 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     private BDD sys2TransitionsCP() {
         BDD sys2 = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, false, 0);
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {
+                for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                     if (AdamExtensions.isEnvironment(place)) {
                         throw new RuntimeException("Should not appear!"
                                 + "An enviromental place could not appear here!");
@@ -398,7 +398,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     @Override
     public Transition getSystem2Transition(BDD source, BDD target) {
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             if (hasFiredSystem2(t, source, target)) {
                 return t;
             }
@@ -418,7 +418,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     @Override
     public List<Transition> getAllSystem2Transition(BDD source, BDD target) {
         List<Transition> all = new ArrayList<>();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             if (hasFiredSystem2(t, source, target)) {
                 all.add(t);
             }
@@ -434,7 +434,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             return false;
         }
 
-        boolean cp = AdamExtensions.isConcurrencyPreserving(getNet());
+        boolean cp = getGame().isConcurrencyPreserving();
         BDD trans = source.and(shiftFirst2Second(target));
         BDD out;
 
@@ -457,7 +457,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     private BDD baddcs(int pos) {
         BDD bad = getZero();
-        for (Place place : getWinningCondition().getBadPlaces()) {
+        for (Place place : getSolvingObject().getWinCon().getBadPlaces()) {
             bad.orWith(codePlace(place, pos, AdamExtensions.getPartition(place)));
         }
         return bad;
@@ -473,7 +473,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     private BDD deadSysDCS(int pos) {
         BDD dead = getOne();
         BDD buf = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
+        for (Transition t : getGame().getTransitions()) {
 //            dead = dead.and((firable(t, true).or(firable(t, false))).not());
 //            buf = buf.or(enabled(t, true).or(enabled(t, false)));
             dead.andWith(firable(t, true, pos).not());
@@ -494,7 +494,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      */
     private BDD term(int pos) {
         BDD notEn = getOne();
-        Set<Transition> trans = getGame().getNet().getTransitions();
+        Set<Transition> trans = getGame().getTransitions();
         for (Transition transition : trans) {
             notEn.andWith(enabled(transition, true, pos).not());
         }
@@ -660,14 +660,14 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, true, 0);
                 // Systempart
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
-                    for (Place place : getGame().getPlaces()[i]) {
+                    for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                         if (AdamExtensions.isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
@@ -700,8 +700,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
                 }
                 // Environmentpart                
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -738,7 +738,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
                 continue;
             }
             BDD pl = getZero();
-            for (Place place : getGame().getPlaces()[i]) {
+            for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                 // only sys places which are not within the preset of t
                 // are possible to occure here
                 BDD inner = getOne();
@@ -762,8 +762,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, true, 0);
 
@@ -795,8 +795,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
                 // --------------------------
                 // Environmentpart
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) {
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -827,12 +827,12 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
 
         // normal part
         BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, true, 0);
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
                     inner.andWith(codePlace(place, 0, i));
                     if (!pre.contains(place)) {
@@ -926,11 +926,11 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     }
 
     @Override
-    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -938,12 +938,12 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     }
 
     @Override
-    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

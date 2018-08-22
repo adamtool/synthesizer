@@ -9,7 +9,6 @@ import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Marking;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
@@ -19,7 +18,8 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -31,7 +31,7 @@ import uniolunisaar.adam.tools.Logger;
 
 /**
  * Never really finished the ideas with token trees didn't worked out properly
- * 
+ *
  * todo: adapt text but this ones uses token trees but has the problem that in
  * this way I set a tree to be good also when there a different chain merged in
  * it. Solves Petri games with a reachability objective by simply using an
@@ -66,9 +66,9 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDAReachabilitySolverWithTokenTrees(PetriNet net, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, win, opts);
-        TokenTreeCreator.createAndAnnotateTokenTree(getNet());
+    BDDAReachabilitySolverWithTokenTrees(PetriGame game, boolean skipTests, Reachability win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(game, skipTests, win, opts);
+        TokenTreeCreator.createAndAnnotateTokenTree(getGame());
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,7 +83,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      */
     @Override
     void createVariables() {
-        int tokencount = getGame().getMaxTokenCountInt();
+        int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
@@ -92,23 +92,23 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
-            PLACES[i][0] = getFactory().extDomain(getGame().getPlaces()[0].size() + add);
+            PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
                 // Place
-                PLACES[i][j + 1] = getFactory().extDomain(getGame().getPlaces()[j + 1].size() + add);
+                PLACES[i][j + 1] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[j + 1].size() + add);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
                 BigInteger maxTrans = BigInteger.valueOf(2);
-                int anzTransitions = getGame().getTransitions()[j].size();
+                int anzTransitions = getSolvingObject().getDevidedTransitions()[j].size();
 //                if (anzTransitions > 0) { todo: problem when there are no transitions
                 maxTrans = maxTrans.pow(anzTransitions);
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
 //                }
             }
             // one flag for each tokentree
-            BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size());
+            BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getGame()).size());
             TOKENTREE_WON[i] = getFactory().extDomain(nbTrees);
             TOKENTREE_ACT[i] = getFactory().extDomain(nbTrees);
         }
@@ -129,7 +129,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 //        BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size()).add(BigInteger.valueOf(-1));
 // When token tree had been reached, then it also must had reached a reachable place
         BDD reach = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
             reach.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).imp(getFactory().ithVar(TOKENTREE_WON[0].vars()[i])));
         }
         return reach;
@@ -139,12 +139,12 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     BDD initial() {
         BDD init = super.initial();
         init.andWith(getBufferedNDet().not());
-        Marking initial = getNet().getInitialMarking();
+        Marking initial = getGame().getInitialMarking();
         List<Integer> alreadySetIds = new ArrayList<>();
         List<Integer> alreadySetActIds = new ArrayList<>();
-        for (Place place : getGame().getNet().getPlaces()) {
+        for (Place place : getGame().getPlaces()) {
             if (initial.getToken(place).getValue() > 0) {
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     init.andWith(setTreeIDs(place, 0, true, alreadySetIds)); // set all which are winning and initial to 1 on all trees
                 }
                 init.andWith(setTreeActIDs(place, 0, true, alreadySetActIds));
@@ -167,7 +167,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      */
     private BDD setTreeActIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place);
+        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place, getGame());
         for (Integer treeId : treeIds) {
             if (toOne) {
                 res.andWith(getFactory().ithVar(TOKENTREE_ACT[pos].vars()[treeId]));
@@ -189,7 +189,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      */
     private BDD setTreeIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
-        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place);
+        List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place, getGame());
         for (Integer treeId : treeIds) {
             if (toOne) {
                 res.andWith(getFactory().ithVar(TOKENTREE_WON[pos].vars()[treeId]));
@@ -203,7 +203,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD setAllRemainingIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds, int pos) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 res.andWith(getFactory().nithVar(TOKENTREE_WON[pos].vars()[i]));
             }
@@ -216,7 +216,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD setSuitableRemainingSuccTreeIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 // if pre not 1 => post 0
                 BDD pre = getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).not();
@@ -238,7 +238,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD keepOnesForTrees() {
         BDD ones = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
             ones.andWith(getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_WON[1].vars()[i])));
             ones.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_ACT[1].vars()[i])));
         }
@@ -249,14 +249,14 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     BDD envTransitionsCP() {
         BDD env = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
                 // Systempart
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
-                    for (Place place : getGame().getPlaces()[i]) {
+                    for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                         if (AdamExtensions.isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
@@ -286,8 +286,8 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 }
                 // Environmentpart                
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -304,7 +304,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
                     // if it's a reachable place set it's tokentrees to 1
-                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                         all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                     }
                     all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
@@ -324,8 +324,8 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     BDD envTransitionsNotCP() {
         BDD mcut = getMcut();
         BDD dis = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
-            if (!getGame().getSysTransition().contains(t)) {
+        for (Transition t : getGame().getTransitions()) {
+            if (!getSolvingObject().getSysTransition().contains(t)) {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
 
@@ -355,8 +355,8 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 // --------------------------
                 // Environmentpart
                 // todo: one environment token case
-                List<Place> pre = getGame().getSplittedPreset(t).getFirst();
-                List<Place> post = getGame().getSplittedPostset(t).getFirst();
+                List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
+                List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
                 if (!pre.isEmpty()) {
                     all.andWith(codePlace(pre.get(0), 0, 0));
                 } else {
@@ -373,7 +373,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
                 for (Place place : t.getPostset()) {
                     // if it's a reachable place set it's tokentrees to 1
-                    if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                    if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                         all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                     }
                     all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
@@ -402,12 +402,12 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
         // normal part
         BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
-                for (Place place : getGame().getPlaces()[i]) {// these are all system places                    
+                for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
                     inner.andWith(codePlace(place, 0, i));
                     if (!pre.contains(place)) {
@@ -431,7 +431,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
             List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
                 // if it's a reachable place set it's tokentrees to 1
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                 }
                 all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
@@ -487,7 +487,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
         // normal part        
         BDD sysN = getZero();
-        for (Transition t : getGame().getSysTransition()) {
+        for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
 
@@ -515,7 +515,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
             List<Integer> alreadyVisitedTreeActIds = new ArrayList<>();
             for (Place place : t.getPostset()) {
                 // if it's a reachable place set it's tokentrees to 1
-                if (getWinningCondition().getPlaces2Reach().contains(place)) {
+                if (getSolvingObject().getWinCon().getPlaces2Reach().contains(place)) {
                     all.andWith(setTreeIDs(place, 1, true, alreadyVisitedTreeIds));
                 }
                 all.andWith(setTreeActIDs(place, 1, true, alreadyVisitedTreeActIds));
@@ -633,11 +633,11 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     }
 
     @Override
-    protected PetriNet calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pn = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -645,12 +645,12 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     }
 
     @Override
-    public Pair<BDDGraph, PetriNet> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriNet pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGame pstrat = BDDPetriGameWithInitialEnvStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -692,7 +692,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getNet()).size(); i++) {
+        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
             preBimpSucc.andWith(TOKENTREE_WON[0].buildEquals(TOKENTREE_WON[1]));
             preBimpSucc.andWith(TOKENTREE_ACT[0].buildEquals(TOKENTREE_ACT[1]));
         }
@@ -722,7 +722,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         // Create bdd mantarget with the postset of t and the rest -1
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
-        Pair<List<Place>, List<Place>> post = getGame().getSplittedPostset(t);
+        Pair<List<Place>, List<Place>> post = getSolvingObject().getSplittedPostset(t);
         // Environment place
         // todo: one environment token case
         BDD manTarget = getOne();
@@ -747,7 +747,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         }
 
         // Create now a copy of the source with all positions set to -1 where preset is set
-        Pair<List<Place>, List<Place>> pre = getGame().getSplittedPreset(t);
+        Pair<List<Place>, List<Place>> pre = getSolvingObject().getSplittedPreset(t);
         // todo: one environment token case
         BDD restSource = source.id();
         if (!pre.getFirst().isEmpty()) {

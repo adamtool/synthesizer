@@ -16,7 +16,8 @@ import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.logic.util.AdamTools;
@@ -41,15 +42,15 @@ public class BDDPetriGameStrategyBuilder {
     BDDPetriGameStrategyBuilder() {
     }
 
-    public PetriNet builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
+    public PetriGame builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
-        PetriNet strategy = new PetriNet("Winning strategy of the system players of the net '" + solver.getNet().getName() + "'.");
-        AdamExtensions.setWinningCondition(strategy, AdamExtensions.getWinningCondition(solver.getNet()));
+        PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
+        AdamExtensions.setWinningCondition(strategy, AdamExtensions.getWinningCondition(solver.getGame()));
         BDDState init = graph.getInitial();
         // create the initial places
         List<Place> initial = new ArrayList<>();
-        Marking initialMarking = solver.getNet().getInitialMarking();
-        for (Place p : solver.getNet().getPlaces()) {
+        Marking initialMarking = solver.getGame().getInitialMarking();
+        for (Place p : solver.getGame().getPlaces()) {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
                 AdamExtensions.setOrigID(place, p.getId());
@@ -74,7 +75,7 @@ public class BDDPetriGameStrategyBuilder {
         return strategy;
     }
 
-    private void calculateStrategyByBFS(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState initialState, List<Place> initialMarking) {
+    private void calculateStrategyByBFS(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
@@ -160,7 +161,7 @@ public class BDDPetriGameStrategyBuilder {
         cleanup();
     }
 
-    void addBehaviorForVisitedSuccessors(PetriNet strategy, Map<Integer, List<Place>> visitedCuts, BDDState succState, Transition t, Transition strat_t, LinkedList<Pair<BDDState, List<Place>>> todoStates, List<Place> prevMarking) {
+    void addBehaviorForVisitedSuccessors(PetriGame strategy, Map<Integer, List<Place>> visitedCuts, BDDState succState, Transition t, Transition strat_t, LinkedList<Pair<BDDState, List<Place>>> todoStates, List<Place> prevMarking) {
         // Don't create new places, only add the "suitable" flows and delete 
         // the places which had been created before, which are now double.
         List<Place> visitedMarking = visitedCuts.get(succState.getId());
@@ -219,7 +220,7 @@ public class BDDPetriGameStrategyBuilder {
      * @param graph
      * @param strategy
      */
-    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriNet strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
 
     }
 

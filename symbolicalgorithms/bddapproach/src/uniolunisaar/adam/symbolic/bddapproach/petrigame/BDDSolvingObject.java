@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import uniol.apt.adt.pn.Marking;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
@@ -18,10 +17,10 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
+import uniolunisaar.adam.ds.solver.SolvingObject;
+import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
-import uniolunisaar.adam.logic.util.AdamTools;
-import uniolunisaar.adam.logic.util.NotSolvableWitness;
 import uniolunisaar.adam.logic.util.PetriGameAnnotator;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
@@ -29,8 +28,9 @@ import uniolunisaar.adam.tools.Logger;
 /**
  *
  * @author Manuel Gieseking
+ * @param <W>
  */
-public class BDDPetriGame extends PetriGame {
+public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<PetriGame, W> {
 
     private final Set<Transition> sysTransition;
     private final Map<Transition, Pair<List<Place>, List<Place>>> preset;
@@ -40,28 +40,29 @@ public class BDDPetriGame extends PetriGame {
     // saves transitions belonging in the presets of the places to each token
     private List<Transition>[] transitions;
 
-    public BDDPetriGame(PetriNet pn) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        this(pn, false);
+    public BDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        this(game, winCon, false);
     }
 
-    public BDDPetriGame(PetriNet pn, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(pn, skipChecks);
+    public BDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(game, winCon);
+//        super(game, skipChecks);
 
         if (!skipChecks) {
-            if (!super.getBounded().isSafe()) {
-                throw new NetNotSafeException(super.getBounded().unboundedPlace.toString(), super.getBounded().sequence.toString());
+            if (!game.getBounded().isSafe()) {
+                throw new NetNotSafeException(game.getBounded().unboundedPlace.toString(), game.getBounded().sequence.toString());
             }
-            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(pn);
-            NotSolvableWitness witness = AdamTools.isSolvablePetriGame(pn, cover);
-            if (witness != null) {
-//                throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
-            }
+            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
+//            NotSolvableWitness witness = AdamTools.isSolvablePetriGame(pn, cover);
+//            if (witness != null) {
+////                throw new NotSupportedGameException("Petri game not solvable: " + witness.toString());
+//            }
             // only one env token is allowed (todo: do it less expensive ?)
             for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
                 CoverabilityGraphNode next = iterator.next();
                 Marking m = next.getMarking();
                 boolean first = false;
-                for (Place place : pn.getPlaces()) {
+                for (Place place : game.getPlaces()) {
                     if (m.getToken(place).getValue() > 0 && AdamExtensions.isEnvironment(place)) {
                         if (first) {
                             throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
@@ -88,7 +89,7 @@ public class BDDPetriGame extends PetriGame {
     // todo: proof that it's a suitable slicing, such that every environment place
     // belongs to one single invariant
     private void bufferData() throws NoSuitableDistributionFoundException {
-        for (Transition t : getNet().getTransitions()) {
+        for (Transition t : getGame().getTransitions()) {
             // Pre- and Postset
             List<Place> pre = new ArrayList<>();
             pre.addAll(t.getPreset());
@@ -132,17 +133,17 @@ public class BDDPetriGame extends PetriGame {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        Partitioner.doIt(getNet());
+        Partitioner.doIt(getGame());
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
 
-        if (!AdamExtensions.hasConcurrencyPreserving(getNet())) {
-            PetriGameAnnotator.annotateConcurrencyPreserving(getNet());
+        if (!AdamExtensions.hasConcurrencyPreserving(getGame())) {
+            PetriGameAnnotator.annotateConcurrencyPreserving(getGame());
         }
 
-        if (!AdamExtensions.hasMaxTokenCount(getNet())) {
-            PetriGameAnnotator.annotateMaxTokenCount(getNet());
+        if (!AdamExtensions.hasMaxTokenCount(getGame())) {
+            PetriGameAnnotator.annotateMaxTokenCount(getGame());
         }
 
         try {
@@ -150,11 +151,11 @@ public class BDDPetriGame extends PetriGame {
             // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;
             places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
-            if (getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
+            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
                 places[0] = new HashSet<>();
             }
-            int additional = (isConcurrencyPreserving()) ? 0 : 1;
-            for (Place place : getNet().getPlaces()) {
+            int additional = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            for (Place place : getGame().getPlaces()) {
                 int token = AdamExtensions.getPartition(place);
                 if (places[token] == null) {
                     places[token] = new HashSet<>();
@@ -212,11 +213,11 @@ public class BDDPetriGame extends PetriGame {
         return preset.get(t);
     }
 
-    public Set<Place>[] getPlaces() {
+    public Set<Place>[] getDevidedPlaces() {
         return places;
     }
 
-    public List<Transition>[] getTransitions() {
+    public List<Transition>[] getDevidedTransitions() {
         return transitions;
     }
 
@@ -226,6 +227,16 @@ public class BDDPetriGame extends PetriGame {
      * @return
      */
     public int getMaxTokenCountInt() {
-        return (int) getMaxTokenCount();
+        return (int) getGame().getMaxTokenCount();
     }
+
+    // Delegate methods
+    public boolean isConcurrencyPreserving() {
+        return getGame().isConcurrencyPreserving();
+    }
+
+    public long getMaxTokenCount() {
+        return getGame().getMaxTokenCount();
+    }
+
 }

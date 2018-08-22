@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
@@ -12,7 +11,8 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.util.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -35,8 +35,8 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDASafetySolverEnv(PetriNet net, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
-        super(net, skipTests, win, opts);
+    BDDASafetySolverEnv(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+        super(game, skipTests, win, opts);
     }
 //
 //    /**
@@ -86,7 +86,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
 
     private BDD badPlaces() {
         BDD reach = getZero();
-        for (Place place : getWinningCondition().getBadPlaces()) {
+        for (Place place : getSolvingObject().getWinCon().getBadPlaces()) {
             reach.orWith(codePlace(place, 0, AdamExtensions.getPartition(place)));
         }
         return reach;
@@ -94,7 +94,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
 
     private BDD ndet() {
         BDD nondet = getZero();
-        Set<Transition> trans = getGame().getNet().getTransitions();
+        Set<Transition> trans = getGame().getTransitions();
         for (Transition t1 : trans) {
             for (Transition t2 : trans) {
                 if (!t1.equals(t2)) {
@@ -122,7 +122,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
     private BDD deadSysDCS() {
         BDD dead = getOne();
         BDD buf = getZero();
-        for (Transition t : getGame().getNet().getTransitions()) {
+        for (Transition t : getGame().getTransitions()) {
 //            dead = dead.and((firable(t, true).or(firable(t, false))).not());
 //            buf = buf.or(enabled(t, true).or(enabled(t, false)));
             dead.andWith(firable(t, 0).not());
