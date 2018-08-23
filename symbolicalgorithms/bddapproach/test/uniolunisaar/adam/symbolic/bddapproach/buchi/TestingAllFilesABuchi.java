@@ -11,6 +11,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
@@ -64,8 +65,14 @@ public class TestingAllFilesABuchi {
         Logger.getInstance().setVerbose(false);
         (new File(outputDir)).mkdirs();
     }
+    
+//    @BeforeMethod
+//    public void reset() {
+//        System.out.println("TAAAAAAAAAAAAADAAAAAAAAAAAAAAAA");
+//    }
 
-    @DataProvider(name = "files")
+    @DataProvider(name = "files"
+            , parallel=true)
     public static Object[][] allExamples() {
         Collection<File> files = FileUtils.listFiles(
                 new File(inputDir),

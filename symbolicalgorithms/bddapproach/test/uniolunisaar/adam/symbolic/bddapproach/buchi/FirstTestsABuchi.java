@@ -18,13 +18,11 @@ import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.tools.Tools;
 
 /**
  *
@@ -98,9 +96,10 @@ public class FirstTestsABuchi {
 
     @Test
     public void testType2() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
-//        testToyExamples("type2_0", false); // should be false
-//        testToyExamples("type2_1", true); // should be true
+        testToyExamples("type2_0", false); // should be false
+        testToyExamples("type2_1", true); // should be true
         testToyExamples("type2_2", true); // should be true
+        testToyExamples("type2_4", true); // should be true
     }
     
     @Test

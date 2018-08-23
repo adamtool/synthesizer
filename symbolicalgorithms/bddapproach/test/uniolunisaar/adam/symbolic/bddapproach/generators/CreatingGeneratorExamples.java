@@ -89,7 +89,7 @@ public class CreatingGeneratorExamples {
 //        testClerksCP(9);
     }
 
-    @Test
+    @Test(timeOut = (60*1000)/2) // halbe Minute
     public void testRobotCell() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         testRobotCell(2, 1, true);
         testRobotCell(3, 2, true);

@@ -22,7 +22,7 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 public class BDDTestingTools {
 
     public static void testExample(BDDSolver<? extends WinningCondition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
-        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
+//        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         AdamTools.savePG2PDF(file, solv.getGame(), false);
 //        Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv);
