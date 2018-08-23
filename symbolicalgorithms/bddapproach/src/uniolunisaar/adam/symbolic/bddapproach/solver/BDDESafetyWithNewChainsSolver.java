@@ -19,7 +19,6 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrigame.TokenFlow;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -121,7 +120,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         } else {
             // Env place
             sb.append("(");
-            String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
+            String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
             sb.append(id);
             if (!id.equals("-")) {
                 sb.append(", ");
@@ -130,7 +129,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             sb.append(")").append("\n");
             for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
                 sb.append("(");
-                String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getSolvingObject().isConcurrencyPreserving());
+                String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getSolvingObject().isConcurrencyPreserving());
                 sb.append(sid);
                 if (!sid.equals("-")) {
                     sb.append(", ");
@@ -321,14 +320,14 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
         boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
 //                System.out.println(tokenFlow);
                 for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
-                    int preToken = AdamExtensions.getPartition(p);
+                    int preToken = getSolvingObject().getGame().getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
@@ -343,7 +342,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
-        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
         BDD dep = getOne();
         for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
             boolean hasEmptyPreset = false;
@@ -353,7 +352,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //                System.out.println(tokenFlow);
                     for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
-                        int preToken = AdamExtensions.getPartition(p);
+                        int preToken = getSolvingObject().getGame().getPartition(p);
                         BDD pos = codePlace(p, 0, preToken);
                         pos.andWith(getFactory().ithVar(DEP_ON_NEWCHAIN[0][preToken - 1].vars()[i - 1]));
                         exOne.orWith(pos);
@@ -404,7 +403,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //    }
     private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
         BDD exPreBad = getZero();
-        List<TokenFlow> fls = AdamExtensions.getTokenFlow(t);
+        List<TokenFlow> fls = getSolvingObject().getGame().getTokenFlow(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (TokenFlow fl : fls) {
@@ -413,7 +412,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 }
             }
             if (!hasFlow) {
-                int token = AdamExtensions.getPartition(p);
+                int token = getSolvingObject().getGame().getPartition(p);
                 BDD preBad = codePlace(p, 0, token);
                 preBad.andWith(GOODCHAIN[0][token].ithVar(0));
                 exPreBad.orWith(preBad);
@@ -481,7 +480,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             if (getSolvingObject().getWinCon().getBadPlaces().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                List<TokenFlow> tfls = AdamExtensions.getTokenFlow(t);
+                List<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlow(t);
                 for (TokenFlow tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.getPreset().isEmpty()) {
@@ -524,7 +523,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
-                    if (AdamExtensions.isEnvironment(place)) {
+                    if (getSolvingObject().getGame().isEnvironment(place)) {
                         throw new RuntimeException("Should not appear!"
                                 + "An enviromental place could not appear here!");
                         //                            continue;
@@ -582,7 +581,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getPartition(post);
+                int token = getSolvingObject().getGame().getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -726,7 +725,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         List<Integer> visitedToken = new ArrayList<>();
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getPartition(post);
+            int token = getSolvingObject().getGame().getPartition(post);
             if (token != 0) { // jump over environment, could not appear...
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -991,7 +990,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = AdamExtensions.getPartition(p);
+            int token = getSolvingObject().getGame().getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             restTarget = restTarget.exist(getTokenVariables(0, token));
         }
@@ -1011,7 +1010,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getPartition(p)));
+            restSource = restSource.exist(getTokenVariables(0, getSolvingObject().getGame().getPartition(p)));
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%

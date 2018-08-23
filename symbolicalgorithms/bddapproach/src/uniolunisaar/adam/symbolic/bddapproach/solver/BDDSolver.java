@@ -21,7 +21,6 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
@@ -186,12 +185,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        String id = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
+        String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
         sb.append(id);
         sb.append(")").append("\n");
         for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
             sb.append(sid);
             if (!sid.equals("-")) {
                 sb.append(", ");
@@ -280,7 +279,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
             for (Transition t : getSolvingObject().getDevidedTransitions()[i - 1]) {
                 BDD place = bddfac.zero();
                 for (Place p : t.getPreset()) {
-                    if (!AdamExtensions.isEnvironment(p) && i == AdamExtensions.getPartition(p)) {
+                    if (!getSolvingObject().getGame().isEnvironment(p) && i == getSolvingObject().getGame().getPartition(p)) {
                         place.orWith(codePlace(p, pos, i));
                     }
                 }
@@ -348,7 +347,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!AdamExtensions.isEnvironment(place)) {
+                        if (!getSolvingObject().getGame().isEnvironment(place)) {
                             shared = true;
                         }
                     }
@@ -391,7 +390,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!AdamExtensions.isEnvironment(place)) {
+                        if (!getSolvingObject().getGame().isEnvironment(place)) {
                             shared = true;
                         }
                     }
@@ -426,13 +425,13 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         int i = 0;
         for (Transition t : envTrans) {
             for (Place pre : t.getPreset()) {
-                if (AdamExtensions.isEnvironment(pre)) {
-                    pres[i] = AdamExtensions.getID(pre);
+                if (getSolvingObject().getGame().isEnvironment(pre)) {
+                    pres[i] = getSolvingObject().getGame().getID(pre);
                 }
             }
             for (Place post : t.getPostset()) {
-                if (AdamExtensions.isEnvironment(post)) {
-                    posts[i] = AdamExtensions.getID(post);
+                if (getSolvingObject().getGame().isEnvironment(post)) {
+                    posts[i] = getSolvingObject().getGame().getID(post);
                 }
             }
             ++i;
@@ -541,7 +540,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         List<Integer> tokens = new ArrayList<>();
         for (Place place : getGame().getPlaces()) {
             if (m.getToken(place).getValue() > 0) {
-                int token = AdamExtensions.getPartition(place);
+                int token = getSolvingObject().getGame().getPartition(place);
                 tokens.add(token);
                 marking.andWith(codePlace(place, 0, token));
             }
@@ -559,11 +558,11 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
     BDD chosen(Transition t, int pos) {
         BDD c = getOne();
         for (Place p : t.getPreset()) {
-            if (!AdamExtensions.isEnvironment(p)) {
+            if (!getSolvingObject().getGame().isEnvironment(p)) {
                 // Sys places
 //                    //if pi=p and it's not top, then t has to be set to one (old version mit not top?)
 //                    BDD pl = codePlace(binID, offset).and(bddfac.nithVar(offset + PL_CODE_LEN + 1));
-                int token = AdamExtensions.getPartition(p);
+                int token = getSolvingObject().getGame().getPartition(p);
 //                BDD pl = codePlace(p, pos, token);                
                 int id = getSolvingObject().getDevidedTransitions()[token - 1].indexOf(t);
 //                pl.impWith(bddfac.ithVar(TRANSITIONS [pos][token - 1].vars()[id]));
@@ -584,12 +583,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
     BDD enabled(Transition t, int pos) {
         BDD en = getOne();
         for (Place place : t.getPreset()) {
-            if (AdamExtensions.isEnvironment(place)) {
+            if (getSolvingObject().getGame().isEnvironment(place)) {
                 // Env place
                 en.andWith(codePlace(place, pos, 0));
             } else {
                 // Sys places
-                int token = AdamExtensions.getPartition(place);
+                int token = getSolvingObject().getGame().getPartition(place);
                 BDD pl = codePlace(place, pos, token);
                 en.andWith(pl);
             }
@@ -626,8 +625,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         List<Integer> postTokens = new ArrayList<>(visitedToken);
         // set the dcs for the places in the preset
         for (Place pre : pre_sys) {
-            if (!AdamExtensions.isEnvironment(pre)) { // jump over environment
-                int token = AdamExtensions.getPartition(pre);
+            if (!getSolvingObject().getGame().isEnvironment(pre)) { // jump over environment
+                int token = getSolvingObject().getGame().getPartition(pre);
                 visitedToken.add(token);
                 all.andWith(codePlace(pre, 0, token));
                 // if this position in the dcs is free after this position
@@ -707,7 +706,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
-                    if (AdamExtensions.isEnvironment(place)) {
+                    if (getSolvingObject().getGame().isEnvironment(place)) {
                         throw new RuntimeException("Should not appear!"
                                 + "An enviromental place could not appear here!");
                         //                            continue;
@@ -749,7 +748,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getPartition(post);
+                int token = getSolvingObject().getGame().getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -860,7 +859,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         List<Integer> visitedToken = new ArrayList<>();
         // set the dcs for the place of the postset 
         for (Place post : t.getPostset()) {
-            int token = AdamExtensions.getPartition(post);
+            int token = getSolvingObject().getGame().getPartition(post);
             if (token != 0) { // jump over environment, could not appear...
                 visitedToken.add(token);
                 //pre_i=post_j'
@@ -954,7 +953,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = AdamExtensions.getPartition(p);
+            int token = getSolvingObject().getGame().getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             restTarget = restTarget.exist(getTokenVariables(0, token));
         }
@@ -974,7 +973,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getPartition(p)));
+            restSource = restSource.exist(getTokenVariables(0, getSolvingObject().getGame().getPartition(p)));
         }
 
         // now test if the places not in pre- or postset of t stayed equal between source and target
@@ -1305,8 +1304,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
      * @return - A BDD with the id coded at the given position.
      */
     BDD codePlace(Place place, int pos, int token) {
-        assert (AdamExtensions.getPartition(place) == token);
-        return codePlace(AdamExtensions.getID(place), pos, token);
+        assert (getSolvingObject().getGame().getPartition(place) == token);
+        return codePlace(getSolvingObject().getGame().getID(place), pos, token);
     }
 
     BDD getEnvironmentTransitions() {
@@ -1407,7 +1406,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
      */
     public Place getSuitableSuccessor(Place pre, Transition t) {
         for (Place place : t.getPostset()) {
-            if (AdamExtensions.getPartition(pre) == AdamExtensions.getPartition(place)) {
+            if (getSolvingObject().getGame().getPartition(pre) == getSolvingObject().getGame().getPartition(place)) {
                 return place;
             }
         }

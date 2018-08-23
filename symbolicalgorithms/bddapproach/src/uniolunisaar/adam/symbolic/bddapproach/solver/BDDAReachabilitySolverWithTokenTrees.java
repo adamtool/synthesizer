@@ -257,7 +257,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
-                        if (AdamExtensions.isEnvironment(place)) {
+                        if (getSolvingObject().getGame().isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;
@@ -333,7 +333,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
                 // set the dcs for the place of the postset 
                 for (Place post : t.getPostset()) {
-                    int token = AdamExtensions.getPartition(post);
+                    int token = getSolvingObject().getGame().getPartition(post);
                     if (token != 0) { // jump over environment
                         visitedToken.add(token);
                         //pre_i=post_j'
@@ -494,7 +494,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
             List<Integer> visitedToken = new ArrayList<>();
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getPartition(post);
+                int token = getSolvingObject().getGame().getPartition(post);
                 if (token != 0) { // jump over environment, could not appear...
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -736,7 +736,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         List<Place> postSys = post.getSecond();
         BDD sysPlacesTarget = getOne();
         for (Place p : postSys) {
-            int token = AdamExtensions.getPartition(p);
+            int token = getSolvingObject().getGame().getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
             restTarget = restTarget.exist(getTokenVariables(0, token));
         }
@@ -756,7 +756,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
         List<Place> preSys = pre.getSecond();
         for (Place p : preSys) {
-            restSource = restSource.exist(getTokenVariables(0, AdamExtensions.getPartition(p)));
+            restSource = restSource.exist(getTokenVariables(0, getSolvingObject().getGame().getPartition(p)));
         }
 
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%

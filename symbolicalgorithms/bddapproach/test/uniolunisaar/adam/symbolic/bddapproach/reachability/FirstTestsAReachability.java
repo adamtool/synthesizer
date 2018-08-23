@@ -17,7 +17,6 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
@@ -151,7 +150,7 @@ public class FirstTestsAReachability {
 //        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
 //        System.out.println(solv.getNet().getName());
         Transition t = solv.getGame().getTransition("t4");
-        System.out.println(AdamExtensions.getTokenFlow(t).toString());
+        System.out.println(solv.getGame().getTokenFlow(t).toString());
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);

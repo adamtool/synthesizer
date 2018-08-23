@@ -63,7 +63,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
                 Marking m = next.getMarking();
                 boolean first = false;
                 for (Place place : game.getPlaces()) {
-                    if (m.getToken(place).getValue() > 0 && AdamExtensions.isEnvironment(place)) {
+                    if (m.getToken(place).getValue() > 0 && game.isEnvironment(place)) {
                         if (first) {
                             throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
                         }
@@ -101,7 +101,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
             // fill sysTransition
             boolean add = true;
             for (Place place : pre) {
-                if (AdamExtensions.isEnvironment(place)) {
+                if (getGame().isEnvironment(place)) {
                     add = false;
                     pre_env.add(place);
                 }
@@ -112,7 +112,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
 
             // split the environmental places from pre- and postset 
             for (Place place : post) {
-                if (AdamExtensions.isEnvironment(place)) {
+                if (getGame().isEnvironment(place)) {
                     post_env.add(place);
                 }
             }
@@ -156,11 +156,11 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
             }
             int additional = (getGame().isConcurrencyPreserving()) ? 0 : 1;
             for (Place place : getGame().getPlaces()) {
-                int token = AdamExtensions.getPartition(place);
+                int token = getGame().getPartition(place);
                 if (places[token] == null) {
                     places[token] = new HashSet<>();
                 }
-                AdamExtensions.setID(place, places[token].size() + additional);
+                getGame().setID(place, places[token].size() + additional);
                 places[token].add(place);
             }
         } catch (Exception e) {

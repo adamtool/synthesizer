@@ -52,7 +52,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy
         for (Place place : strategy.getPlaces()) {
-            if (AdamExtensions.isEnvironment(place)) {
+            if (solver.getGame().isEnvironment(place)) {
                 if (place.getPostset().isEmpty()) {
                     todo.add(place);
                 }
@@ -64,7 +64,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
         // add the enviroment strategy
         while (!todo.isEmpty()) {
             Place pre = todo.iterator().next();
-            Place orig = solver.getGame().getPlace(AdamExtensions.getOrigID(pre));
+            Place orig = solver.getGame().getPlace(solver.getGame().getOrigID(pre));
             for (Transition t : orig.getPostset()) {
                 if (trans.contains(t)) { // it's a single enviroment transition -> add
                     // Create the new Transition
@@ -75,7 +75,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
                         // test if successor is already in net
                         boolean added = false;
                         for (Place pl : strategy.getPlaces()) {
-                            if (AdamExtensions.getOrigID(pl).equals(p.getId())) {
+                            if (solver.getGame().getOrigID(pl).equals(p.getId())) {
                                 strategy.createFlow(tstrat, pl);
                                 added = true;
                                 break;
@@ -84,7 +84,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
                         if (!added) {
                             //Create place
                             Place strat_p = strategy.createPlace(p.getId() + BDDPetriGameStrategyBuilder.DELIM + id++);
-                            AdamExtensions.setOrigID(strat_p, p.getId());
+                            strategy.setOrigID(strat_p, p.getId());
                             strat_p.copyExtensions(p);
                             strategy.createFlow(tstrat, strat_p);
                             todo.add(strat_p);

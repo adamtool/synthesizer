@@ -12,7 +12,6 @@ import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -87,7 +86,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
     private BDD badPlaces() {
         BDD reach = getZero();
         for (Place place : getSolvingObject().getWinCon().getBadPlaces()) {
-            reach.orWith(codePlace(place, 0, AdamExtensions.getPartition(place)));
+            reach.orWith(codePlace(place, 0, getSolvingObject().getGame().getPartition(place)));
         }
         return reach;
     }
@@ -105,7 +104,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
                     intersect.retainAll(pre2);
                     boolean shared = false;
                     for (Place place : intersect) {
-                        if (!AdamExtensions.isEnvironment(place)) {
+                        if (!getSolvingObject().getGame().isEnvironment(place)) {
                             shared = true;
                         }
                     }

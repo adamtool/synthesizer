@@ -16,7 +16,6 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -125,11 +124,11 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        sb.append(BDDTools.getPlaceIDByBin(dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving()));
+        sb.append(BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving()));
         sb.append(")").append("\n");
         for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
             sb.append(sid);
             if (!sid.equals("-")) {
                 sb.append(", ");
@@ -198,7 +197,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
 
             // set the dcs for the place of the postset 
             for (Place post : t.getPostset()) {
-                int token = AdamExtensions.getPartition(post);
+                int token = getSolvingObject().getGame().getPartition(post);
                 if (token != 0) { // jump over environment
                     visitedToken.add(token);
                     //pre_i=post_j'
@@ -242,7 +241,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
             for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
-                    if (AdamExtensions.isEnvironment(place)) {
+                    if (getSolvingObject().getGame().isEnvironment(place)) {
                         throw new RuntimeException("Should not appear!"
                                 + "An enviromental place could not appear here!");
 //                        continue;
@@ -458,7 +457,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     private BDD baddcs(int pos) {
         BDD bad = getZero();
         for (Place place : getSolvingObject().getWinCon().getBadPlaces()) {
-            bad.orWith(codePlace(place, pos, AdamExtensions.getPartition(place)));
+            bad.orWith(codePlace(place, pos, getSolvingObject().getGame().getPartition(place)));
         }
         return bad;
     }
@@ -637,9 +636,9 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     private BDD enabled(Transition t, boolean type1, int pos) {
         BDD en = super.enabled(t, pos);
         for (Place place : t.getPreset()) {
-            if (!AdamExtensions.isEnvironment(place)) {
+            if (!getSolvingObject().getGame().isEnvironment(place)) {
                 // Sys places
-                int token = AdamExtensions.getPartition(place);
+                int token = getSolvingObject().getGame().getPartition(place);
                 BDD type = TYPE[pos][token - 1].ithVar(type1 ? 1 : 0);
                 en.andWith(type);
             }
@@ -668,7 +667,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
                 for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
-                        if (AdamExtensions.isEnvironment(place)) {
+                        if (getSolvingObject().getGame().isEnvironment(place)) {
                             throw new RuntimeException("Should not appear!"
                                     + "An enviromental place could not appear here!");
                             //                            continue;
@@ -771,7 +770,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
 
                 // set the dcs for the place of the postset 
                 for (Place post : t.getPostset()) {
-                    int token = AdamExtensions.getPartition(post);
+                    int token = getSolvingObject().getGame().getPartition(post);
                     if (token != 0) { // jump over environment
                         visitedToken.add(token);
                         //pre_i=post_j'

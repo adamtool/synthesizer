@@ -324,7 +324,7 @@ public class CreatingGeneratorExamples {
         f.mkdir();
         System.out.println("Generate routing...");
         PetriGame pn = CarRouting.createAReachabilityVersionWithRerouting(nb_routings, nb_cars, true);
-        AdamTools.savePN(path + name, pn, true, true);
+        AdamTools.saveAPT(path + name, pn, true, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 //        BDDGraph gg = solv.getGraphGame();
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", gg, solv);

@@ -10,7 +10,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -91,7 +90,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
                 strat_t.setLabel(t.getId());
                 // add preset edges
                 for (Place p : t.getPreset()) {
-                    Place place = getSuitablePredecessor(p.getId(), marking);
+                    Place place = getSuitablePredecessor(strategy, p.getId(), marking);
                     strategy.createFlow(place, strat_t);
                     marking.remove(place);
                 }
@@ -103,13 +102,13 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
 
                 if (visitedType2Markings.containsKey(succ)) {
                     for (Place p : t.getPostset()) {
-                        Place place = getSuitablePredecessor(p.getId(), visitedType2Markings.get(succ));
+                        Place place = getSuitablePredecessor(strategy, p.getId(), visitedType2Markings.get(succ));
                         strategy.createFlow(strat_t, place);
                     }
                 } else {
                     for (Place p : t.getPostset()) {
                         Place strat_p = strategy.createPlace(p.getId() + DELIM_TYPE_2 + type2Ids++);
-                        AdamExtensions.setOrigID(strat_p, p.getId());
+                        strategy.setOrigID(strat_p, p.getId());
                         strat_p.copyExtensions(p);
                         strategy.createFlow(strat_t, strat_p);
                         marking.add(strat_p);

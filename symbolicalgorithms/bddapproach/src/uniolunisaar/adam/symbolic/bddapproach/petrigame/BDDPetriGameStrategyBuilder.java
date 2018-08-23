@@ -53,7 +53,7 @@ public class BDDPetriGameStrategyBuilder {
         for (Place p : solver.getGame().getPlaces()) {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
-                AdamExtensions.setOrigID(place, p.getId());
+                solver.getGame().setOrigID(place, p.getId());
                 place.copyExtensions(p);
                 place.setInitialToken(1);
                 initial.add(place);
@@ -122,7 +122,7 @@ public class BDDPetriGameStrategyBuilder {
 
                     // Create the preset edges
                     for (Place p : t.getPreset()) { // all places in preset of the original Petri net
-                        Place place = getSuitablePredecessor(p.getId(), prevMarking);
+                        Place place = getSuitablePredecessor(strategy, p.getId(), prevMarking);
                         strategy.createFlow(place, strat_t);
                         succMarking.remove(place);
                     }
@@ -134,7 +134,7 @@ public class BDDPetriGameStrategyBuilder {
                         // create all postset places as new copies
                         for (Place p : t.getPostset()) {
                             Place strat_p = strategy.createPlace(p.getId() + DELIM + succState.getId());
-                            AdamExtensions.setOrigID(strat_p, p.getId());
+                            strategy.setOrigID(strat_p, p.getId());
                             strat_p.copyExtensions(p);
                             strategy.createFlow(strat_t, strat_p);
                             succMarking.add(strat_p);
@@ -168,18 +168,18 @@ public class BDDPetriGameStrategyBuilder {
         // Do not create new places. Take the belonging places and only add
         // the needed flows            
         for (Place p : t.getPostset()) {
-            Place place = getSuitablePredecessor(p.getId(), visitedMarking);
+            Place place = getSuitablePredecessor(strategy, p.getId(), visitedMarking);
             strategy.createFlow(strat_t, place);
         }
         // those places which haven't change through the transition but are in the marking
         // thus a new place could had been created before and must be deleted and mapped to an existing place
         for (Place place : visitedMarking) {
-            if (!containsID(t.getPostset(), place)) {
+            if (!containsID(strategy, t.getPostset(), place)) {
                 Place place1 = null;
                 // find the possibly unnecessarly created place
                 for (Place p : prevMarking) {
-                    String placeOID = AdamExtensions.getOrigID(place);
-                    String pOID = AdamExtensions.getOrigID(p);
+                    String placeOID = strategy.getOrigID(place);
+                    String pOID = strategy.getOrigID(p);
                     if (!(!placeOID.equals(pOID) || place.equals(p))) {
                         // so there is a different incarnation of the same place in the already visited mcut and the current marking
                         place1 = p;
@@ -231,9 +231,9 @@ public class BDDPetriGameStrategyBuilder {
 
     }
 
-    private boolean containsID(Set<Place> places, Place place) {
+    private boolean containsID(PetriGame game, Set<Place> places, Place place) {
         for (Place p : places) {
-            if (p.getId().equals(AdamExtensions.getOrigID(place))) {
+            if (p.getId().equals(game.getOrigID(place))) {
                 return true;
             }
         }
@@ -258,9 +258,9 @@ public class BDDPetriGameStrategyBuilder {
      * @param marking - the current marking of the unfolding
      * @return the place of the marking with the given placeid
      */
-    Place getSuitablePredecessor(String placeid, List<Place> marking) {
+    Place getSuitablePredecessor(PetriGame game, String placeid, List<Place> marking) {
         for (Place p : marking) {
-            String id = AdamExtensions.getOrigID(p);
+            String id = game.getOrigID(p);
             if (id.equals(placeid)) {
                 return p;
             }

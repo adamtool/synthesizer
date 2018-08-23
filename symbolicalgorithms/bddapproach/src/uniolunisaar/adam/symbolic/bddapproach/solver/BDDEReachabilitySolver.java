@@ -12,7 +12,6 @@ import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -60,7 +59,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     private BDD reach() {
         BDD reach = getZero();
         for (Place place : getSolvingObject().getWinCon().getPlaces2Reach()) {
-            reach.orWith(codePlace(place, 0, AdamExtensions.getPartition(place)));
+            reach.orWith(codePlace(place, 0, getSolvingObject().getGame().getPartition(place)));
         }
         return reach;
     }

@@ -36,15 +36,15 @@ public class BDDTools {
 
     private static final boolean print = false;
 
-    public static String place2BinID(Place p, int digits) {
-        String binID = Integer.toBinaryString(AdamExtensions.getID(p));
+    public static String place2BinID(PetriGame game, Place p, int digits) {
+        String binID = Integer.toBinaryString(game.getID(p));
         binID = String.format("%" + digits + "s", binID).replace(' ', '0');
         return new StringBuilder(binID).reverse().toString();
     }
 
     public static String place2BinID(Place s3, BDDSolvingObject game, int token) {
         int digits = getBinLength(game, token);
-        return place2BinID(s3, digits);
+        return place2BinID(game.getGame(), s3, digits);
     }
 
 //    public static String getPlace2BinIDMapping(PetriGame game) {
@@ -176,7 +176,7 @@ public class BDDTools {
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
             for (Place pl : game.getDevidedPlaces()[i]) {
-                pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
+                pls[i].put(place2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
             }
         }
 
@@ -298,7 +298,7 @@ public class BDDTools {
         return out;
     }
 
-    public static String getPlaceIDByBin(byte[] dcs, BDDDomain bddDomain, Set<Place> places, boolean cp) {
+    public static String getPlaceIDByBin(PetriGame game, byte[] dcs, BDDDomain bddDomain, Set<Place> places, boolean cp) {
         int[] ids = bddDomain.vars();
         String id = "";
         String zero = "";
@@ -310,7 +310,7 @@ public class BDDTools {
             return "-";
         }
         for (Place p : places) {
-            if (id.equals(place2BinID(p, ids.length))) {
+            if (id.equals(place2BinID(game, p, ids.length))) {
                 return p.getId();
             }
         }
@@ -443,7 +443,7 @@ public class BDDTools {
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
             for (Place pl : game.getDevidedPlaces()[i]) {
-                pls[i].put(place2BinID(pl, getBinLength(game, i)), pl.getId());
+                pls[i].put(place2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
             }
         }
 //        Map<Integer, String> transitions = new HashMap<>();

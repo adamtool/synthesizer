@@ -10,7 +10,6 @@ import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrigame.TokenFlow;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.logic.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
@@ -52,7 +51,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         // if it creates a new token chain, use the co-Buchi solver
         for (Transition t : game.getTransitions()) {
-            for (TokenFlow tfl : AdamExtensions.getTokenFlow(t)) {
+            for (TokenFlow tfl : game.getTokenFlow(t)) {
                 if (tfl.getPreset().isEmpty()) {
                     return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
                 }

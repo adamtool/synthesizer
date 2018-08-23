@@ -36,7 +36,7 @@ public class MTBDDSolvingObject<W extends WinningCondition> extends SolvingObjec
                 Marking m = next.getMarking();
                 boolean first = false;
                 for (Place place : game.getPlaces()) {
-                    if (m.getToken(place).getValue() > 0 && AdamExtensions.isEnvironment(place)) {
+                    if (m.getToken(place).getValue() > 0 && getGame().isEnvironment(place)) {
                         if (first) {
                             throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
                         }
