@@ -75,7 +75,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         OBAD = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
+            int add = (!getSolvingObject().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             GOODCHAIN[i][0] = getFactory().extDomain(2);
             //for any token
@@ -102,16 +102,16 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
+        String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getSolvingObject().isConcurrencyPreserving());
         sb.append(id);
         if (!id.equals("-")) {
             sb.append(", ");
             sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
         }
         sb.append(")").append("\n");
-        for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+        for (int j = 0; j < getSolvingObject().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getSolvingObject().isConcurrencyPreserving());
             sb.append(sid);
             if (!sid.equals("-")) {
                 sb.append(", ");
@@ -134,11 +134,11 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
      */
     private BDD winningStates() {
         BDD ret = getOne();
-        for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); i++) {
             if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
                 continue;
             }
-            if (getGame().isConcurrencyPreserving()) {
+            if (getSolvingObject().isConcurrencyPreserving()) {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1));
             } else {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
@@ -156,7 +156,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         init.andWith(getBufferedNDet().not());
         // all initial places which are marked as 2reach are on a good chain
         Marking m = getGame().getInitialMarking();
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             boolean good = false;
             for (Place p : getSolvingObject().getDevidedPlaces()[i]) {
                 if (m.getToken(p).getValue() > 0) {
@@ -257,7 +257,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -326,7 +326,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0); // the transition should be enabled and choosen!
             // Systempart
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                     if (getSolvingObject().getGame().isEnvironment(place)) {
@@ -406,7 +406,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD sysTopPart() {
         BDD sysT = super.sysTopPart();
-        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
             sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));// todo: 12.10.2017 not really check but should be better than (the here tag from 6.11.2017)
         }
         // in top part copy overallbad flag 
@@ -426,7 +426,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         // normal part
         Set<Place> pre = t.getPreset();
         BDD sysN = firable(t, 0);
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             BDD pl = getZero();
             for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                 BDD inner = getOne();
@@ -646,7 +646,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             variables.andWith(GOODCHAIN[pos][i].set());
         }
         variables.andWith(OBAD[pos].set());
@@ -685,7 +685,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
         }
         preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));

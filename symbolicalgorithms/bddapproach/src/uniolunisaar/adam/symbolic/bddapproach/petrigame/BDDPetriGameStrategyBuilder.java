@@ -10,14 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import uniol.apt.adt.pn.Marking;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
+import uniolunisaar.adam.ds.petrigame.TokenFlow;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.logic.util.AdamTools;
@@ -45,7 +44,8 @@ public class BDDPetriGameStrategyBuilder {
     public PetriGame builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
         PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
-        AdamExtensions.setWinningCondition(strategy, AdamExtensions.getWinningCondition(solver.getGame()));
+        // why does a strategy need the winning condition?
+//        PetriGameExtensionHandler.setWinningCondition(strategy, PetriGameExtensionHandler.getWinningCondition(solver.getGame()));
         BDDState init = graph.getInitial();
         // create the initial places
         List<Place> initial = new ArrayList<>();
@@ -71,6 +71,7 @@ public class BDDPetriGameStrategyBuilder {
             }
         }
 
+        addTokenflows(solver, strategy);
         Logger.getInstance().addMessage("Done calculating Petri game strategy.");
         return strategy;
     }
@@ -102,13 +103,13 @@ public class BDDPetriGameStrategyBuilder {
                         // if we have an already visited cut, we have to find 
                         // the transition which let to the previous state (since this was a
                         // tau transition) to put the right postset to this transition
-                        List<Transition> trans = AdamExtensions.getTransition(prevState);
-                        List<Transition> strats_t = AdamExtensions.getStrategyTransition(prevState);
+                        List<Transition> trans = graph.getTransition(prevState);
+                        List<Transition> strats_t = graph.getStrategyTransition(prevState);
                         for (int i = 0; i < trans.size(); i++) {
                             t = trans.get(i);
                             Transition strat_t = strats_t.get(i);
                             if (i == 0) { // only delete ones, since that had been all merged to those places
-                                for (Place place : strat_t.getPostset()) { // delete the former wrong created postset
+                                for (Place place : strat_t.getPostset()) { // delete the former wrongly created postset
                                     strategy.removePlace(place);
                                 }
                             }
@@ -147,12 +148,12 @@ public class BDDPetriGameStrategyBuilder {
                     // for creating the pg strategy
                     if (solver.hasTop(succState.getState())) {
                         // there could possibly be more than one predeccessor
-                        List<Transition> strat_trans = (AdamExtensions.hasStrategyTransition(succState)) ? AdamExtensions.getStrategyTransition(succState) : new ArrayList<>();
+                        List<Transition> strat_trans = (graph.hasStrategyTransition(succState)) ? graph.getStrategyTransition(succState) : new ArrayList<>();
                         strat_trans.add(strat_t);
-                        List<Transition> trans = (AdamExtensions.hasTransition(succState)) ? AdamExtensions.getTransition(succState) : new ArrayList<>();
+                        List<Transition> trans = (graph.hasTransition(succState)) ? graph.getTransition(succState) : new ArrayList<>();
                         trans.add(t);
-                        AdamExtensions.setStrategyTransition(succState, strat_trans);
-                        AdamExtensions.setTransition(succState, trans);
+                        graph.setStrategyTransition(succState, strat_trans);
+                        graph.setTransition(succState, trans);
                     }
                 }
             }
@@ -267,5 +268,21 @@ public class BDDPetriGameStrategyBuilder {
         }
         //todo: error
         throw new RuntimeException("ERROR in PG-StratBuilder Predecessor!" + placeid + " " + marking.toString());
+    }
+
+    private void addTokenflows(BDDSolver<? extends WinningCondition> solver, PetriGame strategy) {
+        PetriGame game = solver.getGame();
+        for (Transition t : strategy.getTransitions()) {
+            Transition tOrig = game.getTransition(t.getLabel());
+            if (game.hasTokenFlow(tOrig)) {
+                List<TokenFlow> tflOrig = game.getTokenFlow(tOrig);
+                //todo: just hacky to get it work again, programm it directly when the new kind of tokenflows are implemented
+                List<TokenFlow> tfl = new ArrayList<>();                
+                strategy.setTokenFlow(t, tfl);
+            }
+//            for (TokenFlow tokenFlow : tfl) {
+//                tokenFlow.
+//            }
+        }
     }
 }

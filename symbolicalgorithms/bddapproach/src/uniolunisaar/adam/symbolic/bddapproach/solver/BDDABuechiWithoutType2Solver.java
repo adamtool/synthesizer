@@ -98,7 +98,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         LOOP = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
+            int add = (!getSolvingObject().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             NOCC[i][0] = getFactory().extDomain(2);
             GOODCHAIN[i][0] = getFactory().extDomain(2);
@@ -132,7 +132,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         } else {
             // Env place
             sb.append("(");
-            String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
+            String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getSolvingObject().isConcurrencyPreserving());
             sb.append(id);
             if (!id.equals("-")) {
                 sb.append(", ");
@@ -141,9 +141,9 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                 sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
             }
             sb.append(")").append("\n");
-            for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+            for (int j = 0; j < getSolvingObject().getMaxTokenCount() - 1; j++) {
                 sb.append("(");
-                String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
+                String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getSolvingObject().isConcurrencyPreserving());
                 sb.append(sid);
                 if (!sid.equals("-")) {
                     sb.append(", ");
@@ -237,11 +237,11 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         }
         buchi.andWith(wellformed(0));
         BDD ret = getOne();
-        for (int i = 0; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); i++) {
             if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
                 continue;
             }
-            if (getGame().isConcurrencyPreserving()) {
+            if (getSolvingObject().isConcurrencyPreserving()) {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1));
             } else {
                 ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
@@ -289,12 +289,12 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         BDD init = super.initial();
         // one version, then in the most cases there is one unfolding of the place
 //        // all newly occupied flags to 0
-//        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+//        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
 //            init.andWith(NOCC[0][i].ithVar(0));
 //        }
         // all newly ocupied flags for the initial token are 1 the others zero
         Marking m = getGame().getInitialMarking();
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             boolean occ = false;
             boolean good = false;
             for (Place p : getSolvingObject().getDevidedPlaces()[i]) {
@@ -371,7 +371,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0); // the transition should be enabled and choosen!
                 // Systempart
-                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                         if (getSolvingObject().getGame().isEnvironment(place)) {
@@ -468,7 +468,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     @Override
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -593,7 +593,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
@@ -630,7 +630,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -720,7 +720,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -931,7 +931,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             variables.andWith(NOCC[pos][i].set());
             variables.andWith(GOODCHAIN[pos][i].set());
         }
@@ -973,7 +973,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
         }

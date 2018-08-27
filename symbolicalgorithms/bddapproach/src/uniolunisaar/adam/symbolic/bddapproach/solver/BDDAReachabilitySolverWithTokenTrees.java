@@ -19,7 +19,6 @@ import uniolunisaar.adam.ds.winningconditions.Reachability;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -91,7 +90,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         TOKENTREE_ACT = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
+            int add = (!getSolvingObject().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
@@ -108,7 +107,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 //                }
             }
             // one flag for each tokentree
-            BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getGame()).size());
+            BigInteger nbTrees = BigInteger.valueOf(2).pow(TokenTreeCreator.getTokenTrees(getGame()).size());
             TOKENTREE_WON[i] = getFactory().extDomain(nbTrees);
             TOKENTREE_ACT[i] = getFactory().extDomain(nbTrees);
         }
@@ -129,7 +128,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 //        BigInteger nbTrees = BigInteger.valueOf(2).pow(AdamExtensions.getTokenTrees(getNet()).size()).add(BigInteger.valueOf(-1));
 // When token tree had been reached, then it also must had reached a reachable place
         BDD reach = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
+        for (int i = 0; i < TokenTreeCreator.getTokenTrees(getGame()).size(); i++) {
             reach.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).imp(getFactory().ithVar(TOKENTREE_WON[0].vars()[i])));
         }
         return reach;
@@ -187,6 +186,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
      * @param toOne
      * @return
      */
+    @Deprecated
     private BDD setTreeIDs(Place place, int pos, boolean toOne, List<Integer> alreadySetIds) {
         BDD res = getOne();
         List<Integer> treeIds = BDDTools.getTreeIDsContainingPlace(place, getGame());
@@ -203,7 +203,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD setAllRemainingIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds, int pos) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
+        for (int i = 0; i < TokenTreeCreator.getTokenTrees(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 res.andWith(getFactory().nithVar(TOKENTREE_WON[pos].vars()[i]));
             }
@@ -216,7 +216,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD setSuitableRemainingSuccTreeIDsToZero(List<Integer> alreadySetIds, List<Integer> alreadySetActIds) {
         BDD res = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
+        for (int i = 0; i < TokenTreeCreator.getTokenTrees(getGame()).size(); i++) {
             if (!alreadySetIds.contains(i)) {
                 // if pre not 1 => post 0
                 BDD pre = getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).not();
@@ -238,7 +238,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
     private BDD keepOnesForTrees() {
         BDD ones = getOne();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
+        for (int i = 0; i < TokenTreeCreator.getTokenTrees(getGame()).size(); i++) {
             ones.andWith(getFactory().ithVar(TOKENTREE_WON[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_WON[1].vars()[i])));
             ones.andWith(getFactory().ithVar(TOKENTREE_ACT[0].vars()[i]).impWith(getFactory().ithVar(TOKENTREE_ACT[1].vars()[i])));
         }
@@ -254,7 +254,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
                 Set<Place> pre_sys = t.getPreset();
                 BDD all = firable(t, 0);
                 // Systempart
-                for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+                for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                     BDD pl = getZero();
                     for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                         if (getSolvingObject().getGame().isEnvironment(place)) {
@@ -405,7 +405,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
         for (Transition t : getSolvingObject().getSysTransition()) {
             Set<Place> pre = t.getPreset();
             BDD all = firable(t, 0);
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                     BDD inner = getOne();
@@ -444,7 +444,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -530,7 +530,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
 
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -671,7 +671,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = PLACES[pos][0].set();
-        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
             variables.andWith(PLACES[pos][i + 1].set());
             variables.andWith(TOP[pos][i].set());
             variables.andWith(TRANSITIONS[pos][i].set());
@@ -692,7 +692,7 @@ public class BDDAReachabilitySolverWithTokenTrees extends BDDSolver<Reachability
     @Override
     BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
-        for (int i = 0; i < AdamExtensions.getTokenTrees(getGame()).size(); i++) {
+        for (int i = 0; i < TokenTreeCreator.getTokenTrees(getGame()).size(); i++) {
             preBimpSucc.andWith(TOKENTREE_WON[0].buildEquals(TOKENTREE_WON[1]));
             preBimpSucc.andWith(TOKENTREE_ACT[0].buildEquals(TOKENTREE_ACT[1]));
         }

@@ -17,11 +17,10 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
-import uniolunisaar.adam.logic.util.PetriGameAnnotator;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -136,15 +135,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
         Partitioner.doIt(getGame());
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-
-        if (!AdamExtensions.hasConcurrencyPreserving(getGame())) {
-            PetriGameAnnotator.annotateConcurrencyPreserving(getGame());
-        }
-
-        if (!AdamExtensions.hasMaxTokenCount(getGame())) {
-            PetriGameAnnotator.annotateMaxTokenCount(getGame());
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS       
 
         try {
             //todo:  all comments are old version, before cavarti
@@ -154,7 +145,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
             if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
                 places[0] = new HashSet<>();
             }
-            int additional = (getGame().isConcurrencyPreserving()) ? 0 : 1;
+            int additional = (getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name())) ? 0 : 1;
             for (Place place : getGame().getPlaces()) {
                 int token = getGame().getPartition(place);
                 if (places[token] == null) {
@@ -227,16 +218,16 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
      * @return
      */
     public int getMaxTokenCountInt() {
-        return (int) getGame().getMaxTokenCount();
+        return (int) getMaxTokenCount();
     }
 
     // Delegate methods
     public boolean isConcurrencyPreserving() {
-        return getGame().isConcurrencyPreserving();
+        return getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name());
     }
 
     public long getMaxTokenCount() {
-        return getGame().getMaxTokenCount();
+        return getGame().getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
     }
 
 }

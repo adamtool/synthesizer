@@ -164,7 +164,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         for (int i = 0; i < 2; ++i) {
             // Env-place
-            int add = (!getGame().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0; // add for no env place at all a dummy space
+            int add = (!getSolvingObject().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0; // add for no env place at all a dummy space
             PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
@@ -185,12 +185,12 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
-        String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getGame().isConcurrencyPreserving());
+        String id = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][0], getSolvingObject().getDevidedPlaces()[0], getSolvingObject().isConcurrencyPreserving());
         sb.append(id);
         sb.append(")").append("\n");
-        for (int j = 0; j < getGame().getMaxTokenCount() - 1; j++) {
+        for (int j = 0; j < getSolvingObject().getMaxTokenCount() - 1; j++) {
             sb.append("(");
-            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getGame().isConcurrencyPreserving());
+            String sid = BDDTools.getPlaceIDByBin(getGame(), dcs, PLACES[pos][j + 1], getSolvingObject().getDevidedPlaces()[j + 1], getSolvingObject().isConcurrencyPreserving());
             sb.append(sid);
             if (!sid.equals("-")) {
                 sb.append(", ");
@@ -260,7 +260,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         BDD well = bddfac.one();
 
         // only the places belonging to the token (or zero) are allowed in the positions
-        for (int i = 0; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             BDD place = bddfac.zero();
             for (Place p : getSolvingObject().getDevidedPlaces()[i]) {
                 place.orWith(codePlace(p, pos, i));
@@ -275,7 +275,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
 
         // only transitions in the postset of pi are allowed in the commitments
         BDD com = bddfac.one();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             for (Transition t : getSolvingObject().getDevidedTransitions()[i - 1]) {
                 BDD place = bddfac.zero();
                 for (Place p : t.getPreset()) {
@@ -463,10 +463,10 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
      */
     private BDD nTop() {
         BDD nTop = getFactory().one();
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             BDD top = TOP[0][i - 1].ithVar(0);
             // todo: really necessary?
-            if (!getGame().isConcurrencyPreserving()) {
+            if (!getSolvingObject().isConcurrencyPreserving()) {
                 BDD place = codePlace(0, 0, i);
                 nTop.andWith(place.not().impWith(top));
             } else {
@@ -545,8 +545,8 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
                 marking.andWith(codePlace(place, 0, token));
             }
         }
-        if (!getGame().isConcurrencyPreserving()) {
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        if (!getSolvingObject().isConcurrencyPreserving()) {
+            for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 if (!tokens.contains(i)) {
                     marking.andWith(codePlace(0, 0, i));
                 }
@@ -653,7 +653,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
      */
     void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
                 continue;
             }
@@ -703,7 +703,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
             // Systempart
-            for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+            for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 BDD pl = getZero();
                 for (Place place : getSolvingObject().getDevidedPlaces()[i]) {
                     if (getSolvingObject().getGame().isEnvironment(place)) {
@@ -777,7 +777,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
     BDD sysTopPart() {
         // top part
         BDD sysT = getOne();
-        for (int i = 1; i < getGame().getMaxTokenCount(); i++) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
 //            // \not topi=>topi'=0
 //            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
 //            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
@@ -807,7 +807,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
         // normal part
         Set<Place> pre = t.getPreset();
         BDD sysN = firable(t, 0);
-        for (int i = 1; i < getGame().getMaxTokenCount(); ++i) {
+        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             BDD pl = getZero();
             for (Place place : getSolvingObject().getDevidedPlaces()[i]) {// these are all system places                    
                 BDD inner = getOne();
@@ -896,7 +896,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
             return false;
         }
 
-        boolean cp = getGame().isConcurrencyPreserving();
+        boolean cp = getSolvingObject().isConcurrencyPreserving();
         BDD trans = source.and(shiftFirst2Second(target));
         BDD out;
 
@@ -1177,7 +1177,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
     BDD getVariables(int pos) {
         // Existential variables
         BDD variables = PLACES[pos][0].set();
-        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
             variables.andWith(PLACES[pos][i + 1].set());
             variables.andWith(TOP[pos][i].set());
             variables.andWith(TRANSITIONS[pos][i].set());
@@ -1216,7 +1216,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
      */
     BDD preBimpSucc() {
         BDD preBimpSucc = PLACES[0][0].buildEquals(PLACES[1][0]);
-        for (int i = 0; i < getGame().getMaxTokenCount() - 1; ++i) {
+        for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
             preBimpSucc.andWith(PLACES[0][i + 1].buildEquals(PLACES[1][i + 1]));
             preBimpSucc.andWith(TOP[0][i].buildEquals(TOP[1][i]));
             preBimpSucc.andWith(TRANSITIONS[0][i].buildEquals(TRANSITIONS[1][i]));
@@ -1310,7 +1310,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
 
     BDD getEnvironmentTransitions() {
         BDD env = getZero();
-        boolean cp = getGame().isConcurrencyPreserving();
+        boolean cp = getSolvingObject().isConcurrencyPreserving();
         for (Transition t : getGame().getTransitions()) {
             env.orWith(cp ? envTransitionCP(t) : envTransitionNotCP(t));
         }
@@ -1320,7 +1320,7 @@ public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSo
 
     BDD getSystemTransitions() {
         BDD sys = getZero();
-        boolean cp = getGame().isConcurrencyPreserving();
+        boolean cp = getSolvingObject().isConcurrencyPreserving();
         for (Transition t : getSolvingObject().getSysTransition()) {
             sys.orWith(cp ? sysTransitionCP(t) : sysTransitionNotCP(t));
         }

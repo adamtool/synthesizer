@@ -22,8 +22,9 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrigame.TokenChain;
 import uniolunisaar.adam.ds.petrigame.TokenTree;
-import uniolunisaar.adam.ds.petrigame.AdamExtensions;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.tokenflow.TokenChainGenerator;
+import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -891,8 +892,9 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
+    @Deprecated
     public static List<Integer> getTreeIDsContainingPlace(Place place, PetriGame game) {
-        List<TokenTree> tokentrees = AdamExtensions.getTokenTrees(game);
+        List<TokenTree> tokentrees = TokenTreeCreator.getTokenTrees(game);
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < tokentrees.size(); i++) {
             TokenTree tree = tokentrees.get(i);
@@ -903,8 +905,9 @@ public class BDDTools {
         return ids;
     }
 
+    @Deprecated
     public static List<Integer> getChainIDsContainingPlace(Place place, PetriGame game) {
-        List<TokenChain> tokenchains = AdamExtensions.getTokenChains(game);
+        List<TokenChain> tokenchains = TokenChainGenerator.getTokenChains(game);
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < tokenchains.size(); i++) {
             TokenChain chain = tokenchains.get(i);
