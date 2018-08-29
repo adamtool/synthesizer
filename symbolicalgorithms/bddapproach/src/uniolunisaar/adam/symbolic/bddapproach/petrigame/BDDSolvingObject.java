@@ -34,7 +34,7 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
     private final Set<Transition> sysTransition;
     private final Map<Transition, Pair<List<Place>, List<Place>>> preset;
     private final Map<Transition, Pair<List<Place>, List<Place>>> postset;
-    // saves places devided into groups for each token
+    // saves places divided into groups for each token
     private Set<Place>[] places;
     // saves transitions belonging in the presets of the places to each token
     private List<Transition>[] transitions;
