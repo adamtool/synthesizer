@@ -73,7 +73,8 @@ public class TestingAllFilesASafety {
             "sendingprotocolTwo.apt",// two environment token
             "toMakeCP.apt",// two environment token
             "madeCP.apt",// two environment token
-            "burglar-HL.apt"// high-level version
+            "burglar-HL.apt",// high-level version
+            "firstTest.apt" // not safe 
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy
