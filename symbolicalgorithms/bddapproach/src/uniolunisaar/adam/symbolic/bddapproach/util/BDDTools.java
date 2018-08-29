@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,11 +19,7 @@ import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.TokenChain;
-import uniolunisaar.adam.ds.petrigame.TokenTree;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.logic.tokenflow.TokenChainGenerator;
-import uniolunisaar.adam.logic.tokenflow.TokenTreeCreator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -892,30 +887,30 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
-    @Deprecated
-    public static List<Integer> getTreeIDsContainingPlace(Place place, PetriGame game) {
-        List<TokenTree> tokentrees = TokenTreeCreator.getTokenTrees(game);
-        List<Integer> ids = new ArrayList<>();
-        for (int i = 0; i < tokentrees.size(); i++) {
-            TokenTree tree = tokentrees.get(i);
-            if (tree.contains(place)) {
-                ids.add(i);
-            }
-        }
-        return ids;
-    }
+//    @Deprecated
+//    public static List<Integer> getTreeIDsContainingPlace(Place place, PetriGame game) {
+//        List<TokenTree> tokentrees = TokenTreeCreator.getTokenTrees(game);
+//        List<Integer> ids = new ArrayList<>();
+//        for (int i = 0; i < tokentrees.size(); i++) {
+//            TokenTree tree = tokentrees.get(i);
+//            if (tree.contains(place)) {
+//                ids.add(i);
+//            }
+//        }
+//        return ids;
+//    }
 
-    @Deprecated
-    public static List<Integer> getChainIDsContainingPlace(Place place, PetriGame game) {
-        List<TokenChain> tokenchains = TokenChainGenerator.getTokenChains(game);
-        List<Integer> ids = new ArrayList<>();
-        for (int i = 0; i < tokenchains.size(); i++) {
-            TokenChain chain = tokenchains.get(i);
-            if (chain.contains(place)) {
-                ids.add(i);
-            }
-        }
-        return ids;
-    }
+//    @Deprecated
+//    public static List<Integer> getChainIDsContainingPlace(Place place, PetriGame game) {
+//        List<TokenChain> tokenchains = TokenChainGenerator.getTokenChains(game);
+//        List<Integer> ids = new ArrayList<>();
+//        for (int i = 0; i < tokenchains.size(); i++) {
+//            TokenChain chain = tokenchains.get(i);
+//            if (chain.contains(place)) {
+//                ids.add(i);
+//            }
+//        }
+//        return ids;
+//    }
 
 }

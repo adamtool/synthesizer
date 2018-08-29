@@ -69,7 +69,11 @@ public class FirstTestsABuchi {
     @Test(enabled = true)
     public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
 //        testToyExamples("oneTokenMultiChains0", false);
+try{
         testToyExamples("oneTokenMultiChains1", true); // need type2 strategy
+} catch(ParseException e) {
+    System.out.println("eeeee"+e);
+}
 //        testToyExamples("oneTokenMultiChains2", true);
 //        testToyExamples("oneTokenMultiChains3", false);
 //        testToyExamples("oneTokenMultiChains4", false);

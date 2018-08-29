@@ -227,13 +227,15 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
 //                System.out.println(tokenFlow);
-                for (Place p : tokenFlow.getPreset()) {
+//                for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
+                if (!tokenFlow.isInitial()) {
+                    Place p = tokenFlow.getPresetPlace();
                     int preToken = getSolvingObject().getGame().getPartition(p);
                     allPres.andWith(codePlace(p, 0, preToken));
                     allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
                 }
-                if (tokenFlow.getPreset().isEmpty()) {
+                if (tokenFlow.isInitial()) {
                     hasEmptyPreset = true;
                     break;
                 }
@@ -276,7 +278,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (TokenFlow fl : fls) {
-                if (fl.getPreset().contains(p) && !fl.getPostset().isEmpty()) {
+                if ((!fl.isInitial() && fl.getPresetPlace().equals(p)) && !fl.getPostset().isEmpty()) {
                     hasFlow = true;
                 }
             }
@@ -349,7 +351,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
                 List<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlow(t);
                 for (TokenFlow tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
-                        if (tfl.getPreset().isEmpty()) {
+                        if (tfl.isInitial()) {
                             env.andWith(GOODCHAIN[1][0].ithVar(0));
                         } else {
                             env.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));

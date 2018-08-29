@@ -71,8 +71,8 @@ public class TestingAllFilesABuchi {
 //        System.out.println("TAAAAAAAAAAAAADAAAAAAAAAAAAAAAA");
 //    }
 
-    @DataProvider(name = "files"
-            , parallel=true)
+    @DataProvider(name = "files")
+//            , parallel=true) // makes s.t. VM error because of the bbdfactory 
     public static Object[][] allExamples() {
         Collection<File> files = FileUtils.listFiles(
                 new File(inputDir),
