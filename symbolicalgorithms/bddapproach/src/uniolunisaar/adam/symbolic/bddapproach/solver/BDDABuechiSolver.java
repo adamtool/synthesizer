@@ -2,6 +2,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -786,7 +787,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
         boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
@@ -811,7 +812,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
     private BDD setOverallBad(Transition t) {
         BDD exPreBad = getZero();
-        List<TokenFlow> fls = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fls = getSolvingObject().getGame().getTokenFlows(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (TokenFlow fl : fls) {
@@ -892,7 +893,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 goodchain.andWith(GOODCHAIN[1][0].ithVar(1));
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                List<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlow(t);
+                Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
                 for (TokenFlow tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {

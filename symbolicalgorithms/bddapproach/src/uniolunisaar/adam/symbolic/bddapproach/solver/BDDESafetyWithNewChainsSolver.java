@@ -2,6 +2,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -320,7 +321,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
         boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
@@ -344,7 +345,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
-        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
         BDD dep = getOne();
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
             boolean hasEmptyPreset = false;
@@ -407,7 +408,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //    }
     private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
         BDD exPreBad = getZero();
-        List<TokenFlow> fls = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fls = getSolvingObject().getGame().getTokenFlows(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (TokenFlow fl : fls) {
@@ -484,7 +485,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             if (getSolvingObject().getWinCon().getBadPlaces().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                List<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlow(t);
+                Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
                 for (TokenFlow tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {

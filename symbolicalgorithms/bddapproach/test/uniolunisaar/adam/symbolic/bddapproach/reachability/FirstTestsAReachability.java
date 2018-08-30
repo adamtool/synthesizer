@@ -9,12 +9,12 @@ import uniol.apt.adt.pn.Transition;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.ds.exceptions.NetNotConcurrencyPreservingException;
+import uniolunisaar.adam.logic.exceptions.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
+import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
@@ -65,7 +65,8 @@ public class FirstTestsAReachability {
     
       @Test
     public void testOneTokenMultiChains() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException {
-        testToyExamples("oneTokenMultiChains3", true);
+//        testToyExamples("oneTokenMultiChains3", true);
+        testToyExamples("oneTokenMultiChains5", false);
 //        testToyExamples("oneTokenMultiChains6", false);
 //        testToyExamples("oneTokenMultiChains8", true);
     }
@@ -151,7 +152,7 @@ public class FirstTestsAReachability {
 //        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
 //        System.out.println(solv.getNet().getName());
         Transition t = solv.getGame().getTransition("t4");
-        System.out.println(solv.getGame().getTokenFlow(t).toString());
+//        System.out.println(solv.getGame().getTokenFlow(t).toString());
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);

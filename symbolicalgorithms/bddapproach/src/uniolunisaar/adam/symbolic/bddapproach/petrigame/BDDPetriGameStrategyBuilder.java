@@ -2,6 +2,7 @@ package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -275,14 +276,32 @@ public class BDDPetriGameStrategyBuilder {
         for (Transition t : strategy.getTransitions()) {
             Transition tOrig = game.getTransition(t.getLabel());
             if (game.hasTokenFlow(tOrig)) {
-                List<TokenFlow> tflOrig = game.getTokenFlow(tOrig);
-                //todo: just hacky to get it work again, programm it directly when the new kind of tokenflows are implemented
-                List<TokenFlow> tfl = new ArrayList<>();                
-                strategy.setTokenFlow(t, tfl);
+                Collection<TokenFlow> tflOrig = game.getTokenFlows(tOrig);
+                for (TokenFlow tokenFlow : tflOrig) {
+                    Place[] postset = new Place[tokenFlow.getPostset().size()];
+                    int i = 0;
+                    for (Place place : tokenFlow.getPostset()) {
+                        postset[i] = getPlaceByOrigID(game, t.getPostset(), place.getId());
+                        ++i;
+                    }
+                    if (tokenFlow.isInitial()) {
+                        strategy.createInitialTokenFlow(t, postset);
+                    } else {
+                        strategy.createTokenFlow(getPlaceByOrigID(game, t.getPreset(), tokenFlow.getPresetPlace().getId()), t, postset);
+                    }
+                }
             }
-//            for (TokenFlow tokenFlow : tfl) {
-//                tokenFlow.
-//            }
         }
     }
+
+    private Place getPlaceByOrigID(PetriGame game, Set<Place> postset, String id) {
+        for (Place place : postset) {
+            if (game.getOrigID(place).equals(id)) {
+                return place;
+            }
+        }
+        //todo: error
+        throw new RuntimeException("ERROR in PG-StratBuilder no suitable origID (should not happen)! (" + id + ")");
+    }
+
 }

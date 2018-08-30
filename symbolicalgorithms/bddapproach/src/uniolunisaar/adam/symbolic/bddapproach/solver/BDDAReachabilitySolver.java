@@ -2,6 +2,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +180,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        List<TokenFlow> fl = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
         boolean hasEmptyPreset = false;
         for (TokenFlow tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
@@ -231,7 +232,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 //    }
     private BDD setOverallBad(Transition t) {
         BDD exPreBad = getZero();
-        List<TokenFlow> fls = getSolvingObject().getGame().getTokenFlow(t);
+        Collection<TokenFlow> fls = getSolvingObject().getGame().getTokenFlows(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (TokenFlow fl : fls) {
@@ -299,7 +300,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             if (getSolvingObject().getWinCon().getPlaces2Reach().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                List<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlow(t);
+                Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
                 for (TokenFlow tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {

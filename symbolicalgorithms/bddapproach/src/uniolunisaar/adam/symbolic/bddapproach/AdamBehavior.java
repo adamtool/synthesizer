@@ -7,7 +7,7 @@ import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionExcep
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
+import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;

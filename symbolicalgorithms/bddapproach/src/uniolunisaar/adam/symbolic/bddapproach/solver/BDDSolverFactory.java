@@ -48,7 +48,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
         // if it creates a new token chain, use the co-Buchi solver
         for (Transition t : game.getTransitions()) {
-            for (TokenFlow tfl : game.getTokenFlow(t)) {
+            for (TokenFlow tfl : game.getTokenFlows(t)) {
                 if (tfl.isInitial()) {
                     return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
                 }
