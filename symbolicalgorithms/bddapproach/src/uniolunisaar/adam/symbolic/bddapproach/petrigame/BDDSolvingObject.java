@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
@@ -82,6 +83,24 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         Logger.getInstance().addMessage("Buffer data ...");
         bufferData();
+        Logger.getInstance().addMessage("... buffering of data done.");
+    }
+
+    public BDDSolvingObject(BDDSolvingObject<W> obj) {
+        super(new PetriGame(obj.getGame()), obj.getWinCon().getCopy());
+        // Cannot copy these sets and have the recalculate them since
+        // the Petri net constructor creates new objects for each transition, etc.
+        sysTransition = new HashSet<>();
+        preset = new HashMap<>();
+        postset = new HashMap<>();
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
+        Logger.getInstance().addMessage("Buffer data ...");
+        try {
+            bufferData();
+        } catch (NoSuitableDistributionFoundException ex) {
+            // should not be possible since it should be a copy of a distributable game
+            Logger.getInstance().addError("The original game which you gave me to copy wasn't correct!", ex);
+        }
         Logger.getInstance().addMessage("... buffering of data done.");
     }
 
@@ -228,6 +247,11 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
 
     public long getMaxTokenCount() {
         return getGame().getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
+    }
+
+    @Override
+    public BDDSolvingObject<W> getCopy() {
+        return new BDDSolvingObject(this);
     }
 
 }

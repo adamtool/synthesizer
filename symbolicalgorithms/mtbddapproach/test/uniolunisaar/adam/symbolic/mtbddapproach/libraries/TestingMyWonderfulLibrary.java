@@ -11,6 +11,7 @@ import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
+import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
@@ -26,7 +27,7 @@ public class TestingMyWonderfulLibrary {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
-    public static void testCall() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+    public static void testCall() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         MTBDDSolver<? extends WinningCondition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
@@ -34,7 +35,7 @@ public class TestingMyWonderfulLibrary {
     }
 
     @Test
-    public static void testCall2() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, NoStrategyExistentException {
+    public static void testCall2() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, NoStrategyExistentException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";       
         String output = "asdf";

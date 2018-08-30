@@ -6,8 +6,8 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.logic.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
@@ -33,16 +33,16 @@ public class BDDkBoundedSolverFactory extends SolverFactory<BDDSolverOptions, BD
 
     }
 
-    public BDDkBoundedSolver getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
-        return super.getSolver(game, skipTests, new BDDSolverOptions());
+    public BDDkBoundedSolver getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
+        return super.getSolver(file, new BDDSolverOptions());
     }
 
-    public BDDkBoundedSolver getSolver(String file, boolean skipTests) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+    public BDDkBoundedSolver getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDkBoundedSolver getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {;
-        return super.getSolver(file, new BDDSolverOptions());
+    public BDDkBoundedSolver getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, SolvingException {
+        return super.getSolver(game, skipTests, new BDDSolverOptions());
     }
 
     @Override

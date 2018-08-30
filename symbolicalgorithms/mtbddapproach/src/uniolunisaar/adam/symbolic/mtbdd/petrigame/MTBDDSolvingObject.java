@@ -9,7 +9,6 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.PetriGameExtensionHandler;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.tools.Logger;
@@ -51,4 +50,12 @@ public class MTBDDSolvingObject<W extends WinningCondition> extends SolvingObjec
         }
     }
 
+    public MTBDDSolvingObject(MTBDDSolvingObject<W> obj) {
+        super(new PetriGame(obj.getGame()), obj.getWinCon().getCopy());
+    }
+
+    @Override
+    public MTBDDSolvingObject<W> getCopy() {
+        return new MTBDDSolvingObject(this);
+    }
 }

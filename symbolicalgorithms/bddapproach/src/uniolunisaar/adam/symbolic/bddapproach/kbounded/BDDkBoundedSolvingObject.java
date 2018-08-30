@@ -56,6 +56,10 @@ public class BDDkBoundedSolvingObject<W extends WinningCondition> extends Solvin
 
     }
 
+    public BDDkBoundedSolvingObject(BDDkBoundedSolvingObject<W> obj) {
+        super(new PetriGame(obj.getGame()), obj.getWinCon().getCopy());
+    }
+
     /**
      * Problem if it's really a long
      *
@@ -72,6 +76,11 @@ public class BDDkBoundedSolvingObject<W extends WinningCondition> extends Solvin
 
     public long getMaxTokenCount() {
         return getGame().getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
+    }
+
+    @Override
+    public BDDkBoundedSolvingObject<W> getCopy() {
+        return new BDDkBoundedSolvingObject(this);
     }
 
 }

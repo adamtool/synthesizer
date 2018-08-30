@@ -7,6 +7,7 @@ import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
@@ -33,20 +34,20 @@ public class MTBDDSolverFactory extends SolverFactory<MTBDDSolverOptions, MTBDDS
 
     }
 
-    public MTBDDSolver<? extends WinningCondition> getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
+    public MTBDDSolver<? extends WinningCondition> getSolver(PetriGame game, boolean skipTests) throws SolvingException, CouldNotFindSuitableWinningConditionException {
         return super.getSolver(game, skipTests, new MTBDDSolverOptions());
     }
 
-    public MTBDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+    public MTBDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws SolvingException, IOException, ParseException, CouldNotFindSuitableWinningConditionException {
         return super.getSolver(file, skipTests, new MTBDDSolverOptions());
     }
 
-    public MTBDDSolver<? extends WinningCondition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
+    public MTBDDSolver<? extends WinningCondition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
         return super.getSolver(file, new MTBDDSolverOptions());
     }
 
     @Override
-    protected MTBDDSolver<? extends WinningCondition> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends WinningCondition> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, MTBDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
