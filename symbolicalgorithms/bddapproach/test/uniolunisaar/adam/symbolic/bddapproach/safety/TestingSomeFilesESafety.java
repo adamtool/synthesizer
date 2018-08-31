@@ -69,6 +69,16 @@ public class TestingSomeFilesESafety {
     }
 
     @Test(enabled = true)
+    public void testInfOneGoodOneBad() throws Exception {
+        final String path = inputDir + "infflowchains" + File.separator;
+//        Logger.getInstance().setVerbose(true);
+        String name = "infflowchainsOneGoodOneBad";
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+
+    @Test(enabled = true)
     public void testInfFlowChains4() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
 //        Logger.getInstance().setVerbose(true);
@@ -77,6 +87,7 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
+
     @Test(enabled = true)
     public void testInfFlowChains2() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
@@ -96,6 +107,7 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
+
     @Test(enabled = true)
     public void testInfFlowChains6() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
@@ -105,8 +117,8 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
-    
-        @Test(enabled = true)
+
+    @Test(enabled = true)
     public void testInfFlowChainsEnv() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
 //        Logger.getInstance().setVerbose(true);
@@ -115,9 +127,7 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
-    
-    
-    
+
     @Test(enabled = true)
     public void testInfFlowChains() throws Exception {
         final String path = inputDir + "infflowchains" + File.separator;
@@ -127,8 +137,8 @@ public class TestingSomeFilesESafety {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
-    
-     @Test(enabled = true)
+
+    @Test(enabled = true)
     public void testNewChains() throws Exception {
         final String path = inputDir + "newchains" + File.separator;
 //        Logger.getInstance().setVerbose(true);

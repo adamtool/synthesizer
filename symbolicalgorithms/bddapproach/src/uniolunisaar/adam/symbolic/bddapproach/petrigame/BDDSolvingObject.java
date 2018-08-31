@@ -164,7 +164,8 @@ public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<
             if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
                 places[0] = new HashSet<>();
             }
-            int additional = (getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name())) ? 0 : 1;
+            boolean cp = getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name());
+            int additional = cp ? 0 : 1;
             for (Place place : getGame().getPlaces()) {
                 int token = getGame().getPartition(place);
                 if (places[token] == null) {
