@@ -2,7 +2,6 @@ package uniolunisaar.adam.symbolic.bddapproach.petrigame;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,9 +16,9 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.TokenFlow;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.tokenflow.TokenFlowCalculator;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -72,7 +71,7 @@ public class BDDPetriGameStrategyBuilder {
             }
         }
 
-        addTokenflows(solver, strategy);
+        TokenFlowCalculator.copyTokenflowsFromGameToStrategy(solver.getGame(), strategy);
         Logger.getInstance().addMessage("Done calculating Petri game strategy.");
         return strategy;
     }
@@ -269,39 +268,6 @@ public class BDDPetriGameStrategyBuilder {
         }
         //todo: error
         throw new RuntimeException("ERROR in PG-StratBuilder Predecessor!" + placeid + " " + marking.toString());
-    }
-
-    private void addTokenflows(BDDSolver<? extends WinningCondition> solver, PetriGame strategy) {
-        PetriGame game = solver.getGame();
-        for (Transition t : strategy.getTransitions()) {
-            Transition tOrig = game.getTransition(t.getLabel());
-            if (game.hasTokenFlow(tOrig)) {
-                Collection<TokenFlow> tflOrig = game.getTokenFlows(tOrig);
-                for (TokenFlow tokenFlow : tflOrig) {
-                    Place[] postset = new Place[tokenFlow.getPostset().size()];
-                    int i = 0;
-                    for (Place place : tokenFlow.getPostset()) {
-                        postset[i] = getPlaceByOrigID(game, t.getPostset(), place.getId());
-                        ++i;
-                    }
-                    if (tokenFlow.isInitial()) {
-                        strategy.createInitialTokenFlow(t, postset);
-                    } else {
-                        strategy.createTokenFlow(getPlaceByOrigID(game, t.getPreset(), tokenFlow.getPresetPlace().getId()), t, postset);
-                    }
-                }
-            }
-        }
-    }
-
-    private Place getPlaceByOrigID(PetriGame game, Set<Place> postset, String id) {
-        for (Place place : postset) {
-            if (game.getOrigID(place).equals(id)) {
-                return place;
-            }
-        }
-        //todo: error
-        throw new RuntimeException("ERROR in PG-StratBuilder no suitable origID (should not happen)! (" + id + ")");
     }
 
 }

@@ -38,7 +38,7 @@ public class BDDTools {
         return new StringBuilder(binID).reverse().toString();
     }
 
-    public static String place2BinID(Place s3, BDDSolvingObject game, int token) {
+    public static String place2BinID(Place s3, BDDSolvingObject<? extends WinningCondition> game, int token) {
         int digits = getBinLength(game, token);
         return place2BinID(game.getGame(), s3, digits);
     }
@@ -151,7 +151,7 @@ public class BDDTools {
         }
     }
 
-    public static int getBinLength(BDDSolvingObject game, int token) {
+    public static int getBinLength(BDDSolvingObject<? extends WinningCondition> game, int token) {
         int add = (game.isConcurrencyPreserving()) ? -1 : 0;
         return Integer.toBinaryString(game.getDevidedPlaces()[token].size() + add).length();
     }
@@ -899,7 +899,6 @@ public class BDDTools {
 //        }
 //        return ids;
 //    }
-
 //    @Deprecated
 //    public static List<Integer> getChainIDsContainingPlace(Place place, PetriGame game) {
 //        List<TokenChain> tokenchains = TokenChainGenerator.getTokenChains(game);
@@ -912,5 +911,4 @@ public class BDDTools {
 //        }
 //        return ids;
 //    }
-
 }

@@ -80,7 +80,7 @@ public class BDDkBoundedSolvingObject<W extends WinningCondition> extends Solvin
 
     @Override
     public BDDkBoundedSolvingObject<W> getCopy() {
-        return new BDDkBoundedSolvingObject(this);
+        return new BDDkBoundedSolvingObject<>(this);
     }
 
 }

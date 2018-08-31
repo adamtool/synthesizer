@@ -56,6 +56,6 @@ public class MTBDDSolvingObject<W extends WinningCondition> extends SolvingObjec
 
     @Override
     public MTBDDSolvingObject<W> getCopy() {
-        return new MTBDDSolvingObject(this);
+        return new MTBDDSolvingObject<>(this);
     }
 }
