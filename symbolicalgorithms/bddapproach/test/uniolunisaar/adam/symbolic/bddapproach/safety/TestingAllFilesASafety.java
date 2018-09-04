@@ -73,6 +73,7 @@ public class TestingAllFilesASafety {
             "sendingprotocolTwo.apt",// two environment token
             "toMakeCP.apt",// two environment token
             "madeCP.apt",// two environment token
+            "paul.apt",// two environment token
             "nondet_motivationForSchedulingChange.apt",// two environment token
             "burglar-HL.apt",// high-level version
             "firstTest.apt" // not safe 
