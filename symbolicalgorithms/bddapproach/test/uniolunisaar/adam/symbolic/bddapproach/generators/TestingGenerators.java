@@ -368,7 +368,7 @@ public class TestingGenerators {
         return out;
     }
 
-    @Test(dataProvider = "loopUnrolling")
+    @Test(dataProvider = "loopUnrolling", timeOut = (60*1000)/2) // 30 sec
     public void testLoopUnrollingWithNewChain(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "loopUnrollingWithNewChain" + File.separator;
         String name = nb_unrollings + "_unrollings";
@@ -382,7 +382,7 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
-    @Test(dataProvider = "loopUnrolling")
+    @Test(dataProvider = "loopUnrolling", timeOut = (60*1000)/2) // 30 sec
     public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "loopUnrolling" + File.separator;
         String name = nb_unrollings + "_unrollings";

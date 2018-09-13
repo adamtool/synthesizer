@@ -90,13 +90,13 @@ public class CreatingGeneratorExamples {
 //        testClerksCP(9);
     }
 
-    @Test(timeOut = (60*1000)/2) // halbe Minute
+    @Test(timeOut = (60*1000)/2) // 30 sec
     public void testRobotCell() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
         testRobotCell(2, 1, true);
         testRobotCell(3, 2, true);
     }
 
-    @Test
+    @Test(timeOut = (60*1000)/2) // 30 sec
     public void testSelfOrganizingRobots() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
         testSelfOrgaRobots(2, 1, true);
 //        testSelfOrgaRobots(3, 1, true);
