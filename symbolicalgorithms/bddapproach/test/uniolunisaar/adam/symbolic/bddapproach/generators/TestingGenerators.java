@@ -19,15 +19,16 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.generators.games.Clerks;
-import uniolunisaar.adam.generators.games.LoopUnrolling;
-import uniolunisaar.adam.generators.games.ManufactorySystem;
-import uniolunisaar.adam.generators.games.Philosopher;
-import uniolunisaar.adam.generators.games.RobotCell;
-import uniolunisaar.adam.generators.games.SecuritySystem;
-import uniolunisaar.adam.generators.games.SelfOrganizingRobots;
-import uniolunisaar.adam.generators.games.Watchdog;
-import uniolunisaar.adam.generators.games.Workflow;
+import uniolunisaar.adam.generators.synthesis.Clerks;
+import uniolunisaar.adam.generators.synthesis.LoopUnrolling;
+import uniolunisaar.adam.generators.synthesis.ManufactorySystem;
+import uniolunisaar.adam.generators.synthesis.Philosopher;
+import uniolunisaar.adam.generators.synthesis.RobotCell;
+import uniolunisaar.adam.generators.synthesis.SecuritySystem;
+import uniolunisaar.adam.generators.synthesis.SelfOrganizingRobots;
+import uniolunisaar.adam.generators.synthesis.Watchdog;
+import uniolunisaar.adam.generators.synthesis.Workflow;
+import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
@@ -308,6 +309,19 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
+    @Test(dataProvider = "concurrentMachines")
+    public void testCMImproved(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
+        final String path = outputDir + "workflowImproved" + File.separator;
+        String name = machines + "_machines_" + pieces + "_pieces";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate Workflow...");
+        PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
+        AdamTools.savePG2PDF(path+name, pn, false);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Watchdog
     @DataProvider(name = "watchdog")
     public static Object[][] watchdog() {
@@ -368,7 +382,7 @@ public class TestingGenerators {
         return out;
     }
 
-    @Test(dataProvider = "loopUnrolling", timeOut = (60*1000)/2) // 30 sec
+    @Test(dataProvider = "loopUnrolling", timeOut = (60 * 1000) / 2) // 30 sec
     public void testLoopUnrollingWithNewChain(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "loopUnrollingWithNewChain" + File.separator;
         String name = nb_unrollings + "_unrollings";
@@ -382,7 +396,7 @@ public class TestingGenerators {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
-    @Test(dataProvider = "loopUnrolling", timeOut = (60*1000)/2) // 30 sec
+    @Test(dataProvider = "loopUnrolling", timeOut = (60 * 1000) / 2) // 30 sec
     public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "loopUnrolling" + File.separator;
         String name = nb_unrollings + "_unrollings";

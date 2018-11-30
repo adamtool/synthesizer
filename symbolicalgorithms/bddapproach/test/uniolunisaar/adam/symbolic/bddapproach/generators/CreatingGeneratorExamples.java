@@ -19,15 +19,15 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.generators.games.CarRouting;
-import uniolunisaar.adam.generators.games.Clerks;
-import uniolunisaar.adam.generators.games.ContainerTerminal;
-import uniolunisaar.adam.generators.games.ManufactorySystem;
-import uniolunisaar.adam.generators.games.Philosopher;
-import uniolunisaar.adam.generators.games.RobotCell;
-import uniolunisaar.adam.generators.games.SecuritySystem;
-import uniolunisaar.adam.generators.games.SelfOrganizingRobots;
-import uniolunisaar.adam.generators.games.Workflow;
+import uniolunisaar.adam.generators.synthesis.CarRouting;
+import uniolunisaar.adam.generators.synthesis.Clerks;
+import uniolunisaar.adam.generators.synthesis.ContainerTerminal;
+import uniolunisaar.adam.generators.synthesis.ManufactorySystem;
+import uniolunisaar.adam.generators.synthesis.Philosopher;
+import uniolunisaar.adam.generators.synthesis.RobotCell;
+import uniolunisaar.adam.generators.synthesis.SecuritySystem;
+import uniolunisaar.adam.generators.synthesis.SelfOrganizingRobots;
+import uniolunisaar.adam.generators.synthesis.Workflow;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
@@ -130,6 +130,15 @@ public class CreatingGeneratorExamples {
 //        testWork(4, 1);
 //        testWork(3, 3);
         testWork(3, 2, true);
+//        testWork(4, 3);
+//        testWork(4, 4);
+    }
+    @Test
+    public void testCMImproved() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
+//        testWork(4, 1);
+//        testWork(3, 3);
+        testWorkImprovedVersion(2, 1, true);
+        testWorkImprovedVersion(3, 2, true);
 //        testWork(4, 3);
 //        testWork(4, 4);
     }
@@ -267,6 +276,19 @@ public class CreatingGeneratorExamples {
         System.out.println("Generate Workflow...");
         PetriGame pn = Workflow.generate(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testWorkImprovedVersion(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException, SolvingException {
+        final String path = outputDir + "workflow" + File.separator;
+        String name = machines + "_machines_" + pieces + "_pieces";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate Workflow...");
+        PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
+        Tools.savePN(path + name, pn);
+        AdamTools.saveAPT(path + name, pn, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
