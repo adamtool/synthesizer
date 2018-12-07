@@ -19,15 +19,15 @@ import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.generators.games.CarRouting;
-import uniolunisaar.adam.generators.games.Clerks;
-import uniolunisaar.adam.generators.games.ContainerTerminal;
-import uniolunisaar.adam.generators.games.ManufactorySystem;
-import uniolunisaar.adam.generators.games.Philosopher;
-import uniolunisaar.adam.generators.games.RobotCell;
-import uniolunisaar.adam.generators.games.SecuritySystem;
-import uniolunisaar.adam.generators.games.SelfOrganizingRobots;
-import uniolunisaar.adam.generators.games.Workflow;
+import uniolunisaar.adam.generators.synthesis.CarRouting;
+import uniolunisaar.adam.generators.synthesis.Clerks;
+import uniolunisaar.adam.generators.synthesis.ContainerTerminal;
+import uniolunisaar.adam.generators.synthesis.ManufactorySystem;
+import uniolunisaar.adam.generators.synthesis.Philosopher;
+import uniolunisaar.adam.generators.synthesis.RobotCell;
+import uniolunisaar.adam.generators.synthesis.SecuritySystem;
+import uniolunisaar.adam.generators.synthesis.SelfOrganizingRobots;
+import uniolunisaar.adam.generators.synthesis.Workflow;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
@@ -90,13 +90,13 @@ public class CreatingGeneratorExamples {
 //        testClerksCP(9);
     }
 
-    @Test(timeOut = (60*1000)/2) // 30 sec
+    @Test(timeOut = (60 * 1000) / 2) // 30 sec
     public void testRobotCell() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
         testRobotCell(2, 1, true);
         testRobotCell(3, 2, true);
     }
 
-    @Test(timeOut = (60*1000)/2) // 30 sec
+    @Test(timeOut = (60 * 1000) / 2) // 30 sec
     public void testSelfOrganizingRobots() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
         testSelfOrgaRobots(2, 1, true);
 //        testSelfOrgaRobots(3, 1, true);
@@ -110,12 +110,26 @@ public class CreatingGeneratorExamples {
         testSelfOrgaRobotsNew(1, 1, 1, false);
         testSelfOrgaRobotsNew(1, 1, 2, false);
         testSelfOrgaRobotsNew(1, 1, 3, false);
-        testSelfOrgaRobotsNew(1, 2, 1, true);        
+        testSelfOrgaRobotsNew(1, 2, 1, true);
         testSelfOrgaRobotsNew(1, 2, 2, false);
         testSelfOrgaRobotsNew(1, 2, 3, false);
-        testSelfOrgaRobotsNew(2, 2, 1, true);        
-//        testSelfOrgaRobotsNew(2, 2, 2, false);
+        testSelfOrgaRobotsNew(2, 2, 1, true);
+        testSelfOrgaRobotsNew(2, 2, 2, false);
 //        testSelfOrgaRobotsNew(2, 2, 3, false);
+    }
+
+    @Test
+    public void testSelfOrganizingRobotsBengt() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
+        testSelfOrgaRobotsBengt(1, 1, 1, false);
+//        testSelfOrgaRobotsBengt(1, 1, 2, false);
+//        testSelfOrgaRobotsBengt(1, 1, 3, false);
+//        testSelfOrgaRobotsBengt(1, 2, 1, true);        
+//        testSelfOrgaRobotsBengt(1, 2, 2, false);
+//        testSelfOrgaRobotsBengt(1, 2, 3, false);
+//        testSelfOrgaRobotsBengt(2, 2, 1, true);        
+        testSelfOrgaRobotsBengt(2, 2, 1, true);
+        testSelfOrgaRobotsBengt(2, 2, 2, false);
+//        testSelfOrgaRobotsBengt(2, 2, 3, false);
     }
 
     @Test
@@ -130,6 +144,16 @@ public class CreatingGeneratorExamples {
 //        testWork(4, 1);
 //        testWork(3, 3);
         testWork(3, 2, true);
+//        testWork(4, 3);
+//        testWork(4, 4);
+    }
+
+    @Test
+    public void testCMImproved() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
+//        testWork(4, 1);
+//        testWork(3, 3);
+        testWorkImprovedVersion(2, 1, true);
+        testWorkImprovedVersion(3, 2, true);
 //        testWork(4, 3);
 //        testWork(4, 4);
     }
@@ -247,6 +271,18 @@ public class CreatingGeneratorExamples {
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
+    private void testSelfOrgaRobotsBengt(int robots, int tools, int phases, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, NotSupportedGameException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException, SolvingException {
+        final String path = outputDir + "selfOrgaRobotsBengtVersion" + File.separator;
+        String name = "R" + robots + "T" + tools + "P" + phases;
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate robots ...");
+        PetriGame pn = SelfOrganizingRobots.generateImproved(robots, tools, phases, true, true);
+        Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
     private void testManu(int machines) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException, SolvingException {
         final String path = outputDir + "manufactory" + File.separator;
         String name = machines + "_machines";
@@ -267,6 +303,19 @@ public class CreatingGeneratorExamples {
         System.out.println("Generate Workflow...");
         PetriGame pn = Workflow.generate(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
+        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+        BDDTestingTools.testExample(solv, path + name, hasStrategy);
+    }
+
+    private void testWorkImprovedVersion(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, ParseException, SolvingException {
+        final String path = outputDir + "workflow" + File.separator;
+        String name = machines + "_machines_" + pieces + "_pieces";
+        File f = new File(path);
+        f.mkdir();
+        System.out.println("Generate Workflow...");
+        PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
+        Tools.savePN(path + name, pn);
+        AdamTools.saveAPT(path + name, pn, true);
         BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }

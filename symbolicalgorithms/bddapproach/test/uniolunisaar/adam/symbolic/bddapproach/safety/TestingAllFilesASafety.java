@@ -61,7 +61,8 @@ public class TestingAllFilesASafety {
             "nondet2SelectionToken.apt",
             "robinhood.apt",
             "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
-            "nondet2WithStratByGameSolving.apt" // should have a strategy for the original definition of ndet
+            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
+            "myexample000.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "container.apt", // takes to long ... 
@@ -76,7 +77,10 @@ public class TestingAllFilesASafety {
             "paul.apt",// two environment token
             "nondet_motivationForSchedulingChange.apt",// two environment token
             "burglar-HL.apt",// high-level version
-            "firstTest.apt" // not safe 
+            "firstTest.apt", // not safe 
+            "nounfolding.apt", // two environment token
+            "oneunfolding.apt", // two environment token
+            "trueconcurrent.apt" // two environment token
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy
