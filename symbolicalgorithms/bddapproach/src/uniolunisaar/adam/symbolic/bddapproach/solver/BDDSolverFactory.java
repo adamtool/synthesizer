@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 import java.io.IOException;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
