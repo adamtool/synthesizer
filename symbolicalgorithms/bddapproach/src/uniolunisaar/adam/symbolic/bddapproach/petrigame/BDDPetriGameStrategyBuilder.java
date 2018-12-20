@@ -19,7 +19,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.util.TransitCalculator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.logic.util.AdamTools;
+import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
 
@@ -64,7 +64,7 @@ public class BDDPetriGameStrategyBuilder {
             calculateStrategyByBFS(solver, graph, strategy, init, initial);
         } catch (Exception e) {
             try {
-                AdamTools.savePG2PDF("error_petrinet", strategy, true);
+                PNWTTools.savePnwt2PDF("error_petrinet", strategy, true);
                 throw e;
             } catch (IOException | InterruptedException ex) {
                 java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);

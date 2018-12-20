@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.kbounded;
 import uniolunisaar.adam.symbolic.bddapproach.solver.*;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
+import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
@@ -33,15 +33,15 @@ public class BDDkBoundedSolverFactory extends SolverFactory<BDDSolverOptions, BD
 
     }
 
-    public BDDkBoundedSolver getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDkBoundedSolver getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(file, new BDDSolverOptions());
     }
 
-    public BDDkBoundedSolver getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDkBoundedSolver getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDkBoundedSolver getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDkBoundedSolver getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(game, skipTests, new BDDSolverOptions());
     }
 

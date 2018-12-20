@@ -2,7 +2,7 @@ package uniolunisaar.adam.symbolic.mtbdd.solver;
 
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
+import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
@@ -34,15 +34,15 @@ public class MTBDDSolverFactory extends SolverFactory<MTBDDSolverOptions, MTBDDS
 
     }
 
-    public MTBDDSolver<? extends Condition> getSolver(PetriGame game, boolean skipTests) throws SolvingException, CouldNotFindSuitableWinningConditionException {
+    public MTBDDSolver<? extends Condition> getSolver(PetriGame game, boolean skipTests) throws SolvingException, CouldNotFindSuitableConditionException {
         return super.getSolver(game, skipTests, new MTBDDSolverOptions());
     }
 
-    public MTBDDSolver<? extends Condition> getSolver(String file, boolean skipTests) throws SolvingException, IOException, ParseException, CouldNotFindSuitableWinningConditionException {
+    public MTBDDSolver<? extends Condition> getSolver(String file, boolean skipTests) throws SolvingException, IOException, ParseException, CouldNotFindSuitableConditionException {
         return super.getSolver(file, skipTests, new MTBDDSolverOptions());
     }
 
-    public MTBDDSolver<? extends Condition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
+    public MTBDDSolver<? extends Condition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         return super.getSolver(file, new MTBDDSolverOptions());
     }
 

@@ -13,7 +13,7 @@ import net.sf.javabdd.JFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
+import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
@@ -39,7 +39,7 @@ public class TestingJBDDLibrary {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @Test
-    public static void testCallings() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException, SolvingException {
+    public static void testCallings() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);

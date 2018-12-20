@@ -787,7 +787,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fl = getSolvingObject().getGame().getTransits(t);
         boolean hasEmptyPreset = false;
         for (Transit tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
@@ -812,7 +812,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
 
     private BDD setOverallBad(Transition t) {
         BDD exPreBad = getZero();
-        Collection<Transit> fls = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fls = getSolvingObject().getGame().getTransits(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (Transit fl : fls) {
@@ -893,7 +893,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
                 goodchain.andWith(GOODCHAIN[1][0].ithVar(1));
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
                 for (Transit tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {

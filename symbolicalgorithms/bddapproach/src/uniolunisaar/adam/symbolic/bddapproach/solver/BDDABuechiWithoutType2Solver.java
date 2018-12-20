@@ -323,7 +323,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         }
         BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fl = getSolvingObject().getGame().getTransits(t);
         for (Transit tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
 //                for (Place p : tokenFlow.getPreset()) {
@@ -346,7 +346,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     private BDD setOverallBad(Transition t) {
-        Collection<Transit> fls = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fls = getSolvingObject().getGame().getTransits(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (Transit fl : fls) {
@@ -433,7 +433,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                     if (getSolvingObject().getWinCon().getBuchiPlaces().contains(postPlace)) { // it is a buchi place -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                        Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
                         for (Transit tfl : tfls) {
                             if (tfl.getPostset().contains(postPlace)) {
                                 if (tfl.isInitial()) {
@@ -555,7 +555,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                     if (getSolvingObject().getWinCon().getBuchiPlaces().contains(postPlace)) { // it is a buchi -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                        Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
                         for (Transit tfl : tfls) {
                             if (tfl.getPostset().contains(postPlace)) {
                                 if (tfl.isInitial()) {

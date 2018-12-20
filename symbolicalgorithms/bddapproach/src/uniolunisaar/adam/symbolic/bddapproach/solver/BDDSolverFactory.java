@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.solver;
 import java.io.IOException;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
+import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
@@ -32,15 +32,15 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     }
 
-    public BDDSolver<? extends Condition> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {;
+    public BDDSolver<? extends Condition> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {;
         return super.getSolver(file, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends Condition> getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDSolver<? extends Condition> getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends Condition> getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDSolver<? extends Condition> getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(game, skipTests, new BDDSolverOptions());
     }
 
@@ -48,7 +48,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
         // if it creates a new token chain, use the co-Buchi solver
         for (Transition t : game.getTransitions()) {
-            for (Transit tfl : game.getTokenFlows(t)) {
+            for (Transit tfl : game.getTransits(t)) {
                 if (tfl.isInitial()) {
                     return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
                 }

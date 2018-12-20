@@ -180,7 +180,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fl = getSolvingObject().getGame().getTransits(t);
         boolean hasEmptyPreset = false;
         for (Transit tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
@@ -211,7 +211,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 //        }
 //        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
 //        BDD allPres = getOne();
-//        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
+//        List<TokenFlow> fl = AdamExtensions.getTransit(t);
 //        for (Transit tokenFlow : fl) {
 //            if (tokenFlow.getPostset().contains(post)) {
 //                for (Place p : tokenFlow.getPreset()) {
@@ -232,7 +232,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
 //    }
     private BDD setOverallBad(Transition t) {
         BDD exPreBad = getZero();
-        Collection<Transit> fls = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fls = getSolvingObject().getGame().getTransits(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
             for (Transit fl : fls) {
@@ -300,7 +300,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
             if (getSolvingObject().getWinCon().getPlaces2Reach().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
                 for (Transit tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {
