@@ -8,7 +8,7 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrigame.PetriGameExtensionHandler;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 
@@ -47,7 +47,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
      * @return
      */
     @Override
-    public PetriGame builtStrategy(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph) {
+    public PetriGame builtStrategy(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph) {
         PetriGame strategy = super.builtStrategy(solver, graph);
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy

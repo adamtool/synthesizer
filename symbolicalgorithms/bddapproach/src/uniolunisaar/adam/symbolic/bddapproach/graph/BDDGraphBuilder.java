@@ -5,7 +5,7 @@ import java.util.Map;
 import net.sf.javabdd.BDD;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 
@@ -26,19 +26,19 @@ public class BDDGraphBuilder {
     BDDGraphBuilder() {
     }
 
-    public BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver) {
+    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver) {
         return builtGraph(solver, -1);
     }
 
-    public BDDGraph builtGraphStrategy(BDDSolver<? extends WinningCondition> solver, Map<Integer, BDD> distance) throws NoStrategyExistentException {
+    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, Map<Integer, BDD> distance) throws NoStrategyExistentException {
         return builtGraphStrategy(solver, -1, distance);
     }
 
-    public BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, int depth) {
+    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver, int depth) {
         return builtGraph(solver, false, depth, null);
     }
 
-    public BDDGraph builtGraphStrategy(BDDSolver<? extends WinningCondition> solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException {
+    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
@@ -52,7 +52,7 @@ public class BDDGraphBuilder {
      * @param depth -1 means do the whole graph
      * @return
      */
-    private BDDGraph builtGraph(BDDSolver<? extends WinningCondition> solver, boolean strategy, int depth, Map<Integer, BDD> distance) {
+    private BDDGraph builtGraph(BDDSolver<? extends Condition> solver, boolean strategy, int depth, Map<Integer, BDD> distance) {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
                 + solver.getGame().getName());
@@ -124,7 +124,7 @@ public class BDDGraphBuilder {
         return graph;
     }
 
-    void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneInitState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
         BDDState in = graph.addState(init, solver);
         in.setMcut(solver.isEnvState(init));
@@ -132,7 +132,7 @@ public class BDDGraphBuilder {
         todoStates.add(in);
     }
 
-    void addAllSuccessors(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
+    void addAllSuccessors(BDD succs, BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
             String value = BDDTools.getDecodedDecisionSets(succ, solver);
@@ -146,11 +146,11 @@ public class BDDGraphBuilder {
         }
     }
 
-    void addOneSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneSuccessor(BDD succs, BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addAllSuccessors(succs, solver, graph, prev, todoStates, true);
     }
 
-    Flow addFlow(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState pre, BDDState succ) {
+    Flow addFlow(BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState pre, BDDState succ) {
         return graph.addFlow(pre, succ, solver.getTransition(pre.getState(), succ.getState()));
     }
 
@@ -182,7 +182,7 @@ public class BDDGraphBuilder {
      * @param states
      * @param distance
      */
-    BDDState getNearestState(BDDSolver<? extends WinningCondition> solver, BDD states, Map<Integer, BDD> distance) {
+    BDDState getNearestState(BDDSolver<? extends Condition> solver, BDD states, Map<Integer, BDD> distance) {
         BDD state = states.satOne(solver.getFirstBDDVariables(), false);
         BDD min = state;
         int min_dist = Integer.MAX_VALUE;
@@ -210,7 +210,7 @@ public class BDDGraphBuilder {
      * @param todoStates
      * @param distance
      */
-    void addNearestInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addNearestInitState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState min = getNearestState(solver, inits, distance);
         // add the minimal init
         BDDState in = graph.addState(min);
@@ -230,7 +230,7 @@ public class BDDGraphBuilder {
      * @param todoStates
      * @param succ
      */
-    void addState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
+    void addState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
         BDDState oldSuccState = graph.contains(succ.getState());
         if (oldSuccState != null) { // jump to every already visited cut
             addFlow(solver, graph, prev, oldSuccState);
@@ -255,7 +255,7 @@ public class BDDGraphBuilder {
      * @param distance
      * @return
      */
-    BDDState getNearestSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDState prev, Map<Integer, BDD> distance) {
+    BDDState getNearestSuccessor(BDD succs, BDDSolver<? extends Condition> solver, BDDState prev, Map<Integer, BDD> distance) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         int idx = prev.getDistance();
         if (idx == -1) { // should be the initial state and all env states (todo: find a smarter solution)

@@ -18,7 +18,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.SolvingObject;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.partitioning.Partitioner;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -29,7 +29,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class BDDSolvingObject<W extends WinningCondition> extends SolvingObject<PetriGame, W> {
+public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGame, W> {
 
     private final Set<Transition> sysTransition;
     private final Map<Transition, Pair<List<Place>, List<Place>>> preset;

@@ -8,16 +8,16 @@ import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.logic.solver.SolverFactory;
-import uniolunisaar.adam.ds.winningconditions.Buchi;
-import uniolunisaar.adam.ds.winningconditions.Reachability;
-import uniolunisaar.adam.ds.winningconditions.Safety;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Buchi;
+import uniolunisaar.adam.ds.objectives.Reachability;
+import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.objectives.Condition;
 
 /**
  *
  * @author Manuel Gieseking
  */
-public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<? extends WinningCondition>> {
+public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<? extends Condition>> {
 
     private static BDDSolverFactory instance = null;
 
@@ -32,15 +32,15 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {;
+    public BDDSolver<? extends Condition> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {;
         return super.getSolver(file, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDSolver<? extends Condition> getSolver(String file, boolean skipTests) throws IOException, ParseException, CouldNotFindSuitableWinningConditionException, SolvingException {
         return super.getSolver(file, skipTests, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends WinningCondition> getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, SolvingException {
+    public BDDSolver<? extends Condition> getSolver(PetriGame game, boolean skipTests) throws CouldNotFindSuitableWinningConditionException, SolvingException {
         return super.getSolver(game, skipTests, new BDDSolverOptions());
     }
 

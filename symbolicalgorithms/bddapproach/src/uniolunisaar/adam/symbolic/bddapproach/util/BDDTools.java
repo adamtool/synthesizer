@@ -19,7 +19,7 @@ import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -38,7 +38,7 @@ public class BDDTools {
         return new StringBuilder(binID).reverse().toString();
     }
 
-    public static String place2BinID(Place s3, BDDSolvingObject<? extends WinningCondition> game, int token) {
+    public static String place2BinID(Place s3, BDDSolvingObject<? extends Condition> game, int token) {
         int digits = getBinLength(game, token);
         return place2BinID(game.getGame(), s3, digits);
     }
@@ -145,13 +145,13 @@ public class BDDTools {
 //        }
 //        return s.toString();
 //    }
-    public static void printDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver, boolean force) {
+    public static void printDecodedDecisionSets(BDD dcs, BDDSolver<? extends Condition> solver, boolean force) {
         if (print || force) {
             System.out.println(getDecodedDecisionSets(dcs, solver));
         }
     }
 
-    public static int getBinLength(BDDSolvingObject<? extends WinningCondition> game, int token) {
+    public static int getBinLength(BDDSolvingObject<? extends Condition> game, int token) {
         int add = (game.isConcurrencyPreserving()) ? -1 : 0;
         return Integer.toBinaryString(game.getDevidedPlaces()[token].size() + add).length();
     }
@@ -165,8 +165,8 @@ public class BDDTools {
      * @return
      */
     @Deprecated
-    public static String getDecodedDecisionSetsDeprecated(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
-        BDDSolvingObject<? extends WinningCondition> game = solver.getSolvingObject();
+    public static String getDecodedDecisionSetsDeprecated(BDD dcs, BDDSolver<? extends Condition> solver) {
+        BDDSolvingObject<? extends Condition> game = solver.getSolvingObject();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
@@ -197,7 +197,7 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                 envBin = pls[0].get(envBin);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // add newly occupied for buchi
                     envBin += ", " + sol[counter++];
                 }
             } else {
@@ -214,9 +214,9 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens += "(" + pls[i].get(id) + ", ";
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY) { // add type for safety
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // add newly occupied for buchi
                         tokens += sol[counter++] + ", ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -234,7 +234,7 @@ public class BDDTools {
                 } else {
                     tokens += "( - )\n";
                     counter += 1 + game.getDevidedTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
                 }
@@ -247,7 +247,7 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                 envBin_ = pls[0].get(envBin_);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // add newly occupied for buchi
                     envBin_ += ", " + sol[counter++];
                 }
 
@@ -264,9 +264,9 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens_ += "(" + pls[i].get(id);
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY) { // add type for safety
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY) { // add type for safety
                         tokens_ += (sol[counter++] == 1) ? ", 1, " : (sol[counter - 1] == 0) ? ", 2, " : ", -, ";
-                    } else if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // add newly occupied for buchi
+                    } else if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // add newly occupied for buchi
                         tokens_ += sol[counter++] + ", ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -284,7 +284,7 @@ public class BDDTools {
                 } else {
                     tokens_ += "( - )\n";
                     counter += 1 + game.getDevidedTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI) { // jump over
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY || solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI) { // jump over
                         ++counter;
                     }
                 }
@@ -406,7 +406,7 @@ public class BDDTools {
         return dcs[bddDomain.vars()[0]] == 1;
     }
 
-    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
+    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends Condition> solver) {
         String out = "";
         @SuppressWarnings("unchecked")
         List<byte[]> l = dcs.allsat();
@@ -432,8 +432,8 @@ public class BDDTools {
      * @param solver
      * @return
      */
-    public static String getDecodedDecisionSetsWithoutDomains(BDD dcs, BDDSolver<? extends WinningCondition> solver) {
-        BDDSolvingObject<? extends WinningCondition> game = solver.getSolvingObject();
+    public static String getDecodedDecisionSetsWithoutDomains(BDD dcs, BDDSolver<? extends Condition> solver) {
+        BDDSolvingObject<? extends Condition> game = solver.getSolvingObject();
         // Decoding of places
         Map<String, String>[] pls = new Map[game.getMaxTokenCountInt()];
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
@@ -465,13 +465,13 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin.equals(zeros)) {
                 envBin = pls[0].get(envBin);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
-                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // add newly occupied for buchi
                         ) {
                     envBin += (sol[counter++] == 1) ? ", * " : (sol[counter - 1] == 0) ? ", !* " : ", - ";
                 }
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain 
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                        || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY// add good token chain 
                         ) {
                     envBin += (sol[counter++] == 1) ? ", g " : (sol[counter - 1] == 0) ? ", !g " : ", - ";
                 }
@@ -489,19 +489,19 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens += "(" + pls[i].get(id) + ", ";
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // add newly occupied for buchi
                             ) {
                         tokens += (sol[counter++] == 1) ? " *, " : (sol[counter - 1] == 0) ? " !*, " : " -, ";
                     }
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY// add good token chain
                             ) {
                         tokens += (sol[counter++] == 1) ? " g, " : (sol[counter - 1] == 0) ? " !g, " : " -, ";
                     }
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY
                             || // add type for safety
-                            solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) { // add type for for buchi
+                            solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) { // add type for for buchi
                         tokens += (sol[counter++] == 1) ? "1, " : (sol[counter - 1] == 0) ? "2, " : "-, ";
                     }
                     tokens += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -520,12 +520,12 @@ public class BDDTools {
                     tokens += "( - )\n";
 //                    int buf = counter;
                     counter += 1 + game.getDevidedTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
-                        if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // jump over good token chain for buchi and type
+                        if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // jump over good token chain for buchi and type
                                 ) {
                             ++counter;
                             ++counter;
@@ -539,7 +539,7 @@ public class BDDTools {
             pre += envBin + ",\n" + tokens;
 
 //            // Token chains
-//            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+//            if (solver.getWinningCondition().getObjective() == Condition.Condition.A_REACHABILITY) {
 //                int size = AdamExtensions.getTokenChains(game.getNet()).size();
 //                for (int i = 0; i < size; i++) {
 //                    pre += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
@@ -548,18 +548,18 @@ public class BDDTools {
 //                pre += "\n";
 //            }
             // add overall bad
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+            if (solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY) {
                 pre += sol[counter++] + "\n";
             }
 
             // Loop state
-            if ((solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
-                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) && sol[counter++] == 1) {
+            if ((solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI
+                    || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) && sol[counter++] == 1) {
                 pre = "LOOP\n";
             }
 
             // add overall bad for Abuchi
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) {
+            if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) {
                 if (!pre.equals("LOOP\n")) {
                     pre += sol[counter++] + "\n";
                 } else {
@@ -577,13 +577,13 @@ public class BDDTools {
             }
             if (game.isConcurrencyPreserving() || !envBin_.equals(zeros)) {
                 envBin_ = pls[0].get(envBin_);
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
-                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI // add newly occupied for buchi
+                        || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // add newly occupied for buchi
                         ) {
                     envBin_ += (sol[counter++] == 1) ? ",* " : (sol[counter - 1] == 0) ? ",!* " : ",- ";
                 }
-                if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                        || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY// add good token chain 
+                if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                        || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY// add good token chain 
                         ) {
                     envBin_ += (sol[counter++] == 1) ? ",g " : (sol[counter - 1] == 0) ? ",!g, " : ",- ";
                 }
@@ -600,19 +600,19 @@ public class BDDTools {
                 }
                 if (game.isConcurrencyPreserving() || !id.equals(zeros)) {
                     tokens_ += "(" + pls[i].get(id) + ",";
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI // add newly occupied for buchi
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // add newly occupied for buchi
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI // add newly occupied for buchi
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // add newly occupied for buchi
                             ) {
                         tokens_ += (sol[counter++] == 1) ? " *, " : (sol[counter - 1] == 0) ? " !*, " : " -, ";
 
                     }
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY // add good token chain
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY // add good token chain
                             ) {
                         tokens_ += (sol[counter++] == 1) ? " g, " : (sol[counter - 1] == 0) ? " !g, " : " -, ";
                     }
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY // add type for safety
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) { // add type for buchi
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY // add type for safety
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) { // add type for buchi
                         tokens_ += (sol[counter++] == 1) ? " 1, " : (sol[counter - 1] == 0) ? " 2, " : " -, ";
                     }
                     tokens_ += (sol[counter++] == 1) ? "T, {" : (sol[counter - 1] == 0) ? "!T, {" : "-, {";
@@ -630,13 +630,13 @@ public class BDDTools {
                 } else {
                     tokens_ += "( - )\n";
                     counter += 1 + game.getDevidedTransitions()[i - 1].size();
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_SAFETY
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI
-                            || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_SAFETY
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI
+                            || solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY) { // jump over type2 or newly occ or good chain flag
                         ++counter;
                     }
-                    if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI // jump over good token chain for buchi and type
+                    if (solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI // jump over good token chain for buchi and type
                             ) {
                         ++counter;
                         ++counter;
@@ -646,7 +646,7 @@ public class BDDTools {
             post += envBin_ + ",\n" + tokens_;
 
 //            // Token chains
-//            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY) {
+//            if (solver.getWinningCondition().getObjective() == Condition.Condition.A_REACHABILITY) {
 //                int size = AdamExtensions.getTokenChains(game.getNet()).size();
 //                for (int i = 0; i < size; i++) {
 //                    post += sol[counter++] + ":" + sol[counter + (size - 1)] + ", ";
@@ -655,14 +655,14 @@ public class BDDTools {
 //                post += "\n";
 //            }           
             // add overall bad
-            if (solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_REACHABILITY
-                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) {
+            if (solver.getWinningCondition().getObjective() == Condition.Objective.A_REACHABILITY
+                    || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) {
                 post += sol[counter++] + "\n";
             }
 
             // Loop state
-            if ((solver.getWinningCondition().getObjective() == WinningCondition.Objective.E_BUCHI
-                    || solver.getWinningCondition().getObjective() == WinningCondition.Objective.A_BUCHI) && sol[counter++] == 1) {
+            if ((solver.getWinningCondition().getObjective() == Condition.Objective.E_BUCHI
+                    || solver.getWinningCondition().getObjective() == Condition.Objective.A_BUCHI) && sol[counter++] == 1) {
                 post = "LOOP";
             }
             out += pre + " ->\n" + post + "\n";
@@ -675,7 +675,7 @@ public class BDDTools {
         return out;
     }
 
-    public static String states2Dot(BDD bdds, BDDSolver<? extends WinningCondition> solver) {
+    public static String states2Dot(BDD bdds, BDDSolver<? extends Condition> solver) {
 //        final String mcutShape = "diamond";
 //        final String sysShape = "box";
         final String mcutColor = "white";
@@ -713,7 +713,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Dot(BDDGraph g, BDDSolver<? extends WinningCondition> solver) {
+    public static String graph2Dot(BDDGraph g, BDDSolver<? extends Condition> solver) {
 //        final String mcutShape = "diamond";
 //        final String sysShape = "box";
         final String mcutColor = "white";
@@ -788,7 +788,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Tikz(BDDGraph g, BDDSolver<? extends WinningCondition> solver) {
+    public static String graph2Tikz(BDDGraph g, BDDSolver<? extends Condition> solver) {
         StringBuilder sb = new StringBuilder();
         sb.append("\\begin{tikzpicture}[\n");
         sb.append("sys/.style={\n");
@@ -824,7 +824,7 @@ public class BDDTools {
         return sb.toString();
     }
 
-    private static void graphStates2Tikz(BDDGraph g, BDDSolver<? extends WinningCondition> solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
+    private static void graphStates2Tikz(BDDGraph g, BDDSolver<? extends Condition> solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
         if (visited.contains(state.getId())) {
             return;
         }
@@ -848,14 +848,14 @@ public class BDDTools {
         }
     }
 
-    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws FileNotFoundException {
+    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends Condition> solver) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(graph2Dot(g, solver));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }
 
-    public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
+    public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends Condition> solver) throws IOException, InterruptedException {
         saveGraph2Dot(path, g, solver);
         Runtime rt = Runtime.getRuntime();
         String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
@@ -864,7 +864,7 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
-    public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
+    public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver<? extends Condition> solver) throws IOException, InterruptedException {
         String bufferpath = path + System.currentTimeMillis();
         saveGraph2DotAndPDF(bufferpath, g, solver);
         // Delete dot file
@@ -875,7 +875,7 @@ public class BDDTools {
         Logger.getInstance().addMessage("Moved: " + bufferpath + ".pdf --> " + path + ".pdf", true);
     }
 
-    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends WinningCondition> solver) throws IOException, InterruptedException {
+    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends Condition> solver) throws IOException, InterruptedException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(states2Dot(bdds, solver));
         }

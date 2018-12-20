@@ -12,7 +12,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
 
@@ -30,7 +30,7 @@ public class TestingMyWonderfulLibrary {
     public static void testCall() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableWinningConditionException, ParameterMissingException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
-        MTBDDSolver<? extends WinningCondition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         solv.existsWinningStrategy();
     }
 
@@ -40,7 +40,7 @@ public class TestingMyWonderfulLibrary {
         final String name = "firstExamplePaper";       
         String output = "asdf";
         try {
-            MTBDDSolver<? extends WinningCondition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+            MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
             solv.getStrategy();
         } catch (UnsupportedOperationException e) {
             output = e.getMessage();

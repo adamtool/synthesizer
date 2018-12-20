@@ -24,7 +24,7 @@ import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
 import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
@@ -95,7 +95,7 @@ public class TestingAllFilesAReachability {
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableWinningConditionException, NotSupportedGameException, ParameterMissingException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
-        BDDSolver<? extends WinningCondition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
         if (notSupported.contains(file.getName())) {
             CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
             Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");

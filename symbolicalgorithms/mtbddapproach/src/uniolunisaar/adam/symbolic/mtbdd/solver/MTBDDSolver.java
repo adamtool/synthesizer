@@ -6,7 +6,7 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
 
 /**
@@ -14,7 +14,7 @@ import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class MTBDDSolver<W extends WinningCondition> extends Solver<MTBDDSolvingObject<W>, MTBDDSolverOptions> {
+public abstract class MTBDDSolver<W extends Condition> extends Solver<MTBDDSolvingObject<W>, MTBDDSolverOptions> {
 
     /**
      * Creates a new solver for the given game.

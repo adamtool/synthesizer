@@ -10,7 +10,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.SolvingObject;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -18,7 +18,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class MTBDDSolvingObject<W extends WinningCondition> extends SolvingObject<PetriGame, W> {
+public class MTBDDSolvingObject<W extends Condition> extends SolvingObject<PetriGame, W> {
 
     public MTBDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         this(game, winCon, false);

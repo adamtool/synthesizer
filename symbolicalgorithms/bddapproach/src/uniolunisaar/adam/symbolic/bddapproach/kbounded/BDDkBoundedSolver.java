@@ -14,7 +14,7 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.winningconditions.Safety;
+import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;

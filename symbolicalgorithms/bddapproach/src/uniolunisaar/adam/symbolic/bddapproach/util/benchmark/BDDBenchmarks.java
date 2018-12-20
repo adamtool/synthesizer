@@ -5,7 +5,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.solver.SolverOptions;
 import uniolunisaar.adam.ds.solver.SolvingObject;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks.Parts;
@@ -34,14 +34,14 @@ public class BDDBenchmarks {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         if (Benchmarks.getInstance().getSolver() != null) {
-            sb.append("Nb variables: ").append(((BDDSolver<? extends WinningCondition>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
+            sb.append("Nb variables: ").append(((BDDSolver<? extends Condition>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
         }
         return sb.toString();
     }
 
     public String toCSVString() {
         StringBuilder sb = new StringBuilder(Benchmarks.getInstance().toCSVString());
-        BDDSolver<? extends WinningCondition> solver = (BDDSolver<? extends WinningCondition>) Benchmarks.getInstance().getSolver();
+        BDDSolver<? extends Condition> solver = (BDDSolver<? extends Condition>) Benchmarks.getInstance().getSolver();
         if (solver != null) {
             sb.append(", ").append(solver.getVariableNumber());
         }
@@ -77,11 +77,11 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(Solver<? extends SolvingObject<? extends PetriGame, ? extends WinningCondition>, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 
-    public Solver<? extends SolvingObject<? extends PetriGame, ? extends WinningCondition>, ? extends SolverOptions> getSolver() {
+    public Solver<? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> getSolver() {
         return Benchmarks.getInstance().getSolver();
     }
 

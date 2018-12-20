@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.graph;
 import java.util.LinkedList;
 import java.util.Map;
 import net.sf.javabdd.BDD;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 
 /**
@@ -25,12 +25,12 @@ public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
     }
 
     @Override
-    void addOneInitState(BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneInitState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addNearestInitState(solver,graph,inits,todoStates,distance);
     }
 
     @Override
-    void addOneSuccessor(BDD succs, BDDSolver<? extends WinningCondition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneSuccessor(BDD succs, BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
         addState(solver, graph, prev, todoStates, succ);
     }

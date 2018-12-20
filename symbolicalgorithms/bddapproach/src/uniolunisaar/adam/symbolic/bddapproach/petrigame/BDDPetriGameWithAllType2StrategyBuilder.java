@@ -10,7 +10,7 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDType2Solver;
@@ -47,7 +47,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         // Must be a solver with type2 ability
         BDDType2Solver sol = (BDDType2Solver) solver;
@@ -206,7 +206,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      */
     //@Override
     @Deprecated
-    void addSpecialStateBehaviourOld(BDDSolver<? extends WinningCondition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net

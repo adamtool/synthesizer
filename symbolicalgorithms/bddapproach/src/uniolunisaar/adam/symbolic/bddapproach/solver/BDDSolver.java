@@ -21,7 +21,7 @@ import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
@@ -36,7 +36,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class BDDSolver<W extends WinningCondition> extends Solver<BDDSolvingObject<W>, BDDSolverOptions> {
+public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingObject<W>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;
