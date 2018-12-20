@@ -19,7 +19,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.TokenFlow;
+import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.ds.winningconditions.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
@@ -321,9 +321,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
         boolean hasEmptyPreset = false;
-        for (TokenFlow tokenFlow : fl) {
+        for (Transit tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
 //                System.out.println(tokenFlow);
 //                for (Place p : tokenFlow.getPreset()) {
@@ -345,12 +345,12 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
-        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
         BDD dep = getOne();
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
             boolean hasEmptyPreset = false;
             BDD exOne = getZero();
-            for (TokenFlow tokenFlow : fl) {
+            for (Transit tokenFlow : fl) {
                 if (tokenFlow.getPostset().contains(post)) {
 //                System.out.println(tokenFlow);
 //                    for (Place p : tokenFlow.getPreset()) {
@@ -388,7 +388,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
 //        BDD allPres = getOne();
 //        List<TokenFlow> fl = AdamExtensions.getTokenFlow(t);
-//        for (TokenFlow tokenFlow : fl) {
+//        for (Transit tokenFlow : fl) {
 //            if (tokenFlow.getPostset().contains(post)) {
 //                for (Place p : tokenFlow.getPreset()) {
 ////                    System.out.println("Pre: " + p.getId());
@@ -408,10 +408,10 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //    }
     private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
         BDD exPreBad = getZero();
-        Collection<TokenFlow> fls = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fls = getSolvingObject().getGame().getTokenFlows(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
-            for (TokenFlow fl : fls) {
+            for (Transit fl : fls) {
                 if ((!fl.isInitial() && fl.getPresetPlace().equals(p)) && !fl.getPostset().isEmpty()) {
                     hasFlow = true;
                 }
@@ -485,8 +485,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             if (getSolvingObject().getWinCon().getBadPlaces().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
-                Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
-                for (TokenFlow tfl : tfls) {
+                Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                for (Transit tfl : tfls) {
                     if (tfl.getPostset().contains(postPlace)) {
                         if (tfl.isInitial()) {
                             env.andWith(GOODCHAIN[1][0].ithVar(0));

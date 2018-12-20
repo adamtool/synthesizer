@@ -6,7 +6,7 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.exceptions.CouldNotFindSuitableWinningConditionException;
 import uniolunisaar.adam.ds.exceptions.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.TokenFlow;
+import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.logic.solver.SolverFactory;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.winningconditions.Reachability;
@@ -48,7 +48,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
         // if it creates a new token chain, use the co-Buchi solver
         for (Transition t : game.getTransitions()) {
-            for (TokenFlow tfl : game.getTokenFlows(t)) {
+            for (Transit tfl : game.getTokenFlows(t)) {
                 if (tfl.isInitial()) {
                     return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
                 }

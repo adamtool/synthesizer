@@ -18,7 +18,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.logic.tokenflow.TokenFlowCalculator;
+import uniolunisaar.adam.ds.util.TransitCalculator;
 import uniolunisaar.adam.logic.util.AdamTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -71,7 +71,7 @@ public class BDDPetriGameStrategyBuilder {
             }
         }
 
-        TokenFlowCalculator.copyTokenflowsFromGameToStrategy(solver.getGame(), strategy);
+        TransitCalculator.copyTokenflowsFromGameToStrategy(solver.getGame(), strategy);
         Logger.getInstance().addMessage("Done calculating Petri game strategy.");
         return strategy;
     }

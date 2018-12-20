@@ -19,7 +19,7 @@ import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.winningconditions.Buchi;
 import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrigame.TokenFlow;
+import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
@@ -323,8 +323,8 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         }
         BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
         BDD allPres = getOne();
-        Collection<TokenFlow> fl = getSolvingObject().getGame().getTokenFlows(t);
-        for (TokenFlow tokenFlow : fl) {
+        Collection<Transit> fl = getSolvingObject().getGame().getTokenFlows(t);
+        for (Transit tokenFlow : fl) {
             if (tokenFlow.getPostset().contains(post)) {
 //                for (Place p : tokenFlow.getPreset()) {
 //                    System.out.println("Pre: " + p.getId());
@@ -346,10 +346,10 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     private BDD setOverallBad(Transition t) {
-        Collection<TokenFlow> fls = getSolvingObject().getGame().getTokenFlows(t);
+        Collection<Transit> fls = getSolvingObject().getGame().getTokenFlows(t);
         for (Place p : t.getPreset()) {
             boolean hasFlow = false;
-            for (TokenFlow fl : fls) {
+            for (Transit fl : fls) {
 //                if (fl.getPreset().contains(p) && !fl.getPostset().isEmpty()) {
                 if ((!fl.isInitial() && fl.getPresetPlace().equals(p)) && !fl.getPostset().isEmpty()) {
                     hasFlow = true;
@@ -433,8 +433,8 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                     if (getSolvingObject().getWinCon().getBuchiPlaces().contains(postPlace)) { // it is a buchi place -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
-                        for (TokenFlow tfl : tfls) {
+                        Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                        for (Transit tfl : tfls) {
                             if (tfl.getPostset().contains(postPlace)) {
                                 if (tfl.isInitial()) {
                                     all.andWith(GOODCHAIN[1][0].ithVar(0));
@@ -555,8 +555,8 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
                     if (getSolvingObject().getWinCon().getBuchiPlaces().contains(postPlace)) { // it is a buchi -> 1
                         all.andWith(GOODCHAIN[1][0].ithVar(1));
                     } else {
-                        Collection<TokenFlow> tfls = getSolvingObject().getGame().getTokenFlows(t);
-                        for (TokenFlow tfl : tfls) {
+                        Collection<Transit> tfls = getSolvingObject().getGame().getTokenFlows(t);
+                        for (Transit tfl : tfls) {
                             if (tfl.getPostset().contains(postPlace)) {
                                 if (tfl.isInitial()) {
                                     all.andWith(GOODCHAIN[1][0].ithVar(0));
