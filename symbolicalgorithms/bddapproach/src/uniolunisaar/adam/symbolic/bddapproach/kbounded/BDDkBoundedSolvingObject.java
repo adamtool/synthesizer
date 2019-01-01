@@ -5,13 +5,13 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
-import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
-import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.logic.calculators.CalculatorIDs;
+import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.tools.Logger;
 
 /**

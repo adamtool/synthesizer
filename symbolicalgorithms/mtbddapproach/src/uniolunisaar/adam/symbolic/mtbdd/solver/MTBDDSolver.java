@@ -1,9 +1,9 @@
 package uniolunisaar.adam.symbolic.mtbdd.solver;
 
-import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
-import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.exceptions.SolverDontFitPetriGameException;
-import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;

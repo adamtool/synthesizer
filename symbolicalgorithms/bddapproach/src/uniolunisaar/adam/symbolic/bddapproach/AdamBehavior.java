@@ -4,12 +4,12 @@ import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
-import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
-import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.exceptions.ParameterMissingException;
-import uniolunisaar.adam.ds.exceptions.NotSupportedGameException;
-import uniolunisaar.adam.ds.exceptions.SolvingException;
+import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
@@ -36,7 +36,7 @@ public class AdamBehavior {
      * @throws uniol.apt.io.parser.ParseException
      * @throws
      * uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException
-     * @throws uniolunisaar.adam.ds.exceptions.SolvingException
+     * @throws uniolunisaar.adam.exceptions.pg.SolvingException
      */
     public static boolean existsWinningStrategy(String path) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);

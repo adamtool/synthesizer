@@ -16,7 +16,7 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.util.TransitCalculator;
+import uniolunisaar.adam.util.pg.TransitCalculator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PNWTTools;
