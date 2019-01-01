@@ -1,4 +1,4 @@
-package uniolunisaar.adam.generators;
+package uniolunisaar.adam.tests.generators.pg;
 
 import uniolunisaar.adam.generators.pg.Philosopher;
 import uniolunisaar.adam.generators.pg.ManufactorySystem;
