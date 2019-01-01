@@ -14,7 +14,7 @@ import uniolunisaar.adam.exceptions.pg.NotCoveredBySInvariants;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.Benchmarks;
 
 /**
  *

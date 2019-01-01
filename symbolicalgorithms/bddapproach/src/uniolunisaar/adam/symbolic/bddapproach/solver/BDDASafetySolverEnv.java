@@ -14,7 +14,7 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
 /**

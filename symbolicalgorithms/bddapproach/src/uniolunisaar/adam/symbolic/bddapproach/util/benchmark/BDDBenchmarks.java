@@ -7,8 +7,8 @@ import uniolunisaar.adam.ds.solver.SolverOptions;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks.Parts;
+import uniolunisaar.adam.util.benchmarks.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.Benchmarks.Parts;
 
 /**
  * Just toString and toCSVString overriden to add the nb of variables to the

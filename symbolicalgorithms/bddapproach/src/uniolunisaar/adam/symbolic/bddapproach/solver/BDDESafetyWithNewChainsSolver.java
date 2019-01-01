@@ -23,7 +23,7 @@ import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;

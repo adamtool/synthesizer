@@ -21,7 +21,7 @@ import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.pg.partitioning.Partitioner;
-import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
 /**
