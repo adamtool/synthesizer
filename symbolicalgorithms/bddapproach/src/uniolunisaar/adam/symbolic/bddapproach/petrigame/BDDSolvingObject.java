@@ -20,7 +20,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
-import uniolunisaar.adam.logic.partitioning.Partitioner;
+import uniolunisaar.adam.logic.pg.partitioning.Partitioner;
 import uniolunisaar.adam.logic.util.benchmark.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
