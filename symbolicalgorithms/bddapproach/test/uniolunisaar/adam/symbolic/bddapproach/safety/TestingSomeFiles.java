@@ -19,12 +19,12 @@ import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -138,7 +138,7 @@ public class TestingSomeFiles {
         final String name = "nondet2WithSys";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
+        Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -158,7 +158,7 @@ public class TestingSomeFiles {
         final String name = "nondet_withBad";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
+        Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
 //        PetriNet strat = solv.getStrategy();
 //        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
@@ -173,7 +173,7 @@ public class TestingSomeFiles {
         final String name = "nondet2WithStratByGameSolving";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
+        Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
 //        PetriNet strat = solv.getStrategy();
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphenGame", solv.getGraphGame(), solv);
@@ -189,7 +189,7 @@ public class TestingSomeFiles {
         final String name = "missDeadlock";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
+        Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);
     }

@@ -14,6 +14,7 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -51,13 +52,13 @@ public class BDDTestingTools {
 
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
-        boolean det = PNWTTools.isDeterministic(strats.getSecond(), cover);
+        boolean det = PGTools.isDeterministic(strats.getSecond(), cover);
         Assert.assertTrue(det, strats.getSecond().getName() + " is deterministic");
-        boolean res = PNWTTools.restrictsEnvTransition(solv.getGame(), strats.getSecond());
+        boolean res = PGTools.restrictsEnvTransition(solv.getGame(), strats.getSecond());
         Assert.assertFalse(res, strats.getSecond().getName() + " restricts Environment Transitions");
         if (!(solv.getWinningCondition().getObjective().equals(Condition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(Condition.Objective.E_REACHABILITY))) {
             if (!solv.getWinningCondition().getObjective().equals(Condition.Objective.E_SAFETY)) { // todo: we have to develop a notion for deadlock-avoiding but ok when goal reached
-                boolean dead = PNWTTools.isDeadlockAvoiding(solv.getGame(), strats.getSecond(), cover);
+                boolean dead = PGTools.isDeadlockAvoiding(solv.getGame(), strats.getSecond(), cover);
                 Assert.assertTrue(dead, strats.getSecond().getName() + " is Deadlock Avoiding");
             }
         }
