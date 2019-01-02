@@ -1,1 +1,0 @@
-${mainfolder}/generators/classes
