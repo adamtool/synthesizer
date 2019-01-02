@@ -25,11 +25,11 @@ import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -96,7 +96,7 @@ public class TestingAllFilesABuchi {
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
         if (notSupported.contains(file.getName())) {
             CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-            Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
+            Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
         } else {
             String output = outputDir + file.getName().split(".apt")[0];
             BDDTestingTools.testExample(solv, output, hasStrategy);

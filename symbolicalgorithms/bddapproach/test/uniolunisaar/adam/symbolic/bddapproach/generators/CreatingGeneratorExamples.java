@@ -36,6 +36,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.Tools;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -361,7 +362,7 @@ public class CreatingGeneratorExamples {
         Pair<BDDGraph, PetriGame> strats = solv.getStrategies();
         String gtikz = BDDTools.graph2Tikz(strats.getFirst(), solv);
         String ggtikz = BDDTools.graph2Tikz(gg, solv);
-        String pgtikz = PNWTTools.pg2Tikz(strats.getSecond());
+        String pgtikz = PGTools.pg2Tikz(strats.getSecond());
         Tools.saveFile(path + name + "_g.tex", gtikz);
         Tools.saveFile(path + name + "_gg.tex", ggtikz);
         Tools.saveFile(path + name + "_pg.tex", pgtikz);
