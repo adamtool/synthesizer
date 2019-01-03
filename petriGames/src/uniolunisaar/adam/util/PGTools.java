@@ -105,10 +105,10 @@ public class PGTools {
 
     private static void parseAndCreateTransitsFromTransitionExtensionText(PetriGame game, boolean withAutomatic) throws ParseException, CouldNotCalculateException {
         //todo: hack. change it, when the new implemenation of the flows is implmemented
-        if (game.getExtension("winningCondition").equals("A_SAFETY")
-                || game.getExtension("winningCondition").equals("SAFETY")
-                || game.getExtension("winningCondition").equals("E_REACHABILITY")
-                || game.getExtension("winningCondition").equals("REACHABILITY")) {
+        if (game.getExtension("condition").equals("A_SAFETY")
+                || game.getExtension("condition").equals("SAFETY")
+                || game.getExtension("condition").equals("E_REACHABILITY")
+                || game.getExtension("condition").equals("REACHABILITY")) {
             return;
         }
 
