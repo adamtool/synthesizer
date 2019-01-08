@@ -105,11 +105,20 @@ public class PGTools {
 
     private static void parseAndCreateTransitsFromTransitionExtensionText(PetriGame game, boolean withAutomatic) throws ParseException, CouldNotCalculateException {
         //todo: hack. change it, when the new implemenation of the flows is implmemented
-        if (game.getExtension("condition").equals("A_SAFETY")
-                || game.getExtension("condition").equals("SAFETY")
-                || game.getExtension("condition").equals("E_REACHABILITY")
-                || game.getExtension("condition").equals("REACHABILITY")) {
-            return;
+        if (game.hasExtension(AdamExtensions.condition.name())) {
+            if (game.getExtension(AdamExtensions.condition.name()).equals("A_SAFETY")
+                    || game.getExtension(AdamExtensions.condition.name()).equals("SAFETY")
+                    || game.getExtension(AdamExtensions.condition.name()).equals("E_REACHABILITY")
+                    || game.getExtension(AdamExtensions.condition.name()).equals("REACHABILITY")) {
+                return;
+            }
+        } else if (game.hasExtension(AdamExtensions.winningCondition.name())) { // todo: this is only for the fallback to the just-sythesis-version.
+            if (game.getExtension(AdamExtensions.winningCondition.name()).equals("A_SAFETY")
+                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("SAFETY")
+                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("E_REACHABILITY")
+                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("REACHABILITY")) {
+                return;
+            }
         }
 
         for (Transition t : game.getTransitions()) {

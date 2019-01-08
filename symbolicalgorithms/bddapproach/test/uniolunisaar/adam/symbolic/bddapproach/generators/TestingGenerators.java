@@ -213,7 +213,7 @@ public class TestingGenerators {
         return out;
     }
 
-    @Test(dataProvider = "robotCell")
+    @Test(dataProvider = "robotCell", timeOut = (60 * 1000) / 2) // 30 sec
     public void testRobotCell(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
         final String path = outputDir + "robotCell" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";

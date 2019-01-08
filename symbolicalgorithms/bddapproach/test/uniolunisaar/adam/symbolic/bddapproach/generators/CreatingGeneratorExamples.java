@@ -106,7 +106,7 @@ public class CreatingGeneratorExamples {
 //        testSelfOrgaRobots(4, 1);
     }
 
-    @Test
+    @Test(timeOut = (60 * 1000) / 2) // 30 sec
     public void testSelfOrganizingRobotsNew() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         testSelfOrgaRobotsNew(1, 1, 1, false);
         testSelfOrgaRobotsNew(1, 1, 2, false);
@@ -119,7 +119,7 @@ public class CreatingGeneratorExamples {
 //        testSelfOrgaRobotsNew(2, 2, 3, false);
     }
 
-    @Test
+    @Test(timeOut = (60 * 1000) / 2) // 30 sec
     public void testSelfOrganizingRobotsBengt() throws IOException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         testSelfOrgaRobotsBengt(1, 1, 1, false);
 //        testSelfOrgaRobotsBengt(1, 1, 2, false);
