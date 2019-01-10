@@ -22,6 +22,7 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
 
@@ -414,6 +415,25 @@ public class TestingJBDDLibrary {
         BDD trans = fac.ithVar(transitions[0][0].vars()[0]);
         trans.andWith(fac.ithVar(transitions[0][0].vars()[8]));
 //        BDDTools.printDecisionSets(pls.and(trans), true);
+//    
+//    BDD a = fac.ithVar(2);
+//    BDD b = fac.nithVar(1);
+//     BDDTools.printDecisionSets(a, true);
+//     BDDTools.printDecisionSets(b, true);
+//     BDDTools.printDecisionSets(b.or(a), true);
+//     
+//     BDD asdf = places[0][0].ithVar(1);
+//     BDD asdf2 = places[0][1].ithVar(3);
+//        System.out.println("domains");
+//     BDDTools.printDecisionSets(asdf, true);
+//     BDDTools.printDecisionSets(asdf2, true);
+//     BDDTools.printDecisionSets(asdf.andWith(asdf2), true);
+//        System.out.println("peter");
+//     BDD init = fac.one();
+//        for (Place p : net.getInitialMarking()) {
+//            init.and(places[0][2].ithVar(p.getId()));
+//        }
+//     BDDTools.printDecisionSets(init, true);
     }
 
     @Test
