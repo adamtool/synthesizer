@@ -12,6 +12,7 @@ import net.sf.javabdd.BDDPairing;
 import net.sf.javabdd.JFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import uniol.apt.adt.pn.Place;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
@@ -22,7 +23,6 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
 
@@ -522,5 +522,7 @@ public class TestingJBDDLibrary {
         BDD one = test.satOne();
 //        System.out.println(test.satCount());
 //        BDDTools.printDecisionSets(one);
+        Place p = null;
+//        int asdf = p.getId().hashCode();
     }
 }

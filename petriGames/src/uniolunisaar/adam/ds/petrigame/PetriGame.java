@@ -317,7 +317,7 @@ public class PetriGame extends PetriNetWithTransits {
 
     // Overriden methods to handle env places   
     /**
-     * The others methods do not have to be overriden since all fall back to
+     * The others methods do not have to be overriten since all fall back to
      * this method
      *
      * @param place
