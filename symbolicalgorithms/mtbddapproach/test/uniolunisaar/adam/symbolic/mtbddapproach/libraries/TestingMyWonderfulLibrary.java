@@ -35,7 +35,7 @@ public class TestingMyWonderfulLibrary {
     }
 
     @Test
-    public static void testCall2() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, NoStrategyExistentException {
+    public static void testCall2() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, NoStrategyExistentException, uniolunisaar.adam.ds.exceptions.NoStrategyExistentException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";       
         String output = "asdf";
