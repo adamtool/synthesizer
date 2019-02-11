@@ -145,6 +145,10 @@ public class Graph<S extends State, F extends Flow> {
         this.initial = initial;
     }
 
+    public int getSize() {
+        return this.states.size();
+    }
+
     public Set<S> getStates() {
         return Collections.unmodifiableSet(new LinkedHashSet<>(states.values()));
     }
