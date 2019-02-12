@@ -19,6 +19,7 @@ import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
@@ -41,7 +42,7 @@ public class FirstTestsABuchi {
         (new File(outputDir)).mkdirs();
     }
 
-    private void testToyExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+    private void testToyExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException, CalculationInterruptedException {
         final String path = inputDir + "toyexamples" + File.separator;
 //        AdamTools.savePG2PDF(outputDir + name, Tools.getPetriNet(path + name + ".apt"), false);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
@@ -68,13 +69,13 @@ public class FirstTestsABuchi {
 //
 
     @Test(enabled = true)
-    public void testOneTokenMultiChains() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+    public void testOneTokenMultiChains() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException, CalculationInterruptedException {
 //        testToyExamples("oneTokenMultiChains0", false);
-try{
-        testToyExamples("oneTokenMultiChains1", true); // need type2 strategy
-} catch(ParseException e) {
-    System.out.println("eeeee"+e);
-}
+        try {
+            testToyExamples("oneTokenMultiChains1", true); // need type2 strategy
+        } catch (ParseException e) {
+            System.out.println("eeeee" + e);
+        }
 //        testToyExamples("oneTokenMultiChains2", true);
 //        testToyExamples("oneTokenMultiChains3", false);
 //        testToyExamples("oneTokenMultiChains4", false);
@@ -94,21 +95,21 @@ try{
 //
 
     @Test
-    public void testToyExampleInfiniteFlowChains() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+    public void testToyExampleInfiniteFlowChains() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException, CalculationInterruptedException {
 //        testToyExamples("infiniteChains", true); // should be true
-        testToyExamples("infiniteChains1", false); 
+        testToyExamples("infiniteChains1", false);
     }
 
     @Test
-    public void testType2() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+    public void testType2() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException, CalculationInterruptedException {
         testToyExamples("type2_0", false); // should be false
         testToyExamples("type2_1", true); // should be true
         testToyExamples("type2_2", true); // should be true
         testToyExamples("type2_4", true); // should be true
     }
-    
+
     @Test
-        public void testMyExamples() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException {
+    public void testMyExamples() throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, FileNotFoundException, ModuleException, CalculationInterruptedException {
         final String path = inputDir + "jhh" + File.separator;
 //        AdamTools.savePG2PDF(outputDir + name, Tools.getPetriNet(path + name + ".apt"), false);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + "myexample12" + ".apt", true);

@@ -12,6 +12,7 @@ import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
@@ -81,7 +82,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -111,15 +112,16 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     /**
-     * Returns the graph game for the reachability objective.
+     * Returns the graph game for the reachability objective.Is the standard
+     * graph game, but before returning we are just marking the reachable states
+     * as special.
      *
-     * Is the standard graph game, but before returning we are just marking the
-     * reachable states as special.
      *
      * @return - The graph game for the reachability objective.
+     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
      */
     @Override
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         BDDGraph graph = super.getGraphGame();
         BDD reach = reach();
         for (BDDState state : graph.getStates()) { // mark all special states
@@ -134,7 +136,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     @Override
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         HashMap<Integer, BDD> distance = new HashMap<>();
         BDD win = calcWinningDCSs(distance);
         super.setBufferedWinDCSs(win);
@@ -154,7 +156,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -166,7 +168,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     @Override
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);

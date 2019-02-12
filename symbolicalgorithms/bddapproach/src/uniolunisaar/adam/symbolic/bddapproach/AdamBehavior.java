@@ -12,6 +12,7 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
@@ -38,7 +39,7 @@ public class AdamBehavior {
      * uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException
      * @throws uniolunisaar.adam.exceptions.pg.SolvingException
      */
-    public static boolean existsWinningStrategy(String path) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
+    public static boolean existsWinningStrategy(String path) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);
         return solver.existsWinningStrategy();
     }
@@ -59,7 +60,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(String path, BDDSolverOptions so) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
+    public static boolean existsWinningStrategy(String path, BDDSolverOptions so) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, so);
         return solver.existsWinningStrategy();
     }
@@ -76,7 +77,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriGame game) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
+    public static boolean existsWinningStrategy(PetriGame game) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(game, false);
         return solver.existsWinningStrategy();
     }
@@ -94,7 +95,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
+    public static boolean existsWinningStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.existsWinningStrategy();
     }
@@ -114,7 +115,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static boolean existsWinningStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
+    public static boolean existsWinningStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, win, false, so);
         return solver.existsWinningStrategy();
     }
@@ -155,7 +156,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGame getStrategy(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriGame getStrategy(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);
         return solver.getStrategy();
     }
@@ -174,7 +175,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGame getStrategy(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static PetriGame getStrategy(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, so);
         return solver.getStrategy();
     }
@@ -191,7 +192,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGame getStrategy(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static PetriGame getStrategy(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getStrategy();
     }
@@ -209,7 +210,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGame getStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static PetriGame getStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategy();
     }
@@ -229,7 +230,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGame getStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static PetriGame getStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, win, false, so);
         return solver.getStrategy();
     }
@@ -270,7 +271,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);
         return solver.getGraphStrategy();
     }
@@ -289,7 +290,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphStrategy(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, so);
         return solver.getGraphStrategy();
     }
@@ -306,7 +307,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphStrategy(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getGraphStrategy();
     }
@@ -324,7 +325,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphStrategy(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphStrategy();
     }
@@ -344,7 +345,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphStrategy(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, win, false, so);
         return solver.getGraphStrategy();
     }
@@ -385,7 +386,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGame(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);
         return solver.getGraphGame();
     }
@@ -404,7 +405,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static BDDGraph getGraphGame(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, so);
         return solver.getGraphGame();
     }
@@ -421,7 +422,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphGame(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getGraphGame();
     }
@@ -439,7 +440,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphGame(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getGraphGame();
     }
@@ -458,7 +459,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static BDDGraph getGraphGame(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphGame(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, win, false, so);
         return solver.getGraphGame();
     }
@@ -502,7 +503,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategies(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriGame> getStrategies(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, false);
         return solver.getStrategies();
     }
@@ -525,7 +526,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategies(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException {
+    public static Pair<BDDGraph, PetriGame> getStrategies(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(path, so);
         return solver.getStrategies();
     }
@@ -546,7 +547,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false);
         return solver.getStrategies();
     }
@@ -568,7 +569,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, false, so);
         return solver.getStrategies();
     }
@@ -591,7 +592,7 @@ public class AdamBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static Pair<BDDGraph, PetriGame> getStrategies(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolver<? extends Condition> solver = BDDSolverFactory.getInstance().getSolver(net, win, false, so);
         return solver.getStrategies();
     }

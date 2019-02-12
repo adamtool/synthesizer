@@ -12,6 +12,7 @@ import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
@@ -164,7 +165,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * @return - The graph game for the reachability objective.
      */
     @Override
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         BDDGraph graph = super.getGraphGame();
         BDD bad = bad();
         for (BDDState state : graph.getStates()) { // mark all special states
