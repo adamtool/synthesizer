@@ -1,17 +1,8 @@
 package uniolunisaar.adam.symbolic.mtbddapproach.libraries;
 
 import java.io.File;
-import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
@@ -27,7 +18,7 @@ public class TestingMyWonderfulLibrary {
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
-    public static void testCall() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException {
+    public static void testCall() throws Exception {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
@@ -35,9 +26,9 @@ public class TestingMyWonderfulLibrary {
     }
 
     @Test
-    public static void testCall2() throws ParseException, IOException, SolvingException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, NoStrategyExistentException {
+    public static void testCall2() throws Exception {
         final String path = inputDir + "firstExamplePaper" + File.separator;
-        final String name = "firstExamplePaper";       
+        final String name = "firstExamplePaper";
         String output = "asdf";
         try {
             MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
