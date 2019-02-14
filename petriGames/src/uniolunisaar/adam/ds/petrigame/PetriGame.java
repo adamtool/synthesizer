@@ -284,12 +284,12 @@ public class PetriGame extends PetriNetWithTransits {
             }
         }
         if (!allPostEnv && !allPostSys) {
-            throw new InconsistencyException("You mixed system and enviroment places in the postset of the tokenflow of transition " + transit.getTransition().getId());
+            throw new InconsistencyException("You mixed system and enviroment places in the postset of the transit of transition " + transit.getTransition().getId());
         }
 //        if (!(preset.isEmpty() || postset.isEmpty())) {
         if (!(prePlace == null || postset.isEmpty())) {
             if ((PetriGameExtensionHandler.isEnvironment(prePlace) && allPostSys) || (!PetriGameExtensionHandler.isEnvironment(prePlace) && allPostEnv)) {
-                throw new InconsistencyException("You mapped environment places to system places (or vice versa) in the tokenflow of transition " + transit.getTransition().getId());
+                throw new InconsistencyException("You mapped environment places to system places (or vice versa) in the transit of transition " + transit.getTransition().getId());
             }
         }
     }

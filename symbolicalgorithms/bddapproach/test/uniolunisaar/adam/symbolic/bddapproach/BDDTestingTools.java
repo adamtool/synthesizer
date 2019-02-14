@@ -71,7 +71,7 @@ public class BDDTestingTools {
         BDDTools.saveGraph2DotAndPDF(path + "_gg", strat, solv);
     }
 
-    private static void printWinningStratPG(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException, CalculationInterruptedException {
+    private static void printWinningStratPG(BDDSolver<? extends Condition> solv, String path) throws Exception {
         PetriGame strategy = solv.getStrategy();
         PNWTTools.savePnwt2DotAndPDF(path + "_pg", strategy, true);
     }
