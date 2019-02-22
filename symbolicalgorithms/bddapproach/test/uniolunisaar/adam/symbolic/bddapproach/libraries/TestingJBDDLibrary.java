@@ -23,6 +23,7 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.symbolic.bddapproach.util.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
 
@@ -45,6 +46,32 @@ public class TestingJBDDLibrary {
         final String name = "firstExamplePaper";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         solv.initialize();
+    }
+
+    @Test
+    public void numberOfSolutions() {
+        BDDFactory fac = JFactory.init(NODENUM, CACHESIZE);
+        int nbVar = 6;
+        fac.setVarNum(nbVar);
+        BDD firstVars = fac.ithVar(0).and(fac.ithVar(1).and(fac.ithVar(2)));
+        BDD f = fac.zero();
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), 0.0);        
+        f = fac.one();
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, fac.varNum()/2));
+        f = fac.ithVar(0);
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        f = fac.ithVar(1);
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        f = fac.nithVar(1);
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        f = fac.nithVar(1).and(fac.ithVar(1));
+        BDDTools.printDecisionSets(f);
+        Assert.assertEquals(f.satCount(firstVars), 0.0);
     }
 
     @Test(enabled = false)
