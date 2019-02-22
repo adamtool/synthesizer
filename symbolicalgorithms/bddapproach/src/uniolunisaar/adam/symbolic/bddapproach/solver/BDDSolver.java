@@ -366,8 +366,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * Calculates a BDD with all situations where nondeterminism has been
      * encountered.
      *
-     * Since our scheduling does not considere every marking, some non
-     * determinism with the originial version could be overseen.
+     * Since our scheduling does not consider every marking, some non
+     * determinism with the original version could be overseen.
      *
      * Thus, here we changed the definition of non determinism for the Petri
      * game itself and check now non determinism of strategy transitions within
