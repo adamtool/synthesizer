@@ -244,33 +244,33 @@ public class SecuritySystem {
         for (int i = 0; i < nb_alarmSystems; ++i) {
             String id = Tools.calcStringID(i);
             // environment
-            Place env1 = net.createEnvPlace("C" + id);
-            Transition t = net.createTransition("i" + id);
+            Place env1 = net.createEnvPlace("C_" + id);
+            Transition t = net.createTransition("i_" + id);
             net.createFlow(env, t);
             net.createFlow(t, env1);
-            Place e = net.createEnvPlace("I" + id);
+            Place e = net.createEnvPlace("I_" + id);
             // system
-            alarmSystem[i] = net.createPlace("S" + id);
+            alarmSystem[i] = net.createPlace("S_" + id);
             alarmSystem[i].setInitialToken(1);
-            Place in = net.createPlace("D" + id);
-            initAlarm[i] = net.createPlace("p" + id);
+            Place in = net.createPlace("D_" + id);
+            initAlarm[i] = net.createPlace("p_" + id);
             if (withPartitioning) {
                 net.setPartition(alarmSystem[i], (i + 1));
                 net.setPartition(initAlarm[i], (i + 1));
                 net.setPartition(in, (i + 1));
             }
-            t = net.createTransition("t" + id);
+            t = net.createTransition("t_" + id);
             net.createFlow(env1, t);
             net.createFlow(alarmSystem[i], t);
             net.createFlow(t, e);
             net.createFlow(t, in);
-            t = net.createTransition("fr" + id);
+            t = net.createTransition("fr_" + id);
             net.createFlow(in, t);
             net.createFlow(t, initAlarm[i]);
-            t = net.createTransition("fa" + id);
+            t = net.createTransition("fa_" + id);
             net.createFlow(alarmSystem[i], t);
             net.createFlow(t, initAlarm[i]);
-            infs[i] = net.createTransition("info" + id);
+            infs[i] = net.createTransition("info_" + id);
             net.createFlow(in, infs[i]);
             net.createFlow(infs[i], initAlarm[i]);
             // decide for alarm
@@ -303,8 +303,8 @@ public class SecuritySystem {
         // create transitions
         for (int i = 0; i < nb_alarmSystems; i++) { // each env place
             String id = Tools.calcStringID(i);
-            Place eSolely = net.getPlace("C" + id);
-            Place e = net.getPlace("I" + id);
+            Place eSolely = net.getPlace("C_" + id);
+            Place e = net.getPlace("I_" + id);
             for (int j = 0; j < nb_alarmSystems; j++) {// each alarm system
                 id = Tools.calcStringID(j);
                 for (int l = 0; l < nb_alarmSystems; l++) { // each false report
@@ -335,7 +335,7 @@ public class SecuritySystem {
         for (int i = 0; i < nb_alarmSystems; i++) { // each env place
             String id = Tools.calcStringID(i);
             Transition t = net.createTransition("g" + id);
-            Place e = net.getPlace("I" + id);
+            Place e = net.getPlace("I_" + id);
             net.createFlow(e, t);
             net.createFlow(t, good);
             for (int j = 0; j < nb_alarmSystems; j++) {// each alarm system
