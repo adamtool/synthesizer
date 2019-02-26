@@ -66,7 +66,7 @@ public class BDDPetriGameStrategyBuilder {
             try {
                 PNWTTools.savePnwt2PDF("error_petrinet", strategy, true);
                 throw e;
-            } catch (IOException | InterruptedException ex) {
+            } catch (IOException ex) {
                 java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
