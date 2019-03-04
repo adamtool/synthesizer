@@ -97,6 +97,9 @@ public class TestingAllFilesASafety {
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
+        Logger.getInstance().setShortMessageStream(null);
+        Logger.getInstance().setVerboseMessageStream(null);
+        Logger.getInstance().setWarningStream(null);
         (new File(outputDir)).mkdirs();
     }
 
