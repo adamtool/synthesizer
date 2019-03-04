@@ -12,6 +12,9 @@ import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 
 /**
  *
@@ -45,7 +48,7 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
+    protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, NetNotSafeException {
         // if it creates a new token chain, use the co-Buchi solver
         for (Transition t : game.getTransitions()) {
             for (Transit tfl : game.getTransits(t)) {

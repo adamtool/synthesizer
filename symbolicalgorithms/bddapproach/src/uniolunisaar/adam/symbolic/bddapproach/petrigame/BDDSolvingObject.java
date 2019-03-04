@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
@@ -19,10 +20,12 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.pg.partitioning.Partitioner;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -39,11 +42,11 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
     // saves transitions belonging in the presets of the places to each token
     private List<Transition>[] transitions;
 
-    public BDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         this(game, winCon, false);
     }
 
-    public BDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, winCon);
 //        super(game, skipChecks);
 
@@ -81,7 +84,7 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
         postset = new HashMap<>();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         Logger.getInstance().addMessage("Buffer data ...");
-        bufferData();
+        bufferData(skipChecks);
         Logger.getInstance().addMessage("... buffering of data done.");
     }
 
@@ -95,17 +98,19 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         Logger.getInstance().addMessage("Buffer data ...");
         try {
-            bufferData();
+            bufferData(true);
         } catch (NoSuitableDistributionFoundException ex) {
             // should not be possible since it should be a copy of a distributable game
             Logger.getInstance().addError("The original game which you gave me to copy wasn't correct!", ex);
+        } catch (InvalidPartitionException ex) {
+            // cannot happen (just thrown by skipChecks == false
         }
         Logger.getInstance().addMessage("... buffering of data done.");
     }
 
     // todo: proof that it's a suitable slicing, such that every environment place
     // belongs to one single invariant
-    private void bufferData() throws NoSuitableDistributionFoundException {
+    private void bufferData(boolean skipChecks) throws NoSuitableDistributionFoundException, InvalidPartitionException {
         for (Transition t : getGame().getTransitions()) {
             // Pre- and Postset
             List<Place> pre = new ArrayList<>();
@@ -154,6 +159,9 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS       
+        if (!skipChecks) {
+            PGTools.checkValidPartitioned(getGame());
+        }
 
         try {
             //todo:  all comments are old version, before cavarti

@@ -23,6 +23,7 @@ import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.pg.calculators.ConcurrencyPreservingCalculator;
 import uniolunisaar.adam.logic.pg.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
 import uniolunisaar.adam.util.pg.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
@@ -384,6 +385,25 @@ public class PGTools {
         // (S2)
         isStrat &= !restrictsEnvTransition(origNet, strat);
         return isStrat;
+    }
+
+    public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
+        for (CoverabilityGraphNode node : cover.getNodes()) {
+            Marking m = node.getMarking();
+            long maxToken = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
+            boolean[] part = new boolean[Math.toIntExact(maxToken)];
+            for (Place place : game.getPlaces()) {
+                if (m.getToken(place).getValue() > 0) {
+                    int partition = game.getPartition(place);
+                    if (part[partition]) {
+                        throw new InvalidPartitionException(game, m, place);
+                    } else {
+                        part[partition] = true;
+                    }
+                }
+            }
+        }
     }
 
 //    public static String getFlowRepresentativ(int id) {
