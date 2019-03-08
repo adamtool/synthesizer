@@ -15,6 +15,13 @@ import uniolunisaar.adam.util.PNWTTools;
  */
 public class Clerks {
 
+    /**
+     * DW
+     * @param size
+     * @param withPartition
+     * @param withMaxToken
+     * @return 
+     */
     public static PetriGame generateNonCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
             throw new RuntimeException("There should be at least one Clerk to sign the document.");
@@ -128,6 +135,13 @@ public class Clerks {
         net.createFlow(cl, glue);
     }
 
+    /**
+     * DWs
+     * @param size
+     * @param withPartition
+     * @param withMaxToken
+     * @return 
+     */
     public static PetriGame generateCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
             throw new RuntimeException("There should be at least one Clerk to sign the document.");
