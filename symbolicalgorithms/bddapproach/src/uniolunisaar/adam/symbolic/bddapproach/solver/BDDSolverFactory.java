@@ -62,7 +62,11 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
 
     @Override
     protected BDDSolver<Safety> getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions opts) throws SolvingException {
-        return new BDDASafetySolver(game, skipTests, winCon, opts);
+        if (opts.isNoType2()) {
+            return new BDDASafetyWithoutType2Solver(game, skipTests, winCon, opts);
+        } else {
+            return new BDDASafetySolver(game, skipTests, winCon, opts);
+        }
 //        return new BDDASafetySolverNested(pn, skipTests, winCon, opts);
     }
 
