@@ -17,6 +17,7 @@ public class BDDSolverOptions extends SolverOptions {
     private boolean gg = false;
     private boolean ggs = false;
     private boolean pgs = true;
+    private boolean noType2 = false;
 
     public BDDSolverOptions() {
         super("bdd");
@@ -92,4 +93,13 @@ public class BDDSolverOptions extends SolverOptions {
     public void setPgs(boolean pgs) {
         this.pgs = pgs;
     }
+
+    public boolean isNoType2() {
+        return noType2;
+    }
+
+    public void setNoType2(boolean noType2) {
+        this.noType2 = noType2;
+    }
+
 }
