@@ -221,6 +221,11 @@ public class SecuritySystem {
      * places there is only one and therefor also one good place. The bad
      * transitions consume the environment token and not putting it back.
      *
+     * Problem, for the disjunct partitioning there is no other possibility then
+     * adding an additional partition for the bad place. Here it would by (at
+     * least for small nets) cheaper to just add as many bad places as security
+     * systems.
+     *
      * @param nb_alarmSystems
      * @param withPartitioning
      * @return
@@ -298,7 +303,7 @@ public class SecuritySystem {
         Place error = net.createPlace("Bad");
         net.setBad(error);
         if (withPartitioning) {
-            net.setPartition(error, 1);
+            net.setPartition(error, nb_alarmSystems + 1);
         }
         // create transitions
         for (int i = 0; i < nb_alarmSystems; i++) { // each env place

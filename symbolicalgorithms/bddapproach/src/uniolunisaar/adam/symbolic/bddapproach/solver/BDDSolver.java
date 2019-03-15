@@ -69,7 +69,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * don't fit the given winning objective specified in the given game.
      */
     BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
-        super(new BDDSolvingObject<>(game, winCon), opts);
+        super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place
 //        if (getGame().getEnvPlaces().isEmpty()) {
