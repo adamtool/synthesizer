@@ -49,7 +49,6 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
     public BDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, winCon);
 //        super(game, skipChecks);
-
         if (!skipChecks) {
             if (!game.getBounded().isSafe()) {
                 throw new NetNotSafeException(game.getBounded().unboundedPlace.toString(), game.getBounded().sequence.toString());
@@ -168,8 +167,12 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
             // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;
             places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
-            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
-                places[0] = new HashSet<>();
+            // just do it for all, since user could annotate them badly (skipping ids)
+//            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
+//                places[0] = new HashSet<>();
+//            }
+            for (int i = 0; i < getMaxTokenCount(); i++) {
+                places[i] = new HashSet<>();
             }
             boolean cp = getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name());
             int additional = cp ? 0 : 1;

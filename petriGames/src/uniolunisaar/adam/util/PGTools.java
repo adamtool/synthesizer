@@ -400,6 +400,7 @@ public class PGTools {
     }
 
     public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
+        // there is no reachable marking in which contains two token belonging to the same partition
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cover.getNodes()) {
             Marking m = node.getMarking();
