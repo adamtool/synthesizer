@@ -51,7 +51,7 @@ public class Clerks {
         Place ready = net.createPlace("ready");
         // are they all Y or all N?
         Place good = net.createPlace("good");
-        Place goodReady = net.createPlace("goodReady");
+//        Place goodReady = net.createPlace("goodReady");
 
         // they are not all Y or all N
         Place bad = net.createPlace("bad");
@@ -62,7 +62,7 @@ public class Clerks {
         net.createFlow(tbad, bad);
         net.createFlow(ready, tGoodReady);
         net.createFlow(good, tGoodReady);
-        net.createFlow(tGoodReady, goodReady);
+//        net.createFlow(tGoodReady, goodReady);
 
         Transition yes = net.createTransition("yes");
         net.createFlow(yes, good);
@@ -83,7 +83,7 @@ public class Clerks {
         if (withPartition) {
             net.setPartition(good, 2);
             net.setPartition(bad, 1);
-            net.setPartition(goodReady, 1);
+//            net.setPartition(goodReady, 1);
             net.setPartition(ready, 1);
         }
         return net;
