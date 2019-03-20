@@ -158,7 +158,9 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS       
         if (!skipChecks) {
+            Logger.getInstance().addMessage("check partitioning ... ", true);
             PGTools.checkValidPartitioned(getGame());
+            Logger.getInstance().addMessage("... partitionning check done.");
         }
 
         try {

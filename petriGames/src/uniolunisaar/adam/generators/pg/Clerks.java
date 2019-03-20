@@ -17,10 +17,11 @@ public class Clerks {
 
     /**
      * DW
+     *
      * @param size
      * @param withPartition
      * @param withMaxToken
-     * @return 
+     * @return
      */
     public static PetriGame generateNonCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
@@ -137,10 +138,11 @@ public class Clerks {
 
     /**
      * DWs
+     *
      * @param size
      * @param withPartition
      * @param withMaxToken
-     * @return 
+     * @return
      */
     public static PetriGame generateCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
@@ -182,12 +184,23 @@ public class Clerks {
         if (withPartition) {
             net.setPartition(cl, (startToken + 1));
             net.setPartition(vote, (startToken + 1));
-            net.setPartition(end, (startToken + 1));
-            net.setPartition(yes, (startToken + 2));
-            net.setPartition(no, (startToken + 2));
-            net.setPartition(bad, (startToken + 2));
+            if (max == 1) { // special case for the partitioning when we only have one clerk at all
+                net.setPartition(end, (startToken + 2));
+                net.setPartition(yes, (startToken + 1));
+                net.setPartition(no, (startToken + 1));
+                net.setPartition(bad, (startToken + 1));
+            } else {
+                net.setPartition(end, (startToken + 1));
+                net.setPartition(yes, (startToken + 2));
+                net.setPartition(no, (startToken + 2));
+                net.setPartition(bad, (startToken + 2));
+            }
             if (count == 0) {
-                net.setPartition(buf0, 2 * (max - 1) + 1);
+                if (max == 1) { // special case for the partitioning when we only have one clerk at all
+                    net.setPartition(buf0, 2 * (max - 1) + 2);
+                } else {
+                    net.setPartition(buf0, 2 * (max - 1) + 1);
+                }
             } else {
                 net.setPartition(buf0, startToken - 1);
             }
