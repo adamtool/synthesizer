@@ -317,8 +317,7 @@ public class Workflow {
     /**
      * The new version which only has one place for testing and not as many as
      * machines are available.
-     * 
-     * Version for Bengt Jonsson Festschrift
+     *
      *
      * @param machines
      * @param work_pieces
@@ -383,6 +382,112 @@ public class Workflow {
             //testing: version all orders together
             net.createFlow(testT, s);
             net.createFlow(s, testT);
+
+            // testing: version when each order does it separatly (still must adds things that not the type2 strategy (infinitely testing) is winning)
+//            Transition testT = net.createTransition("test" + i);
+//            net.createFlow(test, testT);
+//            net.createFlow(testT, test);
+//            net.createFlow(testT, s);
+//            net.createFlow(s, testT);
+            for (int j = 0; j < machines; ++j) {
+                // working
+                Place m = net.createPlace("M" + j + "" + i);
+                Transition t = net.createTransition();
+                net.createFlow(s, t);
+                net.createFlow(t, m);
+                Place bad = net.createPlace("B" + j + "" + i);
+                net.setBad(bad);
+                t = net.createTransition();
+                net.createFlow(m, t);
+                net.createFlow(t, bad);
+                t = net.createTransition();
+                net.createFlow(m, t);
+                net.createFlow(macs[j], t);
+                Place mready = net.createPlace("G" + j + "" + i);
+                net.createFlow(t, mready);
+                if (withPartition) {
+                    net.setPartition(m, (i + 1));
+                    net.setPartition(bad, (i + 1));
+                    net.setPartition(mready, (i + 1));
+                }
+            }
+        }
+
+        return net;
+    }
+
+    /**
+     * The new version has also as many places as machines for testing, but only
+     * puts there the good machine.
+     *
+     * Version for Bengt Jonsson Festschrift
+     *
+     * @param machines
+     * @param work_pieces
+     * @param withPartition
+     * @param withMaxtoken
+     * @return
+     */
+    public static PetriGame generateBJVersion(int machines, int work_pieces, boolean withPartition, boolean withMaxtoken) {
+        if (machines < 2 || work_pieces < 1) {
+            throw new RuntimeException("less than 2 machines or 1 work piece does not make any sense!");
+        }
+        PetriGame net = PGTools.createPetriGame("CM_" + "M" + machines + "WP" + work_pieces);
+        MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
+        net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
+        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+
+        // Environment
+        Place start = net.createEnvPlace("Env");
+        start.setInitialToken(1);
+        if (withMaxtoken) {
+            // todo: since no other partioning possible use one token to much...
+            int maxtoken = work_pieces + 1 + machines + 1;
+            calc.setManuallyFixedTokencount(net, maxtoken);
+        }
+//        Place stop = net.createEnvPlace("e"); should not be necessary anymore to always have an env place
+
+        Place[] macs = new Place[machines];
+        // testing
+        Place[] tests = new Place[machines];
+        // activing all, but one
+        Transition[] trans = new Transition[machines];
+        for (int i = 0; i < machines; ++i) {
+            macs[i] = net.createPlace("OK" + i);
+            tests[i] = net.createPlace("ERR" + i);
+            if (withPartition) {
+                net.setPartition(macs[i], work_pieces + 1 + i);
+                net.setPartition(tests[i], work_pieces + 1 + i);
+            }
+            trans[i] = net.createTransition();
+            //environment
+            net.createFlow(start, trans[i]);
+//            net.createFlow(trans[i], stop);should not be necessary anymore to always have an env place
+        }
+        for (int i = 0; i < machines; ++i) {
+            for (int j = 0; j < machines; ++j) {
+                if (i != j) {
+                    net.createFlow(trans[i], macs[j]);
+                }
+            }
+            net.createFlow(trans[i], tests[i]);
+            // test transition
+            Transition testT = net.createTransition("test" + i);
+            net.createFlow(tests[i], testT);
+        }
+
+        for (int i = 0; i < work_pieces; ++i) {
+            Place s = net.createPlace("Sys" + i);
+            s.setInitialToken(1);
+            if (withPartition) {
+                net.setPartition(s, (i + 1));
+            }
+            //testing: version all orders together
+            for (int j = 0; j < machines; j++) {
+                Transition ttest = net.getTransition("test" + j);
+                net.createFlow(ttest, s);
+                net.createFlow(s, ttest);
+            }
 
             // testing: version when each order does it separatly (still must adds things that not the type2 strategy (infinitely testing) is winning)
 //            Transition testT = net.createTransition("test" + i);

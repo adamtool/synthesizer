@@ -69,7 +69,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * don't fit the given winning objective specified in the given game.
      */
     BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
-        super(new BDDSolvingObject<>(game, winCon), opts);
+        super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place
 //        if (getGame().getEnvPlaces().isEmpty()) {
@@ -391,13 +391,15 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
                     Set<Place> intersect = new HashSet<>(pre1);
                     intersect.retainAll(pre2);
                     boolean shared = false;
+                    BDD sharedPlaces = getZero();
                     for (Place place : intersect) {
                         if (!getSolvingObject().getGame().isEnvironment(place)) {
                             shared = true;
+                            sharedPlaces.orWith(codePlace(place, pos, getSolvingObject().getGame().getPartition(place)));
                         }
                     }
                     if (shared && this.getGame().eventuallyEnabled(t1, t2)) { // here check added for firing in the original game
-                        BDD first = chosen(t1, pos).andWith(chosen(t2, pos));
+                        BDD first = sharedPlaces.andWith(chosen(t1, pos).andWith(chosen(t2, pos)));
                         nondet = nondet.orWith(first);
                     }
                 }
@@ -565,11 +567,13 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 //                    //if pi=p and it's not top, then t has to be set to one (old version mit not top?)
 //                    BDD pl = codePlace(binID, offset).and(bddfac.nithVar(offset + PL_CODE_LEN + 1));
                 int token = getSolvingObject().getGame().getPartition(p);
-//                BDD pl = codePlace(p, pos, token);                
                 int id = getSolvingObject().getDevidedTransitions()[token - 1].indexOf(t);
-//                pl.impWith(bddfac.ithVar(TRANSITIONS [pos][token - 1].vars()[id]));
-//                c.andWith(pl);
-                c.andWith(getFactory().ithVar(TRANSITIONS[pos][token - 1].vars()[id]));
+//                c.andWith(getFactory().ithVar(TRANSITIONS[pos][token - 1].vars()[id]));                
+                //todo: change on 2019/03/20  the previous line
+                //      check if this previously was an optimization which I'm currently not getting?!                 
+                BDD pl = codePlace(p, pos, token);
+                pl.impWith(getFactory().ithVar(TRANSITIONS[pos][token - 1].vars()[id]));
+                c.andWith(pl);
             }
         }
         return c;//.andWith(getWellformed());
