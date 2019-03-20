@@ -66,7 +66,7 @@ public class BDDPetriGameStrategyBuilder {
             try {
                 PNWTTools.savePnwt2PDF("error_petrinet", strategy, true);
                 throw e;
-            } catch (IOException | InterruptedException ex) {
+            } catch (IOException ex) {
                 java.util.logging.Logger.getLogger(BDDPetriGameStrategyBuilder.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -83,6 +83,11 @@ public class BDDPetriGameStrategyBuilder {
         // add to visited cuts 
         visitedCuts.put(initialState.getId(), initialMarking);
         while (!todoStates.isEmpty()) {
+//            if (Thread.currentThread().isInterrupted()) {
+//                CalculationInterruptedException e = new CalculationInterruptedException();
+//                Logger.getInstance().addError(e.getMessage(), e);
+//                throw e;
+//            }
             Pair<BDDState, List<Place>> state = todoStates.poll();
             BDDState prevState = state.getFirst();
             List<Place> prevMarking = state.getSecond();

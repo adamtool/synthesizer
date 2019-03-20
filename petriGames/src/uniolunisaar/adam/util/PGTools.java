@@ -1,12 +1,18 @@
 package uniolunisaar.adam.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
@@ -19,13 +25,20 @@ import uniol.apt.io.parser.impl.AptPNParser;
 import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
+import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.pg.calculators.ConcurrencyPreservingCalculator;
 import uniolunisaar.adam.logic.pg.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
+import uniolunisaar.adam.tools.ExternalProcessHandler;
+import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.ProcessPool;
 import uniolunisaar.adam.util.pg.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
+import static uniolunisaar.adam.util.PNWTTools.getTransitRelationFromTransitions;
 import uniolunisaar.adam.util.pg.TransitCalculator;
 
 /**
@@ -386,6 +399,140 @@ public class PGTools {
         return isStrat;
     }
 
+    public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
+        for (CoverabilityGraphNode node : cover.getNodes()) {
+            Marking m = node.getMarking();
+            long maxToken = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
+            boolean[] part = new boolean[Math.toIntExact(maxToken)];
+            for (Place place : game.getPlaces()) {
+                if (m.getToken(place).getValue() > 0) {
+                    int partition = game.getPartition(place);
+                    if (part[partition]) {
+                        throw new InvalidPartitionException(game, m, place);
+                    } else {
+                        part[partition] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * It is a copy of the method pnwt2dot only adds the gray color for system
+     * places.
+     *
+     * @param game
+     * @param withLabel
+     * @param tokencount
+     * @return
+     */
+    public static String pg2Dot(PetriGame game, boolean withLabel, Integer tokencount) {
+        final String placeShape = "circle";
+        final String specialPlaceShape = "doublecircle";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph PetriNet {\n");
+
+        // Transitions
+        sb.append("#transitions\n");
+        sb.append("node [shape=box, height=0.5, width=0.5, fixedsize=true];\n");
+        for (Transition t : game.getTransitions()) {
+            String c = null;
+            if (game.isStrongFair(t)) {
+                c = "blue";
+            }
+            if (game.isWeakFair(t)) {
+                c = "lightblue";
+            }
+            String color = (c != null) ? "style=filled, fillcolor=" + c : "";
+
+            sb.append("\"").append(t.getId()).append("\"").append("[").append(color);
+            if (withLabel) {
+                if (game.isStrongFair(t) || game.isWeakFair(t)) {
+                    sb.append(", ");
+                }
+                sb.append("xlabel=\"").append(t.getLabel()).append("\"");
+            }
+            sb.append("];\n");
+        }
+        sb.append("\n\n");
+
+        // Places
+        sb.append("#places\n");
+        for (Place place : game.getPlaces()) {
+            // special?
+            String shape = (game.isBad(place) || game.isReach(place) || game.isBuchi(place)) ? specialPlaceShape : placeShape;
+            // Initialtoken number
+            Long token = place.getInitialToken().getValue();
+            String tokenString = (token > 0) ? token.toString() : "";
+            // Drawing
+            sb.append("\"").append(place.getId()).append("\"").append("[shape=").append(shape);
+            sb.append(", height=0.5, width=0.5, fixedsize=true");
+            sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
+            sb.append(", label=").append("\"").append(tokenString).append("\"");
+
+            if (game.hasPartition(place)) {
+                int t = game.getPartition(place);
+                if (t != 0) {  // should it be colored?
+                    sb.append(", style=\"filled");
+                    if (game.isInitialTransit(place)) {
+                        sb.append(", dashed");
+                    }
+                    sb.append("\", fillcolor=");
+                    if (tokencount == null) {
+                        sb.append("gray");
+                    } else {
+                        sb.append("\"");
+                        float val = ((t + 1) * 1.f) / (tokencount * 1.f);
+                        sb.append(val).append(" ").append(val).append(" ").append(val);
+                        sb.append("\"");
+                    }
+                } else if (game.isInitialTransit(place)) {
+                    sb.append(", style=dashed");
+                }
+            } else if (!game.isEnvironment(place)) {
+                sb.append(", style=\"filled\", fillcolor=gray");
+            }
+            sb.append("];\n");
+        }
+
+        // Flows
+        Map<Flow, String> map = getTransitRelationFromTransitions(game);
+        sb.append("\n#flows\n");
+        for (Flow f : game.getEdges()) {
+            sb.append("\"").append(f.getSource().getId()).append("\"").append("->").append("\"").append(f.getTarget().getId()).append("\"");
+            Integer w = f.getWeight();
+            String weight = "\"" + ((w != 1) ? w.toString() + " : " : "");
+            if (map.containsKey(f)) {
+                weight += map.get(f);
+            }
+            weight += "\"";
+            sb.append("[label=").append(weight);
+            if (map.containsKey(f)) {
+                String tfl = map.get(f);
+                if (!tfl.contains(",")) {
+                    sb.append(", color=\"");
+                    Transit init = game.getInitialTransit(f.getTransition());
+                    int max = game.getTransits(f.getTransition()).size() + ((init == null) ? 0 : init.getPostset().size() - 1);
+                    int id = Tools.calcStringIDSmallPrecedenceReverse(tfl);
+                    float val = ((id + 1) * 1.f) / (max * 1.f);
+                    sb.append(val).append(" ").append(val).append(" ").append(val);
+                    sb.append("\"");
+                }
+            }
+            if (game.isInhibitor(f)) {
+                sb.append(", dir=\"both\", arrowtail=\"odot\"");
+            }
+            sb.append("]\n");
+        }
+        sb.append("overlap=false\n");
+        sb.append("label=\"").append(game.getName()).append("\"\n");
+        sb.append("fontsize=12\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
 //    public static String getFlowRepresentativ(int id) {
 //        int start = 97; // a
 //        if (id > 25 && id < 51) {
@@ -435,7 +582,7 @@ public class PGTools {
     }
 
     public static String petriGame2Dot(PetriGame game, boolean withLabel) {
-        return PNWTTools.pnwt2Dot(game, withLabel, null);
+        return pg2Dot(game, withLabel, null);
     }
 
     public static void savePG2Dot(String input, String output, boolean withLabel) throws IOException, ParseException, NotSupportedGameException {
@@ -444,11 +591,18 @@ public class PGTools {
     }
 
     public static void savePG2Dot(String path, PetriGame game, boolean withLabel) throws FileNotFoundException {
-        PNWTTools.savePnwt2Dot(path, game, withLabel, -1);
+        savePG2Dot(path, game, withLabel, -1);
     }
 
     public static void savePG2Dot(String path, PetriGame game, boolean withLabel, Integer tokencount) throws FileNotFoundException {
-        PNWTTools.savePnwt2Dot(path, game, withLabel, tokencount);
+        try (PrintStream out = new PrintStream(path + ".dot")) {
+            if (tokencount == -1) {
+                out.println(pg2Dot(game, withLabel, null));
+            } else {
+                out.println(pg2Dot(game, withLabel, tokencount));
+            }
+        }
+        Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }
 
     public static Thread savePG2DotAndPDF(String input, String output, boolean withLabel) throws IOException, InterruptedException, ParseException, NotSupportedGameException {
@@ -461,15 +615,64 @@ public class PGTools {
     }
 
     public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel, Integer tokencount) throws IOException, InterruptedException {
-        return PNWTTools.savePnwt2DotAndPDF(path, game, withLabel, tokencount);
+        if (tokencount == -1) {
+            savePG2Dot(path, game, withLabel);
+        } else {
+            savePG2Dot(path, game, withLabel, tokencount);
+        }
+        String[] command = {"dot", "-Tpdf", path + ".dot", "-o", path + ".pdf"};
+        ExternalProcessHandler procH = new ExternalProcessHandler(true, command);
+        ProcessPool.getInstance().putProcess(game.getName() + "#dot", procH);
+        // start it in an extra thread
+        Thread thread = new Thread(() -> {
+            try {
+                procH.startAndWaitFor();
+                Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
+//                    if (deleteDot) {
+//                        // Delete dot file
+//                        new File(path + ".dot").delete();
+//                        Logger.getInstance().addMessage("Deleted: " + path + ".dot", true);
+//                    }
+            } catch (IOException | InterruptedException ex) {
+                String errors = "";
+                try {
+                    errors = procH.getErrors();
+                } catch (ProcessNotStartedException e) {
+                }
+                Logger.getInstance().addError("Saving pdf from dot failed.\n" + errors, ex);
+            }
+        });
+        thread.start();
+        return thread;
     }
 
     public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel) throws IOException, InterruptedException {
-        return PNWTTools.savePnwt2PDF(path, game, withLabel, -1);
+        return savePG2PDF(path, game, withLabel, -1);
     }
 
     public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel, Integer tokencount) throws IOException, InterruptedException {
-        return PNWTTools.savePnwt2PDF(path, game, withLabel, tokencount);
+        String bufferpath = path + "_" + System.currentTimeMillis();
+        Thread dot;
+        if (tokencount == -1) {
+            dot = savePG2DotAndPDF(bufferpath, game, withLabel);
+        } else {
+            dot = savePG2DotAndPDF(bufferpath, game, withLabel, tokencount);
+        }
+        Thread mvPdf = new Thread(() -> {
+            try {
+                dot.join();
+                // Delete dot file
+                new File(bufferpath + ".dot").delete();
+                Logger.getInstance().addMessage("Deleted: " + bufferpath + ".dot", true);
+                // move to original name 
+                Files.move(new File(bufferpath + ".pdf").toPath(), new File(path + ".pdf").toPath(), REPLACE_EXISTING);
+                Logger.getInstance().addMessage("Moved: " + bufferpath + ".pdf --> " + path + ".pdf", true);
+            } catch (IOException | InterruptedException ex) {
+                Logger.getInstance().addError("Deleting the buffer files and moving the pdf failed", ex);
+            }
+        });
+        mvPdf.start();
+        return mvPdf;
     }
 
 }

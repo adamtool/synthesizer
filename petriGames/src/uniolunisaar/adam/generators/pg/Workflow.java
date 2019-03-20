@@ -343,7 +343,7 @@ public class Workflow {
             int maxtoken = work_pieces + 1 + machines + 1;
             calc.setManuallyFixedTokencount(net, maxtoken);
         }
-        Place stop = net.createEnvPlace("e");
+//        Place stop = net.createEnvPlace("e"); should not be necessary anymore to always have an env place
 
         Place[] macs = new Place[machines];
         // testing
@@ -360,7 +360,7 @@ public class Workflow {
             trans[i] = net.createTransition();
             //environment
             net.createFlow(start, trans[i]);
-            net.createFlow(trans[i], stop);
+//            net.createFlow(trans[i], stop);should not be necessary anymore to always have an env place
         }
         for (int i = 0; i < machines; ++i) {
             for (int j = 0; j < machines; ++j) {

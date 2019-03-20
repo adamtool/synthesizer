@@ -18,6 +18,8 @@ import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
@@ -62,7 +64,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDEBuechiSolver(PetriGame game, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDEBuechiSolver(PetriGame game, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, skipTests, win, opts);
     }
 
@@ -551,7 +553,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
      *
      * @return
      */
-    private BDD buchi(Map<Integer, BDD> distance) {
+    private BDD buchi(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return buchi(buchiStates(), distance);
     }
 
@@ -561,7 +563,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -583,7 +585,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         BDDGraph graph = super.getGraphGame();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state)) {
@@ -605,7 +607,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         HashMap<Integer, BDD> distance = new HashMap<>();
         BDD win = calcWinningDCSs(distance);
         super.setBufferedWinDCSs(win);
@@ -625,7 +627,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -637,7 +639,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);

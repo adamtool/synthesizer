@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.exceptions.pg.NetNotConcurrencyPreservingException;
@@ -19,6 +20,7 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.generators.pg.Clerks;
 import uniolunisaar.adam.generators.pg.LoopUnrolling;
 import uniolunisaar.adam.generators.pg.ManufactorySystem;
@@ -84,6 +86,9 @@ public class TestingGenerators {
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
+        Logger.getInstance().setShortMessageStream(null);
+        Logger.getInstance().setVerboseMessageStream(null);
+        Logger.getInstance().setWarningStream(null);
         (new File(outputDir)).mkdirs();
     }
 
@@ -99,7 +104,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "philsGuided")
-    public void testPhilosophersGuided(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testPhilosophersGuided(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "philosophers_guided" + File.separator;
         String name = count + "_phils";
         File f = new File(path);
@@ -121,7 +126,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "phils")
-    public void testPhilosophers(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testPhilosophers(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, UnboundedException, CalculationInterruptedException {
         final String path = outputDir + "philosophers" + File.separator;
         String name = count + "_phils";
         File f = new File(path);
@@ -143,7 +148,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "clerksCP")
-    public void testClerksCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testClerksCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "clerks" + File.separator;
         String name = count + "_clerks";
         File f = new File(path);
@@ -165,7 +170,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "clerksNonCP")
-    public void testClerksNonCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testClerksNonCP(int count, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "clerks_nonCP" + File.separator;
         String name = count + "_clerks";
         File f = new File(path);
@@ -188,7 +193,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "manu")
-    public void testManu(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testManu(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "manufactory" + File.separator;
         String name = machines + "_machines";
         File f = new File(path);
@@ -214,7 +219,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "robotCell", timeOut = (60 * 1000) / 2) // 30 sec
-    public void testRobotCell(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testRobotCell(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "robotCell" + File.separator;
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
@@ -240,7 +245,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "selfOrgaRobots")
-    public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testSelfOrgaRobots(int robots, int destroyable, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
 //        if (robots == 2 && destroyable == 2) {
 //            return; // is not solvable (new determinism condition)
 //        }
@@ -272,7 +277,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "selfOrgaRobotsNew")
-    public void testSelfOrgaRobotsNew(int robots, int tools, int phases, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testSelfOrgaRobotsNew(int robots, int tools, int phases, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "selfOrgaRobotsNew" + File.separator;
         String name = "R" + robots + "T" + tools + "P" + phases;
         File f = new File(path);
@@ -298,7 +303,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "concurrentMachines")
-    public void testWork(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testWork(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "workflow" + File.separator;
         String name = machines + "_machines_" + pieces + "_pieces";
         File f = new File(path);
@@ -310,14 +315,14 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "concurrentMachines")
-    public void testCMImproved(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testCMImproved(int machines, int pieces, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "workflowImproved" + File.separator;
         String name = machines + "_machines_" + pieces + "_pieces";
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate Workflow...");
         PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
-        PNWTTools.savePnwt2PDF(path+name, pn, false);
+        PNWTTools.savePnwt2PDF(path + name, pn, false);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -334,7 +339,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "watchdog")
-    public void testWatchdog(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testWatchdog(int machines, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "watchdog" + File.separator;
         String name = machines + "_machines";
         File f = new File(path);
@@ -358,7 +363,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "secSystem")
-    public void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testSecuritySystem(int intrudingPoints, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "securitySystem" + File.separator;
         String name = intrudingPoints + "_secSystems";
         File f = new File(path);
@@ -383,7 +388,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "loopUnrolling", timeOut = (60 * 1000) / 2) // 30 sec
-    public void testLoopUnrollingWithNewChain(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testLoopUnrollingWithNewChain(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "loopUnrollingWithNewChain" + File.separator;
         String name = nb_unrollings + "_unrollings";
         File f = new File(path);
@@ -397,7 +402,7 @@ public class TestingGenerators {
     }
 
     @Test(dataProvider = "loopUnrolling", timeOut = (60 * 1000) / 2) // 30 sec
-    public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException {
+    public void testLoopUnrolling(int nb_unrollings, boolean hasStrategy) throws NetNotSafeException, NetNotConcurrencyPreservingException, NoStrategyExistentException, IOException, SolvingException, InterruptedException, FileNotFoundException, ModuleException, NoSuitableDistributionFoundException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, ParameterMissingException, ParseException, CalculationInterruptedException {
         final String path = outputDir + "loopUnrolling" + File.separator;
         String name = nb_unrollings + "_unrollings";
         File f = new File(path);

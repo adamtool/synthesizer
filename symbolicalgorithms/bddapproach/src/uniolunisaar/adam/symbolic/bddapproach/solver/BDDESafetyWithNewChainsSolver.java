@@ -21,6 +21,8 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
@@ -59,7 +61,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDESafetyWithNewChainsSolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDESafetyWithNewChainsSolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, skipTests, win, opts);
     }
 
@@ -782,7 +784,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
+    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -808,7 +810,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * @return - The graph game for the reachability objective.
      */
     @Override
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         BDDGraph graph = super.getGraphGame();
         BDD bad = winningStates();
         for (BDDState state : graph.getStates()) { // mark all special states
@@ -820,7 +822,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     @Override
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         HashMap<Integer, BDD> distance = new HashMap<>();
         BDD win = calcWinningDCSs(distance);
         super.setBufferedWinDCSs(win);
@@ -849,7 +851,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -861,7 +863,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     @Override
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);

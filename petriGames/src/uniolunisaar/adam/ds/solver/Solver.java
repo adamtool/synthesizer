@@ -3,6 +3,7 @@ package uniolunisaar.adam.ds.solver;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 
 /**
  *
@@ -31,18 +32,18 @@ public abstract class Solver<SO extends SolvingObject<? extends PetriGame, ? ext
         this.solverOpts = options;
     }
 
-    protected abstract boolean exWinStrat();
+    protected abstract boolean exWinStrat() throws CalculationInterruptedException;
 
-    protected abstract PetriGame calculateStrategy() throws NoStrategyExistentException;
+    protected abstract PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException;
 
-    public boolean existsWinningStrategy() {
+    public boolean existsWinningStrategy() throws CalculationInterruptedException {
         if (existsWinStrat == null) {
             existsWinStrat = exWinStrat();
         }
         return existsWinStrat;
     }
 
-    public PetriGame getStrategy() throws NoStrategyExistentException {
+    public PetriGame getStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         if (strategy == null) {
             strategy = calculateStrategy();
         }

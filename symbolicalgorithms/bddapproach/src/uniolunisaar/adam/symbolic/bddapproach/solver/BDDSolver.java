@@ -19,9 +19,11 @@ import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
@@ -66,7 +68,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(new BDDSolvingObject<>(game, winCon), opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place
@@ -365,8 +367,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * Calculates a BDD with all situations where nondeterminism has been
      * encountered.
      *
-     * Since our scheduling does not considere every marking, some non
-     * determinism with the originial version could be overseen.
+     * Since our scheduling does not consider every marking, some non
+     * determinism with the original version could be overseen.
      *
      * Thus, here we changed the definition of non determinism for the Petri
      * game itself and check now non determinism of strategy transitions within
@@ -981,19 +983,19 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-    BDD attractor(BDD F, boolean p1) {
+    BDD attractor(BDD F, boolean p1) throws CalculationInterruptedException {
         return attractor(F, p1, getBufferedDCSs());
     }
 
-    BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) {
+    BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return attractor(F, p1, getBufferedDCSs(), distance);
     }
 
-    BDD attractor(BDD F, boolean p1, BDD gameGraph) {
+    BDD attractor(BDD F, boolean p1, BDD gameGraph) throws CalculationInterruptedException {
         return attractor(F, p1, gameGraph, null);
     }
 
-    BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance) {
+    BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // Calculate the possibly restricted transitions to the given game graph
         BDD graphSuccs = this.shiftFirst2Second(gameGraph);
         BDD envTrans = getBufferedEnvTransitions().and(gameGraph).and(graphSuccs);
@@ -1003,6 +1005,11 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         BDD Q_ = F;
         int i = 0;
         while (!Q_.equals(Q)) {
+            if (Thread.currentThread().isInterrupted()) {
+                CalculationInterruptedException e = new CalculationInterruptedException();
+                Logger.getInstance().addError(e.getMessage(), e);
+                throw e;
+            }
             if (distance != null) {
                 distance.put(i++, Q_);
             }
@@ -1020,7 +1027,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return
      */
-    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) {
+    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return buchi(buchiStates, distance, true);
     }
 
@@ -1031,7 +1038,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return
      */
-    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance, boolean player1) {
+    BDD buchi(BDD buchiStates, Map<Integer, BDD> distance, boolean player1) throws CalculationInterruptedException {
         BDD S = getBufferedDCSs().id();
         BDD W = getZero();
         BDD W_;
@@ -1086,10 +1093,15 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return BDD with all reachable states
      */
-    BDD calcDCSs() {
+    BDD calcDCSs() throws CalculationInterruptedException {
         BDD Q = getZero();
         BDD Q_ = getInitialDCSs();
         while (!Q_.equals(Q)) {
+            if (Thread.currentThread().isInterrupted()) {
+                CalculationInterruptedException e = new CalculationInterruptedException();
+                Logger.getInstance().addError(e.getMessage(), e);
+                throw e;
+            }
             Q = Q_;
             // if it is an mcut or not is already coded in the transitions itself
             BDD succs = getBufferedEnvTransitions().or(getBufferedSystemTransitions());
@@ -1104,24 +1116,24 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return - A BDD containing all winning states for the system.
      */
-    abstract BDD calcWinningDCSs(Map<Integer, BDD> distance);
+    abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
 
     @Override
-    protected boolean exWinStrat() {
+    protected boolean exWinStrat() throws CalculationInterruptedException {
         if (!initialized) {
             initialize();
         }
         return !((getBufferedWinDCSs().and(getInitialDCSs())).isZero());
     }
 
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         if (!initialized) {
             initialize();
         }
         return BDDGraphBuilder.getInstance().builtGraph(this);
     }
 
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException {
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
@@ -1132,7 +1144,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return g;
     }
 
-    public BDDGraph getGraphStrategy() throws NoStrategyExistentException {
+    public BDDGraph getGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         if (!initialized) {
             initialize();
         }
@@ -1140,7 +1152,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -1151,7 +1163,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return pn;
     }
 
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException {
+    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
@@ -1464,14 +1476,14 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         winDCSs = win;
     }
 
-    public BDD getBufferedWinDCSs() {
+    public BDD getBufferedWinDCSs() throws CalculationInterruptedException {
         if (winDCSs == null) {
             winDCSs = calcWinningDCSs(null);
         }
         return winDCSs;
     }
 
-    public BDD getBufferedDCSs() {
+    public BDD getBufferedDCSs() throws CalculationInterruptedException {
         if (DCSs == null) {
             DCSs = calcDCSs();
         }

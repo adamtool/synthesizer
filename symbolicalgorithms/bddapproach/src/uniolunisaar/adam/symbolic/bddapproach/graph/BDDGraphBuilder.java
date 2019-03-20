@@ -6,8 +6,10 @@ import net.sf.javabdd.BDD;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  * @author Manuel Gieseking
@@ -26,19 +28,19 @@ public class BDDGraphBuilder {
     BDDGraphBuilder() {
     }
 
-    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver) {
+    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver) throws CalculationInterruptedException {
         return builtGraph(solver, -1);
     }
 
-    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, Map<Integer, BDD> distance) throws NoStrategyExistentException {
+    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         return builtGraphStrategy(solver, -1, distance);
     }
 
-    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver, int depth) {
+    public BDDGraph builtGraph(BDDSolver<? extends Condition> solver, int depth) throws CalculationInterruptedException {
         return builtGraph(solver, false, depth, null);
     }
 
-    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException {
+    public BDDGraph builtGraphStrategy(BDDSolver<? extends Condition> solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
@@ -52,7 +54,7 @@ public class BDDGraphBuilder {
      * @param depth -1 means do the whole graph
      * @return
      */
-    private BDDGraph builtGraph(BDDSolver<? extends Condition> solver, boolean strategy, int depth, Map<Integer, BDD> distance) {
+    private BDDGraph builtGraph(BDDSolver<? extends Condition> solver, boolean strategy, int depth, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
                 + solver.getGame().getName());
@@ -91,6 +93,11 @@ public class BDDGraphBuilder {
 
         int count = 0;
         while (!todoStates.isEmpty() && depth != count) {
+            if (Thread.currentThread().isInterrupted()) {
+                CalculationInterruptedException e = new CalculationInterruptedException();
+                Logger.getInstance().addError(e.getMessage(), e);
+                throw e;
+            }
             ++count;
             BDDState prev = todoStates.poll();
             boolean envState = prev.isMcut();
@@ -100,7 +107,6 @@ public class BDDGraphBuilder {
 //            System.out.println(!prev.getState().and(solver.getMcut()).isZero());
             BDD succs = (envState) ? solver.getEnvSuccTransitions(prev.getState()) : solver.getSystemSuccTransitions(prev.getState());
 
-            
 //            if (prev.getId() == 1) {
 //                BDDTools.printDecisionSets(prev.getState(), true);
 //                System.out.println("is env" + envState);

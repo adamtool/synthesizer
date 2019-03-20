@@ -11,6 +11,7 @@ import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
@@ -22,7 +23,7 @@ import uniolunisaar.adam.util.PGTools;
  */
 public class BDDTestingTools {
 
-    public static void testExample(BDDSolver<? extends Condition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
+    public static void testExample(BDDSolver<? extends Condition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, CalculationInterruptedException {
 //        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         PNWTTools.savePnwt2PDF(file, solv.getGame(), false);
 //        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
@@ -39,11 +40,11 @@ public class BDDTestingTools {
         }
     }
 
-    static void testExample(BDDSolver<? extends Condition> solv, String file) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException {
+    static void testExample(BDDSolver<? extends Condition> solv, String file) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, CalculationInterruptedException {
         testExample(solv, file, true);
     }
 
-    private static void printWinningStrategies(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+    private static void printWinningStrategies(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException, CalculationInterruptedException {
         Pair<BDDGraph, PetriGame> strats = solv.getStrategies();
         //        System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
@@ -64,13 +65,13 @@ public class BDDTestingTools {
         }
     }
 
-    private static void printWinningStratGraph(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+    private static void printWinningStratGraph(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException, CalculationInterruptedException {
         BDDGraph strat = solv.getGraphStrategy();
 
         BDDTools.saveGraph2DotAndPDF(path + "_gg", strat, solv);
     }
 
-    private static void printWinningStratPG(BDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException {
+    private static void printWinningStratPG(BDDSolver<? extends Condition> solv, String path) throws Exception {
         PetriGame strategy = solv.getStrategy();
         PNWTTools.savePnwt2DotAndPDF(path + "_pg", strategy, true);
     }

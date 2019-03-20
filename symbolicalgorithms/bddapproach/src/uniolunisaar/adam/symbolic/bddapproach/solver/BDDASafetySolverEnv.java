@@ -12,6 +12,8 @@ import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
@@ -34,7 +36,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDASafetySolverEnv(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDASafetySolverEnv(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, skipTests, win, opts);
     }
 //
@@ -164,7 +166,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * @return - The graph game for the reachability objective.
      */
     @Override
-    public BDDGraph getGraphGame() {
+    public BDDGraph getGraphGame() throws CalculationInterruptedException {
         BDDGraph graph = super.getGraphGame();
         BDD bad = bad();
         for (BDDState state : graph.getStates()) { // mark all special states
