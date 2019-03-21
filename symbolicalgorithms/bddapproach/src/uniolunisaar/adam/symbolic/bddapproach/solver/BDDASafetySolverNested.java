@@ -621,7 +621,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * Overriden since the standard case only knows type1 places.
      */
     @Override
-    BDD enabled(Transition t, int pos) {
+    protected BDD enabled(Transition t, int pos) {
         return enabled(t, true, pos);
     }
 
@@ -886,7 +886,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     @Override
-    BDD calcDCSs() {
+    protected BDD calcDCSs() {
         return wellformed().andWith(wrongTypedType2DCS().not());
     }
 
@@ -896,7 +896,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

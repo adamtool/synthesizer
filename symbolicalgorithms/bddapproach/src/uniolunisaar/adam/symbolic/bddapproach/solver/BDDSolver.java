@@ -17,7 +17,6 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
@@ -65,10 +64,16 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * Creates a new solver for the given game.
      *
      * @param game - the games which should be solved.
-     * @throws SolverDontFitPetriGameException - thrown if the created solver
-     * don't fit the given winning objective specified in the given game.
+     * @param skipTests
+     * @param winCon
+     * @param opts
+     * @throws uniolunisaar.adam.exceptions.pg.NotSupportedGameException
+     * @throws uniolunisaar.adam.exceptions.pg.NetNotSafeException
+     * @throws
+     * uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException
+     * @throws uniolunisaar.adam.exceptions.pg.InvalidPartitionException
      */
-    BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    protected BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place
@@ -570,7 +575,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
                 int id = getSolvingObject().getDevidedTransitions()[token - 1].indexOf(t);
 //                c.andWith(getFactory().ithVar(TRANSITIONS[pos][token - 1].vars()[id]));                
                 //todo: change on 2019/03/20  the previous line
-                //      check if this previously was an optimization which I'm currently not getting?!                 
+                //      check if this previously was an optimization which I'm currently not getting?!     
+                //      this is needed for the new nondeterminsm
                 BDD pl = codePlace(p, pos, token);
                 pl.impWith(getFactory().ithVar(TRANSITIONS[pos][token - 1].vars()[id]));
                 c.andWith(pl);
@@ -586,7 +592,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * @param pos
      * @return
      */
-    BDD enabled(Transition t, int pos) {
+    protected BDD enabled(Transition t, int pos) {
         BDD en = getOne();
         for (Place place : t.getPreset()) {
             if (getSolvingObject().getGame().isEnvironment(place)) {
@@ -602,7 +608,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return en;//.andWith(getWellformed());
     }
 
-    BDD firable(Transition t, int pos) {
+    protected BDD firable(Transition t, int pos) {
         return enabled(t, pos).andWith(chosen(t, pos));
     }
 
@@ -704,7 +710,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return all;
     }
 
-    BDD envTransitionCP(Transition t) {
+    protected BDD envTransitionCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -745,7 +751,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return getZero();
     }
 
-    BDD envTransitionNotCP(Transition t) {
+    protected BDD envTransitionNotCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -801,7 +807,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return sysT;
     }
 
-    BDD sysTransitionCP(Transition t) {
+    protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -850,7 +856,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return sys;
     }
 
-    BDD sysTransitionNotCP(Transition t) {
+    protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -991,7 +997,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return attractor(F, p1, getBufferedDCSs());
     }
 
-    BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return attractor(F, p1, getBufferedDCSs(), distance);
     }
 
@@ -1096,8 +1102,9 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * Calculates all states reachable from the initial state.
      *
      * @return BDD with all reachable states
+     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
      */
-    BDD calcDCSs() throws CalculationInterruptedException {
+    protected BDD calcDCSs() throws CalculationInterruptedException {
         BDD Q = getZero();
         BDD Q_ = getInitialDCSs();
         while (!Q_.equals(Q)) {
@@ -1118,9 +1125,11 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     /**
      * Returns the winning decisionsets for the system players.
      *
+     * @param distance
      * @return - A BDD containing all winning states for the system.
+     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
      */
-    abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
+    protected abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
 
     @Override
     protected boolean exWinStrat() throws CalculationInterruptedException {
@@ -1319,7 +1328,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * coded at.
      * @return - A BDD with the id coded at the given position.
      */
-    BDD codePlace(Place place, int pos, int token) {
+    protected BDD codePlace(Place place, int pos, int token) {
         assert (getSolvingObject().getGame().getPartition(place) == token);
         return codePlace(getSolvingObject().getGame().getID(place), pos, token);
     }
@@ -1434,7 +1443,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return !bdd.and(getTop()).isZero();
     }
 
-    BDD getTop() {
+    protected BDD getTop() {
         return nTop().not();
     }
 
@@ -1494,21 +1503,21 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return DCSs;
     }
 
-    BDD getBufferedSystemTransitions() {
+    protected BDD getBufferedSystemTransitions() {
         if (system == null) {
             system = getSystemTransitions();
         }
         return system;
     }
 
-    BDD getBufferedEnvTransitions() {
+    protected BDD getBufferedEnvTransitions() {
         if (environment == null) {
             environment = getEnvironmentTransitions();
         }
         return environment;
     }
 
-    BDD getBufferedNDet() {
+    protected BDD getBufferedNDet() {
         if (ndet == null) {
 //            ndet = ndetStates(0);
             ndet = ndetStates2(0);
@@ -1534,10 +1543,15 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     /**
      * TODO: didn't wanted this to have from outside, but maybe need so
-     * @return 
+     *
+     * @return
      */
     public BDD getWellformed() {
         return wellformed(0);
+    }
+
+    protected BDDDomain getTransitionDomain(int pos, int partition) {
+        return TRANSITIONS[pos][partition];
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1559,7 +1573,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% Getter/Setter for BDD library %%%%%%%%%%%%%%%%%%%%%
-    BDDFactory getFactory() {
+    protected BDDFactory getFactory() {
         return bddfac;
     }
 

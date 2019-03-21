@@ -98,17 +98,17 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
     @Override
-    BDD envTransitionCP(Transition t) {
+    protected BDD envTransitionCP(Transition t) {
         return super.envTransitionCP(t).andWith(badStates().not()); // bad states don't have any successor
     }
 
     @Override
-    BDD envTransitionNotCP(Transition t) {
+    protected BDD envTransitionNotCP(Transition t) {
         return super.envTransitionNotCP(t).andWith(badStates().not()); // bad states don't have any successors
     }
 
     @Override
-    BDD sysTransitionCP(Transition t) {
+    protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -121,7 +121,7 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
     }
 
     @Override
-    BDD sysTransitionNotCP(Transition t) {
+    protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -140,7 +140,7 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
