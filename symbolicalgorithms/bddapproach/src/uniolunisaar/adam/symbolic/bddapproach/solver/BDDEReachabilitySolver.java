@@ -83,7 +83,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

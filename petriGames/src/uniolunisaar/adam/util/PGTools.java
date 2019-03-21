@@ -400,6 +400,26 @@ public class PGTools {
     }
 
     public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
+        // No transition has places of the same partion in its pre- or postset respectively
+        for (Transition transition : game.getTransitions()) {
+            List<Integer> partition = new ArrayList<>();
+            for (Place place : transition.getPreset()) {
+                int part = game.getPartition(place);
+                if (partition.contains(part)) {
+                    throw new InvalidPartitionException("Transition " + transition.getId() + " has two places with partition " + part + " in its preset.");
+                }
+                partition.add(part);
+            }
+            partition.clear();
+            for (Place place : transition.getPostset()) {
+                int part = game.getPartition(place);
+                if (partition.contains(part)) {
+                    throw new InvalidPartitionException("Transition " + transition.getId() + " has two places with partition " + part + " in its postset.");
+                }
+                partition.add(part);
+            }
+        }
+        // there is no reachable marking in which contains two token belonging to the same partition
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cover.getNodes()) {
             Marking m = node.getMarking();
