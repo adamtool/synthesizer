@@ -1203,9 +1203,9 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         // Existential variables
         BDD variables = PLACES[pos][0].set();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
-            variables.andWith(PLACES[pos][i + 1].set());
-            variables.andWith(TOP[pos][i].set());
-            variables.andWith(TRANSITIONS[pos][i].set());
+            variables.and(PLACES[pos][i + 1].set());
+            variables.and(TOP[pos][i].set());
+            variables.and(TRANSITIONS[pos][i].set());
         }
         return variables;
     }
@@ -1242,9 +1242,9 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     BDD preBimpSucc() {
         BDD preBimpSucc = PLACES[0][0].buildEquals(PLACES[1][0]);
         for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
-            preBimpSucc.andWith(PLACES[0][i + 1].buildEquals(PLACES[1][i + 1]));
-            preBimpSucc.andWith(TOP[0][i].buildEquals(TOP[1][i]));
-            preBimpSucc.andWith(TRANSITIONS[0][i].buildEquals(TRANSITIONS[1][i]));
+            preBimpSucc.and(PLACES[0][i + 1].buildEquals(PLACES[1][i + 1]));
+            preBimpSucc.and(TOP[0][i].buildEquals(TOP[1][i]));
+            preBimpSucc.and(TRANSITIONS[0][i].buildEquals(TRANSITIONS[1][i]));
         }
         return preBimpSucc;
     }
@@ -1552,6 +1552,10 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     protected BDDDomain getTransitionDomain(int pos, int partition) {
         return TRANSITIONS[pos][partition];
+    }
+
+    protected BDDDomain getTopDomain(int pos, int partition) {
+        return TOP[pos][partition];
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
