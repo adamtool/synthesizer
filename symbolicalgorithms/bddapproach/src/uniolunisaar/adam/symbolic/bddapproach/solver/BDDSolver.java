@@ -1554,8 +1554,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return
      */
-    public BDD getWellformed() {
-        return wellformed(0);
+    public BDD getWellformed(int pos) {
+        return wellformed(pos);
     }
 
     protected BDDDomain getTransitionDomain(int pos, int partition) {
