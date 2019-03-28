@@ -89,6 +89,7 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
 //        System.out.println("bad");
 //        BDDTools.printDecisionSets(baddcs(0).not(),  true);
 //        System.out.println("end");
+//        return baddcs(0).orWith(getBufferedNDet().or(deadSysDCS(0)));
         return baddcs(0).orWith(getBufferedNDet().or(deadSysDCS(0)));
     }
 
