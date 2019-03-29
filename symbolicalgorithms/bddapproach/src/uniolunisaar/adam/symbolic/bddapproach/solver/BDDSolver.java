@@ -1506,6 +1506,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     public BDD getBufferedDCSs() throws CalculationInterruptedException {
         if (DCSs == null) {
+//            DCSs = wellformed();
             DCSs = calcDCSs();
         }
         return DCSs;
