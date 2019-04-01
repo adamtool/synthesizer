@@ -494,7 +494,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * @param bdd
      * @return
      */
-    BDD shiftFirst2Second(BDD bdd) {
+    protected BDD shiftFirst2Second(BDD bdd) {
         BDD res = bdd.and(preBimpSucc());
         return res.exist(getFirstBDDVariables());
     }
