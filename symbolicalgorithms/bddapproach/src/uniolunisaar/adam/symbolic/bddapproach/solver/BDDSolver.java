@@ -1409,9 +1409,13 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     public List<Transition> getAllTransitions(BDD source, BDD target) {
         List<Transition> ret = new ArrayList<>();
         for (Transition t : getGame().getTransitions()) {
-            if (hasFiredManually(t, source, target)) {
+            if (hasFired(t, source, target)) {
                 ret.add(t);
             }
+        }
+        // do the top case
+        if (ret.isEmpty()) {
+            ret.add(null);
         }
         return ret;
     }
@@ -1583,6 +1587,10 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     void setDCSLength(int dscLength) {
         this.dcsLength = dscLength;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% Getter/Setter for BDD library %%%%%%%%%%%%%%%%%%%%%
