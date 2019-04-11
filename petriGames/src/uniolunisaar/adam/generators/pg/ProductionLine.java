@@ -16,7 +16,7 @@ import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
- * @author niklasmetzger
+ * @author Niklas Metzger
  */
 public class ProductionLine {
 	/**
