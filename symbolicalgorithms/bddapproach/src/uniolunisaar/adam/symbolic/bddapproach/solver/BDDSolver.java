@@ -1528,6 +1528,14 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return exSysSucc;
     }
 
+    /**
+     * TODO: didn't wanted this to have from outside, but maybe need so
+     * @return 
+     */
+    public BDD getWellformed() {
+        return wellformed(0);
+    }
+
 // %%%%%%%%%%%%%%%%%%%%%%%%% DELEGATED METHODS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public BDD getZero() {
         return bddfac.zero();

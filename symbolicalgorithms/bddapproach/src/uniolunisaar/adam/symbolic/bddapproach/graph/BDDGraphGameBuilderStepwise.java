@@ -27,7 +27,8 @@ public class BDDGraphGameBuilderStepwise {
             List<Flow> flows = new ArrayList<>();
             List<BDDState> states = new ArrayList<>();
             BDD inits = solver.getInitialDCSs();
-            // inits = inits.and(states); TODO:  can I get a cheaper solution then use the all buffered reachable states ?
+//             inits = inits.and(solver.getBufferedDCSs()); //TODO:  can I get a cheaper solution then use the all buffered reachable states ?
+            inits = inits.and(solver.getWellformed());
             BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
             while (!init.isZero()) {
                 BDDState initSucc = graph.addState(init, solver);
@@ -47,7 +48,8 @@ public class BDDGraphGameBuilderStepwise {
         boolean envState = state.isMcut();
         BDD succs = (envState) ? solver.getEnvSuccTransitions(state.getState()) : solver.getSystemSuccTransitions(state.getState());
         if (!succs.isZero()) {// is there a firable transition ?
-            succs = solver.getSuccs(succs); // TODO: can I get a cheaper solution then use the all buffered reachable states ? .and(states);
+//            succs = solver.getSuccs(succs); // TODO: can I get a cheaper solution then use the all buffered reachable states ? .and(states);
+            succs = solver.getSuccs(succs).and(solver.getWellformed());
 
             BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
             while (!succ.isZero()) {
