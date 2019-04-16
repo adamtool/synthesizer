@@ -103,6 +103,16 @@ public class SCC {
 			net.createFlow(store_left, badtr);
 			net.createFlow(net.getPlace("store_"+i), badtr);
 			net.createFlow(badtr, net.getPlace("bad"));
+			if (i > 1) { //There is no predecessor of the first process
+				Transition badtr2 = net.createTransition();
+				int offset = j % 2 == 0 ? 1 : 0; 
+				if (offset == 0)
+					net.createFlow(store_right, badtr2);
+				else
+					net.createFlow(store_left, badtr2);
+				net.createFlow(net.getPlace("store_"+(i-1)), badtr2);
+				net.createFlow(badtr2, net.getPlace("bad"));
+			}
 		}
 		createSCCrec(net, pnew1, i, j, recdepth + 1, str + "left");
 		createSCCrec(net, pnew2, i, j, recdepth + 1, str + "right");
