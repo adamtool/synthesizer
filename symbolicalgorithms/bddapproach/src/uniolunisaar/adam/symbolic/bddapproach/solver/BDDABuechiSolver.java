@@ -1382,32 +1382,16 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state)) {
-                if (!winningStates().and(state.getState()).isZero()) {
-                    state.setGood(true);
-                }
-//                if (!ndetStates(0).orWith(wrongTypedDCS().and(state.getState())).isZero()) {
-//                    state.setBad(true);
-//                }
-                if (!(wrongTypedDCS().and(state.getState())).isZero()) {
-                    state.setBad(true);
-                }
-                if (!OBAD[0].ithVar(1).and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-            }
-        }
-//        System.out.println("loops");
-//        BDDTools.printDecisionSets(loops(), true);
-//        BDDTools.printDecodedDecisionSets(loops(), this, true);
-//        System.out.println("reach");
-//        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
-//        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
-        return graph;
+    BDD calcBadDCSs() {
+//        return ndetStates(0).orWith(wrongTypedDCS().orWith(OBAD[0].ithVar(1)));
+        return wrongTypedDCS().orWith(OBAD[0].ithVar(1));
     }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return winningStates();
+    }
+ 
 
     @Override
     public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
@@ -1420,12 +1404,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!winningStates().and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS         
         return strat;
     }
 

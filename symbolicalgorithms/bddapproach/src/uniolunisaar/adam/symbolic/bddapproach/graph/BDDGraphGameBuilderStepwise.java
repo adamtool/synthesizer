@@ -33,6 +33,8 @@ public class BDDGraphGameBuilderStepwise {
             while (!init.isZero()) {
                 BDDState initSucc = graph.addState(init, solver);
                 initSucc.setMcut(solver.isEnvState(init));
+                initSucc.setBad(solver.isBadState(init));
+                initSucc.setSpecial(solver.isSpecialState(init));
                 states.add(initSucc);
                 Flow f = graph.addFlow(state, initSucc, null);
                 flows.add(f);
@@ -64,6 +66,8 @@ public class BDDGraphGameBuilderStepwise {
                 } else {
                     succState = graph.addState(succState);
                     succState.setMcut(solver.isEnvState(succState.getState()));
+                    succState.setBad(solver.isBadState(succState.getState()));
+                    succState.setSpecial(solver.isSpecialState(succState.getState()));
                     states.add(succState);
                     Flow f = graph.addFlow(state, succState, solver.getTransition(state.getState(), succState.getState()));
                     flows.add(f);

@@ -23,7 +23,6 @@ import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
@@ -849,28 +848,13 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state)) {
-                if (!winningStates().and(state.getState()).isZero()) {
-                    state.setGood(true);
-                }
-                if (!getBufferedNDet().and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-                if (!OBAD[0].ithVar(1).and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-            }
-        }
-//        System.out.println("loops");
-//        BDDTools.printDecisionSets(loops(), true);
-//        BDDTools.printDecodedDecisionSets(loops(), this, true);
-//        System.out.println("reach");
-//        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
-//        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
-        return graph;
+    BDD calcBadDCSs() {
+        return getBufferedNDet().orWith(OBAD[0].ithVar(1));
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return winningStates();
     }
 
     @Override
@@ -884,12 +868,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
         BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!winningStates().and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
         return strat;
     }
 

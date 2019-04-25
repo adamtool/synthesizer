@@ -19,7 +19,6 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithType2StrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
@@ -396,8 +395,25 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         return baddcs(0).orWith(getBufferedNDet().or(deadSysDCS(0)));
     }
 
-    public BDD badStates() {
+    @Override
+    BDD calcBadDCSs() {
         return badSysDCS().orWith(wrongTypedDCS());
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return getFactory().zero();
+    }
+
+    /**
+     * Safety game graphs don't have a special state
+     *
+     * @param state
+     * @return
+     */
+    @Override
+    public boolean isSpecialState(BDD state) {
+        return false;
     }
 
     /**
@@ -616,7 +632,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
             // Environmentpart                
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(badStates().not());
+            all.andWith(getBadDCSs().not());
             return all;
         }
         return getZero();
@@ -652,7 +668,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
             // Environmentpart
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(badStates().not());
+            all.andWith(getBadDCSs().not());
             return all;
         }
         return getZero();
@@ -688,7 +704,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionCP(t);
         // bad states don't have succesors
-        sys1.andWith(badStates().not());
+        sys1.andWith(getBadDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
@@ -701,7 +717,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionNotCP(t);
         // bad states don't have succesors
-        sys1.andWith(badStates().not());
+        sys1.andWith(getBadDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
@@ -727,7 +743,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor(badStates(), true, distance).not().and(getBufferedDCSs());//fixpointOuter();
+        BDD fixedPoint = attractor(getBadDCSs(), true, distance).not().and(getBufferedDCSs());//fixpointOuter();
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);
@@ -736,22 +752,6 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return fixedPoint;
-    }
-
-    /**
-     * Overriden for marking the bad states.
-     *
-     * @return
-     */
-    @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !badStates().and(state.getState()).isZero()) {
-                state.setBad(true);
-            }
-        }
-        return graph;
     }
 
     @Override

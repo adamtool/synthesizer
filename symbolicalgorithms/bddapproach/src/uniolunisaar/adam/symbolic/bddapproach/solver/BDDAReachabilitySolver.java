@@ -23,7 +23,6 @@ import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDReachabilityGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
@@ -559,32 +558,14 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         return fixedPoint;
     }
 
-    /**
-     * Returns the graph game for the reachability objective.
-     *
-     * Is the standard graph game, but before returning we are just marking the
-     * reachable states as special.
-     *
-     * @return - The graph game for the reachability objective.
-     */
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        BDD reach = winningStates();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state)) {
-                if (!reach.and(state.getState()).isZero()) {
-                    state.setGood(true);
-                }
-                if (!getBufferedNDet().and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-                if (!OBAD[0].ithVar(1).and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-            }
-        }
-        return graph;
+    BDD calcBadDCSs() {
+        return getBufferedNDet().orWith(OBAD[0].ithVar(1));
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return winningStates();
     }
 
     @Override
@@ -598,12 +579,7 @@ public class BDDAReachabilitySolver extends BDDSolver<Reachability> {
         BDDGraph strat = BDDReachabilityGraphBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!winningStates().and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS         
         return strat;
     }
 

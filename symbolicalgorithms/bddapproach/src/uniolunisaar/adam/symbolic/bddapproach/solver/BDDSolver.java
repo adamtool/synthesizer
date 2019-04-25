@@ -1118,6 +1118,10 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      */
     abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
 
+    abstract BDD calcBadDCSs();
+
+    abstract BDD calcSpecialDCSs();
+
     @Override
     protected boolean exWinStrat() throws CalculationInterruptedException {
         if (!initialized) {
@@ -1459,6 +1463,14 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return !state.and(getMcut()).isZero();
     }
 
+    public boolean isBadState(BDD state) {
+        return !getBadDCSs().and(state).isZero();
+    }
+
+    public boolean isSpecialState(BDD state) {
+        return !getSpecialDCSs().and(state).isZero();
+    }
+
     public BDD getMcut() {
         return mcut(0);
     }
@@ -1469,6 +1481,14 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     BDD getChosen(Transition t) {
         return chosen(t, 0);
+    }
+
+    BDD getBadDCSs() {
+        return calcBadDCSs();
+    }
+
+    BDD getSpecialDCSs() {
+        return calcSpecialDCSs();
     }
 
 // %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1530,7 +1550,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 
     /**
      * TODO: didn't wanted this to have from outside, but maybe need so
-     * @return 
+     *
+     * @return
      */
     public BDD getWellformed() {
         return wellformed(0);

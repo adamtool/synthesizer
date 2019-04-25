@@ -22,7 +22,6 @@ import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
@@ -635,24 +634,25 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
         return fixedPoint;
     }
 
+    @Override
+    BDD calcBadDCSs() {
+        return winningStates();
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return getFactory().zero();
+    }
+
     /**
-     * Returns the graph game for the reachability objective.
+     * Safety game graphs don't have a special state
      *
-     * Is the standard graph game, but before returning we are just marking the
-     * reachable states as special.
-     *
-     * @return - The graph game for the reachability objective.
+     * @param state
+     * @return
      */
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        BDD bad = winningStates();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !bad.and(state.getState()).isZero()) {
-                state.setBad(true);
-            }
-        }
-        return graph;
+    public boolean isSpecialState(BDD state) {
+        return false;
     }
 
     @Override

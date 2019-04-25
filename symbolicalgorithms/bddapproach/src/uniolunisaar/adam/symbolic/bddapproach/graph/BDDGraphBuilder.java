@@ -82,7 +82,10 @@ public class BDDGraphBuilder {
             BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
             while (!init.isZero()) {
                 BDDState initSucc = graph.addState(init, solver);
+                // mark mcut
                 initSucc.setMcut(solver.isEnvState(init));
+                initSucc.setBad(solver.isBadState(init));
+                initSucc.setSpecial(solver.isSpecialState(init));
                 graph.addFlow(in, initSucc, null);
                 todoStates.add(initSucc);
                 inits = inits.and(init.not());
@@ -134,6 +137,8 @@ public class BDDGraphBuilder {
         BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
         BDDState in = graph.addState(init, solver);
         in.setMcut(solver.isEnvState(init));
+        in.setBad(solver.isBadState(init));
+        in.setSpecial(solver.isSpecialState(init));
         graph.setInitial(in);
         todoStates.add(in);
     }
@@ -221,6 +226,8 @@ public class BDDGraphBuilder {
         // add the minimal init
         BDDState in = graph.addState(min);
         in.setMcut(solver.isEnvState(min.getState()));
+        in.setBad(solver.isBadState(min.getState()));
+        in.setSpecial(solver.isSpecialState(min.getState()));
         graph.setInitial(in);
         todoStates.add(in);
     }
@@ -243,6 +250,8 @@ public class BDDGraphBuilder {
         } else {
             BDDState succState = graph.addState(succ);
             succState.setMcut(solver.isEnvState(succ.getState()));
+            succState.setBad(solver.isBadState(succ.getState()));
+            succState.setSpecial(solver.isSpecialState(succ.getState()));
             addFlow(solver, graph, prev, succState);
             // take the next step
             todoStates.add(succState);

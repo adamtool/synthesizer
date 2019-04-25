@@ -112,6 +112,16 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         return sys;
     }
 
+    @Override
+    BDD calcBadDCSs() {
+        return getBufferedNDet();
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return reach();
+    }
+
     /**
      * Returns the graph game for the reachability objective.Is the standard
      * graph game, but before returning we are just marking the reachable states
@@ -127,7 +137,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         BDD reach = reach();
         for (BDDState state : graph.getStates()) { // mark all special states
             if (!graph.getInitial().equals(state) && !reach.and(state.getState()).isZero()) {
-                state.setGood(true);
+                state.setSpecial(true);
             }
             if (!getBufferedNDet().and(state.getState()).isZero()) {
                 state.setBad(true);
@@ -150,7 +160,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!reach().and(state.getState()).isZero()) {
-                state.setGood(true);
+                state.setSpecial(true);
             }
         }
         return strat;

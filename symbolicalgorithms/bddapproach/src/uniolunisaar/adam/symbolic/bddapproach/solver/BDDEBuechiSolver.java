@@ -21,7 +21,6 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDBuchiGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
@@ -585,25 +584,13 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state)) {
-                if (!buchiStates().and(state.getState()).isZero()) {
-                    state.setGood(true);
-                }
-                if (!getBufferedNDet().and(state.getState()).isZero()) {
-                    state.setBad(true);
-                }
-            }
-        }
-//        System.out.println("loops");
-//        BDDTools.printDecisionSets(loops(), true);
-//        BDDTools.printDecodedDecisionSets(loops(), this, true);
-//        System.out.println("reach");
-//        BDDTools.printDecisionSets(getBufferedEnvTransitions(), true);
-//        BDDTools.printDecodedDecisionSets(getBufferedDCSs(), this, true);
-        return graph;
+    BDD calcBadDCSs() {
+        return getBufferedNDet();
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return buchiStates();
     }
 
     @Override
@@ -617,12 +604,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
         BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!buchiStates().and(state.getState()).isZero()) {
-                state.setGood(true);
-            }
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
         return strat;
     }
 

@@ -11,8 +11,6 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -156,21 +154,25 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
         return fixedPoint;
     }
 
+// %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
+    @Override
+    BDD calcBadDCSs() {
+        return badStates();
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return getFactory().zero();
+    }
+
     /**
-     * Overriden for marking the bad states.
+     * Safety game graphs don't have a special state
      *
+     * @param state
      * @return
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
      */
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !badStates().and(state.getState()).isZero()) {
-                state.setBad(true);
-            }
-        }
-        return graph;
+    public boolean isSpecialState(BDD state) {
+        return false;
     }
-// %%%%%%%%%%%%%%%%%%%%%%%%% END The relevant ability of the solver %%%%%%%%%%%%
 }

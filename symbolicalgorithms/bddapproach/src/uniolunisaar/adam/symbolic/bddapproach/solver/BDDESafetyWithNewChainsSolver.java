@@ -801,24 +801,25 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         return fixedPoint;
     }
 
+    @Override
+    BDD calcBadDCSs() {
+        return winningStates();
+    }
+
+    @Override
+    BDD calcSpecialDCSs() {
+        return getFactory().zero();
+    }
+
     /**
-     * Returns the graph game for the reachability objective.
+     * Safety game graphs don't have a special state
      *
-     * Is the standard graph game, but before returning we are just marking the
-     * reachable states as special.
-     *
-     * @return - The graph game for the reachability objective.
+     * @param state
+     * @return
      */
     @Override
-    public BDDGraph getGraphGame() throws CalculationInterruptedException {
-        BDDGraph graph = super.getGraphGame();
-        BDD bad = winningStates();
-        for (BDDState state : graph.getStates()) { // mark all special states
-            if (!graph.getInitial().equals(state) && !bad.and(state.getState()).isZero()) {
-                state.setBad(true);
-            }
-        }
-        return graph;
+    public boolean isSpecialState(BDD state) {
+        return false;
     }
 
     @Override
@@ -844,7 +845,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
         for (BDDState state : strat.getStates()) { // mark all special states
             if (!winningStates().and(state.getState()).isZero()) {
-                state.setGood(true);
+                state.setSpecial(true);
             }
         }
         return strat;

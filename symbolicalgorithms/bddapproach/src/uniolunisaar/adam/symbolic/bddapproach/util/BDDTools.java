@@ -729,7 +729,7 @@ public class BDDTools {
 //            String shape = (state.isMcut()) ? mcutShape : sysShape;
             String color = (solver.isEnvState(state.getState())) ? mcutColor : sysColor;
             int penwidth = (state.isBad()) ? 8 : 1;
-            String shape = (state.isGood()) ? "doubleoctagon" : "box";
+            String shape = (state.isSpecial()) ? "doubleoctagon" : "box";
             // Drawing
             sb.append(state.getId()).append("[shape=").append(shape).append(", style=filled, fillcolor=").append(color);
             sb.append(", height=0.5, width=0.5, fixedsize=false,  penwidth=").append(penwidth);
