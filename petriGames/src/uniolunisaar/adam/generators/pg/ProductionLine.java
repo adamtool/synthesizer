@@ -74,9 +74,9 @@ public class ProductionLine {
 			net.createFlow(tdec1, postPlaceBad);
 			net.createFlow(tdec2, postPlaceGood);
 		}
-		Place badPlace = net.createPlace("bad");
-		net.setBad(badPlace);
 		for (int i = 1; i <= size; i++){
+			Place badPlace = net.createPlace("bad"+ i);
+			net.setBad(badPlace);
 			Transition t = net.createTransition("tbad" + i);
 			Place p = net.getPlace("done" + i + 1);
 			Place p_prime = net.getPlace("e" + i + "check");
@@ -84,13 +84,15 @@ public class ProductionLine {
 			net.createFlow(p_prime, t);
 			net.createFlow(t,badPlace);
 			if (i < size) {
+				Place badPlace2 = net.createPlace("bad"+ i + "inner");
+				net.setBad(badPlace2);
 				Transition t_t = net.createTransition("tbad" + i + i);
 				int j = i+1;
 				Place pp = net.getPlace("done" + j + 2);
 				Place pp_prime = net.getPlace("e" + i + "check_new"); 
 				net.createFlow(pp, t_t);
 				net.createFlow(pp_prime, t_t);
-				net.createFlow(t_t,badPlace);
+				net.createFlow(t_t,badPlace2);
 			}
 		}
 		return net;
