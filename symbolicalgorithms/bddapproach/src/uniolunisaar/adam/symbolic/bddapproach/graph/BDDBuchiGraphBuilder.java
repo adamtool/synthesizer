@@ -9,7 +9,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 /**
  * @author Manuel Gieseking
  */
-public class BDDBuchiGraphBuilder extends BDDGraphBuilder {
+public class BDDBuchiGraphBuilder<S extends BDDSolver<? extends Condition>> extends BDDGraphBuilder<S> {
 
     private static BDDBuchiGraphBuilder instance = null;
 
@@ -25,12 +25,12 @@ public class BDDBuchiGraphBuilder extends BDDGraphBuilder {
     }
 
     @Override
-    void addOneInitState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addNearestInitState(solver, graph, inits, todoStates, distance);
     }
 
     @Override
-    void addOneSuccessor(BDD succs, BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         // Get the set F^m
         BDD F = distance.get(-1);
         if (F.and(prev.getState()).isZero()) { // if it's not a buchi state

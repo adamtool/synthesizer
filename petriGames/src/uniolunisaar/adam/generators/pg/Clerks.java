@@ -15,6 +15,14 @@ import uniolunisaar.adam.util.PNWTTools;
  */
 public class Clerks {
 
+    /**
+     * DW
+     *
+     * @param size
+     * @param withPartition
+     * @param withMaxToken
+     * @return
+     */
     public static PetriGame generateNonCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
             throw new RuntimeException("There should be at least one Clerk to sign the document.");
@@ -44,7 +52,7 @@ public class Clerks {
         Place ready = net.createPlace("ready");
         // are they all Y or all N?
         Place good = net.createPlace("good");
-        Place goodReady = net.createPlace("goodReady");
+//        Place goodReady = net.createPlace("goodReady");
 
         // they are not all Y or all N
         Place bad = net.createPlace("bad");
@@ -55,7 +63,7 @@ public class Clerks {
         net.createFlow(tbad, bad);
         net.createFlow(ready, tGoodReady);
         net.createFlow(good, tGoodReady);
-        net.createFlow(tGoodReady, goodReady);
+//        net.createFlow(tGoodReady, goodReady);
 
         Transition yes = net.createTransition("yes");
         net.createFlow(yes, good);
@@ -76,7 +84,7 @@ public class Clerks {
         if (withPartition) {
             net.setPartition(good, 2);
             net.setPartition(bad, 1);
-            net.setPartition(goodReady, 1);
+//            net.setPartition(goodReady, 1);
             net.setPartition(ready, 1);
         }
         return net;
@@ -128,6 +136,14 @@ public class Clerks {
         net.createFlow(cl, glue);
     }
 
+    /**
+     * DWs
+     *
+     * @param size
+     * @param withPartition
+     * @param withMaxToken
+     * @return
+     */
     public static PetriGame generateCP(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 1) {
             throw new RuntimeException("There should be at least one Clerk to sign the document.");
@@ -168,12 +184,23 @@ public class Clerks {
         if (withPartition) {
             net.setPartition(cl, (startToken + 1));
             net.setPartition(vote, (startToken + 1));
-            net.setPartition(end, (startToken + 1));
-            net.setPartition(yes, (startToken + 2));
-            net.setPartition(no, (startToken + 2));
-            net.setPartition(bad, (startToken + 2));
+            if (max == 1) { // special case for the partitioning when we only have one clerk at all
+                net.setPartition(end, (startToken + 2));
+                net.setPartition(yes, (startToken + 1));
+                net.setPartition(no, (startToken + 1));
+                net.setPartition(bad, (startToken + 1));
+            } else {
+                net.setPartition(end, (startToken + 1));
+                net.setPartition(yes, (startToken + 2));
+                net.setPartition(no, (startToken + 2));
+                net.setPartition(bad, (startToken + 2));
+            }
             if (count == 0) {
-                net.setPartition(buf0, 2 * (max - 1) + 1);
+                if (max == 1) { // special case for the partitioning when we only have one clerk at all
+                    net.setPartition(buf0, 2 * (max - 1) + 2);
+                } else {
+                    net.setPartition(buf0, 2 * (max - 1) + 1);
+                }
             } else {
                 net.setPartition(buf0, startToken - 1);
             }

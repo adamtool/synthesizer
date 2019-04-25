@@ -929,7 +929,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD envTransitionCP(Transition t) {
+    protected BDD envTransitionCP(Transition t) {
         BDD env = loops();
         if (!getSolvingObject().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
@@ -995,7 +995,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD envTransitionNotCP(Transition t) {
+    protected BDD envTransitionNotCP(Transition t) {
         BDD env = loops();
         if (!getSolvingObject().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
@@ -1082,7 +1082,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD sysTransitionCP(Transition t) {
+    protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -1186,7 +1186,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD sysTransitionNotCP(Transition t) {
+    protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -1263,7 +1263,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      * Overriden since the standard case only knows type1 places.
      */
     @Override
-    BDD enabled(Transition t, int pos) {
+    protected BDD enabled(Transition t, int pos) {
         return enabled(t, true, pos);
     }
 
@@ -1358,7 +1358,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -1382,13 +1382,13 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     }
 
     @Override
-    BDD calcBadDCSs() {
+    protected BDD calcBadDCSs() {
 //        return ndetStates(0).orWith(wrongTypedDCS().orWith(OBAD[0].ithVar(1)));
         return wrongTypedDCS().orWith(OBAD[0].ithVar(1));
     }
 
     @Override
-    BDD calcSpecialDCSs() {
+    protected BDD calcSpecialDCSs() {
         return winningStates();
     }
  

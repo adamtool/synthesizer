@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
@@ -49,7 +48,6 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
     public BDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(game, winCon);
 //        super(game, skipChecks);
-
         if (!skipChecks) {
             if (!game.getBounded().isSafe()) {
                 throw new NetNotSafeException(game.getBounded().unboundedPlace.toString(), game.getBounded().sequence.toString());
@@ -160,7 +158,9 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
         Benchmarks.getInstance().stop(Benchmarks.Parts.PARTITIONING);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS       
         if (!skipChecks) {
+            Logger.getInstance().addMessage("check partitioning ... ", true);
             PGTools.checkValidPartitioned(getGame());
+            Logger.getInstance().addMessage("... partitionning check done.");
         }
 
         try {
@@ -168,8 +168,12 @@ public class BDDSolvingObject<W extends Condition> extends SolvingObject<PetriGa
             // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;
             places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
-            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
-                places[0] = new HashSet<>();
+            // just do it for all, since user could annotate them badly (skipping ids)
+//            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
+//                places[0] = new HashSet<>();
+//            }
+            for (int i = 0; i < getMaxTokenCount(); i++) {
+                places[i] = new HashSet<>();
             }
             boolean cp = getGame().getValue(CalculatorIDs.CONCURRENCY_PRESERVING.name());
             int additional = cp ? 0 : 1;

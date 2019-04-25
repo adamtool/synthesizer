@@ -81,10 +81,11 @@ public class TestingAllFilesASafety {
             "firstTest.apt", // not safe 
             "nounfolding.apt", // two environment token
             "oneunfolding.apt", // two environment token
-            "trueconcurrent.apt", // two environment token
-            "secondTry.apt", // net not safe p0
-            "finiteWithBad.apt", // net not safe p19
-            "firstTry.apt" // net not safe
+            "trueconcurrent.apt" // two environment token
+            // todo: now safe but todo: check why the error with no env place in sys2 transition comes
+//            "secondTry.apt", // net not safe p0
+//            "finiteWithBad.apt", // net not safe p19
+//            "firstTry.apt" // net not safe
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy

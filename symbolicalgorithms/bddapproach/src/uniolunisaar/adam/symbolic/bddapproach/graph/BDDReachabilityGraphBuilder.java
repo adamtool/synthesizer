@@ -9,7 +9,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 /**
  * @author Manuel Gieseking
  */
-public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
+public class BDDReachabilityGraphBuilder<S extends BDDSolver<? extends Condition>> extends BDDGraphBuilder<S> {
 
     private static BDDReachabilityGraphBuilder instance = null;
 
@@ -25,12 +25,12 @@ public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
     }
 
     @Override
-    void addOneInitState(BDDSolver<? extends Condition> solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
-        addNearestInitState(solver,graph,inits,todoStates,distance);
+    void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+        addNearestInitState(solver, graph, inits, todoStates, distance);
     }
 
     @Override
-    void addOneSuccessor(BDD succs, BDDSolver<? extends Condition> solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
         addState(solver, graph, prev, todoStates, succ);
     }
