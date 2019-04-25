@@ -28,10 +28,10 @@ public class TestStepwiseGraphBuilder {
 
     @BeforeClass
     public void createFolder() {
-        Logger.getInstance().setVerbose(false);
-        Logger.getInstance().setShortMessageStream(null);
-        Logger.getInstance().setVerboseMessageStream(null);
-        Logger.getInstance().setWarningStream(null);
+//        Logger.getInstance().setVerbose(false);
+//        Logger.getInstance().setShortMessageStream(null);
+//        Logger.getInstance().setVerboseMessageStream(null);
+//        Logger.getInstance().setWarningStream(null);
         (new File(outputDir)).mkdirs();
     }
 
@@ -48,6 +48,21 @@ public class TestStepwiseGraphBuilder {
         for (BDDState bDDState : succs.getSecond()) {
             Pair<List<Flow>, List<BDDState>> succers = BDDGraphGameBuilderStepwise.getSuccessors(bDDState, graph, solv);
 
+        }
+    }
+
+    @Test
+    public void testStepwiseFirstExample() throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
+        final String path = inputDir + "firstExamplePaper" + File.separator;
+        final String name = "firstExamplePaper";
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        solv.initialize();
+        BDDGraph graph = new BDDGraph("firstExamplePaper_gg");
+        BDDState init = BDDGraphGameBuilderStepwise.getInitialState(graph, solv);
+        Pair<List<Flow>, List<BDDState>> succs = BDDGraphGameBuilderStepwise.getSuccessors(init, graph, solv);
+        for (BDDState bDDState : succs.getSecond()) {
+//            Pair<List<Flow>, List<BDDState>> succers = BDDGraphGameBuilderStepwise.getSuccessors(bDDState, graph, solv);
+//            System.out.println(bDDState.toString());
         }
     }
 
