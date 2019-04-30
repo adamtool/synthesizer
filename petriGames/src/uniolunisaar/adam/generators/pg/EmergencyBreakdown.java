@@ -24,8 +24,7 @@ public class EmergencyBreakdown {
      */
     public static PetriGame createSafetyVersion(int nb_critical_machines, int nb_noncritical_machines, boolean withPartitioning) {
         if (nb_critical_machines + nb_noncritical_machines < 2) {
-            throw new RuntimeException("less than 2 intruding points are not "
-                    + "interesting for a security system");
+            throw new RuntimeException("less than 2 two machines are not meaningful");
         }
         PetriGame net = PGTools.createPetriGame("Emergency breackdown with " + nb_critical_machines + " intruding " + nb_noncritical_machines + " points");
         PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);

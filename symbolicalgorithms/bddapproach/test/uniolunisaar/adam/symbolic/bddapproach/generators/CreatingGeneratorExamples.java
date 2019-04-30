@@ -295,7 +295,7 @@ public class CreatingGeneratorExamples {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate factory...");
-        PetriGame pn = ManufactorySystem.generate(machines, true, true, true);
+        PetriGame pn = ManufactorySystem.generate(machines, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
         BDDTestingTools.testExample(solv, path + name, true);

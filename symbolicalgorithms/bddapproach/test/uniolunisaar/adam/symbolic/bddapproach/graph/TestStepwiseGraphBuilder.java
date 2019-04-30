@@ -42,11 +42,11 @@ public class TestStepwiseGraphBuilder {
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         solv.initialize();
         BDDGraph graph = new BDDGraph("burglar_gg");
-        BDDState init = BDDGraphGameBuilderStepwise.getInitialState(graph, solv);
-        Pair<List<Flow>, List<BDDState>> succs = BDDGraphGameBuilderStepwise.getSuccessors(init, graph, solv);
+        BDDState init = BDDGraphGameBuilderStepwise.addInitialState(graph, solv);
+        Pair<List<Flow>, List<BDDState>> succs = BDDGraphGameBuilderStepwise.addSuccessors(init, graph, solv);
 
         for (BDDState bDDState : succs.getSecond()) {
-            Pair<List<Flow>, List<BDDState>> succers = BDDGraphGameBuilderStepwise.getSuccessors(bDDState, graph, solv);
+            Pair<List<Flow>, List<BDDState>> succers = BDDGraphGameBuilderStepwise.addSuccessors(bDDState, graph, solv);
 
         }
     }
@@ -58,8 +58,8 @@ public class TestStepwiseGraphBuilder {
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
         solv.initialize();
         BDDGraph graph = new BDDGraph("firstExamplePaper_gg");
-        BDDState init = BDDGraphGameBuilderStepwise.getInitialState(graph, solv);
-        Pair<List<Flow>, List<BDDState>> succs = BDDGraphGameBuilderStepwise.getSuccessors(init, graph, solv);
+        BDDState init = BDDGraphGameBuilderStepwise.addInitialState(graph, solv);
+        Pair<List<Flow>, List<BDDState>> succs = BDDGraphGameBuilderStepwise.addSuccessors(init, graph, solv);
         for (BDDState bDDState : succs.getSecond()) {
 //            Pair<List<Flow>, List<BDDState>> succers = BDDGraphGameBuilderStepwise.getSuccessors(bDDState, graph, solv);
 //            System.out.println(bDDState.toString());

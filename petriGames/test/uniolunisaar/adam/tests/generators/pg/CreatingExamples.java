@@ -193,7 +193,7 @@ public class CreatingExamples {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate factory...");
-        PetriNet pn = ManufactorySystem.generate(machines, true, true, true);
+        PetriNet pn = ManufactorySystem.generate(machines, true, true);
         Tools.savePN(path + name, pn);
         //todo: do testing
     }

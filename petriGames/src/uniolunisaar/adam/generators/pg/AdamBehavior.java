@@ -32,7 +32,7 @@ public class AdamBehavior {
     }
 
     public static PetriGame genJobProcessing(int nb_machines) {
-        PetriGame game = ManufactorySystem.generate(nb_machines, true, true, false);
+        PetriGame game = ManufactorySystem.generate(nb_machines, true, false);
         return game;
     }
 

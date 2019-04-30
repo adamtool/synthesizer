@@ -157,7 +157,7 @@ public class TestingGenerators {
         File f = new File(path);
         f.mkdir();
         System.out.println("Generate factory...");
-        PetriNet pn = ManufactorySystem.generate(machines, true, true, true);
+        PetriNet pn = ManufactorySystem.generate(machines,  true, true);
         //todo: do testing
     }
 

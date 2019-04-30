@@ -15,13 +15,13 @@ import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
  */
 public class BDDGraphGameBuilderStepwise {
 
-    public static BDDState getInitialState(BDDGraph graph, BDDSolver<? extends Condition> solver) {
+    public static BDDState addInitialState(BDDGraph graph, BDDSolver<? extends Condition> solver) {
         BDDState init = graph.addState(solver.getOne(), solver);
         graph.setInitial(init);
         return init;
     }
 
-    public static Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition> solver) {
+    public static Pair<List<Flow>, List<BDDState>> addSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition> solver) {
         // initial states
         if (graph.getInitial().equals(state)) {
             List<Flow> flows = new ArrayList<>();
