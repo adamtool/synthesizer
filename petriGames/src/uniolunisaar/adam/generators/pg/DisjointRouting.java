@@ -27,13 +27,13 @@ public class DisjointRouting {
 			for (State s : ts.getNodes()) {
 				pg.createEnvPlace(s.getId() + "_" + player);
 			}
-			Place firstStep = pg.createPlace("first " + player);
+			Place firstStep = pg.createPlace("first" + player);
 			firstStep.setInitialToken(1);
 			pg.getPlace(ts.getInitialState().getId() + "_" + player).setInitialToken(1);
 			for (Arc a : ts.getEdges()) {
 				String source = a.getSourceId() + "_" + player;
 				String target = a.getTargetId() + "_" + player;
-				Transition t = pg.createTransition(source + "->" + target);
+				Transition t = pg.createTransition(source + "_" + target);
 				pg.createFlow(source, t.getId());
 				pg.createFlow(t.getId(), target);
 				Place active = pg.createEnvPlace(t.getId() + "_active");
@@ -71,8 +71,8 @@ public class DisjointRouting {
 			ts.createState("s" + i);
 		}
 		for (int i = 1; i <= nb_players; ++i) {
-			ts.createArc("s0", "s" + i, "s0->s" + i);
-			ts.createArc("s" + i, "s" + (nb_players + 1), "s" + i + "->s" + (nb_players + 1));
+			ts.createArc("s0", "s" + i, "s0_s" + i);
+			ts.createArc("s" + i, "s" + (nb_players + 1), "s" + i + "_s" + (nb_players + 1));
 		}
 		ts.setInitialState("s0");
 		return ts;
