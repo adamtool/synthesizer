@@ -28,8 +28,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver if a winning strategy exists for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver options are set to the standards
- and no tests are skipped.
+     * suitable Condition. The solver options are set to the standards and no
+     * tests are skipped.
      *
      * @param path
      * @return
@@ -47,8 +47,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver if a winning strategy exists for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver instatiated with the given options
- and no tests are skipped.
+     * suitable Condition. The solver instatiated with the given options and no
+     * tests are skipped.
      *
      * @param path
      * @param so
@@ -67,8 +67,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver if a winning strategy exists for the given
-     * Petri net. Is has to be equipped with a suitable Condition. The
- solver options are set to the standards and no tests are skipped.
+     * Petri net. Is has to be equipped with a suitable Condition. The solver
+     * options are set to the standards and no tests are skipped.
      *
      * @param game
      * @return
@@ -84,8 +84,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver if a winning strategy exists for the given
-     * Petri net. Is has to be equipped with a suitable Condition. The
- solver is initiated with the given options and no tests are skipped.
+     * Petri net. Is has to be equipped with a suitable Condition. The solver is
+     * initiated with the given options and no tests are skipped.
      *
      * @param net
      * @param so
@@ -146,8 +146,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a winning strategy exists for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver options are set to the standards
- and no tests are skipped.
+     * suitable Condition. The solver options are set to the standards and no
+     * tests are skipped.
      *
      * @param path
      * @return
@@ -164,8 +164,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a winning strategy exists for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver instatiated with the given options
- and no tests are skipped.
+     * suitable Condition. The solver instatiated with the given options and no
+     * tests are skipped.
      *
      * @param path
      * @param so
@@ -182,8 +182,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a winning strategy exists for the given
-     * Petri net. Is has to be equipped with a suitable Condition. The
- solver options are set to the standards and no tests are skipped.
+     * Petri net. Is has to be equipped with a suitable Condition. The solver
+     * options are set to the standards and no tests are skipped.
      *
      * @param net
      * @return
@@ -199,8 +199,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a winning strategy exists for the given
-     * Petri net. Is has to be equipped with a suitable Condition. The
- solver is initiated with the given options and no tests are skipped.
+     * Petri net. Is has to be equipped with a suitable Condition. The solver is
+     * initiated with the given options and no tests are skipped.
      *
      * @param net
      * @param so
@@ -261,8 +261,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a winning graph strategy for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver options are set to the standards
- and no tests are skipped.
+     * suitable Condition. The solver options are set to the standards and no
+     * tests are skipped.
      *
      * @param path
      * @return
@@ -279,8 +279,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a winning graph strategy for the a file
      * given by the path. The file in APT format has to be equipped with a
- suitable Condition. The solver instatiated with the given options
- and no tests are skipped.
+     * suitable Condition. The solver instatiated with the given options and no
+     * tests are skipped.
      *
      * @param path
      * @param so
@@ -297,8 +297,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a graph strategy for the given Petri net.
-     * Is has to be equipped with a suitable Condition. The solver
- options are set to the standards and no tests are skipped.
+     * Is has to be equipped with a suitable Condition. The solver options are
+     * set to the standards and no tests are skipped.
      *
      * @param net
      * @return
@@ -314,8 +314,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a winning graph strategy for the given
-     * Petri net. Is has to be equipped with a suitable Condition. The
- solver is initiated with the given options and no tests are skipped.
+     * Petri net. Is has to be equipped with a suitable Condition. The solver is
+     * initiated with the given options and no tests are skipped.
      *
      * @param net
      * @param so
@@ -376,8 +376,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a graph game for the a file given by the
      * path. The file in APT format has to be equipped with a suitable
- Condition. The solver options are set to the standards and no
- tests are skipped.
+     * Condition. The solver options are set to the standards and no tests are
+     * skipped.
      *
      * @param path
      * @return
@@ -394,8 +394,8 @@ public class AdamBehavior {
     /**
      * Calculates with the BDDSolver a graph game for the a file given by the
      * path. The file in APT format has to be equipped with a suitable
- Condition. The solver instatiated with the given options and no
- tests are skipped.
+     * Condition. The solver instatiated with the given options and no tests are
+     * skipped.
      *
      * @param path
      * @param so
@@ -412,8 +412,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a graph game for the given Petri net. Is
- has to be equipped with a suitable Condition. The solver options
- are set to the standards and no tests are skipped.
+     * has to be equipped with a suitable Condition. The solver options are set
+     * to the standards and no tests are skipped.
      *
      * @param net
      * @return
@@ -429,8 +429,8 @@ public class AdamBehavior {
 
     /**
      * Calculates with the BDDSolver a graph game for the given Petri net. Is
- has to be equipped with a suitable Condition. The solver is
- initiated with the given options and no tests are skipped.
+     * has to be equipped with a suitable Condition. The solver is initiated
+     * with the given options and no tests are skipped.
      *
      * @param net
      * @param so
@@ -491,10 +491,9 @@ public class AdamBehavior {
      * the path.
      *
      * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
-
- The file in APT format has to be equipped with a suitable
- Condition. The solver options are set to the standards and no
- tests are skipped.
+     *
+     * The file in APT format has to be equipped with a suitable Condition. The
+     * solver options are set to the standards and no tests are skipped.
      *
      * @param path
      * @return
@@ -513,10 +512,9 @@ public class AdamBehavior {
      * given by the path.
      *
      * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
-
- The file in APT format has to be equipped with a suitable
- Condition. The solver instatiated with the given options and no
- tests are skipped.
+     *
+     * The file in APT format has to be equipped with a suitable Condition. The
+     * solver instatiated with the given options and no tests are skipped.
      *
      * @param path
      * @param so
@@ -536,9 +534,9 @@ public class AdamBehavior {
      * Petri net.
      *
      * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
-
- Is has to be equipped with a suitable Condition. The solver
- options are set to the standards and no tests are skipped.
+     *
+     * Is has to be equipped with a suitable Condition. The solver options are
+     * set to the standards and no tests are skipped.
      *
      * @param net
      * @return
@@ -557,9 +555,9 @@ public class AdamBehavior {
      * Petri net.
      *
      * THIS IS MUCH CHEAPER THAN CREATING THEM INDIVIDUALLY.
-
- Is has to be equipped with a suitable Condition. The solver is
- initiated with the given options and no tests are skipped.
+     *
+     * Is has to be equipped with a suitable Condition. The solver is initiated
+     * with the given options and no tests are skipped.
      *
      * @param net
      * @param so

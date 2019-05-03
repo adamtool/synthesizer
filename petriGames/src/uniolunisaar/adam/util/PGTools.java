@@ -35,6 +35,7 @@ import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
 import uniolunisaar.adam.tools.ExternalProcessHandler;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.PetriNetExtensionHandler;
 import uniolunisaar.adam.tools.ProcessPool;
 import uniolunisaar.adam.util.pg.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
@@ -622,7 +623,7 @@ public class PGTools {
         }
         String[] command = {"dot", "-Tpdf", path + ".dot", "-o", path + ".pdf"};
         ExternalProcessHandler procH = new ExternalProcessHandler(true, command);
-        ProcessPool.getInstance().putProcess(game.getName() + "#dot", procH);
+        ProcessPool.getInstance().putProcess(PetriNetExtensionHandler.getProcessFamilyID(game) + "#dot", procH);
         // start it in an extra thread
         Thread thread = new Thread(() -> {
             try {

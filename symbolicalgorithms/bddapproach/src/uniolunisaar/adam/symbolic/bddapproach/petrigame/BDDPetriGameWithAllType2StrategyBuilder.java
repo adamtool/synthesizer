@@ -35,8 +35,8 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         BDDPetriGameStrategyBuilder.getInstance();
     }
 
-    private boolean firstType2State = true;
-    private Map<BDD, List<Place>> visitedType2Markings;
+    private boolean firstType2State = true; // no problem for thread safety as long the deprecated methods are not used
+    private Map<BDD, List<Place>> visitedType2Markings;// no problem for thread safety as long the deprecated methods are not used
     private int type2Ids = 0;
 
     @Override
