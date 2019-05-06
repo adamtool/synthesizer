@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
@@ -49,12 +50,16 @@ public class CreatingGeneratorExamples {
 
     private static final String outputDir = System.getProperty("testoutputfolder") + "/generators/";
 
+        @BeforeMethod
+        public void silence() {
+            Logger.getInstance().setVerbose(false);
+            Logger.getInstance().setShortMessageStream(null);
+            Logger.getInstance().setVerboseMessageStream(null);
+            Logger.getInstance().setWarningStream(null);
+        }
+
     @BeforeClass
     public void createFolder() {
-        Logger.getInstance().setVerbose(false);
-        Logger.getInstance().setShortMessageStream(null);
-        Logger.getInstance().setVerboseMessageStream(null);
-        Logger.getInstance().setWarningStream(null);
         (new File(outputDir)).mkdirs();
     }
 
@@ -234,7 +239,7 @@ public class CreatingGeneratorExamples {
         String name = count + "_clerks";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate clerks ...");
+        Logger.getInstance().addMessage("Generate clerks ...");
         PetriGame pn = Clerks.generateNonCP(count, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -246,7 +251,7 @@ public class CreatingGeneratorExamples {
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate robots ...");
+        Logger.getInstance().addMessage("Generate robots (robotCell) ...");
         PetriGame pn = RobotCell.generate(robots, destroyable, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -258,7 +263,7 @@ public class CreatingGeneratorExamples {
         String name = robots + "_robots_" + destroyable + "destr";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate robots ...");
+        Logger.getInstance().addMessage("Generate robots (std) ...");
         PetriGame pn = SelfOrganizingRobots.generate(robots, destroyable, true, false);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
@@ -270,7 +275,7 @@ public class CreatingGeneratorExamples {
         String name = "R" + robots + "T" + tools + "P" + phases;
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate robots ...");
+        Logger.getInstance().addMessage("Generate robots (new) ...");
         PetriGame pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
@@ -282,7 +287,7 @@ public class CreatingGeneratorExamples {
         String name = "R" + robots + "T" + tools + "P" + phases;
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate robots ...");
+        Logger.getInstance().addMessage("Generate robots (bengt)...");
         PetriGame pn = SelfOrganizingRobots.generateImproved(robots, tools, phases, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, false);
@@ -294,7 +299,7 @@ public class CreatingGeneratorExamples {
         String name = machines + "_machines";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate factory...");
+        Logger.getInstance().addMessage("Generate factory...");
         PetriGame pn = ManufactorySystem.generate(machines, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -306,7 +311,7 @@ public class CreatingGeneratorExamples {
         String name = machines + "_machines_" + pieces + "_pieces";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate Workflow...");
+        Logger.getInstance().addMessage("Generate Workflow...");
         PetriGame pn = Workflow.generate(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -318,7 +323,7 @@ public class CreatingGeneratorExamples {
         String name = machines + "_machines_" + pieces + "_pieces";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate Workflow...");
+        Logger.getInstance().addMessage("Generate Workflow...");
         PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
         PNWTTools.saveAPT(path + name, pn, true);
@@ -331,7 +336,7 @@ public class CreatingGeneratorExamples {
         String name = intrudingPoints + "_secSystems";
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate security System...");
+        Logger.getInstance().addMessage("Generate security System...");
         PetriGame pn = SecuritySystem.createReachabilityVersion(intrudingPoints, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -344,7 +349,7 @@ public class CreatingGeneratorExamples {
         String name = "Erouting_" + nb_routings + "_cars_" + nb_cars;
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate routing...");
+        Logger.getInstance().addMessage("Generate routing...");
         PetriGame pn = CarRouting.createEReachabilityVersion(nb_routings, nb_cars, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -357,7 +362,7 @@ public class CreatingGeneratorExamples {
         String name = "Arouting_" + nb_routings + "_cars_" + nb_cars;
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate routing...");
+        Logger.getInstance().addMessage("Generate routing...");
         PetriGame pn = CarRouting.createAReachabilityVersion(nb_routings, nb_cars, true);
         Tools.savePN(path + name, pn);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
@@ -378,7 +383,7 @@ public class CreatingGeneratorExamples {
         String name = "ARErouting_" + nb_routings + "_cars_" + nb_cars;
         File f = new File(path);
         f.mkdir();
-        System.out.println("Generate routing...");
+        Logger.getInstance().addMessage("Generate routing...");
         PetriGame pn = CarRouting.createAReachabilityVersionWithRerouting(nb_routings, nb_cars, true);
         PNWTTools.saveAPT(path + name, pn, true);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
