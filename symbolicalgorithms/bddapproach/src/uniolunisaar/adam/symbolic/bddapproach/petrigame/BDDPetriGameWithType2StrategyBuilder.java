@@ -16,6 +16,7 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDType2Solver;
 
 /**
+ * TODO: Attention this method is currently not thread safe!
  * @author Manuel Gieseking
  */
 public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBuilder {

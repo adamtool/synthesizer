@@ -25,6 +25,7 @@ import uniolunisaar.adam.util.pg.ExtensionCalculator;
 import uniolunisaar.adam.util.pg.ExtensionCleaner;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.tools.PetriNetExtensionHandler;
 
 /**
  *
@@ -46,6 +47,7 @@ public class PetriGame extends PetriNetWithTransits {
      */
     public PetriGame(String name, ExtensionCalculator<?>... calc) {
         super(name);
+        PetriNetExtensionHandler.setProcessFamilyID(this, name + Thread.currentThread().getName());
         for (ExtensionCalculator<?> extensionCalculator : calc) {
             addExtensionCalculator(extensionCalculator.getKey(), extensionCalculator);
         }
@@ -57,6 +59,7 @@ public class PetriGame extends PetriNetWithTransits {
 
     public PetriGame(PetriNet pn, boolean skipChecks, ExtensionCalculator<?>... calc) throws NotSupportedGameException {
         super(pn);
+        PetriNetExtensionHandler.setProcessFamilyID(this, pn.getName() + Thread.currentThread().getName());
         for (ExtensionCalculator<?> extensionCalculator : calc) {
             addExtensionCalculator(extensionCalculator.getKey(), extensionCalculator);
         }

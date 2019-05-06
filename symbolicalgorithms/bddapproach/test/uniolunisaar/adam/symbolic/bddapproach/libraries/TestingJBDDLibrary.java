@@ -11,6 +11,7 @@ import net.sf.javabdd.BDDFactory;
 import net.sf.javabdd.BDDPairing;
 import net.sf.javabdd.JFactory;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.io.parser.ParseException;
@@ -40,6 +41,14 @@ public class TestingJBDDLibrary {
     private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
+    @BeforeClass
+    public void silence() {
+        Logger.getInstance().setVerbose(false);
+        Logger.getInstance().setShortMessageStream(null);
+        Logger.getInstance().setVerboseMessageStream(null);
+        Logger.getInstance().setWarningStream(null);
+    }
+
     @Test
     public static void testCallings() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
@@ -56,19 +65,19 @@ public class TestingJBDDLibrary {
         BDD firstVars = fac.ithVar(0).and(fac.ithVar(1).and(fac.ithVar(2)));
         BDD f = fac.zero();
         BDDTools.printDecisionSets(f);
-        Assert.assertEquals(f.satCount(firstVars), 0.0);        
+        Assert.assertEquals(f.satCount(firstVars), 0.0);
         f = fac.one();
         BDDTools.printDecisionSets(f);
-        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, fac.varNum()/2));
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, fac.varNum() / 2));
         f = fac.ithVar(0);
         BDDTools.printDecisionSets(f);
-        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1) / 2));
         f = fac.ithVar(1);
         BDDTools.printDecisionSets(f);
-        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1) / 2));
         f = fac.nithVar(1);
         BDDTools.printDecisionSets(f);
-        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1)/2));
+        Assert.assertEquals(f.satCount(firstVars), Math.pow(2, (fac.varNum() - 1) / 2));
         f = fac.nithVar(1).and(fac.ithVar(1));
         BDDTools.printDecisionSets(f);
         Assert.assertEquals(f.satCount(firstVars), 0.0);
@@ -121,7 +130,7 @@ public class TestingJBDDLibrary {
     }
 
     @Test
-    public void jbdd() {
+    public void jbdd() throws NoSuchMethodException {
         //BDDFactory bdd = CUDDFactory.init(NODENUM, CACHESIZE);
         BDDFactory bdd = JFactory.init(NODENUM, CACHESIZE);
 
@@ -170,9 +179,15 @@ public class TestingJBDDLibrary {
     }
 
     @Test
-    public void testVariableOrder() {
+    public void testVariableOrder() throws NoSuchMethodException {
         BDDFactory bdd = JFactory.init(NODENUM, CACHESIZE);
         bdd.setVarNum(10);
+        Method m = JavaBDDCallback.class.getMethod("outGCStats", Integer.class, BDDFactory.GCStats.class);
+        bdd.registerGCCallback(new JavaBDDCallback(bdd), m);
+        m = JavaBDDCallback.class.getMethod("outReorderStats", Integer.class, BDDFactory.ReorderStats.class);
+        bdd.registerReorderCallback(new JavaBDDCallback(bdd), m);
+        m = JavaBDDCallback.class.getMethod("outResizeStats", Integer.class, Integer.class);
+        bdd.registerResizeCallback(new JavaBDDCallback(bdd), m);
 
         BDD first = bdd.ithVar(0);
         first = first.and(bdd.nithVar(1));
@@ -464,12 +479,20 @@ public class TestingJBDDLibrary {
     }
 
     @Test
-    public void testDomain2() {
+    public void testDomain2() throws NoSuchMethodException {
         int env_size = 4;
         int sys_size = 6;
         BigInteger maxTrans = BigInteger.valueOf(2);
         maxTrans = maxTrans.pow(9);
         BDDFactory fac = JFactory.init(NODENUM, CACHESIZE);
+
+        Method m = JavaBDDCallback.class.getMethod("outGCStats", Integer.class, BDDFactory.GCStats.class);
+        fac.registerGCCallback(new JavaBDDCallback(fac), m);
+        m = JavaBDDCallback.class.getMethod("outReorderStats", Integer.class, BDDFactory.ReorderStats.class);
+        fac.registerReorderCallback(new JavaBDDCallback(fac), m);
+        m = JavaBDDCallback.class.getMethod("outResizeStats", Integer.class, Integer.class);
+        fac.registerResizeCallback(new JavaBDDCallback(fac), m);
+
         for (int j = 0; j < 2; j++) {
             // env place 
             fac.extDomain(env_size);

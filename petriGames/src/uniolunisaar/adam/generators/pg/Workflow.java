@@ -10,7 +10,7 @@ import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
 
 /**
- *
+ * The concurrent machines benchmark
  * @author Manuel Gieseking
  */
 public class Workflow {

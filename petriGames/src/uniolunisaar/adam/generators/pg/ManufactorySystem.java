@@ -16,6 +16,15 @@ import uniolunisaar.adam.util.PNWTTools;
  */
 public class ManufactorySystem {
 
+    /**
+     *
+     * generates the Job Processing example of the ADAM paper
+     *
+     * @param size
+     * @param withPartition
+     * @param withMaxToken
+     * @return
+     */
     public static PetriGame generate(int size, boolean withPartition, boolean withMaxToken) {
         if (size < 2) {
             throw new RuntimeException("less than 2 machines does not make any sense!");
