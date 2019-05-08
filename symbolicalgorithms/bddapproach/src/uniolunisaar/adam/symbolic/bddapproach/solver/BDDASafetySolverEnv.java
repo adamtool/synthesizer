@@ -139,7 +139,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -155,12 +155,12 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
     }
 
     @Override
-    BDD calcBadDCSs() {
+    protected BDD calcBadDCSs() {
         return bad();
     }
 
     @Override
-    BDD calcSpecialDCSs() {
+    protected BDD calcSpecialDCSs() {
         return getFactory().zero();
     }
 

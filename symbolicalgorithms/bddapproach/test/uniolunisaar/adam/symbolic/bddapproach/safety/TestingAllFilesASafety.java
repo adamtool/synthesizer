@@ -82,9 +82,10 @@ public class TestingAllFilesASafety {
             "nounfolding.apt", // two environment token
             "oneunfolding.apt", // two environment token
             "trueconcurrent.apt", // two environment token
-            "secondTry.apt", // net not safe p0
-            "finiteWithBad.apt", // net not safe p19
-            "firstTry.apt", // net not safe
+            // todo: now safe but todo: check why the error with no env place in sys2 transition comes
+            //            "secondTry.apt", // net not safe p0
+            //            "finiteWithBad.apt", // net not safe p19
+            //            "firstTry.apt" // net not safe
             "DR2-2.apt", // error in the naming of the transitions
             "independentNets.apt" //  more than one env token
     ));
@@ -134,8 +135,8 @@ public class TestingAllFilesASafety {
 //            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
 //            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
 //        } else {
-            String output = outputDir + file.getName().split(".apt")[0];
-            BDDTestingTools.testExample(solv, output, hasStrategy);
+        String output = outputDir + file.getName().split(".apt")[0];
+        BDDTestingTools.testExample(solv, output, hasStrategy);
 //        }
     }
 }

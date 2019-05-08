@@ -826,7 +826,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -848,12 +848,12 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD calcBadDCSs() {
+    protected BDD calcBadDCSs() {
         return getBufferedNDet().orWith(OBAD[0].ithVar(1));
     }
 
     @Override
-    BDD calcSpecialDCSs() {
+    protected BDD calcSpecialDCSs() {
         return winningStates();
     }
 

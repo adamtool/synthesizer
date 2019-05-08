@@ -325,7 +325,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD envTransitionCP(Transition t) {
+    protected BDD envTransitionCP(Transition t) {
         BDD env = loops();
         if (!getSolvingObject().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
@@ -372,7 +372,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD envTransitionNotCP(Transition t) {
+    protected BDD envTransitionNotCP(Transition t) {
         BDD env = loops();
         if (!getSolvingObject().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
@@ -435,7 +435,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD sysTransitionCP(Transition t) {
+    protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -494,7 +494,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD sysTransitionNotCP(Transition t) {
+    protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -562,7 +562,7 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
      * @return
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -584,12 +584,12 @@ public class BDDEBuechiSolver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD calcBadDCSs() {
+    protected BDD calcBadDCSs() {
         return getBufferedNDet();
     }
 
     @Override
-    BDD calcSpecialDCSs() {
+    protected BDD calcSpecialDCSs() {
         return buchiStates();
     }
 

@@ -380,7 +380,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD envTransitionCP(Transition t) {
+    protected BDD envTransitionCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0); // the transition should be enabled and choosen!
@@ -432,7 +432,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD envTransitionNotCP(Transition t) {
+    protected BDD envTransitionNotCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
             Set<Place> pre_sys = t.getPreset();
             BDD all = firable(t, 0);
@@ -492,7 +492,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD sysTransitionCP(Transition t) {
+    protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -557,7 +557,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD sysTransitionNotCP(Transition t) {
+    protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -619,7 +619,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * place is able the be reached against all behavior of the environment.
      */
     @Override
-    BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -635,12 +635,12 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
     }
 
     @Override
-    BDD calcBadDCSs() {
+    protected BDD calcBadDCSs() {
         return winningStates();
     }
 
     @Override
-    BDD calcSpecialDCSs() {
+    protected BDD calcSpecialDCSs() {
         return getFactory().zero();
     }
 
