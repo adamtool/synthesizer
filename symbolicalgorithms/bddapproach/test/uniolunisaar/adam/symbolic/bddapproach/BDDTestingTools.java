@@ -55,7 +55,7 @@ public class BDDTestingTools {
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
         boolean det = PGTools.isDeterministic(strats.getSecond(), cover);
         Assert.assertTrue(det, strats.getSecond().getName() + " is deterministic");
-        boolean res = PGTools.restrictsEnvTransition(solv.getGame(), strats.getSecond());
+        boolean res = PGTools.restrictsEnvTransition(solv.getGame(), strats.getSecond(), false);
         Assert.assertFalse(res, strats.getSecond().getName() + " restricts Environment Transitions");
         if (!(solv.getWinningCondition().getObjective().equals(Condition.Objective.A_REACHABILITY) || solv.getWinningCondition().getObjective().equals(Condition.Objective.E_REACHABILITY))) {
             if (!solv.getWinningCondition().getObjective().equals(Condition.Objective.E_SAFETY)) { // todo: we have to develop a notion for deadlock-avoiding but ok when goal reached

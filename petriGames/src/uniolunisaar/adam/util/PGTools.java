@@ -209,7 +209,7 @@ public class PGTools {
         return true;
     }
 
-    public static boolean restrictsEnvTransition(PetriGame origNet, PetriGame strat) {
+    public static boolean restrictsEnvTransition(PetriGame origNet, PetriGame strat, boolean withReachableCheck) {
         for (Place place : strat.getPlaces()) { // every env place of the strategy
             if (strat.isEnvironment(place)) {
                 String id = strat.getOrigID(place);
@@ -222,10 +222,34 @@ public class PGTools {
                             // we must find the id of transition "transition"
                             if (t.getLabel().equals(transition.getId())) {
                                 found = true;
+                                break;
                             }
                         }
                         if (!found) {
-                            return true;
+                            if (withReachableCheck) {
+                                // check whether the reason that there is no corresponding
+                                // transition in the strategy is that the original transition
+                                // is not reachable in the strategy
+                                Set<Place> origPre = transition.getPreset();
+                                CoverabilityGraph cover = strat.getReachabilityGraph();
+                                for (Iterator<CoverabilityGraphNode> it = cover.getNodes().iterator(); it.hasNext();) {
+                                    CoverabilityGraphNode node = it.next();
+                                    Marking m = node.getMarking();
+                                    Set<Place> stratPre = new HashSet<>();
+                                    for (Place stratPlace : strat.getPlaces()) {
+                                        if (m.getToken(stratPlace).getValue() > 0) {
+                                            if (origPre.contains(origNet.getPlace(strat.getOrigID(stratPlace)))) {
+                                                stratPre.add(stratPlace);
+                                            }
+                                        }
+                                    }
+                                    if (origPre.size() == stratPre.size()) {
+                                        return true;
+                                    }
+                                }
+                            } else {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -388,7 +412,7 @@ public class PGTools {
         }
     }
 
-    public static boolean checkStrategy(PetriGame origNet, PetriGame strat) {
+    public static boolean checkStrategy(PetriGame origNet, PetriGame strat, boolean withReachabillityCheck) {
         boolean isStrat = true;
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
         // deadlock avoiding
@@ -396,7 +420,7 @@ public class PGTools {
         // (S1)
         isStrat &= isDeterministic(strat, cover);
         // (S2)
-        isStrat &= !restrictsEnvTransition(origNet, strat);
+        isStrat &= !restrictsEnvTransition(origNet, strat, withReachabillityCheck);
         return isStrat;
     }
 
