@@ -13,6 +13,7 @@ import uniolunisaar.adam.tools.Logger;
 
 /**
  * @author Manuel Gieseking
+ * @param <S>
  */
 public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
 
@@ -171,7 +172,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
 
     /**
      * find a smarter solution. Problem is there is no distances added by the
-     * super class for enviroment state and the intital state. (only needed for
+     * super class for environment state and the initial state. (only needed for
      * the addOneSuccessor for reachability and buchi graph builder)
      *
      * @param state

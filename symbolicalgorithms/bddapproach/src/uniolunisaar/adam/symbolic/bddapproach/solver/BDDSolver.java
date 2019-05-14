@@ -1143,14 +1143,18 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         return !((getBufferedWinDCSs().and(getInitialDCSs())).isZero());
     }
 
+    protected BDDGraph calculateGraphGame() throws CalculationInterruptedException {
+        return BDDGraphBuilder.getInstance().builtGraph(this);
+    }
+
     public BDDGraph getGraphGame() throws CalculationInterruptedException {
         if (!initialized) {
             initialize();
         }
-        return BDDGraphBuilder.getInstance().builtGraph(this);
+        return calculateGraphGame();
     }
 
-    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
+    protected BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
