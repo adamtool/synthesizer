@@ -87,7 +87,8 @@ public class TestingAllFilesASafety {
             //            "finiteWithBad.apt", // net not safe p19
             //            "firstTry.apt" // net not safe
             "DR2-2.apt", // error in the naming of the transitions
-            "independentNets.apt" //  more than one env token
+            "independentNets.apt", //  more than one env token
+            "unreachableEnvTransition2.apt" //  two env token
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy
