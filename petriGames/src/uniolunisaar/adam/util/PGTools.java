@@ -33,6 +33,7 @@ import uniolunisaar.adam.logic.pg.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
+import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.ExternalProcessHandler;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.PetriNetExtensionHandler;
@@ -465,14 +466,15 @@ public class PGTools {
 
     /**
      * It is a copy of the method pnwt2dot only adds the gray color for system
-     * places.
+     * places. Debugging true results in colouring the places according to their
+     * partition. the maxtoken calculator must be added for that.
      *
      * @param game
      * @param withLabel
-     * @param tokencount
+     * @param withDebugging
      * @return
      */
-    public static String pg2Dot(PetriGame game, boolean withLabel, Integer tokencount) {
+    public static String pg2Dot(PetriGame game, boolean withLabel, boolean withDebugging) {
         final String placeShape = "circle";
         final String specialPlaceShape = "doublecircle";
 
@@ -525,9 +527,10 @@ public class PGTools {
                         sb.append(", dashed");
                     }
                     sb.append("\", fillcolor=");
-                    if (tokencount == null) {
+                    if (!withDebugging) {
                         sb.append("gray");
                     } else {
+                        long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
                         sb.append("\"");
                         float val = ((t + 1) * 1.f) / (tokencount * 1.f);
                         sb.append(val).append(" ").append(val).append(" ").append(val);
@@ -627,7 +630,7 @@ public class PGTools {
     }
 
     public static String petriGame2Dot(PetriGame game, boolean withLabel) {
-        return pg2Dot(game, withLabel, null);
+        return pg2Dot(game, withLabel, false);
     }
 
     public static void savePG2Dot(String input, String output, boolean withLabel) throws IOException, ParseException, NotSupportedGameException {
@@ -636,36 +639,34 @@ public class PGTools {
     }
 
     public static void savePG2Dot(String path, PetriGame game, boolean withLabel) throws FileNotFoundException {
-        savePG2Dot(path, game, withLabel, -1);
+        savePG2Dot(path, game, withLabel, false);
     }
 
-    public static void savePG2Dot(String path, PetriGame game, boolean withLabel, Integer tokencount) throws FileNotFoundException {
+    public static void savePG2Dot(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
-            if (tokencount == -1) {
-                out.println(pg2Dot(game, withLabel, null));
-            } else {
-                out.println(pg2Dot(game, withLabel, tokencount));
-            }
+            out.println(pg2Dot(game, withLabel, withDebugging));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }
 
     public static Thread savePG2DotAndPDF(String input, String output, boolean withLabel) throws IOException, InterruptedException, ParseException, NotSupportedGameException {
-        PetriGame game = new PetriGame(new AptPNParser().parseFile(input));
-        return savePG2DotAndPDF(output, game, withLabel);
+        return savePG2DotAndPDF(input, output, withLabel, false);
+    }
+
+    public static Thread savePG2DotAndPDF(String input, String output, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException, ParseException, NotSupportedGameException {
+        PetriGame game = withDebugging ? new PetriGame(new AptPNParser().parseFile(input), new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator())
+                : new PetriGame(new AptPNParser().parseFile(input));
+        return savePG2DotAndPDF(output, game, withLabel, withDebugging);
     }
 
     public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel) throws IOException, InterruptedException {
-        return savePG2DotAndPDF(path, game, withLabel, -1);
+        return savePG2DotAndPDF(path, game, withLabel, false);
     }
 
-    public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel, Integer tokencount) throws IOException, InterruptedException {
-        if (tokencount == -1) {
-            savePG2Dot(path, game, withLabel);
-        } else {
-            savePG2Dot(path, game, withLabel, tokencount);
-        }
-        String[] command = {"dot", "-Tpdf", path + ".dot", "-o", path + ".pdf"};
+    public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
+        savePG2Dot(path, game, withLabel, withDebugging);
+        String dot = AdamProperties.getInstance().getProperty(AdamProperties.DOT);
+        String[] command = {dot, "-Tpdf", path + ".dot", "-o", path + ".pdf"};
         ExternalProcessHandler procH = new ExternalProcessHandler(true, command);
         ProcessPool.getInstance().putProcess(PetriNetExtensionHandler.getProcessFamilyID(game) + "#dot", procH);
         // start it in an extra thread
@@ -692,17 +693,13 @@ public class PGTools {
     }
 
     public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel) throws IOException, InterruptedException {
-        return savePG2PDF(path, game, withLabel, -1);
+        return savePG2PDF(path, game, withLabel, false);
     }
 
-    public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel, Integer tokencount) throws IOException, InterruptedException {
+    public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
         String bufferpath = path + "_" + System.currentTimeMillis();
         Thread dot;
-        if (tokencount == -1) {
-            dot = savePG2DotAndPDF(bufferpath, game, withLabel);
-        } else {
-            dot = savePG2DotAndPDF(bufferpath, game, withLabel, tokencount);
-        }
+        dot = savePG2DotAndPDF(bufferpath, game, withLabel, withDebugging);
         Thread mvPdf = new Thread(() -> {
             try {
                 dot.join();

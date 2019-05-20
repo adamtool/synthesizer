@@ -22,6 +22,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -858,7 +859,8 @@ public class BDDTools {
     public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends Condition> solver) throws IOException, InterruptedException {
         saveGraph2Dot(path, g, solver);
         Runtime rt = Runtime.getRuntime();
-        String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
+        String dot = AdamProperties.getInstance().getProperty(AdamProperties.DOT);
+        String exString = dot + " -Tpdf " + path + ".dot -o " + path + ".pdf";
         Process p = rt.exec(exString);
         p.waitFor();
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
@@ -881,7 +883,8 @@ public class BDDTools {
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
         Runtime rt = Runtime.getRuntime();
-        String exString = "dot -Tpdf " + path + ".dot -o " + path + ".pdf";
+        String dot = AdamProperties.getInstance().getProperty(AdamProperties.DOT);
+        String exString = dot + " -Tpdf " + path + ".dot -o " + path + ".pdf";
         Process p = rt.exec(exString);
         p.waitFor();
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);

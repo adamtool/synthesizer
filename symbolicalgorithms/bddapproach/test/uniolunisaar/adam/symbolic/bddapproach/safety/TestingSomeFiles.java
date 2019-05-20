@@ -216,7 +216,8 @@ public class TestingSomeFiles {
 
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true);
+        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
+        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
     
     

@@ -46,8 +46,8 @@ public class TestingAllFilesASafety {
             "vsp__adam_machines.apt",
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
             "nondet.apt",
-            "nondet_withBad.apt", // has a strategy since nondet is overseen
-            "nondet2WithSys.apt", // has a strategy since nondet is overseen
+            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
+            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
@@ -63,7 +63,8 @@ public class TestingAllFilesASafety {
             "robinhood.apt",
             "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
             "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
-            "myexample000.apt"
+            "myexample000.apt",
+            "journalReview2.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             "container.apt", // takes to long ... 
