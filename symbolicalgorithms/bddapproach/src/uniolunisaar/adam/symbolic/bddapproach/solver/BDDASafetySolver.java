@@ -434,7 +434,10 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
      */
     BDD wrongTypedDCS() {
         // not(type2 => type2Trap)
-        BDD wrongTyped2 = type2().andWith(getBufferedType2Trap().not());
+        BDD buf = getBufferedType2Trap();
+        BDD buff = buf.not();
+//        BDD wrongTyped2 = type2().andWith(getBufferedType2Trap().not());
+        BDD wrongTyped2 = type2().andWith(buff);
         // it is typed as 1 but when its type is 2 it belongs to the trap
         BDD wrongType1 = wrongTypedType1DCS();
         return wrongType1.orWith(wrongTyped2);
@@ -442,8 +445,12 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
 
     private BDD wrongTypedType1DCS() {
         BDD type2 = getBufferedType2Trap();
-        for (int i = 0; i < getSolvingObject().getMaxTokenCountInt() - 1; i++) {
+        int max = getSolvingObject().getMaxTokenCountInt();
+        for (int i = 0; i < max - 1; i++) {
             type2 = type2.exist(TYPE[0][i].set());
+        }
+        if (max <= 1) {
+            type2 = type2.id();
         }
         return type2.andWith(getBufferedType2Trap().not());
     }

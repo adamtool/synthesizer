@@ -244,11 +244,11 @@ public class TestingSomeFiles {
     @Test
     public void testNoSysPlaces() throws Exception {
         final String path = inputDir + "jhh" + File.separator;
-        final String name = "myexample0.apt";
+        final String name = "myexample0";
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
-        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
 }

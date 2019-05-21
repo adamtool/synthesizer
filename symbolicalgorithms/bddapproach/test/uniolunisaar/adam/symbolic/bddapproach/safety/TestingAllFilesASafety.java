@@ -59,6 +59,8 @@ public class TestingAllFilesASafety {
             "nondet_jhh3.apt",
             "nondet2SelectionToken.apt",
             "robinhood.apt",
+            "myexample0.apt",
+            "myexample00.apt",
             "myexample000.apt",
             // %%%% Examples which should have a strategy for the journal version of the nondeterminism
             "journalReview2.apt", // should only have a strategy for the journal version of the ndet
