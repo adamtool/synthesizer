@@ -45,9 +45,7 @@ public class TestingAllFilesASafety {
             "tafel_3.apt",
             "vsp__adam_machines.apt",
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
-            "nondet.apt",
-            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
-            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
+            "nondet.apt",            
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
@@ -61,35 +59,47 @@ public class TestingAllFilesASafety {
             "nondet_jhh3.apt",
             "nondet2SelectionToken.apt",
             "robinhood.apt",
-            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
-            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
             "myexample000.apt",
-            "journalReview2.apt"
+            // %%%% Examples which should have a strategy for the journal version of the nondeterminism
+            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
+            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
+            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
+            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
+            "nondet2WithStratByGameSolving.apt" // should have a strategy for the original definition of ndet
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            // %%%% Examples skipped for saving time
             "container.apt", // takes to long ... 
             "container_withoutAnnotation.apt", // takes to long
+            // %%%% Missing partitioning of the places regarding their occupation by tokesn
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
-            "myexample7.apt", // has two environment token
+            // %%%% Not safe nets
             "wf_2_3_pg_reversible.apt", // currently unbounded
+            "firstTest.apt", // not safe            
+            // %%%% High-level versions            
+            "burglar-HL.apt",// high-level version
+            // %%%% Not parsable by APT            
+            "DR2-2.apt", // error in the naming of the transitions
+            // %%%% More than one environment player
+            "myexample7.apt", // has two environment token
             "sendingprotocolTwo.apt",// two environment token
             "toMakeCP.apt",// two environment token
             "madeCP.apt",// two environment token
             "paul.apt",// two environment token
             "nondet_motivationForSchedulingChange.apt",// two environment token
-            "burglar-HL.apt",// high-level version
-            "firstTest.apt", // not safe 
             "nounfolding.apt", // two environment token
             "oneunfolding.apt", // two environment token
             "trueconcurrent.apt", // two environment token
-            // todo: now safe but todo: check why the error with no env place in sys2 transition comes
+            "independentNets.apt", //  more than one env token
+            "unreachableEnvTransition2.apt", //  two env token            
             //            "secondTry.apt", // net not safe p0
             //            "finiteWithBad.apt", // net not safe p19
             //            "firstTry.apt" // net not safe
-            "DR2-2.apt", // error in the naming of the transitions
-            "independentNets.apt", //  more than one env token
-            "unreachableEnvTransition2.apt" //  two env token
+            // now safe but:
+            "firstTry.apt", //  two env token
+            "secondTry.apt", //  two env token
+            "finiteWithBad.apt" //  two env token
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy

@@ -135,7 +135,6 @@ public class TestingSomeFiles {
 ////        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
 ////        BDDTestingTools.testExample(solv, outputDir + name, false);
 //    }
-
     @Test
     public void testNdet2WithSys() throws IOException, SolvingException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + "ndet" + File.separator;
@@ -152,7 +151,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet_s3_noStrat";
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
-        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
+        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
     }
 
@@ -216,11 +215,10 @@ public class TestingSomeFiles {
 
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
+//        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
-    
-    
+
     @Test(enabled = true)
     public void testNotCP() throws IOException, SolvingException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException, CalculationInterruptedException {
         final String path = inputDir + "notConcurrencyPreservingTests" + File.separator;
@@ -231,11 +229,22 @@ public class TestingSomeFiles {
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
-    
+
     @Test(enabled = true)
     public void testForbiddingTransitionOnce() throws IOException, SolvingException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException, CalculationInterruptedException {
         final String path = inputDir + "toyexamples" + File.separator;
         final String name = "forbiddingTransitionOnce";
+//        Logger.getInstance().setVerbose(true);
+
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, true);
+    }
+
+    @Test
+    public void testNoSysPlaces() throws Exception {
+        final String path = inputDir + "jhh" + File.separator;
+        final String name = "myexample0.apt";
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
