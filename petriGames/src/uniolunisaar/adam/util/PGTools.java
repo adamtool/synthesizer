@@ -91,9 +91,14 @@ public class PGTools {
      * @throws IOException
      * @throws uniolunisaar.adam.exceptions.pg.CouldNotCalculateException
      */
-    public static PetriGame getPetriGame(String content, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, IOException, CouldNotCalculateException {
+    public static PetriGame getPetriGameFromAPTString(String content, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, IOException, CouldNotCalculateException {
         PetriNet pn = Tools.getPetriNetFromString(content);
         return getPetriGameFromParsedPetriNet(pn, skipTests, withAutomatic);
+    }
+
+    public static PetriGame getPetriGame(String path, boolean skipTest, boolean withAutomatic) throws ParseException, IOException, NotSupportedGameException, CouldNotCalculateException {
+        PetriNet pn = Tools.getPetriNet(path);
+        return getPetriGameFromParsedPetriNet(pn, skipTest, withAutomatic);
     }
 
     public static PetriGame getPetriGameFromParsedPetriNet(PetriNet net, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, CouldNotCalculateException {

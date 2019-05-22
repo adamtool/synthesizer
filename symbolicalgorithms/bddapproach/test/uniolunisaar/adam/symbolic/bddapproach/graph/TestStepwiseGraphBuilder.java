@@ -132,7 +132,7 @@ public class TestStepwiseGraphBuilder {
                 + "\n"
                 + ".initial_marking {1*Env, 1*S0}";
 
-        PetriGame game = PGTools.getPetriGame(apt, true, true);
+        PetriGame game = PGTools.getPetriGameFromAPTString(apt, true, true);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(game, true);
         solv.initialize();
         BDDGraph graph = new BDDGraph("firstExamplePaper_gg");

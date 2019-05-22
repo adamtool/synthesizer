@@ -136,7 +136,7 @@ public class PetriGame extends PetriNetWithTransits {
 
     /**
      * If reCalc is true the value is recalculated whenever a structural change
-     * has occured.
+     * has occurred.
      *
      * @param <O>
      * @param key

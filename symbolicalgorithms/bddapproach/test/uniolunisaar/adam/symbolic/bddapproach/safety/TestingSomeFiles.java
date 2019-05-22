@@ -19,13 +19,16 @@ import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.logic.pg.calculators.ConcurrencyPreservingGamesCalculator;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
+import uniolunisaar.adam.util.pg.ExtensionCalculator;
 
 /**
  *
@@ -251,15 +254,25 @@ public class TestingSomeFiles {
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
+
     @Test
     public void testStratNoInitSysPlace() throws Exception {
         final String path = inputDir + "nm" + File.separator;
         final String name = "minimal";
 //        final String name = "minimalOnlySys";
+//        final String name = "minimalNotFinishingEnv";
+//        final String name = "minimalNonCP";
 //        Logger.getInstance().setVerbose(true);
 
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
-//        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        // this doesn't work since the partitioning is done during the creation 
+        // of the solver and this is already dependent on cp
+//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+        PetriGame game = PGTools.getPetriGame(path + name + ".apt", true, true);
+        ExtensionCalculator<Boolean> calc = new ConcurrencyPreservingGamesCalculator();
+        ExtensionCalculator<?> c = game.addExtensionCalculator(calc.getKey(), calc);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(game, false);
+
+        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
 }

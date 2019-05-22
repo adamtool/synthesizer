@@ -64,6 +64,8 @@ public class TestingAllFilesASafety {
             "myexample000.apt",
             "minimal.apt",
             "minimalOnlySys.apt",
+            "minimalNotFinishingEnv.apt",
+            "minimalNonCP.apt",
             // %%%% Examples which should have a strategy for the journal version of the nondeterminism
             "journalReview2.apt", // should only have a strategy for the journal version of the ndet
             "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen

@@ -1,7 +1,6 @@
 package uniolunisaar.adam.logic.pg.solver;
 
 import java.io.IOException;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
@@ -17,7 +16,6 @@ import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PGTools;
 
 /**
@@ -45,8 +43,7 @@ public abstract class SolverFactory<SOP extends SolverOptions, S extends Solver<
     }
 
     public S getSolver(String file, boolean skipTests, SOP options) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
-        PetriNet net = Tools.getPetriNet(file);
-        PetriGame game = PGTools.getPetriGameFromParsedPetriNet(net, skipTests, true); // todo: should I put the withAutomatic into the SOlverOptions?
+        PetriGame game = PGTools.getPetriGame(file, skipTests, true); // todo: should I put the withAutomatic into the SOlverOptions?
         return getSolver(game, skipTests, options);
     }
 
