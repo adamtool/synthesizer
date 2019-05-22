@@ -45,7 +45,7 @@ public class TestingAllFilesASafety {
             "tafel_3.apt",
             "vsp__adam_machines.apt",
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
-            "nondet.apt",            
+            "nondet.apt",
             "nondet_s3_noStrat.apt",
             "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
@@ -62,16 +62,18 @@ public class TestingAllFilesASafety {
             "myexample0.apt",
             "myexample00.apt",
             "myexample000.apt",
-            "minimal.apt",
+            "minimal.apt", // currently this is wrong because of the it check CP for Petri net and not for Petri games (additionally the number of players should be preserved)
             "minimalOnlySys.apt",
             "minimalNotFinishingEnv.apt",
             "minimalNonCP.apt",
             // %%%% Examples which should have a strategy for the journal version of the nondeterminism
             "journalReview2.apt", // should only have a strategy for the journal version of the ndet
+            "nondet_s3.apt", // should only have a strategy for the journal version of the ndet
             "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
             "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
             "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
-            "nondet2WithStratByGameSolving.apt" // should have a strategy for the original definition of ndet
+            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
+            "nondet2SysPlace.apt" // should have a strategy for the original definition of ndet
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             // %%%% Examples skipped for saving time
@@ -106,7 +108,12 @@ public class TestingAllFilesASafety {
             "firstTry.apt", //  two env token
             "secondTry.apt", //  two env token
             "finiteWithBad.apt", //  two env token
-            "finite3.apt" //  two env token
+            "finite3.apt", //  two env token
+            // %%%%%% MISC
+            "unreachableEnvTransition.apt" // this has a problem with the partitioning
+    // because there is a transition with two env places in the preset (but this transition is not reachable)
+    // could either automatically delete unreachable transitions (expensive) or 
+    // do a more expensive partitioning check and the coding of the partitions more expensive by checking reachabillity
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy

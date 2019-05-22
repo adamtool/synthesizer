@@ -267,12 +267,29 @@ public class TestingSomeFiles {
         // this doesn't work since the partitioning is done during the creation 
         // of the solver and this is already dependent on cp
 //        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
-        PetriGame game = PGTools.getPetriGame(path + name + ".apt", true, true);
+        PetriGame game = PGTools.getPetriGame(path + name + ".apt", false, true);
         ExtensionCalculator<Boolean> calc = new ConcurrencyPreservingGamesCalculator();
         ExtensionCalculator<?> c = game.addExtensionCalculator(calc.getKey(), calc);
         BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(game, false);
 
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
+
+    @Test
+    public void testUnreachableEnv() throws Exception {
+        final String path = inputDir + "cornercases" + File.separator;
+        final String name = "unreachableEnvTransition";
+        // this has a problem with the partitioning
+        // because there is a transition with two env places in the preset (but this transition is not reachable)
+        // could either delete unreachable transitions (expensive) or more expensivly 
+        // do the partitioning check and the coding of the partitions
+//        Logger.getInstance().setVerbose(true);
+//
+//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        System.out.println(outputDir + name);
+//        PGTools.savePG2PDF(outputDir + name, solv.getGame(), false);
+////        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+//        BDDTestingTools.testExample(solv, outputDir + name, false);
     }
 }
