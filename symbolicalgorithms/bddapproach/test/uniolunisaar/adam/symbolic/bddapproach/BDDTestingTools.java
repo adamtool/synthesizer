@@ -30,13 +30,13 @@ public class BDDTestingTools {
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv);
         PNWTTools.savePnwt2PDF(file + "_debug", solv.getGame(), true, solv.getSolvingObject().getMaxTokenCountInt());
         boolean exStrat = solv.existsWinningStrategy();
-        if (exStrat) {
-            printWinningStrategies(solv, file);
-        }
         if (hasStrategy) {
             Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
         } else {
             Assert.assertFalse(solv.existsWinningStrategy(), "Net: " + solv.getGame().getName() + " has winning strategy: ");
+        }
+        if (exStrat) {
+            printWinningStrategies(solv, file);
         }
     }
 

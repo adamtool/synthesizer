@@ -62,6 +62,8 @@ public class TestingAllFilesASafety {
             "myexample0.apt",
             "myexample00.apt",
             "myexample000.apt",
+            "minimal.apt",
+            "minimalOnlySys.apt",
             // %%%% Examples which should have a strategy for the journal version of the nondeterminism
             "journalReview2.apt", // should only have a strategy for the journal version of the ndet
             "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
@@ -101,7 +103,8 @@ public class TestingAllFilesASafety {
             // now safe but:
             "firstTry.apt", //  two env token
             "secondTry.apt", //  two env token
-            "finiteWithBad.apt" //  two env token
+            "finiteWithBad.apt", //  two env token
+            "finite3.apt" //  two env token
     ));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy

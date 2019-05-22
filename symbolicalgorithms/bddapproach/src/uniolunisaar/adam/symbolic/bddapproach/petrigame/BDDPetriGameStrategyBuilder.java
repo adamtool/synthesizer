@@ -272,7 +272,7 @@ public class BDDPetriGameStrategyBuilder {
             }
         }
         //todo: error
-        throw new RuntimeException("ERROR in PG-StratBuilder Predecessor!" + placeid + " " + marking.toString());
+        throw new RuntimeException("ERROR in PG-StratBuilder Predecessor! Place: " + placeid + " marking: " + marking.toString());
     }
 
 }

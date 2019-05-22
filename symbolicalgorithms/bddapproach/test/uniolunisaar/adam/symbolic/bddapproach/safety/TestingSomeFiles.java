@@ -251,4 +251,15 @@ public class TestingSomeFiles {
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
+    @Test
+    public void testStratNoInitSysPlace() throws Exception {
+        final String path = inputDir + "nm" + File.separator;
+        final String name = "minimal";
+//        final String name = "minimalOnlySys";
+//        Logger.getInstance().setVerbose(true);
+
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+//        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false);
+    }
 }
