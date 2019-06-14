@@ -183,7 +183,7 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
      *
      * @return BDD for all system2 transitions for a concurrency preserving net.
      */
-    private BDD sys2TransitionCP(Transition t) {        
+    private BDD sys2TransitionCP(Transition t) {
         Set<Place> pre = t.getPreset();
         BDD sys2 = firable(t, false, 0);
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
@@ -697,7 +697,9 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
             // pi=pi'
             sysT.andWith(placesEqual(i));
             // \not topi=>ti=ti'
-            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1])));
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(
+                    commitmentsEqual(i).andWith(TYPE[0][i - 1].buildEquals(TYPE[1][i - 1]))
+            );
             sysT.andWith(impl);
         }
         return sysT;
