@@ -4,7 +4,6 @@ import uniolunisaar.adam.symbolic.bddapproach.solver.*;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
@@ -46,33 +45,33 @@ public class BDDkBoundedSolverFactory extends SolverFactory<BDDSolverOptions, BD
     }
 
     @Override
-    protected BDDkBoundedSolver getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected BDDkBoundedSolver getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         return new BDDkBoundedSolver(game, skipTests, winCon, opts);
 //        return new BDDASafetySolverNested(pn, skipTests, winCon, opts);
     }
 
     @Override
-    protected BDDkBoundedSolver getEReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getEReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected BDDkBoundedSolver getAReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getAReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected BDDkBoundedSolver getEBuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getEBuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected BDDkBoundedSolver getABuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    protected BDDkBoundedSolver getABuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

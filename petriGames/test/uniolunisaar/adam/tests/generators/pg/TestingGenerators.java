@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.exceptions.pg.NetNotConcurrencyPreservingException;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;

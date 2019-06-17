@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;

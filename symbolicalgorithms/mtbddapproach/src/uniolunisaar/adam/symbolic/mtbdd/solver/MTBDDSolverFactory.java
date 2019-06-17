@@ -3,7 +3,6 @@ package uniolunisaar.adam.symbolic.mtbdd.solver;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
@@ -42,7 +41,7 @@ public class MTBDDSolverFactory extends SolverFactory<MTBDDSolverOptions, MTBDDS
         return super.getSolver(file, skipTests, new MTBDDSolverOptions());
     }
 
-    public MTBDDSolver<? extends Condition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
+    public MTBDDSolver<? extends Condition> getSolver(String file) throws ParseException, IOException, NotSupportedGameException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         return super.getSolver(file, new MTBDDSolverOptions());
     }
 
@@ -52,27 +51,27 @@ public class MTBDDSolverFactory extends SolverFactory<MTBDDSolverOptions, MTBDDS
     }
 
     @Override
-    protected MTBDDSolver<? extends Condition> getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends Condition> getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException, ParameterMissingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected MTBDDSolver<? extends Condition> getEReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends Condition> getEReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException, ParameterMissingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected MTBDDSolver<? extends Condition> getAReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends Condition> getAReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException, ParameterMissingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected MTBDDSolver<? extends Condition> getEBuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends Condition> getEBuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException, ParameterMissingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected MTBDDSolver<? extends Condition> getABuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException {
+    protected MTBDDSolver<? extends Condition> getABuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, MTBDDSolverOptions options) throws NotSupportedGameException, NoSuitableDistributionFoundException, ParameterMissingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

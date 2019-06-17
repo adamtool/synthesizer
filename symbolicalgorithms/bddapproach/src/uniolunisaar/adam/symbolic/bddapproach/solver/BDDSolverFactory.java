@@ -1,6 +1,8 @@
 package uniolunisaar.adam.symbolic.bddapproach.solver;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
@@ -12,9 +14,10 @@ import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 
 /**
  *
@@ -48,46 +51,72 @@ public class BDDSolverFactory extends SolverFactory<BDDSolverOptions, BDDSolver<
     }
 
     @Override
-    protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, NetNotSafeException {
-        // if it creates a new token chain, use the co-Buchi solver
-        for (Transition t : game.getTransitions()) {
-            for (Transit tfl : game.getTransits(t)) {
-                if (tfl.isInitial()) {
-                    return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
+    protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
+        try {
+// if it creates a new token chain, use the co-Buchi solver
+            for (Transition t : game.getTransitions()) {
+                for (Transit tfl : game.getTransits(t)) {
+                    if (tfl.isInitial()) {
+                        return new BDDESafetyWithNewChainsSolver(game, skipTests, winCon, options);
+                    }
                 }
             }
+            return new BDDESafetySolver(game, skipTests, winCon, options);
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
         }
-        return new BDDESafetySolver(game, skipTests, winCon, options);
     }
 
     @Override
-    protected BDDSolver<Safety> getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions opts) throws SolvingException {
-        if (opts.isNoType2()) {
-            return new BDDASafetyWithoutType2Solver(game, skipTests, winCon, opts);
-        } else {
-            return new BDDASafetySolver(game, skipTests, winCon, opts);
+    protected BDDSolver<Safety> getASafetySolver(PetriGame game, Safety winCon, boolean skipTests, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        try {
+            if (opts.isNoType2()) {
+                return new BDDASafetyWithoutType2Solver(game, skipTests, winCon, opts);
+            } else {
+                return new BDDASafetySolver(game, skipTests, winCon, opts);
+            }
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
         }
 //        return new BDDASafetySolverNested(pn, skipTests, winCon, opts);
     }
 
     @Override
     protected BDDEReachabilitySolver getEReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions opts) throws SolvingException {
-        return new BDDEReachabilitySolver(game, skipTests, winCon, opts);
+        try {
+            return new BDDEReachabilitySolver(game, skipTests, winCon, opts);
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
+        }
     }
 
     @Override
     protected BDDAReachabilitySolver getAReachabilitySolver(PetriGame game, Reachability winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
-        return new BDDAReachabilitySolver(game, skipTests, winCon, options);
+        try {
+            return new BDDAReachabilitySolver(game, skipTests, winCon, options);
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
+        }
     }
 
     @Override
-    protected BDDEBuechiSolver getEBuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions opts) throws SolvingException {
-        return new BDDEBuechiSolver(game, skipTests, winCon, opts);
+    protected BDDEBuechiSolver getEBuchiSolver(PetriGame game, Buchi winCon,
+            boolean skipTests, BDDSolverOptions opts) throws SolvingException {
+        try {
+            return new BDDEBuechiSolver(game, skipTests, winCon, opts);
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
+        }
     }
 
     @Override
-    protected BDDABuechiSolver getABuchiSolver(PetriGame game, Buchi winCon, boolean skipTests, BDDSolverOptions options) throws SolvingException {
-        return new BDDABuechiSolver(game, skipTests, winCon, options);
+    protected BDDABuechiSolver getABuchiSolver(PetriGame game, Buchi winCon,
+            boolean skipTests, BDDSolverOptions options) throws SolvingException {
+        try {
+            return new BDDABuechiSolver(game, skipTests, winCon, options);
+        } catch (NetNotSafeException ex) {
+            throw new NotSupportedGameException(ex);
+        }
     }
 
 }

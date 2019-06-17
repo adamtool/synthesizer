@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
@@ -21,11 +20,11 @@ import uniolunisaar.adam.tools.Logger;
  */
 public class BDDkBoundedSolvingObject<W extends Condition> extends SolvingObject<PetriGame, W> {
 
-    public BDDkBoundedSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDkBoundedSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         this(game, winCon, false);
     }
 
-    public BDDkBoundedSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public BDDkBoundedSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         super(game, winCon);
 
         if (!skipChecks) {

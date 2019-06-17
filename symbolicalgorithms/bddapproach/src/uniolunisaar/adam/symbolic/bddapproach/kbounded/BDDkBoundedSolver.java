@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import net.sf.javabdd.BDDFactory;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
@@ -45,7 +44,7 @@ public class BDDkBoundedSolver extends Solver<BDDkBoundedSolvingObject<Safety>, 
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDkBoundedSolver(PetriGame game, boolean skipTests, Safety winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    BDDkBoundedSolver(PetriGame game, boolean skipTests, Safety winCon, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         super(new BDDkBoundedSolvingObject<>(game, winCon), opts);
     }
 

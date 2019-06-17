@@ -15,4 +15,16 @@ public class NotSupportedGameException extends SolvingException {
         super(message);
     }
 
+    public NotSupportedGameException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public NotSupportedGameException(Throwable cause) {
+        super(cause);
+    }
+
+    public NotSupportedGameException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
 }

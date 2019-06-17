@@ -14,7 +14,6 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
@@ -23,6 +22,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphBuilder;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDSolvingObject;
@@ -68,12 +68,11 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * @param winCon
      * @param opts
      * @throws uniolunisaar.adam.exceptions.pg.NotSupportedGameException
-     * @throws uniolunisaar.adam.exceptions.pg.NetNotSafeException
      * @throws
      * uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException
      * @throws uniolunisaar.adam.exceptions.pg.InvalidPartitionException
      */
-    protected BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    protected BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
         super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
         //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place

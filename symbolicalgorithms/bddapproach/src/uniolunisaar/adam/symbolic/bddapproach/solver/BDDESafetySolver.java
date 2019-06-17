@@ -12,7 +12,6 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
@@ -21,6 +20,7 @@ import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.symbolic.bddapproach.petrigame.BDDPetriGameWithInitialEnvStrategyBuilder;
@@ -45,12 +45,11 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @param opts - the options for the solver.
      * @throws NotSupportedGameException - Thrown if the given net is not
      * bounded.
-     * @throws NetNotSafeException - Thrown if the given net is not safe.
      * @throws NoSuitableDistributionFoundException - Thrown if the given net is
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDESafetySolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    BDDESafetySolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
         super(game, skipTests, win, opts);
     }
 
