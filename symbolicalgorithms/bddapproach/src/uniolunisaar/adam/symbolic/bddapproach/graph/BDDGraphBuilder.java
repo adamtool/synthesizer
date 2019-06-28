@@ -97,7 +97,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
 
         int count = 0;
         while (!todoStates.isEmpty() && depth != count) {
-            if (Thread.currentThread().isInterrupted()) {
+            if (Thread.interrupted()) {
                 CalculationInterruptedException e = new CalculationInterruptedException();
                 Logger.getInstance().addError(e.getMessage(), e);
                 throw e;

@@ -83,7 +83,7 @@ public class BDDPetriGameStrategyBuilder {
         // add to visited cuts 
         visitedCuts.put(initialState.getId(), initialMarking);
         while (!todoStates.isEmpty()) {
-//            if (Thread.currentThread().isInterrupted()) {
+//            if (Thread.interrupted()) {
 //                CalculationInterruptedException e = new CalculationInterruptedException();
 //                Logger.getInstance().addError(e.getMessage(), e);
 //                throw e;

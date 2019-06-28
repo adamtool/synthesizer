@@ -1014,7 +1014,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         BDD Q_ = F;
         int i = 0;
         while (!Q_.equals(Q)) {
-            if (Thread.currentThread().isInterrupted()) {
+            if (Thread.interrupted()) {
                 CalculationInterruptedException e = new CalculationInterruptedException();
                 Logger.getInstance().addError(e.getMessage(), e);
                 throw e;
@@ -1107,7 +1107,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
         BDD Q = getZero();
         BDD Q_ = getInitialDCSs();
         while (!Q_.equals(Q)) {
-            if (Thread.currentThread().isInterrupted()) {
+            if (Thread.interrupted()) {
                 CalculationInterruptedException e = new CalculationInterruptedException();
                 Logger.getInstance().addError(e.getMessage(), e);
                 throw e;

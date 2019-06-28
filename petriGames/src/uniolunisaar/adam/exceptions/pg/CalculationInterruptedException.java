@@ -4,7 +4,7 @@ package uniolunisaar.adam.exceptions.pg;
  *
  * @author Manuel Gieseking
  */
-public class CalculationInterruptedException extends Exception {
+public class CalculationInterruptedException extends InterruptedException {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,18 +14,6 @@ public class CalculationInterruptedException extends Exception {
 
     public CalculationInterruptedException(String message) {
         super(message);
-    }
-
-    public CalculationInterruptedException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public CalculationInterruptedException(Throwable cause) {
-        super(cause);
-    }
-
-    public CalculationInterruptedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 
 }
