@@ -524,7 +524,7 @@ public class PGTools {
             sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
             sb.append(", label=").append("\"").append(tokenString).append("\"");
 
-            if (game.hasPartition(place)) {
+            if (game.hasPartition(place) && !game.isEnvironment(place)) {
                 int t = game.getPartition(place);
                 if (t != 0) {  // should it be colored?
                     sb.append(", style=\"filled");
