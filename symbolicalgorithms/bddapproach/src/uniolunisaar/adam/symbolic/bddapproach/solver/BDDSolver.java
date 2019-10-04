@@ -20,7 +20,7 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;

@@ -14,6 +14,7 @@ import uniol.apt.analysis.bounded.BoundedResult;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.io.renderer.RenderException;
+import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
 import uniolunisaar.adam.exceptions.pnwt.InconsistencyException;
 import uniolunisaar.adam.exceptions.pg.NoCalculatorProvidedException;
 import uniolunisaar.adam.exceptions.pnwt.NotInitialPlaceException;
@@ -25,7 +26,6 @@ import uniolunisaar.adam.util.pg.ExtensionCalculator;
 import uniolunisaar.adam.util.pg.ExtensionCleaner;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.tools.PetriNetExtensionHandler;
 
 /**
  *

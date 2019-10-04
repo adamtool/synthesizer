@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.safety;
 import java.io.File;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;

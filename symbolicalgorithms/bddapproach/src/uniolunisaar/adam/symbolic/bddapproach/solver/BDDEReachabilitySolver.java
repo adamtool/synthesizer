@@ -8,7 +8,7 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.objectives.Reachability;
+import uniolunisaar.adam.ds.petrinet.objectives.Reachability;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;

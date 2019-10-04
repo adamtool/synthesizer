@@ -4,7 +4,7 @@ import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
 

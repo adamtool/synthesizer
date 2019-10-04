@@ -4,7 +4,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.solver.SolverOptions;
 import uniolunisaar.adam.ds.solver.SolvingObject;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 
 /**
  *

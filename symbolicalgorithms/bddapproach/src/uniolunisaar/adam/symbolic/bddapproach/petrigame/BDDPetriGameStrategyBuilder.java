@@ -18,7 +18,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.util.pg.TransitCalculator;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.tools.Logger;

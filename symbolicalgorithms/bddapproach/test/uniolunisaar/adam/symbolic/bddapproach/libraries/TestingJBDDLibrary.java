@@ -21,7 +21,7 @@ import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;

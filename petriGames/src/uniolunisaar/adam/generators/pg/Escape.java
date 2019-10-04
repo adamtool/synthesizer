@@ -6,7 +6,7 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
 

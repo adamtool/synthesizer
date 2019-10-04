@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.mtbddapproach.libraries;
 import java.io.File;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
 

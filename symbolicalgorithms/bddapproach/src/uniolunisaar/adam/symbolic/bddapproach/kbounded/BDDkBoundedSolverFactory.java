@@ -9,9 +9,9 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.logic.pg.solver.SolverFactory;
-import uniolunisaar.adam.ds.objectives.Buchi;
-import uniolunisaar.adam.ds.objectives.Reachability;
-import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.petrinet.objectives.Buchi;
+import uniolunisaar.adam.ds.petrinet.objectives.Reachability;
+import uniolunisaar.adam.ds.petrinet.objectives.Safety;
 
 /**
  *

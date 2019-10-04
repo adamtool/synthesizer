@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;

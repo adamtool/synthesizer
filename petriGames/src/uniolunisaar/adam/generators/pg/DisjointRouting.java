@@ -5,7 +5,7 @@ import uniol.apt.adt.pn.Transition;
 import uniol.apt.adt.ts.Arc;
 import uniol.apt.adt.ts.State;
 import uniol.apt.adt.ts.TransitionSystem;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.util.PNWTTools;
 

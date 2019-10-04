@@ -1,7 +1,7 @@
 package uniolunisaar.adam.ds.solver;
 
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 
 /**
  *

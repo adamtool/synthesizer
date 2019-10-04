@@ -7,7 +7,7 @@ import java.util.List;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.pg.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;

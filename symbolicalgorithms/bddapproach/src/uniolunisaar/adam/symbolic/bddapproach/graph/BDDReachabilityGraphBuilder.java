@@ -3,7 +3,7 @@ package uniolunisaar.adam.symbolic.bddapproach.graph;
 import java.util.LinkedList;
 import java.util.Map;
 import net.sf.javabdd.BDD;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 
 /**

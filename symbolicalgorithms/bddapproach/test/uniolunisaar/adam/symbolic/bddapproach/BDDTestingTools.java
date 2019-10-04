@@ -10,7 +10,7 @@ import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;

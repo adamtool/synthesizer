@@ -5,7 +5,7 @@ import java.util.Map;
 import net.sf.javabdd.BDD;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
