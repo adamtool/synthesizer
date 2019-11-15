@@ -353,4 +353,5 @@ public class PetriGame extends PetriNetWithTransits {
         PetriGameExtensionHandler.setSystem(place);
         envPlaces.remove(place);
     }
+
 }

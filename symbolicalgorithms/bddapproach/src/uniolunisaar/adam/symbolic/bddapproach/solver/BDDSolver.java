@@ -13,6 +13,9 @@ import net.sf.javabdd.BDDFactory;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
+import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
+import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
@@ -329,17 +332,19 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      * Calculates a BDD with all situations where nondeterminism has been
      * encountered.
      *
-     * This is for the original Defition with checking ndet within the strategy.
-     * Since our scheduling does not considere every marking, some non
+     * This is for the original definition with checking ndet within the
+     * strategy. Since our scheduling does not consider every marking, some non
      * determinism could be overseen. Thus, we changed the definition of non
      * determinism for the Petri game itself and check now non determinism of
-     * strategy transitions within the original Net.
+     * strategy transitions within the original Net (or less restrictive in the
+     * unfolding).
      *
      * @param pos - 0 for the predecessor variables and 1 for the successor
      * variables.
      *
      * @return BDD with all nondeterministic situations.
      */
+    @Deprecated
     BDD ndetStates(int pos) {
         BDD nondet = getZero();
         Set<Transition> trans = getGame().getTransitions();
@@ -383,7 +388,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return BDD with all nondeterministic situations.
      */
-    BDD ndetStates2(int pos) {
+    BDD ndetStatesReachNet(int pos) {
         BDD nondet = getZero();
         Set<Transition> trans = getGame().getTransitions();
         for (Transition t1 : trans) {
@@ -413,6 +418,110 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     }
 
     /**
+     * Calculates a BDD with all situations where nondeterminism has been
+     * encountered.
+     *
+     * Since our scheduling does not consider every marking, some non
+     * determinism with the original version could be overseen.
+     *
+     * Thus, here we changed the definition of non determinism for the Petri
+     * game itself and check now non determinism of strategy transitions within
+     * the UNFOLDING of the original Net.
+     *
+     * @param pos - 0 for the predecessor variables and 1 for the successor
+     * variables.
+     *
+     * @return BDD with all nondeterministic situations.
+     */
+    BDD ndetStatesReachUnfolding(int pos) {
+        // buffer reachability states
+        CoverabilityGraph reach = getGame().getReachabilityGraph();
+        Set<CoverabilityGraphNode> states = new HashSet<>();
+        for (CoverabilityGraphNode state : reach.getNodes()) {
+            states.add(state);
+        }
+
+        // check all combinations of transitions
+        BDD nondet = getZero();
+        Set<Transition> trans = getGame().getTransitions();
+        for (Transition t1 : trans) {
+            for (Transition t2 : trans) {
+                if (!t1.equals(t2)) {
+                    // sharing a system place?
+                    Set<Place> pre1 = t1.getPreset();
+                    Set<Place> pre2 = t2.getPreset();
+                    Set<Place> intersect = new HashSet<>(pre1);
+                    intersect.retainAll(pre2);
+                    for (Place place : intersect) {
+                        if (!getSolvingObject().getGame().isEnvironment(place)) { // for every shared system place
+                            // check all markings which contain this place if they possibly encounter ndet in the future
+                            List<CoverabilityGraphNode> toCheck = new ArrayList<>(states);
+                            Set<CoverabilityGraphNode> ndetStates = new HashSet<>();
+                            while (!toCheck.isEmpty()) {
+                                CoverabilityGraphNode state = toCheck.get(0);
+                                if (state.getMarking().getToken(place).getValue() > 0) { // this marking contains the place
+                                    List<CoverabilityGraphNode> predecessors = new ArrayList<>();
+                                    predecessors.add(state);
+                                    checkSuccessors(t1, t2, place, state, toCheck, predecessors, nondet, pos, ndetStates);
+                                } else { // does not contain the place
+                                    toCheck.remove(state);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return nondet;//.andWith(wellformed());
+    }
+
+    private boolean checkSuccessors(Transition t1, Transition t2, Place place, CoverabilityGraphNode state,
+            List<CoverabilityGraphNode> toCheck, List<CoverabilityGraphNode> predecessors, BDD nondet, int pos, Set<CoverabilityGraphNode> ndetStates) {
+////        System.out.println("check " + state.getMarking().toString() + "for " + t1.toString() + " and " + t2.toString());
+//        System.out.println("check " + state.getMarking().toString());
+////        System.out.println("for " + t1.toString() + " and " + t2.toString());
+////        System.out.println("aaaa");
+        boolean removed = toCheck.remove(state);
+        if (!removed && !ndetStates.contains(state)) { // we already did this state, and it was no ndet
+            return  false;
+        }
+        Marking m = state.getMarking();
+        if (t1.isFireable(m) && t2.isFireable(m) || ndetStates.contains(state)) { // ndet encountered (in this state, or we reached a state which was already ndet detected)
+            // all markings so far are ndet
+            for (CoverabilityGraphNode marking : predecessors) {
+                ndetStates.add(marking);
+                // encode the marking
+                BDD mark = getOne();
+                for (Place place1 : getGame().getPlaces()) {
+                    if (marking.getMarking().getToken(place1).getValue() > 0) {
+                        mark.andWith(codePlace(place1, pos, getSolvingObject().getGame().getPartition(place1)));
+                    }
+                }
+                // add the choosing
+                BDD ndetDCS = mark.andWith(chosen(t1, pos).andWith(chosen(t2, pos)));
+                nondet.orWith(ndetDCS);
+            }
+            return true;
+        } else { // check all reachable markings from this state which not move place p 
+            Set<CoverabilityGraphEdge> edges = state.getPostsetEdges();
+            for (CoverabilityGraphEdge edge : edges) {
+                Transition t = edge.getTransition();
+                if (!t.getPreset().contains(place)) { // it's a successor not moving the common place
+                    List<CoverabilityGraphNode> preds = new ArrayList<>(predecessors);
+                    preds.add(edge.getTarget());
+                    boolean found = checkSuccessors(t1, t2, place, edge.getTarget(), toCheck, preds, nondet, pos, ndetStates);
+                    if (found) {
+//                        System.out.println("is ndet, break succs");
+                        return true;
+                    }
+                }
+            }
+        }
+//        System.out.println("is not ndet");
+        return false;
+    }
+
+    /**
      * There could ndet states be missed because of the scheduling. A conjecture
      * is that it is enough to take the states where ndet encountered and add
      * all of those states with which we could reach such states by firing
@@ -424,6 +533,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
      *
      * @return BDD with all nondeterministic situations.
      */
+    @Deprecated
     BDD ndetEncountered() {
         BDD Q = getOne();
         BDD Q_ = getBufferedNDet();
@@ -1556,7 +1666,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     protected BDD getBufferedNDet() {
         if (ndet == null) {
 //            ndet = ndetStates(0);
-            ndet = ndetStates2(0);
+//            ndet = ndetStatesReachNet(0);
+            ndet = ndetStatesReachUnfolding(0);
             //fixes one special case of the ndet problem but takes longer
 //            ndet = ndetEncountered();
         }

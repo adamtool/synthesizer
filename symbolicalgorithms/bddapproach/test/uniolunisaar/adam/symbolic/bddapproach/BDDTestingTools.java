@@ -29,6 +29,7 @@ public class BDDTestingTools {
 //        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv);
         PNWTTools.savePnwt2PDF(file + "_debug", solv.getGame(), true, solv.getSolvingObject().getMaxTokenCountInt());
+//            printWinningStrategies(solv, file);
         boolean exStrat = solv.existsWinningStrategy();
         if (hasStrategy) {
             Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");

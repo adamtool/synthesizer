@@ -62,7 +62,6 @@ public class TestingAllFilesASafety {
             "myexample0.apt",
             "myexample00.apt",
             "myexample000.apt",
-            "minimal.apt", // currently this is wrong because of the it check CP for Petri net and not for Petri games (additionally the number of players should be preserved)
             "minimalOnlySys.apt",
             "minimalNotFinishingEnv.apt",
             "minimalNonCP.apt",
@@ -109,6 +108,9 @@ public class TestingAllFilesASafety {
             "secondTry.apt", //  two env token
             "finiteWithBad.apt", //  two env token
             "finite3.apt", //  two env token
+            // %%%% changes player's membership
+            "causalmemory.apt", // p0 (sys) - t0 -> p2 (env)
+            "minimal.apt", // A (env) -tA-> B (sys)
             // %%%%%% MISC
             "unreachableEnvTransition.apt" // this has a problem with the partitioning
     // because there is a transition with two env places in the preset (but this transition is not reachable)
