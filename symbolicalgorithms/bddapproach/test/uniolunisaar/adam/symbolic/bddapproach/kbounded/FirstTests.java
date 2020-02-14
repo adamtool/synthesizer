@@ -1,5 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.kbounded;
 
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded.BDDkBoundedSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded.BDDkBoundedSolver;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

@@ -25,8 +25,8 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
 import uniolunisaar.adam.tools.Logger;
 
 /**

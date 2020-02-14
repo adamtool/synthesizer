@@ -1,5 +1,8 @@
 package uniolunisaar.adam.symbolic.bddapproach.graph;
 
+import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
+import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -15,8 +18,8 @@ import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
 import uniolunisaar.adam.util.PGTools;
 
 /**

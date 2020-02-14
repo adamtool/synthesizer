@@ -32,9 +32,9 @@ import uniolunisaar.adam.generators.pg.Watchdog;
 import uniolunisaar.adam.generators.pg.Workflow;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
-import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
-import uniolunisaar.adam.symbolic.bddapproach.util.BDDTools;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
+import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
