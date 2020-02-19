@@ -57,7 +57,7 @@ public abstract class Solver<G extends IPetriGame, SO extends SolvingObject<G, ?
         return solvingObject.getGame();
     }
 
-    public Condition getWinningCondition() {
+    public Condition<? extends Condition<?>> getWinningCondition() {
         return solvingObject.getWinCon();
     }
 

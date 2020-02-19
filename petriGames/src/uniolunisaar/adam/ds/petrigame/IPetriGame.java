@@ -8,5 +8,5 @@ import uniolunisaar.adam.ds.petrinet.objectives.Condition;
  */
 public interface IPetriGame {
 
-    public void initializeWinningCondition(Condition winCon);
+    public void initializeWinningCondition(Condition<? extends Condition<?>> winCon);
 }

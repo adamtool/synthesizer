@@ -9,7 +9,7 @@ import uniolunisaar.adam.ds.petrinet.objectives.Condition;
  * @param <G>
  * @param <W>
  */
-public abstract class SolvingObject<G extends IPetriGame, W extends Condition> {
+public abstract class SolvingObject<G extends IPetriGame, W extends Condition<W>> {
 
     private final G game;
     private final W winCon;

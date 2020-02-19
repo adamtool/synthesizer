@@ -356,7 +356,7 @@ public class PetriGame extends PetriNetWithTransits implements IPetriGame {
     }
 
     @Override
-    public void initializeWinningCondition(Condition winCon) {
+    public void initializeWinningCondition(Condition<? extends Condition<?>> winCon) {
         winCon.buffer(this);
     }
 
