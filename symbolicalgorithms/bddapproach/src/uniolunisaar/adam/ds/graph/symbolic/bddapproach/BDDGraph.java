@@ -22,11 +22,11 @@ public class BDDGraph extends Graph<BDDState, Flow> {
         super(g);
     }
 
-    public BDDState addState(BDD state, BDDSolver<? extends Condition> solver) {
+    public BDDState addState(BDD state, BDDSolver<? extends Condition<?>> solver) {
         return addState(state, -1, solver);
     }
 
-    public BDDState addState(BDD state, int dist, BDDSolver<? extends Condition> solver) {
+    public BDDState addState(BDD state, int dist, BDDSolver<? extends Condition<?>> solver) {
         String value = BDDTools.getDecodedDecisionSets(state, solver);
         value = value.substring(0, value.indexOf("->"));
         return super.addState(new BDDState(state, dist, value));

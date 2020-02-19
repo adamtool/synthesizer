@@ -37,11 +37,11 @@ public class BDDSolverFactory extends LLSolverFactory<BDDSolverOptions, BDDSolve
 
     }
 
-    public BDDSolver<? extends Condition> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
+    public BDDSolver<? extends Condition<?>> getSolver(String file) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(file, new BDDSolverOptions());
     }
 
-    public BDDSolver<? extends Condition> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
+    public BDDSolver<? extends Condition<?>> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(game, new BDDSolverOptions());
     }
 

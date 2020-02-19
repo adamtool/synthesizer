@@ -10,8 +10,9 @@ import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 
 /**
  * @author Manuel Gieseking
+ * @param <S>
  */
-public class BDDBuchiGraphBuilder<S extends BDDSolver<? extends Condition>> extends BDDGraphBuilder<S> {
+public class BDDBuchiGraphBuilder extends BDDGraphBuilder {
 
     private static BDDBuchiGraphBuilder instance = null;
 
@@ -27,12 +28,12 @@ public class BDDBuchiGraphBuilder<S extends BDDSolver<? extends Condition>> exte
     }
 
     @Override
-    void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addNearestInitState(solver, graph, inits, todoStates, distance);
     }
 
     @Override
-    void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         // Get the set F^m
         BDD F = distance.get(-1);
         if (F.and(prev.getState()).isZero()) { // if it's not a buchi state

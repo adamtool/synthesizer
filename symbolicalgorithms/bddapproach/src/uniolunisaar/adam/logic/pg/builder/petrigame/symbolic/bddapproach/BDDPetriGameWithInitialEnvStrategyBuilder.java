@@ -46,7 +46,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
      * @return
      */
     @Override
-    public PetriGame builtStrategy(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph) {
+    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph) {
         PetriGame strategy = super.builtStrategy(solver, graph);
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy

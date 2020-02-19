@@ -15,9 +15,8 @@ import uniolunisaar.adam.tools.Logger;
 
 /**
  * @author Manuel Gieseking
- * @param <S>
  */
-public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
+public class BDDGraphBuilder {
 
     private static BDDGraphBuilder instance = null;
 
@@ -31,19 +30,19 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
     protected BDDGraphBuilder() {
     }
 
-    public BDDGraph builtGraph(S solver) throws CalculationInterruptedException {
+    public <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraph(S solver) throws CalculationInterruptedException {
         return builtGraph(solver, -1);
     }
 
-    public BDDGraph builtGraphStrategy(S solver, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
+    public <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraphStrategy(S solver, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         return builtGraphStrategy(solver, -1, distance);
     }
 
-    public BDDGraph builtGraph(S solver, int depth) throws CalculationInterruptedException {
+    public <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraph(S solver, int depth) throws CalculationInterruptedException {
         return builtGraph(solver, false, depth, null);
     }
 
-    public BDDGraph builtGraphStrategy(S solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
+    public <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraphStrategy(S solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
@@ -57,7 +56,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
      * @param depth -1 means do the whole graph
      * @return
      */
-    private BDDGraph builtGraph(S solver, boolean strategy, int depth, Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    private <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraph(S solver, boolean strategy, int depth, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
                 + solver.getGame().getName());
@@ -136,11 +135,11 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
         return graph;
     }
 
-    protected BDD getSuccessorBDD(S solver, BDD succs, BDD validStates) {
+    protected <S extends BDDSolver<? extends Condition<?>>> BDD getSuccessorBDD(S solver, BDD succs, BDD validStates) {
         return solver.getSuccs(succs).and(validStates);
     }
 
-    void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
         BDDState in = graph.addState(init, solver);
         in.setMcut(solver.isEnvState(init));
@@ -150,7 +149,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
         todoStates.add(in);
     }
 
-    void addAllSuccessors(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
+    <S extends BDDSolver<? extends Condition<?>>> void addAllSuccessors(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
             String value = BDDTools.getDecodedDecisionSets(succ, solver);
@@ -164,11 +163,11 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
         }
     }
 
-    void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addAllSuccessors(succs, solver, graph, prev, todoStates, true);
     }
 
-    protected Flow addFlow(S solver, BDDGraph graph, BDDState pre, BDDState succ) {
+    protected <S extends BDDSolver<? extends Condition<?>>> Flow addFlow(S solver, BDDGraph graph, BDDState pre, BDDState succ) {
         return graph.addFlow(pre, succ, solver.getTransition(pre.getState(), succ.getState()));
     }
 
@@ -200,7 +199,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
      * @param states
      * @param distance
      */
-    BDDState getNearestState(S solver, BDD states, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> BDDState getNearestState(S solver, BDD states, Map<Integer, BDD> distance) {
         BDD state = states.satOne(solver.getFirstBDDVariables(), false);
         BDD min = state;
         int min_dist = Integer.MAX_VALUE;
@@ -228,7 +227,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
      * @param todoStates
      * @param distance
      */
-    void addNearestInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> void addNearestInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState min = getNearestState(solver, inits, distance);
         // add the minimal init
         BDDState in = graph.addState(min);
@@ -250,7 +249,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
      * @param todoStates
      * @param succ
      */
-    void addState(S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
+    <S extends BDDSolver<? extends Condition<?>>> void addState(S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
         BDDState oldSuccState = graph.contains(succ.getState());
         if (oldSuccState != null) { // jump to every already visited cut
             addFlow(solver, graph, prev, oldSuccState);
@@ -277,7 +276,7 @@ public class BDDGraphBuilder<S extends BDDSolver<? extends Condition>> {
      * @param distance
      * @return
      */
-    BDDState getNearestSuccessor(BDD succs, S solver, BDDState prev, Map<Integer, BDD> distance) {
+    <S extends BDDSolver<? extends Condition<?>>> BDDState getNearestSuccessor(BDD succs, S solver, BDDState prev, Map<Integer, BDD> distance) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         int idx = prev.getDistance();
         if (idx == -1) { // should be the initial state and all env states (todo: find a smarter solution)

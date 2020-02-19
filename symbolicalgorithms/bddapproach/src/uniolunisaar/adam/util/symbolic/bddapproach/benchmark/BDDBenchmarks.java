@@ -34,14 +34,14 @@ public class BDDBenchmarks {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         if (Benchmarks.getInstance().getSolver() != null) {
-            sb.append("Nb variables: ").append(((BDDSolver<? extends Condition>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
+            sb.append("Nb variables: ").append(((BDDSolver<? extends Condition<?>>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
         }
         return sb.toString();
     }
 
     public String toCSVString() {
         StringBuilder sb = new StringBuilder(Benchmarks.getInstance().toCSVString());
-        BDDSolver<? extends Condition> solver = (BDDSolver<? extends Condition>) Benchmarks.getInstance().getSolver();
+        BDDSolver<? extends Condition<?>> solver = (BDDSolver<? extends Condition<?>>) Benchmarks.getInstance().getSolver();
         if (solver != null) {
             sb.append(", ").append(solver.getVariableNumber());
         }
@@ -77,11 +77,11 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>>, ? extends SolverOptions> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 
-    public Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> getSolver() {
+    public Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>>, ? extends SolverOptions> getSolver() {
         return Benchmarks.getInstance().getSolver();
     }
 

@@ -41,7 +41,7 @@ public class BDDPetriGameStrategyBuilder {
     BDDPetriGameStrategyBuilder() {
     }
 
-    public PetriGame builtStrategy(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph) {
+    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
         PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
         // why does a strategy need the winning condition?
@@ -76,7 +76,7 @@ public class BDDPetriGameStrategyBuilder {
         return strategy;
     }
 
-    private void calculateStrategyByBFS(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
+    private void calculateStrategyByBFS(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
@@ -226,7 +226,7 @@ public class BDDPetriGameStrategyBuilder {
      * @param graph
      * @param strategy
      */
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
 
     }
 

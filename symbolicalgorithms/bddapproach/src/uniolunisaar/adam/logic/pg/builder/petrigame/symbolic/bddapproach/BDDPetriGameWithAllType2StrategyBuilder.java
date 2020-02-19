@@ -47,7 +47,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         // Must be a solver with type2 ability
         BDDType2Solver sol = (BDDType2Solver) solver;
@@ -206,7 +206,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      */
     //@Override
     @Deprecated
-    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net

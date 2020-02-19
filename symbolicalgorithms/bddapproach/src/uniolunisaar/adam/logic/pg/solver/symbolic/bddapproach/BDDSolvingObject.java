@@ -167,7 +167,7 @@ public class BDDSolvingObject<W extends Condition<W>> extends SolvingObject<Petr
             //todo:  all comments are old version, before cavarti
             // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;
-            places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()];
+            places = (Set<Place>[]) new Set<?>[getMaxTokenCountInt()]; // todo: get rid of the generic array?
             // just do it for all, since user could annotate them badly (skipping ids)
 //            if (getGame().getEnvPlaces().isEmpty()) { // add empty set when no env place existend (todo: is it to hacky for no env case?)
 //                places[0] = new HashSet<>();
@@ -200,7 +200,7 @@ public class BDDSolvingObject<W extends Condition<W>> extends SolvingObject<Petr
 //                }
 //            }
         // Calculate the possible transitions for the places of a special token
-        transitions = new List[getMaxTokenCountInt() - 1];
+        transitions = new List[getMaxTokenCountInt() - 1]; // todo: get rid of the generic array?
         for (int i = 1; i < getMaxTokenCountInt(); ++i) {
             transitions[i - 1] = new ArrayList<>();
             for (Place place : places[i]) {
