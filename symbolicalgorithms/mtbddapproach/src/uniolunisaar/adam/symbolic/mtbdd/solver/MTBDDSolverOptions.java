@@ -1,12 +1,12 @@
 package uniolunisaar.adam.symbolic.mtbdd.solver;
 
-import uniolunisaar.adam.ds.solver.SolverOptions;
+import uniolunisaar.adam.ds.solver.LLSolverOptions;
 
 /**
  *
  * @author Manuel Gieseking
  */
-public class MTBDDSolverOptions extends SolverOptions {
+public class MTBDDSolverOptions extends LLSolverOptions {
 
     private boolean gg = false;
     private boolean ggs = false;
@@ -16,8 +16,12 @@ public class MTBDDSolverOptions extends SolverOptions {
         super("mtbdd");
     }
 
-    public MTBDDSolverOptions(String name, String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
-        super(name);       
+    public MTBDDSolverOptions(boolean skip) {
+        super(skip, "mtbdd");
+    }
+
+    public MTBDDSolverOptions(String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
+        super("mtbdd");
     }
 
     public MTBDDSolverOptions(boolean gg, boolean ggs, boolean pgs) {

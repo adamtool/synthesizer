@@ -24,6 +24,7 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.symbolic.bddapproach.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
@@ -53,7 +54,8 @@ public class TestingJBDDLibrary {
     public static void testCallings() throws ParseException, IOException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, CouldNotFindSuitableConditionException, ParameterMissingException, SolvingException {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         solv.initialize();
     }
 

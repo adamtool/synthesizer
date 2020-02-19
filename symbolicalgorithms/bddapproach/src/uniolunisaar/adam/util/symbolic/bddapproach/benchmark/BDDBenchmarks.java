@@ -77,11 +77,11 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(Solver<? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 
-    public Solver<? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> getSolver() {
+    public Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition>, ? extends SolverOptions> getSolver() {
         return Benchmarks.getInstance().getSolver();
     }
 

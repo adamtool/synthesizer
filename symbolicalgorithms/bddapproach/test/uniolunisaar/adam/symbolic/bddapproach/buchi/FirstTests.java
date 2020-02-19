@@ -21,6 +21,7 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -45,7 +46,8 @@ public class FirstTests {
 
     private void testToyExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, CalculationInterruptedException {
         final String path = inputDir + "toyExamples" + File.separator;
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        System.out.println("ExStrat" + solv.existsWinningStrategy());
 //        solv.getGraphStrategy();
 //        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);
@@ -57,7 +59,8 @@ public class FirstTests {
 
     private void testExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, CalculationInterruptedException {
         final String path = inputDir + File.separator;
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        System.out.println("ExStrat" + solv.existsWinningStrategy());
 //        solv.getGraphStrategy();
 //        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);

@@ -53,8 +53,8 @@ public class BDDASafetySolver extends BDDSolver<Safety> implements BDDType2Solve
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDASafetySolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
-        super(game, skipTests, win, opts);
+    BDDASafetySolver(BDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        super(obj, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

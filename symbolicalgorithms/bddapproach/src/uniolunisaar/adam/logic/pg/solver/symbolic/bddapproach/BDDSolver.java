@@ -18,14 +18,10 @@ import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
-import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
-import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameStrategyBuilder;
@@ -39,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingObject<W>, BDDSolverOptions> {
+public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame, BDDSolvingObject<W>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;
@@ -62,21 +58,25 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
     private BDD DCSs = null;
     private BDD ndet = null;
 
-    /**
-     * Creates a new solver for the given game.
-     *
-     * @param game - the games which should be solved.
-     * @param skipTests
-     * @param winCon
-     * @param opts
-     * @throws uniolunisaar.adam.exceptions.pg.NotSupportedGameException
-     * @throws
-     * uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException
-     * @throws uniolunisaar.adam.exceptions.pg.InvalidPartitionException
-     */
-    protected BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
-        super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
-        //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
+    public BDDSolver(BDDSolvingObject<W> solverObject, BDDSolverOptions options) {
+        super(solverObject, options);
+    }
+
+//    /**
+//     * Creates a new solver for the given game.
+//     *
+//     * @param game - the games which should be solved.
+//     * @param skipTests
+//     * @param winCon
+//     * @param opts
+//     * @throws uniolunisaar.adam.exceptions.pg.NotSupportedGameException
+//     * @throws
+//     * uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException
+//     * @throws uniolunisaar.adam.exceptions.pg.InvalidPartitionException
+//     */
+//    protected BDDSolver(PetriGame game, boolean skipTests, W winCon, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
+//        super(new BDDSolvingObject<>(game, winCon, skipTests), opts);
+    //todo: make it dependable of the given winning conditions but since I'm in a hurry, be  more conservative             
 //        // Need at least one env place
 //        if (getGame().getEnvPlaces().isEmpty()) {
 //            throw new NotSupportedGameException("BDD solving need at least one environment place.");
@@ -92,8 +92,8 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 //        if (!hasSystem) {
 //            throw new NotSupportedGameException("BDD solving need at least one system place.");
 //        }
-        // hopefully not neccessary anymore
-        // every set of system places annotated with the same token need at least one place in it, which has a transition in it postset
+    // hopefully not neccessary anymore
+    // every set of system places annotated with the same token need at least one place in it, which has a transition in it postset
 //        for (int i = 1; i < getGame().getPlaces().length; i++) {
 //            Set<Place> placeSet = getGame().getPlaces()[i];
 //            boolean hasSuccesor = false;
@@ -108,8 +108,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 //                        + placeSet.toString() + "' is missing a succesor.");
 //            }
 //        }
-    }
-
+//    }
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //
 //    /**
@@ -482,7 +481,7 @@ public abstract class BDDSolver<W extends Condition> extends Solver<BDDSolvingOb
 ////        System.out.println("aaaa");
         boolean removed = toCheck.remove(state);
         if (!removed && !ndetStates.contains(state)) { // we already did this state, and it was no ndet
-            return  false;
+            return false;
         }
         Marking m = state.getMarking();
         if (t1.isFireable(m) && t2.isFireable(m) || ndetStates.contains(state)) { // ndet encountered (in this state, or we reached a state which was already ndet detected)

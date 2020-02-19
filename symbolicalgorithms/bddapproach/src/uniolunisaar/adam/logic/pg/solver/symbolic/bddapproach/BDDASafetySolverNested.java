@@ -57,8 +57,8 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDASafetySolverNested(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
-        super(game, skipTests, win, opts);
+    BDDASafetySolverNested(BDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        super(obj, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

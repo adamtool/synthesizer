@@ -22,6 +22,7 @@ import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -46,7 +47,8 @@ public class FirstTestsAReachability {
 
     private void testToyExamples(String name, boolean hasStrat) throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         final String path = inputDir + "toyexamples" + File.separator;
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        System.out.println(AdamExtensions.getTokenTrees(solv.getNet()));
 //        Transition t = solv.getNet().getTransition("t1");
 //        System.out.println(AdamExtensions.getTokenFlow(t).toString());
@@ -94,7 +96,8 @@ public class FirstTestsAReachability {
     public void testUnfair() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         final String path = inputDir + "jhh" + File.separator;
         String name = "unfair";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 //        System.out.println(AdamExtensions.getTokenTrees(solv.getNet()));
 //        BDDTools.saveGraph2PDF(path + name + "_gg_strat", solv.getGraphStrategy(), solv);
@@ -105,7 +108,8 @@ public class FirstTestsAReachability {
     public void testMyExample2() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         final String path = inputDir + "jhh" + File.separator;
         String name = "myexample2WithEnv";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 
         Transition t = solv.getGame().getTransition("t2");
@@ -119,7 +123,8 @@ public class FirstTestsAReachability {
     public void testNoEnv() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         final String path = inputDir + "jhh" + File.separator;
         String name = "myexample2";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 
 //        Transition t = solv.getNet().getTransition("t2");
@@ -133,7 +138,8 @@ public class FirstTestsAReachability {
     public void testMyExampleNoStrat() throws IOException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         final String path = inputDir + "jhh" + File.separator;
         String name = "myexampleWithSysNoStrat";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphgame", solv.getGraphGame(), solv);
 
 //        Transition t = solv.getNet().getTransition("t2");
@@ -149,7 +155,8 @@ public class FirstTestsAReachability {
 //        final String path = inputDir + "toyexamples" + File.separator;
 //        String name = "chains";
         String name = "burglar";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 
 //        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
 //        System.out.println(solv.getNet().getName());
@@ -167,7 +174,8 @@ public class FirstTestsAReachability {
 //        final String path = inputDir + "toyexamples" + File.separator;
 //        String name = "chains";
         String name = "burglar2";
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 
 //        System.out.println(AdamExtensions.getTokenChains(solv.getNet()));
 //        System.out.println(solv.getNet().getName());

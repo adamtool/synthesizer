@@ -1,21 +1,16 @@
 package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
-import uniolunisaar.adam.ds.solver.SolverOptions;
+import uniolunisaar.adam.ds.solver.LLSolverOptions;
 import uniolunisaar.adam.exceptions.pg.symbolic.bddapproach.NoSuchBDDLibraryException;
 import uniolunisaar.adam.tools.AdamProperties;
-import uniolunisaar.adam.tools.Logger;
 
 /**
  *
  * @author Manuel Gieseking
  */
-public class BDDSolverOptions extends SolverOptions {
+public class BDDSolverOptions extends LLSolverOptions {
 
     //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
 //    private String libraryName = "buddy";
@@ -29,9 +24,18 @@ public class BDDSolverOptions extends SolverOptions {
     private boolean noType2 = false;
 
     public BDDSolverOptions() {
-        super("bdd");
+        super("bdd", true, true);
     }
 
+    public BDDSolverOptions(boolean skip) {
+        super(skip, "bdd");
+    }
+
+    public BDDSolverOptions(boolean skipTests, boolean withAutomaticTransitAnnotation) {
+        super("bdd", skipTests, withAutomaticTransitAnnotation);
+    }
+
+  
 //    public BDDSolverOptions(String name, String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
 //        super(name);
 //        this.libraryName = libraryName;

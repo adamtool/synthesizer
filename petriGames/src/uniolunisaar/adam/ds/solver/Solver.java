@@ -1,5 +1,6 @@
 package uniolunisaar.adam.ds.solver;
 
+import uniolunisaar.adam.ds.petrigame.IPetriGame;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
@@ -8,10 +9,11 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 /**
  *
  * @author Manuel Gieseking
+ * @param <G>
  * @param <SO>
  * @param <SOP>
  */
-public abstract class Solver<SO extends SolvingObject<? extends PetriGame, ? extends Condition>, SOP extends SolverOptions> {
+public abstract class Solver<G extends IPetriGame, SO extends SolvingObject<G, ? extends Condition<?>>, SOP extends SolverOptions> {
 
     // the game and winning condition which should be solved
     private final SO solvingObject;
@@ -51,7 +53,7 @@ public abstract class Solver<SO extends SolvingObject<? extends PetriGame, ? ext
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% GETTER / SETTER 
-    public PetriGame getGame() {
+    public G getGame() {
         return solvingObject.getGame();
     }
 

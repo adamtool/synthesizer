@@ -83,8 +83,8 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDABuechiSolver(PetriGame game, boolean skipTests, Buchi win, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
-        super(game, skipTests, win, opts);
+    BDDABuechiSolver(BDDSolvingObject<Buchi> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        super(obj, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1390,7 +1390,6 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
     protected BDD calcSpecialDCSs() {
         return winningStates();
     }
- 
 
     @Override
     public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {

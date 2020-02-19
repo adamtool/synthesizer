@@ -1,6 +1,6 @@
 package uniolunisaar.adam.ds.solver;
 
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.petrigame.IPetriGame;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 
 /**
@@ -9,7 +9,7 @@ import uniolunisaar.adam.ds.petrinet.objectives.Condition;
  * @param <G>
  * @param <W>
  */
-public abstract class SolvingObject<G extends PetriGame, W extends Condition> {
+public abstract class SolvingObject<G extends IPetriGame, W extends Condition> {
 
     private final G game;
     private final W winCon;
@@ -17,7 +17,7 @@ public abstract class SolvingObject<G extends PetriGame, W extends Condition> {
     public SolvingObject(G game, W winCon) {
         this.game = game;
         this.winCon = winCon;
-        winCon.buffer(game);
+        game.initializeWinningCondition(winCon);
     }
 
     public G getGame() {

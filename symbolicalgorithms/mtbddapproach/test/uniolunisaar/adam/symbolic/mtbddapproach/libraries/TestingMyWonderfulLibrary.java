@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
 import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
+import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverOptions;
 
 /**
  *
@@ -21,7 +22,7 @@ public class TestingMyWonderfulLibrary {
     public static void testCall() throws Exception {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
-        MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        MTBDDSolver<? extends Condition<?>> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", new MTBDDSolverOptions());
         solv.existsWinningStrategy();
     }
 
@@ -31,7 +32,7 @@ public class TestingMyWonderfulLibrary {
         final String name = "firstExamplePaper";
         String output = "asdf";
         try {
-            MTBDDSolver<? extends Condition> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+            MTBDDSolver<? extends Condition<?>> solv = MTBDDSolverFactory.getInstance().getSolver(path + name + ".apt", new MTBDDSolverOptions());
             solv.getStrategy();
         } catch (UnsupportedOperationException e) {
             output = e.getMessage();

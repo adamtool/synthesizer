@@ -15,6 +15,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pnwt.InconsistencyException;
 import uniolunisaar.adam.exceptions.pg.NoCalculatorProvidedException;
 import uniolunisaar.adam.exceptions.pnwt.NotInitialPlaceException;
@@ -31,7 +32,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class PetriGame extends PetriNetWithTransits {
+public class PetriGame extends PetriNetWithTransits implements IPetriGame {
 
     private boolean skip = false;
     private BoundedResult bounded = null;
@@ -352,6 +353,11 @@ public class PetriGame extends PetriNetWithTransits {
     public void setSystem(Place place) {
         PetriGameExtensionHandler.setSystem(place);
         envPlaces.remove(place);
+    }
+
+    @Override
+    public void initializeWinningCondition(Condition winCon) {
+        winCon.buffer(this);
     }
 
 }

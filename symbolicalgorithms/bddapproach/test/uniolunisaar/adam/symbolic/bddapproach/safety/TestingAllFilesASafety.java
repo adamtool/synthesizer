@@ -27,6 +27,7 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -99,6 +100,7 @@ public class TestingAllFilesASafety {
             "nounfolding.apt", // two environment token
             "oneunfolding.apt", // two environment token
             "trueconcurrent.apt", // two environment token
+            "unfolding1.apt", // two environment token
             "independentNets.apt", //  more than one env token
             "unreachableEnvTransition2.apt", //  two env token            
             //            "secondTry.apt", // net not safe p0
@@ -159,7 +161,8 @@ public class TestingAllFilesASafety {
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, CalculationInterruptedException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
 //        if (notSupported.contains(file.getName())) {
 //            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
 //            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");

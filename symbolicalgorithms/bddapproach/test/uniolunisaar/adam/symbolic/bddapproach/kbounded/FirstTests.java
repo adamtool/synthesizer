@@ -19,6 +19,7 @@ import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -43,7 +44,8 @@ public class FirstTests {
 
     private void testExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + File.separator;
-        BDDkBoundedSolver solv = BDDkBoundedSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        BDDkBoundedSolver solv = BDDkBoundedSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        System.out.println("ExStrat" + solv.existsWinningStrategy());
 //        solv.getGraphStrategy();
 //        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);

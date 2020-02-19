@@ -22,7 +22,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDkBoundedSolver extends Solver<BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
+public class BDDkBoundedSolver extends Solver<PetriGame, BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;
@@ -44,8 +44,8 @@ public class BDDkBoundedSolver extends Solver<BDDkBoundedSolvingObject<Safety>, 
      * @throws SolverDontFitPetriGameException - thrown if the created solver
      * don't fit the given winning objective specified in the given game.
      */
-    BDDkBoundedSolver(PetriGame game, boolean skipTests, Safety winCon, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
-        super(new BDDkBoundedSolvingObject<>(game, winCon), opts);
+    BDDkBoundedSolver(BDDkBoundedSolvingObject<Safety> solvingObject, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException {
+        super(solvingObject, opts);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,7 +127,7 @@ public class BDDkBoundedSolver extends Solver<BDDkBoundedSolvingObject<Safety>, 
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
         }
-        System.out.println(getFactory().varNum()+"taddda");
+        System.out.println(getFactory().varNum() + "taddda");
         setDCSLength(getFactory().varNum() / 2);
     }
 
