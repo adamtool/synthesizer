@@ -35,7 +35,7 @@ public class Benchmarks {
     }
     private static Benchmarks instance = null;
     private final Map<Parts, Benchmark> benchs;
-    private Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>>, ? extends SolverOptions> solver = null;
+    private Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> solver = null;
     private PetriNet strategy = null;
 
     private Benchmarks() {
@@ -103,7 +103,7 @@ public class Benchmarks {
         benchs.get(part).setStopMemory(rt.totalMemory() - rt.freeMemory());
     }
 
-    public void addData(Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>>, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> solver, PetriNet strat) {
         this.solver = solver;
         this.strategy = strat;
     }
@@ -230,7 +230,7 @@ public class Benchmarks {
         return sb.toString();
     }
 
-    public Solver<PetriGame, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>>, ? extends SolverOptions> getSolver() {
+    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> getSolver() {
         return solver;
     }
 

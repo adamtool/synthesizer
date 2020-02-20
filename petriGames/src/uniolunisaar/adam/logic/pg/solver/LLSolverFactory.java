@@ -18,7 +18,7 @@ import uniolunisaar.adam.util.PNWTTools;
  * @param <SOP>
  * @param <S>
  */
-public abstract class LLSolverFactory<SOP extends LLSolverOptions, S extends Solver<PetriGame, ? extends SolvingObject<PetriGame, ? extends Condition<?>>, SOP>> extends SolverFactory<PetriGame, SOP, S> {
+public abstract class LLSolverFactory<SOP extends LLSolverOptions, S extends Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, SOP>> extends SolverFactory<PetriGame, SOP, S> {
 
     /**
      * Creates a solver for the given game in the APT file. The winning
@@ -33,8 +33,11 @@ public abstract class LLSolverFactory<SOP extends LLSolverOptions, S extends Sol
      * @throws SolvingException
      */
     @Override
+//    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, SOP> getSolver(String path, SOP options) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
     public S getSolver(String path, SOP options) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException {
         PetriGame game = PGTools.getPetriGame(path, options.isSkipTests(), options.isWithAutomaticTransitAnnotation());
+//        Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, SOP> solver;
+//        solver = getSolver(game, options);
         return getSolver(game, options);
     }
 
@@ -49,7 +52,9 @@ public abstract class LLSolverFactory<SOP extends LLSolverOptions, S extends Sol
      * @throws SolvingException
      */
     @Override
+//    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, SOP> getSolver(PetriGame game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
     public S getSolver(PetriGame game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
+//    public <W extends Condition<W>, SO extends SolvingObject<PetriGame, W, SO>> Solver<PetriGame, W, SO, SOP> getSolver(PetriGame game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
         Condition.Objective winCon = PNWTTools.parseConditionFromNetExtensionText(game);
         return getSolver(game, winCon, options);
     }

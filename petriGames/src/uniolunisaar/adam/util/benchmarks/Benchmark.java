@@ -6,7 +6,7 @@ package uniolunisaar.adam.util.benchmarks;
  */
 public class Benchmark {
 
-    private String name;
+    private final String name;
     private long startTime;
     private long stopTime;
     private long startMemory;

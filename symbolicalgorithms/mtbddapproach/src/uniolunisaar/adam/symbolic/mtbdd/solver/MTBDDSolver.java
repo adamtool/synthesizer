@@ -14,7 +14,7 @@ import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class MTBDDSolver<W extends Condition<W>> extends Solver<PetriGame, MTBDDSolvingObject<W>, MTBDDSolverOptions> {
+public abstract class MTBDDSolver<W extends Condition<W>> extends Solver<PetriGame, W, MTBDDSolvingObject<W>, MTBDDSolverOptions> {
 
     /**
      * Creates a new solver for the given game.

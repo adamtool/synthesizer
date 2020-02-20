@@ -8,8 +8,9 @@ import uniolunisaar.adam.ds.petrinet.objectives.Condition;
  * @author Manuel Gieseking
  * @param <G>
  * @param <W>
+ * @param <SO>
  */
-public abstract class SolvingObject<G extends IPetriGame, W extends Condition<W>> {
+public abstract class SolvingObject<G extends IPetriGame, W extends Condition<W>, SO extends SolvingObject<G, W, SO>> {
 
     private final G game;
     private final W winCon;
@@ -28,6 +29,6 @@ public abstract class SolvingObject<G extends IPetriGame, W extends Condition<W>
         return winCon;
     }
 
-    public abstract <SO extends SolvingObject<G, W>> SO getCopy();
+    public abstract SO getCopy();
 
 }

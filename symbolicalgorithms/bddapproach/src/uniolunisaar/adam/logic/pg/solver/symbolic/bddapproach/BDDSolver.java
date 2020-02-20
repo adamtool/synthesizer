@@ -35,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame, BDDSolvingObject<W>, BDDSolverOptions> {
+public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame, W, BDDSolvingObject<W>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;
