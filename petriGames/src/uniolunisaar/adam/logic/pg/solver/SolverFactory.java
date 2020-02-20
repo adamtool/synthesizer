@@ -18,14 +18,14 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
  *
  * @author Manuel Gieseking
  * @param <G>
- * @param <S>
  * @param <SOP>
+ * @param <S>
  */
-public abstract class SolverFactory<G extends IPetriGame, SOP extends SolverOptions, S extends Solver<G, ? extends SolvingObject<G, ? extends Condition<?>>, SOP>> {
+public abstract class SolverFactory<G extends IPetriGame, SOP extends SolverOptions, S extends Solver<G, ? extends Condition<?>, ? extends SolvingObject<G, ? extends Condition<?>, ? extends SolvingObject<G, ? extends Condition<?>, ?>>, SOP>> {
 
     /**
-     * Creates a solver for the given game in the APT file. The winning
-     * condition and type of the game has to be annotated.
+     * Creates a solver for the given game in the APT file.The winning condition
+     * and type of the game has to be annotated.
      *
      * @param path - to the file in APT format
      * @param options
@@ -52,28 +52,30 @@ public abstract class SolverFactory<G extends IPetriGame, SOP extends SolverOpti
     public S getSolver(G game, Condition.Objective winCon, SOP options) throws SolvingException {
         switch (winCon) {
             case E_SAFETY: {
-                SolvingObject<G, Safety> obj = createSolvingObject(game, new Safety(true));
-                return getESafetySolver(obj, options);
+                return getESafetySolver(game, new Safety(true), options);
             }
             case A_SAFETY: {
-                SolvingObject<G, Safety> obj = createSolvingObject(game, new Safety(false));
-                return getASafetySolver(obj, options);
+                return getASafetySolver(game, new Safety(false), options);
             }
             case E_REACHABILITY: {
-                SolvingObject<G, Reachability> obj = createSolvingObject(game, new Reachability(true));
-                return getEReachabilitySolver(obj, options);
+//                SolvingObject<G, Reachability, ? extends SolvingObject<G, Reachability, ?>> obj = createSolvingObject(game, new Reachability(true));
+//                return getEReachabilitySolver(obj, options);
+                return getEReachabilitySolver(game, new Reachability(true), options);
             }
             case A_REACHABILITY: {
-                SolvingObject<G, Reachability> obj = createSolvingObject(game, new Reachability(false));
-                return getAReachabilitySolver(obj, options);
+//                SolvingObject<G, Reachability, ? extends SolvingObject<G, Reachability, ?>> obj = createSolvingObject(game, new Reachability(false));
+//                return getAReachabilitySolver(obj, options);
+                return getAReachabilitySolver(game, new Reachability(false), options);
             }
             case E_BUCHI: {
-                SolvingObject<G, Buchi> obj = createSolvingObject(game, new Buchi(true));
-                return getEBuchiSolver(obj, options);
+//                SolvingObject<G, Buchi, ? extends SolvingObject<G, Buchi, ?>> obj = createSolvingObject(game, new Buchi(true));
+//                return getEBuchiSolver(obj, options);
+                return getEBuchiSolver(game, new Buchi(true), options);
             }
             case A_BUCHI: {
-                SolvingObject<G, Buchi> obj = createSolvingObject(game, new Buchi(false));
-                return getABuchiSolver(obj, options);
+//                SolvingObject<G, Buchi, ? extends SolvingObject<G, Buchi, ?>> obj = createSolvingObject(game, new Buchi(false));
+//                return getABuchiSolver(obj, options);
+                return getABuchiSolver(game, new Buchi(false), options);
             }
             case LTL:
                 break;
@@ -81,18 +83,24 @@ public abstract class SolverFactory<G extends IPetriGame, SOP extends SolverOpti
         return null;
     }
 
-    protected abstract <W extends Condition<W>> SolvingObject<G, W> createSolvingObject(G game, W winCon) throws NotSupportedGameException;
+    protected abstract <W extends Condition<W>> SolvingObject<G, W, ? extends SolvingObject<G, W, ?>> createSolvingObject(G game, W winCon) throws NotSupportedGameException;
 
-    protected abstract S getESafetySolver(SolvingObject<G, Safety> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Safety, ? extends SolvingObject<G, Safety, ? extends SolvingObject<G, Safety, ?>>, SOP> getESafetySolver(G game, Safety con, SOP options) throws SolvingException;
+    protected abstract S getESafetySolver(G game, Safety con, SOP options) throws SolvingException;
 
-    protected abstract S getASafetySolver(SolvingObject<G, Safety> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Safety, ? extends SolvingObject<G, Safety, ? extends SolvingObject<G, Safety, ?>>, SOP> getASafetySolver(G game, Safety con, SOP options) throws SolvingException;
+    protected abstract S getASafetySolver(G game, Safety con, SOP options) throws SolvingException;
 
-    protected abstract S getEReachabilitySolver(SolvingObject<G, Reachability> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Reachability, ? extends SolvingObject<G, Reachability, ? extends SolvingObject<G, Reachability, ?>>, SOP> getEReachabilitySolver(G game, Reachability con, SOP options) throws SolvingException;
+    protected abstract S getEReachabilitySolver(G game, Reachability con, SOP options) throws SolvingException;
 
-    protected abstract S getAReachabilitySolver(SolvingObject<G, Reachability> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Reachability, ? extends SolvingObject<G, Reachability, ? extends SolvingObject<G, Reachability, ?>>, SOP> getAReachabilitySolver(G game, Reachability con, SOP options) throws SolvingException;
+    protected abstract S getAReachabilitySolver(G game, Reachability con, SOP options) throws SolvingException;
 
-    protected abstract S getEBuchiSolver(SolvingObject<G, Buchi> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Buchi, ? extends SolvingObject<G, Buchi, ? extends SolvingObject<G, Buchi, ?>>, SOP> getEBuchiSolver(G game, Buchi con, SOP options) throws SolvingException;
+    protected abstract S getEBuchiSolver(G game, Buchi con, SOP options) throws SolvingException;
 
-    protected abstract S getABuchiSolver(SolvingObject<G, Buchi> solverObject, SOP options) throws SolvingException;
+//    protected abstract Solver<G, Buchi, ? extends SolvingObject<G, Buchi, ? extends SolvingObject<G, Buchi, ?>>, SOP> getABuchiSolver(G game, Buchi con, SOP options) throws SolvingException;
+    protected abstract S getABuchiSolver(G game, Buchi con, SOP options) throws SolvingException;
 
 }

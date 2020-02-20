@@ -22,7 +22,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDkBoundedSolver extends Solver<PetriGame, BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
+public class BDDkBoundedSolver extends Solver<PetriGame, Safety, BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;

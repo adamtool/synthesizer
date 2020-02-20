@@ -10,10 +10,11 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
  *
  * @author Manuel Gieseking
  * @param <G>
+ * @param <W>
  * @param <SO>
  * @param <SOP>
  */
-public abstract class Solver<G extends IPetriGame, SO extends SolvingObject<G, ? extends Condition<?>>, SOP extends SolverOptions> {
+public abstract class Solver<G extends IPetriGame, W extends Condition<W>, SO extends SolvingObject<G, W, SO>, SOP extends SolverOptions> {
 
     // the game and winning condition which should be solved
     private final SO solvingObject;

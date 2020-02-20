@@ -31,7 +31,7 @@ import uniolunisaar.adam.util.PGTools;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class BDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W> {
+public class BDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W, BDDSolvingObject<W>> {
 
     private final Set<Transition> sysTransition;
     private final Map<Transition, Pair<List<Place>, List<Place>>> preset;

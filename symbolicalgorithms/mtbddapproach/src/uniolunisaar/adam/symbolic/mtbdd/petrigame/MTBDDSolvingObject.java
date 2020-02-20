@@ -18,7 +18,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W> {
+public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W, MTBDDSolvingObject<W>> {
 
     public MTBDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         this(game, winCon, false);

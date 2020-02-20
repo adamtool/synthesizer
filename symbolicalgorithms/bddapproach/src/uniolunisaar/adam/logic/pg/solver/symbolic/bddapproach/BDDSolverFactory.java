@@ -11,7 +11,6 @@ import uniolunisaar.adam.ds.petrinet.objectives.Buchi;
 import uniolunisaar.adam.ds.petrinet.objectives.Reachability;
 import uniolunisaar.adam.ds.petrinet.objectives.Safety;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
-import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
@@ -41,12 +40,13 @@ public class BDDSolverFactory extends LLSolverFactory<BDDSolverOptions, BDDSolve
         return super.getSolver(file, new BDDSolverOptions());
     }
 
+//    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, BDDSolverOptions> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
     public BDDSolver<? extends Condition<?>> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(game, new BDDSolverOptions());
     }
 
     @Override
-    protected <W extends Condition<W>> SolvingObject<PetriGame, W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> BDDSolvingObject<W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
         try {
             return new BDDSolvingObject<>(game, winCon);
         } catch (NetNotSafeException | NoSuitableDistributionFoundException | InvalidPartitionException ex) {
@@ -55,29 +55,31 @@ public class BDDSolverFactory extends LLSolverFactory<BDDSolverOptions, BDDSolve
     }
 
     @Override
-    protected BDDSolver<Safety> getESafetySolver(SolvingObject<PetriGame, Safety> solverObject, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
+    protected BDDSolver<Safety> getESafetySolver(PetriGame game, Safety con, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
         try {
 // if it creates a new token chain, use the co-Buchi solver
-            for (Transition t : solverObject.getGame().getTransitions()) {
-                for (Transit tfl : solverObject.getGame().getTransits(t)) {
+            BDDSolvingObject<Safety> so = createSolvingObject(game, con);
+            for (Transition t : so.getGame().getTransitions()) {
+                for (Transit tfl : so.getGame().getTransits(t)) {
                     if (tfl.isInitial()) {
-                        return new BDDESafetyWithNewChainsSolver((BDDSolvingObject<Safety>) solverObject, options);
+                        return new BDDESafetyWithNewChainsSolver(so, options);
                     }
                 }
             }
-            return new BDDESafetySolver((BDDSolvingObject<Safety>) solverObject, options);
+            return new BDDESafetySolver(so, options);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
     }
 
     @Override
-    protected BDDSolver<Safety> getASafetySolver(SolvingObject<PetriGame, Safety> solverObject, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    protected BDDSolver<Safety> getASafetySolver(PetriGame game, Safety con, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
         try {
+            BDDSolvingObject<Safety> so = createSolvingObject(game, con);
             if (opts.isNoType2()) {
-                return new BDDASafetyWithoutType2Solver((BDDSolvingObject<Safety>) solverObject, opts);
+                return new BDDASafetyWithoutType2Solver(so, opts);
             } else {
-                return new BDDASafetySolver((BDDSolvingObject<Safety>) solverObject, opts);
+                return new BDDASafetySolver(so, opts);
             }
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
@@ -86,36 +88,37 @@ public class BDDSolverFactory extends LLSolverFactory<BDDSolverOptions, BDDSolve
     }
 
     @Override
-    protected BDDEReachabilitySolver getEReachabilitySolver(SolvingObject<PetriGame, Reachability> solverObject, BDDSolverOptions opts) throws SolvingException {
+    protected BDDEReachabilitySolver getEReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions opts) throws SolvingException {
         try {
-            return new BDDEReachabilitySolver((BDDSolvingObject<Reachability>) solverObject, opts);
+            BDDSolvingObject<Reachability> so = createSolvingObject(game, con);
+            return new BDDEReachabilitySolver(so, opts);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
     }
 
     @Override
-    protected BDDAReachabilitySolver getAReachabilitySolver(SolvingObject<PetriGame, Reachability> solverObject, BDDSolverOptions options) throws SolvingException {
+    protected BDDAReachabilitySolver getAReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions options) throws SolvingException {
         try {
-            return new BDDAReachabilitySolver((BDDSolvingObject<Reachability>) solverObject, options);
+            return new BDDAReachabilitySolver(createSolvingObject(game, con), options);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
     }
 
     @Override
-    protected BDDEBuechiSolver getEBuchiSolver(SolvingObject<PetriGame, Buchi> solverObject, BDDSolverOptions opts) throws SolvingException {
+    protected BDDEBuechiSolver getEBuchiSolver(PetriGame game, Buchi con, BDDSolverOptions opts) throws SolvingException {
         try {
-            return new BDDEBuechiSolver((BDDSolvingObject<Buchi>) solverObject, opts);
+            return new BDDEBuechiSolver(createSolvingObject(game, con), opts);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
     }
 
     @Override
-    protected BDDABuechiSolver getABuchiSolver(SolvingObject<PetriGame, Buchi> solverObject, BDDSolverOptions options) throws SolvingException {
+    protected BDDABuechiSolver getABuchiSolver(PetriGame game, Buchi con, BDDSolverOptions options) throws SolvingException {
         try {
-            return new BDDABuechiSolver((BDDSolvingObject<Buchi>) solverObject, options);
+            return new BDDABuechiSolver(createSolvingObject(game, con), options);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }

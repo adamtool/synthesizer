@@ -18,7 +18,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W> {
+public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W, BDDkBoundedSolvingObject<W>> {
 
     public BDDkBoundedSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         this(game, winCon, false);
