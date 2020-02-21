@@ -17,7 +17,7 @@ import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
-import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDReachabilityGraphBuilder;
+import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDReachabilityGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
 import uniolunisaar.adam.tools.Logger;
 
@@ -154,7 +154,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-        BDDGraph strat = BDDReachabilityGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        BDDGraph strat = BDDReachabilityGraphAndGStrategyBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 

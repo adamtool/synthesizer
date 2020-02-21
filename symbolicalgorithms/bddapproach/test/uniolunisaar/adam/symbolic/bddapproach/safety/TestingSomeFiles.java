@@ -55,7 +55,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -65,7 +65,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "burglar" + File.separator;
         final String name = "burglar";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -75,7 +75,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ma_vsp" + File.separator;
         final String name = "abb62";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -85,7 +85,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ma_vsp" + File.separator;
         final String name = "vsp_1_withBadPlaces";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "graphengame", solv.getGraphGame(), solv);
         BDDTools.saveGraph2PDF(outputDir + name + "graph_strat", solv.getGraphStrategy(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
@@ -96,7 +96,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "vsp" + File.separator;
         final String name = "vsp__adam_machines";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir+name+"graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -106,7 +106,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "testingNets" + File.separator;
         final String name = "infiniteSystemTrysToAvoidEnvUseBadPlace";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo must be false
     }
@@ -116,7 +116,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "constructedExample" + File.separator;
         final String name = "constructedExample";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
@@ -125,7 +125,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "olderog" + File.separator + "type1Type2Mutex" + File.separator;
         final String name = "net";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
@@ -134,7 +134,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "tests" + File.separator;
         final String name = "watchdog5";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
 
@@ -142,7 +142,7 @@ public class TestingSomeFiles {
 //    public void testNdet() throws IOException, SolvingException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException {
 //        final String path = inputDir + "ndet" + File.separator;
 //        final String name = "nondet2";
-//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
 //        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
 ////        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
@@ -153,7 +153,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet2WithSys";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
@@ -165,7 +165,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet_s3_noStrat";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
     }
@@ -175,7 +175,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet_withBad";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
@@ -191,7 +191,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "ndet" + File.separator;
         final String name = "nondet2WithStratByGameSolving";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
@@ -208,7 +208,7 @@ public class TestingSomeFiles {
         final String path = inputDir + "deadlock" + File.separator;
         final String name = "missDeadlock";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
         Assert.assertTrue(PGTools.isSolvablePetriGame(solv.getGame(), cover) != null, "Petri game not solvable: ");
 //        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
@@ -221,7 +221,7 @@ public class TestingSomeFiles {
         final String name = "robots_annotated";
 //        Logger.getInstance().setVerbose(true);
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir+name+"garaphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -233,7 +233,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 //        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
         BDDTestingTools.testExample(solv, outputDir + name, false);
@@ -247,7 +247,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
         BDDTestingTools.testExample(solv, outputDir + name, false);
@@ -260,7 +260,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true); // should only have a strategy for the journal version of the ndet
         BDDTestingTools.testExample(solv, outputDir + name, true);
@@ -273,7 +273,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -285,7 +285,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -297,7 +297,7 @@ public class TestingSomeFiles {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -313,12 +313,12 @@ public class TestingSomeFiles {
 
         // this doesn't work since the partitioning is done during the creation 
         // of the solver and this is already dependent on cp
-//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
+//        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
         PetriGame game = PGTools.getPetriGame(path + name + ".apt", false, true);
         ExtensionCalculator<Boolean> calc = new ConcurrencyPreservingGamesCalculator();
         ExtensionCalculator<?> c = game.addExtensionCalculator(calc.getKey(), calc);
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(game, opts);
+        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(game, opts);
 
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
@@ -334,7 +334,7 @@ public class TestingSomeFiles {
         // do the partitioning check and the coding of the partitions
 //        Logger.getInstance().setVerbose(true);
 //
-//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
+//        BDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", true);
 //        System.out.println(outputDir + name);
 //        PGTools.savePG2PDF(outputDir + name, solv.getGame(), false);
 ////        BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);

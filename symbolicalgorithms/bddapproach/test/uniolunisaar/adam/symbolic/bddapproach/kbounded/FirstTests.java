@@ -45,7 +45,7 @@ public class FirstTests {
     private void testExamples(String name, boolean hasStrat) throws IOException, SolvingException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, ParseException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParameterMissingException {
         final String path = inputDir + File.separator;
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDkBoundedSolver solv = BDDkBoundedSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        BDDkBoundedSolver solv = (BDDkBoundedSolver) BDDkBoundedSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
 //        System.out.println("ExStrat" + solv.existsWinningStrategy());
 //        solv.getGraphStrategy();
 //        BDDGraph g = BDDGraphBuilder.builtGraphStrategy(solv, 5);

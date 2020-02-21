@@ -24,7 +24,7 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
-import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDBuchiGraphBuilder;
+import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDBuchiGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithAllType2StrategyBuilder;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
@@ -1399,7 +1399,7 @@ public class BDDABuechiSolver extends BDDSolver<Buchi> implements BDDType2Solver
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-        BDDGraph strat = BDDBuchiGraphBuilder.getInstance().builtGraphStrategy(this, distance);
+        BDDGraph strat = BDDBuchiGraphAndGStrategyBuilder.getInstance().builtGraphStrategy(this, distance);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS         

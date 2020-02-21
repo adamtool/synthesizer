@@ -23,7 +23,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphBuilder;
+import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
@@ -1251,7 +1251,7 @@ public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame
     }
 
     protected BDDGraph calculateGraphGame() throws CalculationInterruptedException {
-        return BDDGraphBuilder.getInstance().builtGraph(this);
+        return BDDGraphAndGStrategyBuilder.getInstance().builtGraph(this);
     }
 
     public BDDGraph getGraphGame() throws CalculationInterruptedException {
@@ -1265,7 +1265,7 @@ public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
-        BDDGraph g = BDDGraphBuilder.getInstance().builtGraphStrategy(this, null);
+        BDDGraph g = BDDGraphAndGStrategyBuilder.getInstance().builtGraphStrategy(this, null);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
@@ -1689,6 +1689,7 @@ public abstract class BDDSolver<W extends Condition<W>> extends Solver<PetriGame
     /**
      * TODO: didn't wanted this to have from outside, but maybe need so
      *
+     * @param pos
      * @return
      */
     public BDD getWellformed(int pos) {

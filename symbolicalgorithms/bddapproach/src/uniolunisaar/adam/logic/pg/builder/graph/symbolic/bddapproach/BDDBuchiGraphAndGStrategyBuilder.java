@@ -12,19 +12,19 @@ import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
  * @author Manuel Gieseking
  * @param <S>
  */
-public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
+public class BDDBuchiGraphAndGStrategyBuilder extends BDDGraphAndGStrategyBuilder {
 
-    private static BDDReachabilityGraphBuilder instance = null;
+    private static BDDBuchiGraphAndGStrategyBuilder instance = null;
 
-    public static BDDReachabilityGraphBuilder getInstance() {
+    public static BDDBuchiGraphAndGStrategyBuilder getInstance() {
         if (instance == null) {
-            instance = new BDDReachabilityGraphBuilder();
+            instance = new BDDBuchiGraphAndGStrategyBuilder();
         }
         return instance;
     }
 
-    private BDDReachabilityGraphBuilder() {
-        BDDGraphBuilder.getInstance();
+    private BDDBuchiGraphAndGStrategyBuilder() {
+        BDDGraphAndGStrategyBuilder.getInstance();
     }
 
     @Override
@@ -34,7 +34,14 @@ public class BDDReachabilityGraphBuilder extends BDDGraphBuilder {
 
     @Override
     <S extends BDDSolver<? extends Condition<?>>> void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
-        BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
-        addState(solver, graph, prev, todoStates, succ);
+        // Get the set F^m
+        BDD F = distance.get(-1);
+        if (F.and(prev.getState()).isZero()) { // if it's not a buchi state
+            BDDState succ = getNearestSuccessor(succs, solver, prev, distance);
+            addState(solver, graph, prev, todoStates, succ);
+        } else { // choose an arbitray winning successor (adapted from to algorithm in zimmermann to a nearest successor)            
+            BDDState succ = getNearestState(solver, succs, distance);
+            addState(solver, graph, prev, todoStates, succ);
+        }
     }
 }

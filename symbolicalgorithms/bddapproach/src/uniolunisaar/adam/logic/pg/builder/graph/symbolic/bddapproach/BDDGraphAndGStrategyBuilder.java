@@ -16,18 +16,18 @@ import uniolunisaar.adam.tools.Logger;
 /**
  * @author Manuel Gieseking
  */
-public class BDDGraphBuilder {
+public class BDDGraphAndGStrategyBuilder {
 
-    private static BDDGraphBuilder instance = null;
+    private static BDDGraphAndGStrategyBuilder instance = null;
 
-    public static BDDGraphBuilder getInstance() {
+    public static BDDGraphAndGStrategyBuilder getInstance() {
         if (instance == null) {
-            instance = new BDDGraphBuilder();
+            instance = new BDDGraphAndGStrategyBuilder();
         }
         return instance;
     }
 
-    protected BDDGraphBuilder() {
+    protected BDDGraphAndGStrategyBuilder() {
     }
 
     public <S extends BDDSolver<? extends Condition<?>>> BDDGraph builtGraph(S solver) throws CalculationInterruptedException {
