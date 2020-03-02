@@ -136,6 +136,7 @@ public class BDDASafetyWithoutType2Solver extends BDDSolver<Safety> {
      * Returns the winning decisionsets for the system players
      *
      * @return
+     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
      */
     @Override
     protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
