@@ -41,6 +41,7 @@ import uniolunisaar.adam.tools.processHandling.ProcessPool;
 import uniolunisaar.adam.util.pg.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
 import static uniolunisaar.adam.util.PNWTTools.getTransitRelationFromTransitions;
+import uniolunisaar.adam.util.pg.ExtensionCalculator;
 import uniolunisaar.adam.util.pg.TransitCalculator;
 
 /**
@@ -720,6 +721,23 @@ public class PGTools {
         });
         mvPdf.start();
         return mvPdf;
+    }
+
+    /**
+     * Creates a PetriGame which has automatically named nodes and the original
+     * ids in the label of the node. This can be used to create a net which is
+     * definitely readably be the APT parser.
+     *
+     * @param game
+     * @return
+     */
+    public static PetriGame createPetriGameWithIDsInLabel(PetriGame game) {
+        PetriGame out = new PetriGame(game.getName());
+        PNWTTools.addElementsForPNWTWithIDsInLabel(game, out);
+        for (Map.Entry<String, ExtensionCalculator<?>> calc : game.getCalculators().entrySet()) {
+            out.addExtensionCalculator(calc.getKey(), calc.getValue(), true); // todo: to greedy to add all of them as to listen to changes.
+        }
+        return out;
     }
 
 }

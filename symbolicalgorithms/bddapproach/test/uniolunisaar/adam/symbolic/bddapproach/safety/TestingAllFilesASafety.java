@@ -111,6 +111,7 @@ public class TestingAllFilesASafety {
             "secondTry.apt", //  two env token
             "finiteWithBad.apt", //  two env token
             "finite3.apt", //  two env token
+            "thirdTry.apt", // two env token
             // %%%% changes player's membership
             "causalmemory.apt", // p0 (sys) - t0 -> p2 (env)
             "minimal.apt", // A (env) -tA-> B (sys)
