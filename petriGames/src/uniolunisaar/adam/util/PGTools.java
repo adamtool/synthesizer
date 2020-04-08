@@ -423,10 +423,13 @@ public class PGTools {
         boolean isStrat = true;
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
         // deadlock avoiding
+        System.out.println("DLA " + isDeadlockAvoiding(origNet, strat, cover));
         isStrat &= isDeadlockAvoiding(origNet, strat, cover);
         // (S1)
+        System.out.println("DET " + isDeterministic(strat, cover));
         isStrat &= isDeterministic(strat, cover);
         // (S2)
+        System.out.println("ENV " + !restrictsEnvTransition(origNet, strat, withReachabillityCheck));
         isStrat &= !restrictsEnvTransition(origNet, strat, withReachabillityCheck);
         return isStrat;
     }
