@@ -61,7 +61,9 @@ public class TestingAllFilesInvariants {
             "unfair7.apt", // two env token
             "unfair8.apt", // two env token
             "unfair9.apt", // two env token
-            "unfair10.apt" // two env token
+            "unfair10.apt", // two env token
+            "webToolCoords/SR_R2_T2_P2_withoutCheckAllTools.apt", // takes really long
+            "webToolCoords/SR_R2_T2_P2_ohnePartition.apt" // takes really long
     )
     );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
