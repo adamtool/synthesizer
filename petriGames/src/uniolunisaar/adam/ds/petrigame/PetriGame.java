@@ -15,7 +15,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
-import uniolunisaar.adam.ds.petrinet.objectives.Condition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pnwt.InconsistencyException;
 import uniolunisaar.adam.exceptions.pg.NoCalculatorProvidedException;
 import uniolunisaar.adam.exceptions.pnwt.NotInitialPlaceException;

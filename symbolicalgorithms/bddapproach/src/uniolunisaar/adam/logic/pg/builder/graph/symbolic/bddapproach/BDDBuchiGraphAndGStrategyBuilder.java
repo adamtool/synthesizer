@@ -5,7 +5,7 @@ import java.util.Map;
 import net.sf.javabdd.BDD;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.ds.petrinet.objectives.Condition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 
 /**

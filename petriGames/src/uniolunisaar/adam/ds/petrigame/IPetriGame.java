@@ -1,6 +1,6 @@
 package uniolunisaar.adam.ds.petrigame;
 
-import uniolunisaar.adam.ds.petrinet.objectives.Condition;
+import uniolunisaar.adam.ds.objectives.Condition;
 
 /**
  *
