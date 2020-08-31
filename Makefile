@@ -4,7 +4,7 @@ DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/fra
 DEPENDENCIES_REV="HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
-SYNTHESIZER_TARGETS = petrigames symbolic bounded
+SYNTHESIZER_TARGETS = petrigames symbolic
 t=jar
 
 # should be executed no matter if a file with the same name exists or not
@@ -14,7 +14,6 @@ t=jar
 .PHONY: tools
 .PHONY: petrinetwithtransits
 .PHONY: petrigames
-.PHONY: bounded
 .PHONY: symbolic
 .PHONY: bdd
 .PHONY: mtbdd
@@ -63,9 +62,6 @@ petrinetwithtransits: check_dependencies
 
 petrigames:
 	ant -buildfile ./petriGames/build.xml $(t)
-
-bounded: check_dependencies
-	ant -buildfile ./boundedalgorithms/build.xml $(t)
 
 bdd: check_dependencies
 	ant -buildfile ./symbolicalgorithms/bddapproach/build.xml $(t)
