@@ -11,7 +11,7 @@ import uniolunisaar.adam.ds.graph.State;
 public class BDDState extends State {
 
     private final BDD state;
-    private boolean mcut;
+    private boolean envState;
     private int distance;
     private boolean special;
     private boolean bad;
@@ -80,12 +80,12 @@ public class BDDState extends State {
         return state;
     }
 
-    public boolean isMcut() {
-        return mcut;
+    public boolean isEnvState() {
+        return envState;
     }
 
-    public void setMcut(boolean mcut) {
-        this.mcut = mcut;
+    public void setEnvState(boolean envState) {
+        this.envState = envState;
     }
 
     public boolean isEqualTo(BDD succ) {

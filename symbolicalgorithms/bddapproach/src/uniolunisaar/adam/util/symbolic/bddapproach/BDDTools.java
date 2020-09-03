@@ -834,7 +834,7 @@ public class BDDTools {
         visited.add(state.getId());
 
         // mcut?
-        String shape = (state.isMcut()) ? "env" : "sys";
+        String shape = (state.isEnvState()) ? "env" : "sys";
         String positionTop = (prev != null) ? ", below=of " + prev : "";
         String positionLeft = (left != null) ? ", right=of " + left : "";
         String value = getDecodedDecisionSets(state.getState(), solver);

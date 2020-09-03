@@ -38,7 +38,7 @@ public class BDDGraphGameBuilderStepwise {
 //                BDDTools.printDecisionSets(init, true);
 //                BDDTools.printDecodedDecisionSets(init, solver, true);
                 BDDState initSucc = graph.addState(init, solver);
-                initSucc.setMcut(solver.isEnvState(init));
+                initSucc.setEnvState(solver.isEnvState(init));
                 initSucc.setBad(solver.isBadState(init));
                 initSucc.setSpecial(solver.isSpecialState(init));
                 states.add(initSucc);
@@ -53,7 +53,7 @@ public class BDDGraphGameBuilderStepwise {
         List<Flow> flows = new ArrayList<>();
         List<BDDState> states = new ArrayList<>();
 
-        boolean envState = state.isMcut();
+        boolean envState = state.isEnvState();
         BDD succs = (envState) ? solver.getEnvSuccTransitions(state.getState()) : solver.getSystemSuccTransitions(state.getState());
         if (!succs.isZero()) {// is there a firable transition ?
 //            succs = solver.getSuccs(succs); // TODO: can I get a cheaper solution then use the all buffered reachable states ? .and(states);
@@ -71,7 +71,7 @@ public class BDDGraphGameBuilderStepwise {
                     flows.add(f);
                 } else {
                     succState = graph.addState(succState);
-                    succState.setMcut(solver.isEnvState(succState.getState()));
+                    succState.setEnvState(solver.isEnvState(succState.getState()));
                     succState.setBad(solver.isBadState(succState.getState()));
                     succState.setSpecial(solver.isSpecialState(succState.getState()));
                     states.add(succState);
