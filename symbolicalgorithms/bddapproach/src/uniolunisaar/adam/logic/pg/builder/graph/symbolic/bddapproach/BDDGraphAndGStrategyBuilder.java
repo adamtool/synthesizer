@@ -8,6 +8,7 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
@@ -31,19 +32,23 @@ public class BDDGraphAndGStrategyBuilder {
     protected BDDGraphAndGStrategyBuilder() {
     }
 
-    public <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDGraph builtGraph(S solver) throws CalculationInterruptedException {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDGraph builtGraph(S solver) throws CalculationInterruptedException {
         return builtGraph(solver, -1);
     }
 
-    public <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDGraph builtGraphStrategy(S solver, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDGraph builtGraphStrategy(S solver, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         return builtGraphStrategy(solver, -1, distance);
     }
 
-    public <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDGraph builtGraph(S solver, int depth) throws CalculationInterruptedException {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDGraph builtGraph(S solver, int depth) throws CalculationInterruptedException {
         return builtGraph(solver, false, depth, null);
     }
 
-    public <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDGraph builtGraphStrategy(S solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDGraph builtGraphStrategy(S solver, int depth, Map<Integer, BDD> distance) throws NoStrategyExistentException, CalculationInterruptedException {
         if (!solver.existsWinningStrategy()) {
             throw new NoStrategyExistentException();
         }
@@ -57,7 +62,7 @@ public class BDDGraphAndGStrategyBuilder {
      * @param depth -1 means do the whole graph
      * @return
      */
-    private <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDGraph builtGraph(S solver, boolean strategy, int depth, Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    private <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>> BDDGraph builtGraph(S solver, boolean strategy, int depth, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         String text = (strategy) ? "strategy" : "game";
         BDDGraph graph = new BDDGraph("Finite graph " + text + " of the net "
                 + solver.getGame().getName());
@@ -136,11 +141,13 @@ public class BDDGraphAndGStrategyBuilder {
         return graph;
     }
 
-    protected <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDD getSuccessorBDD(S solver, BDD succs, BDD validStates) {
+    protected <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDD getSuccessorBDD(S solver, BDD succs, BDD validStates) {
         return solver.getSuccs(succs).and(validStates);
     }
 
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
         BDDState in = graph.addState(init, solver);
         in.setEnvState(solver.isEnvState(init));
@@ -150,7 +157,8 @@ public class BDDGraphAndGStrategyBuilder {
         todoStates.add(in);
     }
 
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addAllSuccessors(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addAllSuccessors(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, boolean oneRandom) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         while (!succ.isZero()) {
             String value = BDDTools.getDecodedDecisionSets(succ, solver);
@@ -164,11 +172,13 @@ public class BDDGraphAndGStrategyBuilder {
         }
     }
 
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addAllSuccessors(succs, solver, graph, prev, todoStates, true);
     }
 
-    protected <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> Flow addFlow(S solver, BDDGraph graph, BDDState pre, BDDState succ) {
+    protected <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            Flow addFlow(S solver, BDDGraph graph, BDDState pre, BDDState succ) {
         return graph.addFlow(pre, succ, solver.getTransition(pre.getState(), succ.getState()));
     }
 
@@ -200,7 +210,8 @@ public class BDDGraphAndGStrategyBuilder {
      * @param states
      * @param distance
      */
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDState getNearestState(S solver, BDD states, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDState getNearestState(S solver, BDD states, Map<Integer, BDD> distance) {
         BDD state = states.satOne(solver.getFirstBDDVariables(), false);
         BDD min = state;
         int min_dist = Integer.MAX_VALUE;
@@ -228,7 +239,8 @@ public class BDDGraphAndGStrategyBuilder {
      * @param todoStates
      * @param distance
      */
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addNearestInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addNearestInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         BDDState min = getNearestState(solver, inits, distance);
         // add the minimal init
         BDDState in = graph.addState(min);
@@ -250,7 +262,8 @@ public class BDDGraphAndGStrategyBuilder {
      * @param todoStates
      * @param succ
      */
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addState(S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addState(S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, BDDState succ) {
         BDDState oldSuccState = graph.contains(succ.getState());
         if (oldSuccState != null) { // jump to every already visited cut
             addFlow(solver, graph, prev, oldSuccState);
@@ -277,7 +290,8 @@ public class BDDGraphAndGStrategyBuilder {
      * @param distance
      * @return
      */
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> BDDState getNearestSuccessor(BDD succs, S solver, BDDState prev, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            BDDState getNearestSuccessor(BDD succs, S solver, BDDState prev, Map<Integer, BDD> distance) {
         BDD succ = succs.satOne(solver.getFirstBDDVariables(), false);
         int idx = prev.getDistance();
         if (idx == -1) { // should be the initial state and all env states (todo: find a smarter solution)

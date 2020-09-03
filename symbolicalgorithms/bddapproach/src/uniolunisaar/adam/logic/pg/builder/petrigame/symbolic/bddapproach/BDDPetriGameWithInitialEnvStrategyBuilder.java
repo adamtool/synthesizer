@@ -9,6 +9,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 
@@ -33,21 +34,25 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
     /**
      * For the existential Buechi, Reachability (and Parity?) we don't need any
      * type2 analysis, since either we have to cooporate to reach the place or
-     * we can do it on our own. But when we can win on our own the enviroment
+     * we can do it on our own.But when we can win on our own the enviroment
      * could only stop us by stealing some token and this is something we could
-     * prevent by not enabling the transition. Thus, the only problem is, that
+     * prevent by not enabling the transition.Thus, the only problem is, that
      * our strategies is missing the single enviroment transitions when we are
-     * looping. Thus with this method we are adding them. For the universal
+     * looping.Thus with this method we are adding them. For the universal
      * version we have got the problem that for this token the reachable part
      * could be in the enviroment part and we can never get it, when we also
      * have a reachable place in the system part.
      *
+     * @param <W>
+     * @param <SO>
+     * @param <SOP>
      * @param solver
      * @param graph
      * @return
      */
     @Override
-    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph) {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            PetriGame builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
         PetriGame strategy = super.builtStrategy(solver, graph);
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy

@@ -12,6 +12,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDType2Solver;
@@ -48,7 +49,8 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         // Must be a solver with type2 ability
         DistrSysBDDType2Solver sol = (DistrSysBDDType2Solver) solver;
@@ -207,7 +209,8 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      */
     //@Override
     @Deprecated
-    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void addSpecialStateBehaviourOld(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net

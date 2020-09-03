@@ -25,7 +25,7 @@ import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolver<W, DistrSysBDDSolvingObject<W>> {
+public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolver<W, DistrSysBDDSolvingObject<W>, BDDSolverOptions> {
 
     // Domains for predecessor and successor for each token   
     protected BDDDomain[][] TRANSITIONS;
@@ -34,7 +34,7 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
     //Buffered BDDs (todo:necessary?)  
     private BDD ndet = null;
 
-    public DistrSysBDDSolver(DistrSysBDDSolvingObject<W> solverObject, BDDSolverOptions options) {
+    protected DistrSysBDDSolver(DistrSysBDDSolvingObject<W> solverObject, BDDSolverOptions options) {
         super(solverObject, options);
     }
 

@@ -21,6 +21,7 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
@@ -148,7 +149,8 @@ public class BDDTools {
 //        }
 //        return s.toString();
 //    }
-    public static void printDecodedDecisionSets(BDD dcs, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, boolean force) {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void printDecodedDecisionSets(BDD dcs, BDDSolver<W, SO, SOP> solver, boolean force) {
         if (print || force) {
             System.out.println(getDecodedDecisionSets(dcs, solver));
         }
@@ -409,7 +411,8 @@ public class BDDTools {
         return dcs[bddDomain.vars()[0]] == 1;
     }
 
-    public static String getDecodedDecisionSets(BDD dcs, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            String getDecodedDecisionSets(BDD dcs, BDDSolver<W, SO, SOP> solver) {
         String out = "";
         @SuppressWarnings("unchecked")
         List<byte[]> l = dcs.allsat();
@@ -678,7 +681,8 @@ public class BDDTools {
         return out;
     }
 
-    public static String states2Dot(BDD bdds, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            String states2Dot(BDD bdds, BDDSolver<W, SO, SOP> solver) {
 //        final String mcutShape = "diamond";
 //        final String sysShape = "box";
         final String mcutColor = "white";
@@ -716,7 +720,8 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Dot(BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            String graph2Dot(BDDGraph g, BDDSolver<W, SO, SOP> solver) {
 //        final String mcutShape = "diamond";
 //        final String sysShape = "box";
         final String mcutColor = "white";
@@ -791,7 +796,8 @@ public class BDDTools {
         return sb.toString();
     }
 
-    public static String graph2Tikz(BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            String graph2Tikz(BDDGraph g, BDDSolver<W, SO, SOP> solver) {
         StringBuilder sb = new StringBuilder();
         sb.append("\\begin{tikzpicture}[\n");
         sb.append("sys/.style={\n");
@@ -827,7 +833,8 @@ public class BDDTools {
         return sb.toString();
     }
 
-    private static void graphStates2Tikz(BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
+    private static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void graphStates2Tikz(BDDGraph g, BDDSolver<W, SO, SOP> solver, BDDState state, Integer prev, Integer left, Set<Integer> visited, StringBuilder sb) {
         if (visited.contains(state.getId())) {
             return;
         }
@@ -851,14 +858,16 @@ public class BDDTools {
         }
     }
 
-    public static void saveGraph2Dot(String path, BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) throws FileNotFoundException {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void saveGraph2Dot(String path, BDDGraph g, BDDSolver<W, SO, SOP> solver) throws FileNotFoundException {
         try ( PrintStream out = new PrintStream(path + ".dot")) {
             out.println(graph2Dot(g, solver));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }
 
-    public static void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) throws IOException, InterruptedException {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void saveGraph2DotAndPDF(String path, BDDGraph g, BDDSolver<W, SO, SOP> solver) throws IOException, InterruptedException {
         saveGraph2Dot(path, g, solver);
         Runtime rt = Runtime.getRuntime();
         String dot = AdamProperties.getInstance().getProperty(AdamProperties.DOT);
@@ -868,7 +877,8 @@ public class BDDTools {
         Logger.getInstance().addMessage("Saved to: " + path + ".pdf", true);
     }
 
-    public static void saveGraph2PDF(String path, BDDGraph g, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) throws IOException, InterruptedException {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void saveGraph2PDF(String path, BDDGraph g, BDDSolver<W, SO, SOP> solver) throws IOException, InterruptedException {
         String bufferpath = path + System.currentTimeMillis();
         saveGraph2DotAndPDF(bufferpath, g, solver);
         // Delete dot file
@@ -879,7 +889,8 @@ public class BDDTools {
         Logger.getInstance().addMessage("Moved: " + bufferpath + ".pdf --> " + path + ".pdf", true);
     }
 
-    public static void saveStates2Pdf(String path, BDD bdds, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) throws IOException, InterruptedException {
+    public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void saveStates2Pdf(String path, BDD bdds, BDDSolver<W, SO, SOP> solver) throws IOException, InterruptedException {
         try ( PrintStream out = new PrintStream(path + ".dot")) {
             out.println(states2Dot(bdds, solver));
         }

@@ -6,6 +6,7 @@ import net.sf.javabdd.BDD;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 
@@ -28,12 +29,14 @@ public class BDDBuchiGraphAndGStrategyBuilder extends BDDGraphAndGStrategyBuilde
     }
 
     @Override
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addOneInitState(S solver, BDDGraph graph, BDD inits, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         addNearestInitState(solver, graph, inits, todoStates, distance);
     }
 
     @Override
-    <S extends BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>> void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions, S extends BDDSolver<W, SO, SOP>>
+            void addOneSuccessor(BDD succs, S solver, BDDGraph graph, BDDState prev, LinkedList<BDDState> todoStates, Map<Integer, BDD> distance) {
         // Get the set F^m
         BDD F = distance.get(-1);
         if (F.and(prev.getState()).isZero()) { // if it's not a buchi state

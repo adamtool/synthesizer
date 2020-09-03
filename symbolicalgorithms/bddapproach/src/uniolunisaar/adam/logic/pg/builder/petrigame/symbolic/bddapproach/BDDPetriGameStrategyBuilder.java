@@ -19,6 +19,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.util.pg.TransitCalculator;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
@@ -42,7 +43,8 @@ public class BDDPetriGameStrategyBuilder {
     BDDPetriGameStrategyBuilder() {
     }
 
-    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph) {
+    public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            PetriGame builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
         PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
         // why does a strategy need the winning condition?
@@ -77,7 +79,8 @@ public class BDDPetriGameStrategyBuilder {
         return strategy;
     }
 
-    private void calculateStrategyByBFS(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
+    private <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void calculateStrategyByBFS(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
@@ -227,7 +230,8 @@ public class BDDPetriGameStrategyBuilder {
      * @param graph
      * @param strategy
      */
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
+            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
 
     }
 

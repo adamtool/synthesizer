@@ -32,9 +32,10 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  * @param <W>
+ * @param <SOP>
  * @param <SO>
  */
-public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObject<W>> extends Solver<PetriGame, W, BDDSolvingObject<W>, BDDSolverOptions> {
+public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions> extends Solver<PetriGame, W, BDDSolvingObject<W>, SOP> {
 
     // BDD settings
     private BDDFactory bddfac;
@@ -54,7 +55,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
     private BDD winDCSs = null;
     private BDD DCSs = null;
 
-    public BDDSolver(SO solverObject, BDDSolverOptions options) {
+    public BDDSolver(SO solverObject, SOP options) {
         super(solverObject, options);
     }
 
@@ -67,7 +68,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
     public abstract boolean isBadState(BDD state);
 
     public abstract boolean isSpecialState(BDD state);
-    
+
     public abstract boolean isBufferState(BDD state);
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

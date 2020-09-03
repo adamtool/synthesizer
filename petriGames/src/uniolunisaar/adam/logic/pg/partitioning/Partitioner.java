@@ -23,8 +23,13 @@ import uniolunisaar.adam.tools.Logger;
  */
 public class Partitioner {
 
+    /**
+     *
+     * @param game
+     * @throws NoSuitableDistributionFoundException
+     */
     public static void doIt(PetriGame game) throws NoSuitableDistributionFoundException {
-        if (!hasDistribution(game)) {
+        if (!hasDistribution(game, true)) {
             Logger.getInstance().addMessage("Calculating partition of places ...");
 
             long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
@@ -181,22 +186,38 @@ public class Partitioner {
         return ret;
     }
 
-    private static boolean hasDistribution(PetriGame game) throws NoSuitableDistributionFoundException {
+    /**
+     * Checks whether all system places have a partition annotated when
+     * system=true, when system=false it checks whether all environment places
+     * have a partition annotated.
+     *
+     * @param game
+     * @param system
+     * @return
+     * @throws NoSuitableDistributionFoundException
+     */
+    public static boolean hasDistribution(PetriGame game, boolean system) throws NoSuitableDistributionFoundException {
+        // checks there is at least some annotation
         boolean isAnnotated = false;
+        boolean hasPlaceToAnnotate = false;
         for (Place p : game.getPlaces()) {
+            if ((system && game.isSystem(p)) || (!system && game.isEnvironment(p))) {
+                hasPlaceToAnnotate = true;
+            }
             if (game.hasPartition(p)) {
                 isAnnotated = true;
                 break;
             }
         }
-        if (!isAnnotated) {
+        // when nothing is annotated return
+        if (!isAnnotated && hasPlaceToAnnotate) {
             return false;
         }
 
         //todo: all comments are old version, before cavarti
 //        int maxToken = 0;
         for (Place place : game.getPlaces()) {
-            if (!game.hasPartition(place) && !game.isEnvironment(place)) {
+            if (!game.hasPartition(place) && ((!game.isEnvironment(place) && system) || (!game.isSystem(place) && !system))) {
                 throw new NoSuitableDistributionFoundException(place);
             }
 //            int token = (Integer) place.getExtension("token");

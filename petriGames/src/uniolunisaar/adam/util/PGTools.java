@@ -435,7 +435,7 @@ public class PGTools {
     }
 
     public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
-        // No transition has places of the same partion in its pre- or postset respectively
+        // No transition has places of the same partition in its pre- or postset respectively
         for (Transition transition : game.getTransitions()) {
             List<Integer> partition = new ArrayList<>();
             for (Place place : transition.getPreset()) {
