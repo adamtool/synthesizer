@@ -33,7 +33,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class FirstTestsAReachability {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallreachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallreachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallreachability/";
 
     @BeforeClass

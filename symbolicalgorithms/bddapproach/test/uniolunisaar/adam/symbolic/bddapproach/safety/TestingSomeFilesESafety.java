@@ -18,7 +18,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingSomeFilesESafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existssafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
 
     @BeforeClass

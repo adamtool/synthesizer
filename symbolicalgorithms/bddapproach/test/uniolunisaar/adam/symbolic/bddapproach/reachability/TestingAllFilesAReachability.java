@@ -40,7 +40,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestingAllFilesAReachability {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallreachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallreachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallreachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "chains0.apt",

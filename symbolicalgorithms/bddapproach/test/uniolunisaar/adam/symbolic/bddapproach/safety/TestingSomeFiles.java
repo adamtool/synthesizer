@@ -38,7 +38,7 @@ import uniolunisaar.adam.util.pg.ExtensionCalculator;
 @Test
 public class TestingSomeFiles {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass

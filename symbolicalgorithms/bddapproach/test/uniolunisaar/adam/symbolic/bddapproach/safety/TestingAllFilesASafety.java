@@ -37,7 +37,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingAllFilesASafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",

@@ -40,7 +40,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestingAllFilesESafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existssafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "decision1.apt",

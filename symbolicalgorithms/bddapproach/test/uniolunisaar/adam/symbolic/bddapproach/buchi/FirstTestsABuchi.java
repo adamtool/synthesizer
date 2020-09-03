@@ -34,7 +34,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class FirstTestsABuchi {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallbuechi/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallbuechi/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/forallbuechi/";
 
     @BeforeClass

@@ -32,7 +32,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existsbuechi/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsbuechi/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
 
     @BeforeClass

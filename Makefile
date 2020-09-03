@@ -1,7 +1,7 @@
 # dependencies (folders and repos should be equally ordered)
-DEPENDENCIES_FOLDERS="libs,framework"
-DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git"
-DEPENDENCIES_REV="HEAD,HEAD"
+DEPENDENCIES_FOLDERS="libs,examples,framework"
+DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/examples.git,git@github.com:adamtool/framework.git"
+DEPENDENCIES_REV="HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 SYNTHESIZER_TARGETS = petrigames symbolic

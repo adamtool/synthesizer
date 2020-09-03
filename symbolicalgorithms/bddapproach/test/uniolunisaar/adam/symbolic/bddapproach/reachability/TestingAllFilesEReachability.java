@@ -40,7 +40,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestingAllFilesEReachability {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existsreachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsreachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "infiniteB.apt",

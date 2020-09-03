@@ -39,7 +39,7 @@ public class TestingJBDDLibrary {
     private final int NODENUM = 1000;
     private final int CACHESIZE = 1000;
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass

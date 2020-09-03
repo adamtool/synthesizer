@@ -40,7 +40,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestingAllFilesEBuchi {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existsbuechi/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsbuechi/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "finiteA.apt",

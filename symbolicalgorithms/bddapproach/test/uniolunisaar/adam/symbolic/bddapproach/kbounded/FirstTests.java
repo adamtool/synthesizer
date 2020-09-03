@@ -30,7 +30,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/kbounded";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/kbounded";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/kbounded/";
 
     @BeforeClass

@@ -35,7 +35,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existsreachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsreachability/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
 
     @BeforeClass

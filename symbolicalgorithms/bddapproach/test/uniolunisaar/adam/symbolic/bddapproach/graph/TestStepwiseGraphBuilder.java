@@ -30,7 +30,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestStepwiseGraphBuilder {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass
