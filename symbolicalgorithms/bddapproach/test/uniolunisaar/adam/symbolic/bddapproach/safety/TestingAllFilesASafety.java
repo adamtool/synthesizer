@@ -23,11 +23,11 @@ import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -37,7 +37,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingAllFilesASafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",
@@ -89,7 +89,7 @@ public class TestingAllFilesASafety {
             // %%%% High-level versions            
             "burglar-HL.apt",// high-level version
             // %%%% Not parsable by APT            
-            "DR2-2.apt", // error in the naming of the transitions
+            //            "DR2-2.apt", // error in the naming of the transitions (not existent anymore?)
             // %%%% More than one environment player
             "myexample7.apt", // has two environment token
             "sendingprotocolTwo.apt",// two environment token
@@ -112,6 +112,8 @@ public class TestingAllFilesASafety {
             "finiteWithBad.apt", //  two env token
             "finite3.apt", //  two env token
             "thirdTry.apt", // two env token
+            "txt.apt", // two env token
+            "txt2.apt", // two env token
             // %%%% changes player's membership
             "causalmemory.apt", // p0 (sys) - t0 -> p2 (env)
             "minimal.apt", // A (env) -tA-> B (sys)
@@ -163,7 +165,7 @@ public class TestingAllFilesASafety {
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, CalculationInterruptedException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
 //        if (notSupported.contains(file.getName())) {
 //            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
 //            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");

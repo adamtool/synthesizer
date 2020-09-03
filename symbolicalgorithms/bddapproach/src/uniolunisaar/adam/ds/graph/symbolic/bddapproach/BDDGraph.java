@@ -5,6 +5,7 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 
@@ -22,11 +23,11 @@ public class BDDGraph extends Graph<BDDState, Flow> {
         super(g);
     }
 
-    public BDDState addState(BDD state, BDDSolver<? extends Condition<?>> solver) {
+    public BDDState addState(BDD state, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
         return addState(state, -1, solver);
     }
 
-    public BDDState addState(BDD state, int dist, BDDSolver<? extends Condition<?>> solver) {
+    public BDDState addState(BDD state, int dist, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
         String value = BDDTools.getDecodedDecisionSets(state, solver);
         value = value.substring(0, value.indexOf("->"));
         return super.addState(new BDDState(state, dist, value));

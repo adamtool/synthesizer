@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys;
 
 import java.util.List;
 import net.sf.javabdd.BDD;
@@ -8,7 +8,7 @@ import uniol.apt.adt.pn.Transition;
  *
  * @author Manuel Gieseking
  */
-public interface BDDType2Solver {
+public interface DistrSysBDDType2Solver {
 
     public boolean isType2(BDD states);
 

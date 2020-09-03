@@ -1,5 +1,6 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.safety;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,9 +10,11 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 
@@ -21,7 +24,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Deprecated
-public class BDDASafetySolverEnv extends BDDSolver<Safety> {
+public class DistrSysBDDASafetySolverEnv extends DistrSysBDDSolver<Safety> {
 
     /**
      * Creates a new Reachability solver for a given game.
@@ -32,7 +35,7 @@ public class BDDASafetySolverEnv extends BDDSolver<Safety> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDASafetySolverEnv(BDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    DistrSysBDDASafetySolverEnv(DistrSysBDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(obj, opts);
     }
 //

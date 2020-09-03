@@ -1,8 +1,8 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.buchi;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,39 +16,44 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
-import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDBuchiGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
- * Problems: - infinite number of token chain, when the newly created chain
- * overrides the bad chain flag of a former version of the chain
- * (infflowchains2) - it's strongly dependent on the partition we chose since
- * the token ids are the partitions (possibly this creates some problems)
+ * Problem what to do with the non-deterministic states? Already a fixed-point
+ * combi of safety and reachability? It is not possible to totally omit them
+ * because when a ndet state is a successor of an env state, then the env state
+ * would errorously marked as good. Furthermore, if it's the only successor of a
+ * sys state, then also this sys state would errorously marked as good. Solve it
+ * the same way how it is done for reachability. It's also the same that no
+ * deadlock and not type2 analysis necessary.
+ *
+ * Problem 2: Terminating of the game is not allowed. We have to add selfloops
+ * at every state which isn't a buchi state and if a buchi state doesn't have
+ * any successor than a succesor with a selfloop has to be added.
+ *
  *
  * @author Manuel Gieseking
  */
-public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
+public class DistrSysBDDEBuechiSolver extends DistrSysBDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
+    private BDDDomain[][] NOCC;
     private BDDDomain[] LOOP;
-    private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
-    private BDDDomain[][] DEP_ON_NEWCHAIN; // partition id of the creating token on which this partition depends on
-    private BDDDomain[] OBAD; // from the side of the environment
 
     /**
-     * Creates a new existential safety solver for a given game.
+     * Creates a new Buchi solver for a given game.
      *
      * @param net - the Petri game to solve.
      * @param skipTests - should the tests for safe and bounded and other
@@ -61,7 +66,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDESafetyWithNewChainsSolver(BDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
+    DistrSysBDDEBuechiSolver(DistrSysBDDSolvingObject<Buchi> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(obj, opts);
     }
 
@@ -71,36 +76,30 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * the flag if the place has been newly occupied in this state has to be
      * coded additionally.
      *
-     * Codierung: p_i_0 - Environment Token n - TokenCount gc=1 states newly
-     * token belongs to a good chain.
+     * Codierung: p_i_0 - Environment Token n - TokenCount occ=1 states newly
+     * occupied in this state.
      *
-     * |p_i_0|gc|p_i_1|gc|top|t_1|...|t_m| ... |p_i_n|gc|top|t_1|...|t_m|
+     * |p_i_0|occ|p_i_1|occ|top|t_1|...|t_m| ... |p_i_n|occ|top|t_1|...|t_m|
      */
     @Override
-    void createVariables() {
+    protected void createVariables() {
         int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
-        GOODCHAIN = new BDDDomain[2][tokencount];
-        DEP_ON_NEWCHAIN = new BDDDomain[2][tokencount - 1];
+        NOCC = new BDDDomain[2][tokencount];
         TOP = new BDDDomain[2][tokencount - 1];
         TRANSITIONS = new BDDDomain[2][tokencount - 1];
         LOOP = new BDDDomain[2];
-        OBAD = new BDDDomain[2];
         for (int i = 0; i < 2; ++i) {
             // Env-place
             int add = (!getSolvingObject().isConcurrencyPreserving() || getGame().getEnvPlaces().isEmpty()) ? 1 : 0;
             PLACES[i][0] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[0].size() + add);
-            GOODCHAIN[i][0] = getFactory().extDomain(2);
+            NOCC[i][0] = getFactory().extDomain(2);
             //for any token
             for (int j = 0; j < tokencount - 1; ++j) {
                 // Place
                 PLACES[i][j + 1] = getFactory().extDomain(getSolvingObject().getDevidedPlaces()[j + 1].size() + add);
-                // good chains
-                GOODCHAIN[i][j + 1] = getFactory().extDomain(2);
-                // dependent flags
-                BigInteger tokens = BigInteger.valueOf(2);
-                tokens = tokens.pow(tokencount - 1);
-                DEP_ON_NEWCHAIN[i][j] = getFactory().extDomain(tokens);
+                // newly occupied
+                NOCC[i][j + 1] = getFactory().extDomain(2);
                 // top
                 TOP[i][j] = getFactory().extDomain(2);
                 // transitions                
@@ -109,14 +108,13 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 TRANSITIONS[i][j] = getFactory().extDomain(maxTrans);
             }
             LOOP[i] = getFactory().extDomain(2);
-            OBAD[i] = getFactory().extDomain(2);
         }
         setDCSLength(getFactory().varNum() / 2);
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     @Override
-    String decodeDCS(byte[] dcs, int pos) {
+    protected String decodeDCS(byte[] dcs, int pos) {
         StringBuilder sb = new StringBuilder();
         if (BDDTools.isLoopByBin(dcs, LOOP[pos])) {
             sb.append("LOOP");
@@ -127,7 +125,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             sb.append(id);
             if (!id.equals("-")) {
                 sb.append(", ");
-                sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][0]));
+                sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][0]));
             }
             sb.append(")").append("\n");
             for (int j = 0; j < getSolvingObject().getMaxTokenCount() - 1; j++) {
@@ -136,9 +134,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 sb.append(sid);
                 if (!sid.equals("-")) {
                     sb.append(", ");
-                    sb.append(BDDTools.getGoodChainFlagByBin(dcs, GOODCHAIN[pos][j + 1]));
-                    sb.append(", ");
-                    sb.append(BDDTools.getDependentFlagByBin(dcs, DEP_ON_NEWCHAIN[pos][j], getSolvingObject().getMaxTokenCountInt()));
+                    sb.append(BDDTools.getNewlyOccupiedFlagByBin(dcs, NOCC[pos][j + 1]));
                     sb.append(", ");
                     sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                     sb.append(", ");
@@ -146,17 +142,15 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 }
                 sb.append(")").append("\n");
             }
-            sb.append(BDDTools.getOverallBadByBin(dcs, OBAD[pos]));
-            sb.append("\n");
         }
         return sb.toString();
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special loop stuff %%%%%%%%%%%%%%%%%%%%
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START Special loop stuff %%%%%%%%%%%%%%%%%%%%
     /**
      *
      * Problem for concurrency preserving nets, since there zero is an id of a
-     * place and so it is posible to have this loopState as a sen
+     * place and so it is possible to have this loopState as a sen
      *
      * Since they are only id's it's also not possible to code e.g. a sys place
      * at the env position.
@@ -174,10 +168,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 //        return nearlyZero.andWith(codePlace(sys, pos, 0));
         BDD loop = getOne();
         int start = (pos == 0) ? 0 : getDcs_length();
-        for (int i = start; i < start + getDcs_length() - 2; i++) {
+        for (int i = start; i < start + getDcs_length() - 1; i++) {
             loop.andWith(getFactory().nithVar(i));
         }
-        loop.andWith(OBAD[pos].ithVar(0)); // bad flag
         loop.andWith(LOOP[pos].ithVar(1));
         return loop;
     }
@@ -197,18 +190,19 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     }
 
     private BDD loops() {
-//        BDD cobuchi = winningStates();
+        BDD buchi = buchiStates();
         BDD term = endStates(0);
         // Terminating not buchi states add selfloop
-//        BDD termNBuchi = term.and(buchi.not().andWith(wellformed(0)));
-// add selfloop to every terminating state
-        BDD loops = term.andWith(preBimpSucc());
+        BDD termNBuchi = term.and(buchi.not().andWith(wellformed(0)));
+        BDD loops = termNBuchi.andWith(preBimpSucc());
         // Terminating buchi states add transition to new looping state (all 
-//        loops.orWith(term.and(buchi).and(loopState(1)));
+        loops.orWith(term.and(buchi).and(loopState(1)));
 //        // add loop
         loops.orWith(loopState(0).andWith(loopState(1)));
 //        System.out.println("end states");
-//        BDDTools.printDecodedDecisionSets(term.and(buchi), this, true);
+//System.out.println("term abnd buchi");
+//        BDDTools.printDecodedDecisionSets(loops.andWith(wellformed(0)), this, true);
+//        System.out.println("tern abd");
 //        BDDTools.printDecisionSets(term.and(buchi), true);
 //        System.out.println("END");
         return loops.andWith(wellformed(0));
@@ -217,227 +211,73 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
-     * Good when all visible token belong to a good chain (for the evironment).
-     */
-    private BDD winningStates() {
-        BDD ret = getOne();
-        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); i++) {
-            if (i == 0 && getGame().getEnvPlaces().isEmpty()) { // no env token at all (skip the first block)
-                continue;
-            }
-            if (getSolvingObject().isConcurrencyPreserving()) {
-                ret.andWith(GOODCHAIN[0][i].ithVar(1));
-            } else {
-                ret.andWith(GOODCHAIN[0][i].ithVar(1).orWith(codePlace(0, 0, i)));
-            }
-        }
-        ret.andWith(OBAD[0].ithVar(0));
-//        ret.andWith(term(0));
-        ret = ret.or(getBufferedNDet());
-        ret.orWith(deadSysDCS(0));
-        return ret;
-    }
-
-//    /**
-//     * Calculates a BDD representing all decision sets where no transition is
-//     * enabled.
-//     *
-//     * @param pos - 0 for the predecessor variables and 1 for the successor.
-//     * @return BDD representing the terminating situations.
-//     */
-//    private BDD term(int pos) {
-//        BDD notEn = getOne();
-//        Set<Transition> trans = getGame().getNet().getTransitions();
-//        for (Transition transition : trans) {
-//            notEn.andWith(enabled(transition, pos).not());
-//        }
-////        BDD notCh = getOne();
-////        for (Transition transition : trans) {
-////            if (!getGame().getSysTransition().contains(transition)) {
-////                notCh.andWith(chosen(transition, pos).not());
-////            }
-////        }
-////        BDD termType1 = notEn.orWith(type2().andWith(notCh));
-////        return termType1;//.and(getWellformed());
-//        return notEn;
-//    }
-    /**
-     * Calculates a BDD representing all decision sets where the system decided
-     * not to choose any enabled transition, but there exists at least one.
+     * Returns all states as a BDD which have a buchi place coded and this place
+     * is newly occupied in this state.
      *
-     * @param pos - 0 for the predecessor variables and 1 for the successor.
-     * @return BDD representing the deadlocks of the Petri game.
+     * @return - All states with a newly occupied buchi place
      */
-    private BDD deadSysDCS(int pos) {
-        BDD dead = getOne();
-        BDD buf = getZero();
-        for (Transition t : getGame().getTransitions()) {
-//            dead = dead.and((firable(t, true).or(firable(t, false))).not());
-//            buf = buf.or(enabled(t, true).or(enabled(t, false)));
-            dead.andWith(firable(t, pos).not());
-            buf.orWith(enabled(t, pos));
+    private BDD buchiStates() {
+        BDD buchi = getZero();
+        for (Place place : getSolvingObject().getWinCon().getBuchiPlaces()) {
+            int token = getSolvingObject().getGame().getPartition(place);
+            // is a buchi place and is newly occupied, than it's a buchi state
+            buchi.orWith(codePlace(place, 0, token).andWith(NOCC[0][token].ithVar(1)));
         }
-        dead.andWith(buf);
-        return dead.andWith(getTop().not());//.andWith(wellformed());
+        return buchi.andWith(wellformed(0));
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 //%%%%%%%%%%%%%%%% ADAPTED to NOCC  / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
     @Override
-    BDD wellformed(int pos) {
+    protected BDD wellformed(int pos) {
         BDD well = super.wellformed(pos);
         well.andWith(LOOP[pos].ithVar(0));
         well.orWith(loopState(pos));
         return well;
     }
 
+//    @Override
+//    BDD calcDCSs() {
+//        BDD all = super.calcDCSs();
+//        all.andWith(LOOP[0].ithVar(0));
+//        all.andWith(LOOP[1].ithVar(0));
+//        all.orWith(loopState(0));
+//        return all;
+//    }
     @Override
     public BDD initial() {
         BDD init = super.initial();
-        // all initial places which are marked as bad are on a good chain (for the environment)
+        // one version, then in the most cases there is one unfolding of the place
+//        // all newly occupied flags to 0
+//        for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
+//            init.andWith(NOCC[0][i].ithVar(0));
+//        }
+        // all newly ocupied flags for the initial token are 1 the others zero
         Marking m = getGame().getInitialMarking();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
-            boolean good = false;
+            boolean occ = false;
             for (Place p : getSolvingObject().getDevidedPlaces()[i]) {
                 if (m.getToken(p).getValue() > 0) {
-                    if (getSolvingObject().getWinCon().getBadPlaces().contains(p)) {
-                        good = true;
-                    }
+                    occ = true;
                     break;
                 }
             }
-            init.andWith(GOODCHAIN[0][i].ithVar(good ? 1 : 0));
-            if (i != 0) {
-                init.andWith(DEP_ON_NEWCHAIN[0][i - 1].ithVar(0));
-            }
+            init.andWith(NOCC[0][i].ithVar(occ ? 1 : 0));
         }
         init.andWith(LOOP[0].ithVar(0));
-        init.andWith(OBAD[0].ithVar(0));
+        init.andWith(getBufferedNDet().not());
         return init;
     }
 
-    private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
-//        System.out.println("Post:" + post.getId());
-        if (getSolvingObject().getWinCon().getBadPlaces().contains(post)) { // it is a bad place -> 1 (for the env)
-            return GOODCHAIN[1][token].ithVar(1);
-        }
-        // 1 iff all predecessor which had been reached by a flow had gc=1
-        BDD allPres = getOne();
-        Collection<Transit> fl = getSolvingObject().getGame().getTransits(t);
-        boolean hasEmptyPreset = false;
-        for (Transit tokenFlow : fl) {
-            if (tokenFlow.getPostset().contains(post)) {
-//                System.out.println(tokenFlow);
-//                for (Place p : tokenFlow.getPreset()) {
-//                    System.out.println("Pre: " + p.getId());
-                if (!tokenFlow.isInitial()) {
-                    Place p = tokenFlow.getPresetPlace();
-                    int preToken = getSolvingObject().getGame().getPartition(p);
-                    allPres.andWith(codePlace(p, 0, preToken));
-                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
-                }
-                if (tokenFlow.isInitial()) {
-                    hasEmptyPreset = true;
-                    break;
-                }
-            }
-        }
-        allPres.biimpWith(GOODCHAIN[1][token].ithVar(1));
-        return (hasEmptyPreset) ? GOODCHAIN[1][token].ithVar(0) : allPres;
-    }
-
-    private BDD setDependentFlagForTransition(Transition t, Place post, int token) {
-        Collection<Transit> fl = getSolvingObject().getGame().getTransits(t);
-        BDD dep = getOne();
-        for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
-            boolean hasEmptyPreset = false;
-            BDD exOne = getZero();
-            for (Transit tokenFlow : fl) {
-                if (tokenFlow.getPostset().contains(post)) {
-//                System.out.println(tokenFlow);
-//                    for (Place p : tokenFlow.getPreset()) {
-//                    System.out.println("Pre: " + p.getId());
-                    if (!tokenFlow.isInitial()) {
-                        Place p = tokenFlow.getPresetPlace();
-                        int preToken = getSolvingObject().getGame().getPartition(p);
-                        BDD pos = codePlace(p, 0, preToken);
-                        pos.andWith(getFactory().ithVar(DEP_ON_NEWCHAIN[0][preToken - 1].vars()[i - 1]));
-                        exOne.orWith(pos);
-                    }
-                    if (tokenFlow.isInitial()) {
-                        hasEmptyPreset = true;
-                        break;
-                    }
-                }
-            }
-            if (i == token && hasEmptyPreset) {
-                dep.andWith(getFactory().ithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[token - 1]));
-            } else {
-                // if there is one place in the preset connected with a chain which has a flag for this chain set to 1, set one, otherwise it's zero.
-                dep.andWith(exOne.ite(getFactory().ithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[i - 1]), getFactory().nithVar(DEP_ON_NEWCHAIN[1][token - 1].vars()[i - 1])));
-            }
-        }
-//        BDDTools.printDecodedDecisionSets(dep, this, true);
-        return dep;
-    }
-
-    // less restrictive version, let's it to often to 0. does it harm? don't now...
-//    private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
-////        System.out.println("Post:" + post.getId());
-//        if (getWinningCondition().getPlaces2Reach().contains(post)) { // it is a place2reach -> 1
-//            return GOODCHAIN[1][token].ithVar(1);
-//        }
-//        BDD ret = GOODCHAIN[1][token].ithVar(0); // it is 0 or all predecessor which had been reached by a flow had gc=1
-//        BDD allPres = getOne();
-//        List<TokenFlow> fl = AdamExtensions.getTransit(t);
-//        for (Transit tokenFlow : fl) {
-//            if (tokenFlow.getPostset().contains(post)) {
-//                for (Place p : tokenFlow.getPreset()) {
-////                    System.out.println("Pre: " + p.getId());
-//                    int preToken = AdamExtensions.getToken(p);
-//                    allPres.andWith(codePlace(p, 0, preToken));
-//                    allPres.andWith(GOODCHAIN[0][preToken].ithVar(1));
-//                }
-//                if (tokenFlow.getPreset().isEmpty()) {
-//                    allPres.andWith(GOODCHAIN[1][token].ithVar(0));
-//                } else {
-//                    allPres.andWith(GOODCHAIN[1][token].ithVar(1));
-//                }
-//            }
-//        }
-//        ret.orWith(allPres);
-//        return ret;
-//    }
-    private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
-        BDD exPreBad = getZero();
-        Collection<Transit> fls = getSolvingObject().getGame().getTransits(t);
-        for (Place p : t.getPreset()) {
-            boolean hasFlow = false;
-            for (Transit fl : fls) {
-                if ((!fl.isInitial() && fl.getPresetPlace().equals(p)) && !fl.getPostset().isEmpty()) {
-                    hasFlow = true;
-                }
-            }
-            if (!hasFlow) {
-                int token = getSolvingObject().getGame().getPartition(p);
-                BDD preBad = codePlace(p, 0, token);
-                preBad.andWith(GOODCHAIN[0][token].ithVar(0));
-                exPreBad.orWith(preBad);
-            }
-        }
-        return exPreBad.ite(OBAD[1].ithVar(1), OBAD[1].ithVar(0));
-    }
-
     @Override
-    BDD notUsedToken(int pos, int token) {
+    protected BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
-        zero.andWith(GOODCHAIN[pos][token].ithVar(0));
-        zero.andWith(DEP_ON_NEWCHAIN[pos][token - 1].ithVar(0));
+        zero.andWith(NOCC[pos][token].ithVar(0));
         return zero;
     }
 
     @Override
-    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    protected void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -455,10 +295,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 inner.andWith(commitmentsEqual(i));
                 // top'=0
                 inner.andWith(TOP[1][i - 1].ithVar(0));
-                // gc'=gc
-                inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-                // donc' = donc
-                inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
+                // nocc'=0
+                inner.andWith(NOCC[1][i].ithVar(0));
                 pl.orWith(inner);
             }
             BDD zero = notUsedToken(0, i).and(notUsedToken(1, i));
@@ -466,60 +304,29 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         }
     }
 
-    /**
-     * the same as for forall reachability apart fomrmn getBadPlaces
-     *
-     * @param t
-     * @return
-     */
     @Override
-    BDD envPart(Transition t) {
+    protected BDD envPart(Transition t) {
         BDD env = super.envPart(t);
         // todo: one environment token case
         List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
         List<Place> post = getSolvingObject().getSplittedPostset(t).getFirst();
-        if (pre.isEmpty()) {
-            env.andWith(GOODCHAIN[0][0].ithVar(0));
+        if (pre.isEmpty()) { // not really necessary since CP, but for no envtoken at all                    
+            env.andWith(NOCC[0][0].ithVar(0));
         }
         if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
-            Place postPlace = post.get(0);
-            // it is good if it was good, or is a reach place
-            if (getSolvingObject().getWinCon().getBadPlaces().contains(postPlace)) { // it is a place2reach -> 1
-                env.andWith(GOODCHAIN[1][0].ithVar(1));
-            } else {
-                Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
-                for (Transit tfl : tfls) {
-                    if (tfl.getPostset().contains(postPlace)) {
-                        if (tfl.isInitial()) {
-                            env.andWith(GOODCHAIN[1][0].ithVar(0));
-                        } else {
-                            env.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
-                        }
-                    }
-                }
-            }
+            // occ' = 1 
+            env.andWith(NOCC[1][0].ithVar(1));
         } else {
-            env.andWith(GOODCHAIN[1][0].ithVar(0));
+            env.andWith(NOCC[1][0].ithVar(0));
         }
-        env.andWith(setOverallBad(t));
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
-        // overall bad state don't have any successor
-
         env.andWith(LOOP[0].ithVar(0));
         env.andWith(LOOP[1].ithVar(0));
-
-        env.andWith(OBAD[0].ithVar(0));
         return env;
     }
 
-    /**
-     * The same as for for all reachability
-     *
-     * @param t
-     * @return
-     */
     @Override
     protected BDD envTransitionCP(Transition t) {
         BDD env = loops();
@@ -544,22 +351,17 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                         inner.andWith(commitmentsEqual(i));
                         // top'=0
                         inner.andWith(TOP[1][i - 1].ithVar(0));
-                        // gc'=gc
-                        inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-                        // donc' = donc
-                        inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
+                        // nocc'=0
+                        inner.andWith(NOCC[1][i].ithVar(0));
                     } else { // the place was in the preset of the transition, thus find a suitable sucessor and code it
-                        Place post = getSuitableSuccessor(place, t);
                         //pre_i=post_i'
-                        inner.andWith(codePlace(post, 1, i));
+                        inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
                         // top'=1
                         inner.andWith(TOP[1][i - 1].ithVar(1));
                         // all t_i'=0
                         inner.andWith(nothingChosen(1, i));
-                        // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                        inner.andWith(setGoodChainFlagForTransition(t, post, i));
-                        // donc'=1 iff ...
-                        inner.andWith(setDependentFlagForTransition(t, post, i));
+                        // occ' = 0 (newly occupied only in the case where we solve the top)
+                        inner.andWith(NOCC[1][i].ithVar(0));
                     }
                     pl.orWith(inner);
                 }
@@ -572,11 +374,6 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         return env;
     }
 
-    /**
-     * the same as universal reachability
-     *
-     * @return
-     */
     @Override
     protected BDD envTransitionNotCP(Transition t) {
         BDD env = loops();
@@ -597,16 +394,12 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                     all.andWith(TOP[1][token - 1].ithVar(1));
                     // all t_i'=0
                     all.andWith(nothingChosen(1, token));
-                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                    all.andWith(setGoodChainFlagForTransition(t, post, token));
-                    // donc'=1 iff ...
-                    all.andWith(setDependentFlagForTransition(t, post, token));
+                    // occ' = 0 (newly occupied only in the case where we solve the top)
+                    all.andWith(NOCC[1][token].ithVar(0));
                 }
             }
-
             // set the dcs for the places in the preset
             setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
             // --------------------------
             // Positions in dcs not set with places of pre- or postset
             setNotAffectedPositions(all, visitedToken);
@@ -618,29 +411,32 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         return env;
     }
 
-    /**
-     * same as for forall reachablity
-     *
-     * @return
-     */
     @Override
-    BDD sysTopPart() {
-        BDD sysT = super.sysTopPart();
+    protected BDD sysTopPart() {
+        // top part
+        BDD sysT = getOne();
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
-            sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));// todo: 12.10.2017 not really check but should be better than (the here tag from 6.11.2017)
-            sysT.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
+//            // \not topi=>topi'=0
+//            BDD topPart = bddfac.nithVar(offset + PL_CODE_LEN + 1);
+//            topPart.impWith(bddfac.nithVar(DCS_LENGTH + offset + PL_CODE_LEN + 1));
+//            sysT.andWith(topPart);
+            // topi'=0
+            sysT.andWith(TOP[1][i - 1].ithVar(0));
+            // type = type' todo: document anpassen
+            //sysT.andWith(bddfac.ithVar(offset + PL_CODE_LEN).biimp(bddfac.ithVar(DCS_LENGTH + offset + PL_CODE_LEN)));
+            // pi=pi'
+            sysT.andWith(placesEqual(i));
+            // \not topi=>(ti=ti'\wedge nocc'=0) set to 0 enough see ncp case
+            BDD impl = TOP[0][i - 1].ithVar(0).impWith(commitmentsEqual(i).andWith(NOCC[1][i].ithVar(0)));
+            // topi=> nocc'=1            
+            BDD impl1 = TOP[0][i - 1].ithVar(1).impWith(NOCC[1][i].ithVar(1));
+            sysT.andWith(impl).andWith(impl1);
         }
-        // in top part copy overallbad flag 
-        sysT.andWith(OBAD[0].buildEquals(OBAD[1]));
+        // in top case just copy the newly occupation flag of the env place
+        sysT.andWith(NOCC[0][0].buildEquals(NOCC[1][0]));
         return sysT;
     }
 
-    /**
-     * same as for universal reachability (apart from the last ndet andwith in
-     * forall reachability)
-     *
-     * @return
-     */
     @Override
     protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
@@ -663,18 +459,13 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                     inner.andWith(codePlace(place, 1, i));
                     // ti=ti'
                     inner.andWith(commitmentsEqual(i));
-                    // gc'=gc
-                    inner.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-                    // donc' = donc
-                    inner.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
+                    // nocc'=0
+                    inner.andWith(NOCC[1][i].ithVar(0));
                 } else {
-                    Place post = getSuitableSuccessor(place, t);
                     //pre_i=post_i'
-                    inner.andWith(codePlace(post, 1, i));
-                    // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                    inner.andWith(setGoodChainFlagForTransition(t, post, i));
-                    // donc'=1 iff ...
-                    inner.andWith(setDependentFlagForTransition(t, post, i));
+                    inner.andWith(codePlace(getSuitableSuccessor(place, t), 1, i));
+                    // nocc'=1
+                    inner.andWith(NOCC[1][i].ithVar(1));
                 }
                 pl.orWith(inner);
             }
@@ -682,7 +473,8 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
             // top'=0
             sysN.andWith(TOP[1][i - 1].ithVar(0));
         }
-        sysN.andWith(setOverallBad(t));
+        // in not top case set the newly occupation flag of the env place to zero
+        sysN.andWith(NOCC[1][0].ithVar(0));
         sysN = (top.not()).impWith(sysN);
 
         // top part
@@ -697,25 +489,13 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
 
         sys.andWith(LOOP[0].ithVar(0));
         sys.andWith(LOOP[1].ithVar(0));
-
-        // keep the good chain flag for the environment, since there nothing could have changed        
-        sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // p0=p0'        
         sys.andWith(placesEqual(0));
-        // overall bad state don't have any successor
-        sys.andWith(OBAD[0].ithVar(0));
-
         sys.orWith(loops());
 
-        return sys;
+        return sys.andWith(getBufferedNDet().not());
     }
 
-    /**
-     * same as for universal reachability (apart from the last ndet andwith in
-     * forall reachability)
-     *
-     * @return
-     */
     @Override
     protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
@@ -726,7 +506,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         // not all tops are zero
         BDD top = getTop();
 
-        // normal part        
+        // normal part      
         Set<Place> pre_sys = t.getPreset();
         BDD sysN = firable(t, 0);
         List<Integer> visitedToken = new ArrayList<>();
@@ -739,23 +519,20 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
                 sysN.andWith(codePlace(post, 1, token));
                 // top'=0
                 sysN.andWith(TOP[1][token - 1].ithVar(0));
-                // gc'=1 iff forall p\in pre(t) p fl(t) post => p gc was 1
-                sysN.andWith(setGoodChainFlagForTransition(t, post, token));
-                // donc'=1 iff ...
-                sysN.andWith(setDependentFlagForTransition(t, post, token));
+                // nocc'=1
+                sysN.andWith(NOCC[1][token].ithVar(1));
             }
         }
         // set the dcs for the places in the preset
         setPresetAndNeededZeros(pre_sys, visitedToken, sysN);
         // Positions in dcs not set with places of pre- or postset
         setNotAffectedPositions(sysN, visitedToken);
-        // sets the overall bad flag
-        sysN.andWith(setOverallBad(t));
+        // in not top case set the newly occupation flag of the env place to zero
+        sysN.andWith(NOCC[1][0].ithVar(0));
         sysN = (top.not()).impWith(sysN);
 
-        // top part      
+        // top part
         BDD sysT = top.impWith(sysTopPart());
-
         // todo: cheaper?
         // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
         // but then calling this method e.g. for hasFired won't work as expected.
@@ -764,24 +541,28 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         sys.andWith(sysT);
         sys.andWith(LOOP[0].ithVar(0));
         sys.andWith(LOOP[1].ithVar(0));
-        // keep the good chain flag for the environment, since there nothing could have changed        
-        sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // p0=p0'        
-        sys = sys.andWith(placesEqual(0));
-        // overall bad state don't have any successor
-        sys.andWith(OBAD[0].ithVar(0));
+        sys.andWith(placesEqual(0));
         sys.orWith(loops());
-        return sys;
+        return sys.andWith(getBufferedNDet().not());
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
     /**
-     * Returns the winning decisionsets for the system players.
+     * Compare Algorithm for Buchi Games by Krish
      *
-     * In this case only an attractor to the reachable states.
+     * with strategy building from zimmermanns lecture script
      *
-     * @return - A BDD containing all states from which a state with a reachable
-     * place is able the be reached against all behavior of the environment.
+     * @return
+     */
+    private BDD buchi(Map<Integer, BDD> distance) throws CalculationInterruptedException {
+        return buchi(buchiStates(), distance);
+    }
+
+    /**
+     * Returns the winning decisionsets for the system players
+     *
+     * @return
      */
     @Override
     protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {
@@ -789,37 +570,30 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-//        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-//        BDD fixedPoint = attractor(winningStates(), true, distance).not().and(getBufferedDCSs());
-        BDD fixedPoint = buchi(winningStates(), distance, false).not().and(getBufferedDCSs());
-//        BDDTools.printDecodedDecisionSets(loops(), this, true);
+        BDD fixedPoint = buchi(distance);//.andWith(ndetStates(0).not()).andWith(wellformed(0)); // not really necesarry, since those don't have any successor.
 //        BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
-//        Logger.getInstance().addMessage("... calculation of fixpoint done.");
+        Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+//        try {
+//            BDDTools.saveStates2Pdf("./states", buchi(), this);
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BDDBuechiSolver.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         return fixedPoint;
     }
 
     @Override
     protected BDD calcBadDCSs() {
-        return winningStates();
+        return getBufferedNDet();
     }
 
     @Override
     protected BDD calcSpecialDCSs() {
-        return getFactory().zero();
-    }
-
-    /**
-     * Safety game graphs don't have a special state
-     *
-     * @param state
-     * @return
-     */
-    @Override
-    public boolean isSpecialState(BDD state) {
-        return false;
+        return buchiStates();
     }
 
     @Override
@@ -831,23 +605,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
         BDDGraph strat = BDDBuchiGraphAndGStrategyBuilder.getInstance().builtGraphStrategy(this, distance);
-//        BDDGraph strat = BDDGraphBuilder.getInstance().builtGraphStrategy(this, distance);
-        // delete the added loops
-        List<Flow> removeFlows = new ArrayList<>();
-        for (Flow flow : strat.getFlows()) {
-            if (flow.getTransition() == null) {
-                removeFlows.add(flow);
-            }
-        }
-        strat.removeFlows(removeFlows);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
-        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS 
-        for (BDDState state : strat.getStates()) { // mark all special states
-            if (!winningStates().and(state.getState()).isZero()) {
-                state.setSpecial(true);
-            }
-        }
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
         return strat;
     }
 
@@ -892,17 +652,13 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * transition.
      */
     @Override
-    BDD getVariables(int pos) {
+    protected BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
-            variables.andWith(GOODCHAIN[pos][i].set());
-            if (i != 0) {
-                variables.andWith(DEP_ON_NEWCHAIN[pos][i - 1].set());
-            }
+            variables.andWith(NOCC[pos][i].set());
         }
         variables.andWith(LOOP[pos].set());
-        variables.andWith(OBAD[pos].set());
         return variables;
     }
 
@@ -921,12 +677,9 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * successor.
      */
     @Override
-    BDD getTokenVariables(int pos, int token) {
+    protected BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
-        variables.andWith(GOODCHAIN[pos][token].set());
-        if (token != 0) {
-            variables.andWith(DEP_ON_NEWCHAIN[pos][token - 1].set());
-        }
+        variables.andWith(NOCC[pos][token].set());
         return variables;
     }
 
@@ -939,22 +692,17 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
      * @return BDD with Pre <-> Succ
      */
     @Override
-    BDD preBimpSucc() {
+    protected BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
-            preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));
-            if (i != 0) {
-                preBimpSucc.andWith(DEP_ON_NEWCHAIN[0][i - 1].buildEquals(DEP_ON_NEWCHAIN[1][i - 1]));
-            }
+            preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));
         }
         preBimpSucc.andWith(LOOP[0].buildEquals(LOOP[1]));
-        preBimpSucc.andWith(OBAD[0].buildEquals(OBAD[1]));
         return preBimpSucc;
     }
 
     /**
-     * Only in not overall bad state there could have a transition fired. and
-     * the good chain flag and overall bad could had changed.
+     * Only in not looping states there could have a transition fired.
      *
      * @param t
      * @param source
@@ -965,10 +713,7 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
     @Deprecated
     public boolean hasFiredManually(Transition t, BDD source, BDD target) {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
-        if (!source.and(LOOP[0].ithVar(1)).isZero() || !source.and(OBAD[0].ithVar(1)).isZero()) {
-            return false;
-        }
-        if (!source.and(OBAD[0].ithVar(1)).isZero()) {
+        if (!source.and(LOOP[0].ithVar(1)).isZero()) {
             return false;
         }
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
@@ -985,13 +730,16 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         // So with "and" we can test if the postset of t also fit to the target
         // additionally create a copy of the target BDD with the places of the postset set to -1
         Pair<List<Place>, List<Place>> post = getSolvingObject().getSplittedPostset(t);
+        List<Integer> usedToken = new ArrayList<>();
         // Environment place
         // todo: one environment token case
         BDD manTarget = getOne();
         BDD restTarget = target.id();
         if (!post.getFirst().isEmpty()) {
             manTarget.andWith(codePlace(post.getFirst().get(0), 0, 0));
+            manTarget.andWith(NOCC[0][0].ithVar(1));
             restTarget = restTarget.exist(getTokenVariables(0, 0));
+            usedToken.add(0);
         }
 
         // System places        
@@ -1000,7 +748,15 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         for (Place p : postSys) {
             int token = getSolvingObject().getGame().getPartition(p);
             sysPlacesTarget.andWith(codePlace(p, 0, token));
+            if (post.getFirst().isEmpty()) { // single system transition
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(0));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(1));
+            } else {
+                sysPlacesTarget.andWith(TOP[0][token - 1].ithVar(1));
+                sysPlacesTarget.andWith(NOCC[0][token].ithVar(0));
+            }
             restTarget = restTarget.exist(getTokenVariables(0, token));
+            usedToken.add(token);
         }
         manTarget.andWith(sysPlacesTarget);
 
@@ -1024,11 +780,11 @@ public class BDDESafetyWithNewChainsSolver extends BDDSolver<Safety> {
         // %%%%%%%%%% change to super method %%%%%%%%%%%%%%%%%%%%%%%
         // The flag indication that the place is newly occupied, may have changed
         for (int i = 0; i < getSolvingObject().getMaxTokenCountInt(); i++) {
-            restSource = restSource.exist(GOODCHAIN[0][i].set());
-            restTarget = restTarget.exist(GOODCHAIN[0][i].set());
+            if (!usedToken.contains(i)) {
+                restSource = restSource.exist(NOCC[0][i].set());
+                restTarget.andWith(NOCC[0][i].ithVar(0));
+            }
         }
-        restSource = restSource.exist(OBAD[0].set());
-        restTarget = restTarget.exist(OBAD[0].set());
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
 
         // now test if the places not in pre- or postset of t stayed equal between source and target

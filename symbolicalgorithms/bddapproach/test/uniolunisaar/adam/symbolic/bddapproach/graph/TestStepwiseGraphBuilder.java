@@ -13,14 +13,14 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.util.PGTools;
 
 /**
@@ -30,7 +30,7 @@ import uniolunisaar.adam.util.PGTools;
 @Test
 public class TestStepwiseGraphBuilder {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass
@@ -47,7 +47,7 @@ public class TestStepwiseGraphBuilder {
         final String path = inputDir + "burglar" + File.separator;
         final String name = "burglar";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         solv.initialize();
         BDDGraph graph = new BDDGraph("burglar_gg");
         BDDState init = BDDGraphGameBuilderStepwise.addInitialState(graph, solv);
@@ -64,7 +64,7 @@ public class TestStepwiseGraphBuilder {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         solv.initialize();
         BDDGraph graph = new BDDGraph("firstExamplePaper_gg");
         BDDState init = BDDGraphGameBuilderStepwise.addInitialState(graph, solv);
@@ -140,7 +140,7 @@ public class TestStepwiseGraphBuilder {
 
         PetriGame game = PGTools.getPetriGameFromAPTString(apt, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(game, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(game, opts);
         solv.initialize();
         BDDGraph graph = new BDDGraph("firstExamplePaper_gg");
         BDDState init = BDDGraphGameBuilderStepwise.addInitialState(graph, solv);

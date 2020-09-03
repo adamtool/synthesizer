@@ -1,6 +1,5 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded;
 
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
@@ -10,6 +9,7 @@ import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.solver.SolvingObject;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.pg.solver.LLSolverFactory;
 

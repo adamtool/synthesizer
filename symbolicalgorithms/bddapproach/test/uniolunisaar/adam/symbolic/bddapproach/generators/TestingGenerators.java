@@ -20,6 +20,7 @@ import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.generators.pg.Clerks;
 import uniolunisaar.adam.generators.pg.LoopUnrolling;
@@ -32,9 +33,8 @@ import uniolunisaar.adam.generators.pg.Watchdog;
 import uniolunisaar.adam.generators.pg.Workflow;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -112,7 +112,7 @@ public class TestingGenerators {
         f.mkdir();
         PetriGame pn = Philosopher.generateGuided2(count, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -135,7 +135,7 @@ public class TestingGenerators {
         f.mkdir();
         PetriGame pn = Philosopher.generateIndividual(count, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -158,7 +158,7 @@ public class TestingGenerators {
         f.mkdir();
         PetriGame pn = Clerks.generateCP(count, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -182,7 +182,7 @@ public class TestingGenerators {
         System.out.println("Generate clerks ...");
         PetriGame pn = Clerks.generateNonCP(count, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -206,7 +206,7 @@ public class TestingGenerators {
         System.out.println("Generate factory...");
         PetriGame pn = ManufactorySystem.generate(machines, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -233,7 +233,7 @@ public class TestingGenerators {
         System.out.println("Generate robots ...");
         PetriGame pn = RobotCell.generate(robots, destroyable, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -263,7 +263,7 @@ public class TestingGenerators {
         System.out.println("Generate robots ...");
         PetriGame pn = SelfOrganizingRobots.generate(robots, destroyable, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -293,7 +293,7 @@ public class TestingGenerators {
         System.out.println("Generate robots R" + robots + "T" + tools + "P" + phases + " ...");
         PetriGame pn = SelfOrganizingRobots.generate(robots, tools, phases, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -320,7 +320,7 @@ public class TestingGenerators {
         System.out.println("Generate Workflow...");
         PetriGame pn = Workflow.generateNewAnnotationPoster(machines, pieces, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -334,7 +334,7 @@ public class TestingGenerators {
         PetriGame pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
         PNWTTools.savePnwt2PDF(path + name, pn, false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
 
@@ -358,7 +358,7 @@ public class TestingGenerators {
         System.out.println("Generate watchdog...");
         PetriGame pn = Watchdog.generate(machines, false, false, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -384,7 +384,7 @@ public class TestingGenerators {
         PetriGame pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
 //        Tools.savePN(path+name, pn);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -410,7 +410,7 @@ public class TestingGenerators {
         PetriGame pn = LoopUnrolling.createESafetyVersion(nb_unrollings, true, true);
 //        Tools.savePN(path+name, pn);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
     }
@@ -425,7 +425,7 @@ public class TestingGenerators {
         PetriGame pn = LoopUnrolling.createESafetyVersion(nb_unrollings, false, true);
 //        Tools.savePN(path+name, pn);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
 //        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, path + name, true);
     }
@@ -450,7 +450,7 @@ public class TestingGenerators {
 //        System.out.println("Generate security System...");
 //        PetriGame pn = SecuritySystem.createSafetyVersion(intrudingPoints, true);
 ////        Tools.savePN(path+name, pn);
-//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        DistrSysBDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 ////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, path + name, hasStrategy);
 //    }
@@ -474,7 +474,7 @@ public class TestingGenerators {
 //        System.out.println("Generate container terminal...");
 //        PetriGame pn = ContainerTerminal.createSafetyVersion(containerPlaces, true);
 ////        Tools.savePN(path+name, pn);
-//        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
+//        DistrSysBDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(pn, true);
 ////        BDDTools.saveGraph2PDF(path + name + "_graphgame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, path + name, hasStrategy);
 //    }

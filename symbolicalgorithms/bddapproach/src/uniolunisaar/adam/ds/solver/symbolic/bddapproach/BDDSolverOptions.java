@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.ds.solver.symbolic.bddapproach;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -7,6 +7,7 @@ import uniolunisaar.adam.exceptions.pg.symbolic.bddapproach.NoSuchBDDLibraryExce
 import uniolunisaar.adam.tools.AdamProperties;
 
 /**
+ * This class is used to store solver specific options for the BDD solvers.
  *
  * @author Manuel Gieseking
  */
@@ -35,7 +36,6 @@ public class BDDSolverOptions extends LLSolverOptions {
         super("bdd", skipTests, withAutomaticTransitAnnotation);
     }
 
-  
 //    public BDDSolverOptions(String name, String libraryName, int maxIncrease, int initNodeNb, int cacheSize) {
 //        super(name);
 //        this.libraryName = libraryName;

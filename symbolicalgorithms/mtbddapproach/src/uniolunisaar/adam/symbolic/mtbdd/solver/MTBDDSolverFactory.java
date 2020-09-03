@@ -32,7 +32,7 @@ public class MTBDDSolverFactory extends LLSolverFactory<MTBDDSolverOptions, MTBD
     }
 
     @Override
-    protected <W extends Condition<W>>  MTBDDSolvingObject<W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> MTBDDSolvingObject<W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
         try {
             return new MTBDDSolvingObject<>(game, winCon);
         } catch (NetNotSafeException | NoSuitableDistributionFoundException ex) {

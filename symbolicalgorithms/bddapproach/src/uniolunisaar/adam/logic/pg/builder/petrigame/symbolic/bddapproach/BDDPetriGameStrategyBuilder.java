@@ -19,6 +19,7 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.util.pg.TransitCalculator;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -41,7 +42,7 @@ public class BDDPetriGameStrategyBuilder {
     BDDPetriGameStrategyBuilder() {
     }
 
-    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph) {
+    public PetriGame builtStrategy(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
         PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
         // why does a strategy need the winning condition?
@@ -76,7 +77,7 @@ public class BDDPetriGameStrategyBuilder {
         return strategy;
     }
 
-    private void calculateStrategyByBFS(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
+    private void calculateStrategyByBFS(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
@@ -151,7 +152,7 @@ public class BDDPetriGameStrategyBuilder {
                     }
                     // if the succ has a top, save the transition leeding to the state
                     // for creating the pg strategy
-                    if (solver.hasTop(succState.getState())) {
+                    if (solver.isBufferState(succState.getState())) {
                         // there could possibly be more than one predeccessor
                         List<Transition> strat_trans = (graph.hasStrategyTransition(succState)) ? graph.getStrategyTransition(succState) : new ArrayList<>();
                         strat_trans.add(strat_t);
@@ -226,7 +227,7 @@ public class BDDPetriGameStrategyBuilder {
      * @param graph
      * @param strategy
      */
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
 
     }
 

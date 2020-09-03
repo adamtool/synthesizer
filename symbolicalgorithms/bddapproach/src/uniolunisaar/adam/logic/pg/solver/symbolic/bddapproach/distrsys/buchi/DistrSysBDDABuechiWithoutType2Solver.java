@@ -1,5 +1,6 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.buchi;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +24,11 @@ import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDBuchiGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -51,7 +54,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Deprecated
-public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
+public class DistrSysBDDABuechiWithoutType2Solver extends DistrSysBDDSolver<Buchi> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] NOCC;
@@ -73,7 +76,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDABuechiWithoutType2Solver(BDDSolvingObject<Buchi> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    DistrSysBDDABuechiWithoutType2Solver(DistrSysBDDSolvingObject<Buchi> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(obj, opts);
     }
 
@@ -89,7 +92,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * |p_i_0|occ|p_i_1|occ|top|t_1|...|t_m| ... |p_i_n|occ|top|t_1|...|t_m|
      */
     @Override
-    void createVariables() {
+    protected void createVariables() {
         int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         NOCC = new BDDDomain[2][tokencount];
@@ -127,7 +130,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     @Override
-    String decodeDCS(byte[] dcs, int pos) {
+    protected String decodeDCS(byte[] dcs, int pos) {
         StringBuilder sb = new StringBuilder();
         if (BDDTools.isLoopByBin(dcs, LOOP[pos])) {
             sb.append("LOOP");
@@ -271,7 +274,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
 
 //%%%%%%%%%%%%%%%% ADAPTED to NOCC  / Overriden CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%
     @Override
-    BDD wellformed(int pos) {
+    protected BDD wellformed(int pos) {
         BDD well = super.wellformed(pos);
         well.andWith(LOOP[pos].ithVar(0));
         well.orWith(loopState(pos));
@@ -463,7 +466,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     @Override
-    BDD notUsedToken(int pos, int token) {
+    protected BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(NOCC[pos][token].ithVar(0));
         zero.andWith(GOODCHAIN[pos][token].ithVar(0));
@@ -471,7 +474,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
     }
 
     @Override
-    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    protected void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -913,7 +916,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * transition.
      */
     @Override
-    BDD getVariables(int pos) {
+    protected BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
@@ -940,7 +943,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * successor.
      */
     @Override
-    BDD getTokenVariables(int pos, int token) {
+    protected BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         variables.andWith(NOCC[pos][token].set());
         variables.andWith(GOODCHAIN[pos][token].set());
@@ -956,7 +959,7 @@ public class BDDABuechiWithoutType2Solver extends BDDSolver<Buchi> {
      * @return BDD with Pre <-> Succ
      */
     @Override
-    BDD preBimpSucc() {
+    protected BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(NOCC[0][i].buildEquals(NOCC[1][i]));

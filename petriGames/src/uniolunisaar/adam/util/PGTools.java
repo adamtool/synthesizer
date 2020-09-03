@@ -454,7 +454,7 @@ public class PGTools {
                 partition.add(part);
             }
         }
-        // there is no reachable marking in which contains two token belonging to the same partition
+        // there is no reachable marking which contains two tokens belonging to the same partition
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cover.getNodes()) {
             Marking m = node.getMarking();
@@ -468,6 +468,24 @@ public class PGTools {
                     } else {
                         part[partition] = true;
                     }
+                }
+            }
+        }
+    }
+
+    public static void checkOnlyOneEnvToken(PetriGame game) throws NotSupportedGameException {
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
+        // only one env token is allowed (todo: do it less expensive ?)
+        for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
+            CoverabilityGraphNode next = iterator.next();
+            Marking m = next.getMarking();
+            boolean first = false;
+            for (Place place : game.getPlaces()) {
+                if (m.getToken(place).getValue() > 0 && game.isEnvironment(place)) {
+                    if (first) {
+                        throw new NotSupportedGameException("There are two environment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
+                    }
+                    first = true;
                 }
             }
         }
@@ -652,7 +670,7 @@ public class PGTools {
     }
 
     public static void savePG2Dot(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
-        try (PrintStream out = new PrintStream(path + ".dot")) {
+        try ( PrintStream out = new PrintStream(path + ".dot")) {
             out.println(pg2Dot(game, withLabel, withDebugging));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);

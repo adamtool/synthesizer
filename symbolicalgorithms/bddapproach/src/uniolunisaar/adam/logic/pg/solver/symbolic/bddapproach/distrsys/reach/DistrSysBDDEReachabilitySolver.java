@@ -1,5 +1,6 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.reach;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.util.HashMap;
 import java.util.Map;
 import net.sf.javabdd.BDD;
@@ -16,9 +17,11 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDReachabilityGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -37,7 +40,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
+public class DistrSysBDDEReachabilitySolver extends DistrSysBDDSolver<Reachability> {
 
     /**
      * Creates a new Reachability solver for a given game.
@@ -48,7 +51,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
      * @throws SolverDontFitPetriGameException - Is thrown if the winning
      * condition of the game is not a reachability condition.
      */
-    BDDEReachabilitySolver(BDDSolvingObject<Reachability> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    DistrSysBDDEReachabilitySolver(DistrSysBDDSolvingObject<Reachability> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(obj, opts);
     }
 
@@ -67,7 +70,7 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
     }
 
     @Override
-    BDD initial() {
+    protected BDD initial() {
         BDD init = super.initial();
 //                    BDDTools.printDecodedDecisionSets(init, this, true);
         init.andWith(getBufferedNDet().not());
@@ -106,8 +109,8 @@ public class BDDEReachabilitySolver extends BDDSolver<Reachability> {
      * @return
      */
     @Override
-    BDD getSystemTransitions() {
-        BDD sys = super.getSystemTransitions();
+    protected BDD calcSystemTransitions() {
+        BDD sys = super.calcSystemTransitions();
         sys.andWith(getBufferedNDet().not());
         return sys;
     }

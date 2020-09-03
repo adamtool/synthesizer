@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.safety;
 
 //package uniolunisaar.adam.symbolic.bddapproach.solver;
 //

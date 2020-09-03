@@ -22,9 +22,9 @@ import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.symbolic.bddapproach.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
@@ -39,7 +39,7 @@ public class TestingJBDDLibrary {
     private final int NODENUM = 1000;
     private final int CACHESIZE = 1000;
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
 
     @BeforeClass
@@ -55,7 +55,7 @@ public class TestingJBDDLibrary {
         final String path = inputDir + "firstExamplePaper" + File.separator;
         final String name = "firstExamplePaper";
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         solv.initialize();
     }
 

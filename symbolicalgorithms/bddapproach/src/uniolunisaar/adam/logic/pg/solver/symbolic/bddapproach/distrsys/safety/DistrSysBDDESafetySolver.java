@@ -1,5 +1,6 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.safety;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,15 +23,17 @@ import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
  * @author Manuel Gieseking
  */
-public class BDDESafetySolver extends BDDSolver<Safety> {
+public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
@@ -52,7 +55,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 //    BDDESafetySolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
 //        super(game, skipTests, win, opts);
 //    }
-    BDDESafetySolver(BDDSolvingObject<Safety> solverObject, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
+    DistrSysBDDESafetySolver(DistrSysBDDSolvingObject<Safety> solverObject, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
         super(solverObject, opts);
     }
 
@@ -68,7 +71,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * |p_i_0|gc|p_i_1|gc|top|t_1|...|t_m| ... |p_i_n|gc|top|t_1|...|t_m|
      */
     @Override
-    void createVariables() {
+    protected void createVariables() {
         int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         GOODCHAIN = new BDDDomain[2][tokencount];
@@ -100,7 +103,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     @Override
-    String decodeDCS(byte[] dcs, int pos) {
+    protected String decodeDCS(byte[] dcs, int pos) {
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
@@ -297,14 +300,14 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
     }
 
     @Override
-    BDD notUsedToken(int pos, int token) {
+    protected BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
         zero.andWith(GOODCHAIN[pos][token].ithVar(0));
         return zero;
     }
 
     @Override
-    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    protected void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -338,7 +341,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD envPart(Transition t) {
+    protected BDD envPart(Transition t) {
         BDD env = super.envPart(t);
         // todo: one environment token case
         List<Place> pre = getSolvingObject().getSplittedPreset(t).getFirst();
@@ -477,7 +480,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return
      */
     @Override
-    BDD sysTopPart() {
+    protected BDD sysTopPart() {
         BDD sysT = super.sysTopPart();
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); i++) {
             sysT.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));// todo: 12.10.2017 not really check but should be better than (the here tag from 6.11.2017)
@@ -698,7 +701,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * transition.
      */
     @Override
-    BDD getVariables(int pos) {
+    protected BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
@@ -723,7 +726,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * successor.
      */
     @Override
-    BDD getTokenVariables(int pos, int token) {
+    protected BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         variables.andWith(GOODCHAIN[pos][token].set());
         return variables;
@@ -738,7 +741,7 @@ public class BDDESafetySolver extends BDDSolver<Safety> {
      * @return BDD with Pre <-> Succ
      */
     @Override
-    BDD preBimpSucc() {
+    protected BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             preBimpSucc.andWith(GOODCHAIN[0][i].buildEquals(GOODCHAIN[1][i]));

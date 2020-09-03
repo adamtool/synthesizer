@@ -8,6 +8,7 @@ import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 
@@ -17,13 +18,13 @@ import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
  */
 public class BDDGraphGameBuilderStepwise {
 
-    public static BDDState addInitialState(BDDGraph graph, BDDSolver<? extends Condition<?>> solver) {
+    public static BDDState addInitialState(BDDGraph graph, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
         BDDState init = graph.addState(solver.getOne(), solver);
         graph.setInitial(init);
         return init;
     }
 
-    public static Pair<List<Flow>, List<BDDState>> addSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition<?>> solver) {
+    public static Pair<List<Flow>, List<BDDState>> addSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver) {
         // initial states
         if (graph.getInitial().equals(state)) {
             List<Flow> flows = new ArrayList<>();

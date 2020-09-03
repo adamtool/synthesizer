@@ -1,7 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.kbounded;
 
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded.BDDkBoundedSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded.BDDkBoundedSolver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolver;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pg.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
@@ -19,7 +20,6 @@ import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -30,7 +30,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class FirstTests {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/safety/kbounded";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/forallsafety/kbounded";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/kbounded/";
 
     @BeforeClass

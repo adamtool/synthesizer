@@ -37,7 +37,7 @@ public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<Pe
                 for (Place place : game.getPlaces()) {
                     if (m.getToken(place).getValue() > 0 && getGame().isEnvironment(place)) {
                         if (first) {
-                            throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
+                            throw new NotSupportedGameException("There are two environment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
                         }
                         first = true;
                     }

@@ -6,6 +6,7 @@ import uniolunisaar.adam.ds.solver.Solver;
 import uniolunisaar.adam.ds.solver.SolverOptions;
 import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.util.benchmarks.Benchmarks.Parts;
@@ -34,14 +35,14 @@ public class BDDBenchmarks {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         if (Benchmarks.getInstance().getSolver() != null) {
-            sb.append("Nb variables: ").append(((BDDSolver<? extends Condition<?>>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
+            sb.append("Nb variables: ").append(((BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>) Benchmarks.getInstance().getSolver()).getVariableNumber()).append("\n");
         }
         return sb.toString();
     }
 
     public String toCSVString() {
         StringBuilder sb = new StringBuilder(Benchmarks.getInstance().toCSVString());
-        BDDSolver<? extends Condition<?>> solver = (BDDSolver<? extends Condition<?>>) Benchmarks.getInstance().getSolver();
+        BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver = (BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>>) Benchmarks.getInstance().getSolver();
         if (solver != null) {
             sb.append(", ").append(solver.getVariableNumber());
         }
@@ -77,7 +78,7 @@ public class BDDBenchmarks {
         Benchmarks.getInstance().stopMemory(part);
     }
 
-    public void addData(BDDSolver<? extends Condition<?>> solver, PetriNet strat) {
+    public void addData(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, PetriNet strat) {
         Benchmarks.getInstance().addData(solver, strat);
     }
 

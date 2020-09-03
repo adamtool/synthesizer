@@ -12,8 +12,9 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDType2Solver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDType2Solver;
 
 /**
  * @author Manuel Gieseking
@@ -47,10 +48,10 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
         // Must be a solver with type2 ability
-        BDDType2Solver sol = (BDDType2Solver) solver;
+        DistrSysBDDType2Solver sol = (DistrSysBDDType2Solver) solver;
         // we only should do something if there are type2 places
         if (sol.isType2(prevState.getState())) {
             BDD succs = sol.getSystem2SuccTransitions(prevState.getState());
@@ -81,7 +82,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
         }
     }
 
-    private void addType2Strat(BDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking, Map<BDD, List<Place>> visitedStates) {
+    private void addType2Strat(DistrSysBDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking, Map<BDD, List<Place>> visitedStates) {
         // if already added this transition to this marking, skip
         if (alreadyAdded(strategy, t, prevMarking)) {
             return;
@@ -206,13 +207,13 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      */
     //@Override
     @Deprecated
-    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviourOld(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net
 //        strategy.setName("Winning strategy of the system players of the net '" + solver.getNet().getName() + "' with type 2");
         // Must be a solver with type2 ability
-        BDDType2Solver sol = (BDDType2Solver) solver;
+        DistrSysBDDType2Solver sol = (DistrSysBDDType2Solver) solver;
         // Add type2-strategy. We only have to consider it once. Since type2-strategies are
         // only strategies where the system can infinitely play on its own. So when a new type2 state is reached
         // the place must be occupied by a token (states are enriched markings), the token cannot be taken 
@@ -298,7 +299,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      *
      */
     @Deprecated
-    private void addType2StratOld(BDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
+    private void addType2StratOld(DistrSysBDDType2Solver solver, PetriGame strategy, BDD prev, BDD succ, Transition t, List<Place> prevMarking) {
         Map<BDD, List<Place>> visitedStates = new HashMap<>();
         visitedStates.put(prev, new ArrayList<>(prevMarking));
 
@@ -336,7 +337,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
      *
      */
     @Deprecated
-    private void type2Step(BDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
+    private void type2Step(DistrSysBDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");

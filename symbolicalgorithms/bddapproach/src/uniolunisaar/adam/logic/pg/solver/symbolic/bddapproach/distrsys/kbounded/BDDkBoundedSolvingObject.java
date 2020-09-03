@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.kbounded;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded;
 
 import java.util.Iterator;
 import uniol.apt.adt.pn.Marking;
@@ -41,7 +41,7 @@ public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObj
                 for (Place place : game.getPlaces()) {
                     if (m.getToken(place).getValue() > 0 && game.isEnvironment(place)) {
                         if (first) {
-                            throw new NotSupportedGameException("There are two enviroment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
+                            throw new NotSupportedGameException("There are two environment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
                         }
                         first = true;
                     }

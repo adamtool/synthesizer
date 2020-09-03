@@ -4,10 +4,10 @@ import java.io.File;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
@@ -18,7 +18,7 @@ import uniolunisaar.adam.tools.Logger;
 @Test
 public class TestingSomeFilesESafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/synthesis/existssafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
 
     @BeforeClass
@@ -35,7 +35,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
 
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
 //        BDDGraph graph = solv.getGraphStrategy();
 //        BDDTools.saveGraph2PDF(outputDir + name + "_gg", graph, solv);
@@ -79,7 +79,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchainsOneGoodOneBad";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -90,7 +90,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains4";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -101,7 +101,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains2";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -112,7 +112,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains5";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, true);
     }
@@ -123,7 +123,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains6";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -134,7 +134,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains_env_0";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -145,7 +145,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "infflowchains";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }
@@ -157,7 +157,7 @@ public class TestingSomeFilesESafety {
 //        String name = "newchainForget"; // true
         String name = "newchainForget_1"; // false
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
 //        BDDTestingTools.testExample(solv, outputDir + name, true);
         BDDTestingTools.testExample(solv, outputDir + name, false);
@@ -169,7 +169,7 @@ public class TestingSomeFilesESafety {
 //        Logger.getInstance().setVerbose(true);
         String name = "escape11";
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        BDDSolver<? extends Condition> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
+        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
         BDDTools.saveGraph2PDF(outputDir + name + "_graphengame", solv.getGraphGame(), solv);
         BDDTestingTools.testExample(solv, outputDir + name, false);
     }

@@ -1,5 +1,6 @@
-package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach;
+package uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.safety;
 
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,13 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.logic.pg.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithType2StrategyBuilder;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDType2Solver;
 
 /**
  * Solves Petri games with a safety objective with BDDs.
@@ -34,7 +38,7 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Deprecated
-public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType2Solver {
+public class DistrSysBDDASafetySolverNested extends DistrSysBDDSolver<Safety> implements DistrSysBDDType2Solver {
 
     // Domains for predecessor and successor for each token
     private BDDDomain[][] TYPE; // 1 means it is type 1, 0 means it is type2
@@ -57,7 +61,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-    BDDASafetySolverNested(BDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    DistrSysBDDASafetySolverNested(DistrSysBDDSolvingObject<Safety> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
         super(obj, opts);
     }
 
@@ -92,7 +96,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * |p_i_0|p_i_1|type|top|t_1|...|t_m| ... |p_i_n|type|top|t_1|...|t_m|
      */
     @Override
-    void createVariables() {
+    protected void createVariables() {
         int tokencount = getSolvingObject().getMaxTokenCountInt();
         PLACES = new BDDDomain[2][tokencount];
         TYPE = new BDDDomain[2][tokencount - 1];
@@ -121,7 +125,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     @Override
-    String decodeDCS(byte[] dcs, int pos) {
+    protected String decodeDCS(byte[] dcs, int pos) {
         StringBuilder sb = new StringBuilder();
         // Env place
         sb.append("(");
@@ -652,7 +656,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     }
 
     @Override
-    boolean isFirable(Transition t, BDD source) {
+    protected boolean isFirable(Transition t, BDD source) {
         return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
 
@@ -724,14 +728,16 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
     }
 
     @Override
-    BDD notUsedToken(int pos, int token) {
+    protected BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
-        zero.andWith(TYPE[pos][token - 1].ithVar(0));
+        if (token != 0) {
+            zero.andWith(TYPE[pos][token - 1].ithVar(0));
+        }
         return zero;
     }
 
     @Override
-    void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
+    protected void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             if (visitedToken.contains(i)) { // jump over already visited token
@@ -970,7 +976,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * transition.
      */
     @Override
-    BDD getVariables(int pos) {
+    protected BDD getVariables(int pos) {
         // Existential variables
         BDD variables = super.getVariables(pos);
         for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
@@ -994,7 +1000,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * successor.
      */
     @Override
-    BDD getTokenVariables(int pos, int token) {
+    protected BDD getTokenVariables(int pos, int token) {
         BDD variables = super.getTokenVariables(pos, token);
         if (token != 0) {
             variables.andWith(TYPE[pos][token - 1].set());
@@ -1011,7 +1017,7 @@ public class BDDASafetySolverNested extends BDDSolver<Safety> implements BDDType
      * @return BDD with Pre <-> Succ
      */
     @Override
-    BDD preBimpSucc() {
+    protected BDD preBimpSucc() {
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
             preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));

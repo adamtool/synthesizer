@@ -12,11 +12,13 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDType2Solver;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDType2Solver;
 
 /**
  * TODO: Attention this method is currently not thread safe!
+ *
  * @author Manuel Gieseking
  */
 public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBuilder {
@@ -48,13 +50,13 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
     }
 
     @Override
-    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+    void addSpecialStateBehaviour(BDDSolver<? extends Condition<?>, ? extends BDDSolvingObject<?>> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net
 //        strategy.setName("Winning strategy of the system players of the net '" + solver.getNet().getName() + "' with type 2");
         // Must be a solver with type2 ability
-        BDDType2Solver sol = (BDDType2Solver) solver;
+        DistrSysBDDType2Solver sol = (DistrSysBDDType2Solver) solver;
         // Add type2-strategy. We only have to consider it once. Since type2-strategies are
         // only strategies where the system can infinitely play on its own. So when a new type2 state is reached
         // the place must be occupied by a token (states are enriched markings), the token cannot be taken 
@@ -70,7 +72,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
 
     }
 
-    private void type2Step(BDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
+    private void type2Step(DistrSysBDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");
