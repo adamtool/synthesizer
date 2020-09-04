@@ -5,7 +5,7 @@ DEPENDENCIES_REV="HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 SYNTHESIZER_TARGETS = petrigames symbolic
-t=jar
+t=javac
 
 # should be executed no matter if a file with the same name exists or not
 .PHONY: check_dependencies
@@ -70,6 +70,9 @@ mtbdd: check_dependencies
 	ant -buildfile ./symbolicalgorithms/mtbddapproach/build.xml $(t)
 
 symbolic: bdd mtbdd
+
+setJavac:
+	$(eval t=javac)
 
 setStandalone:
 	$(eval t=jar-standalone)
