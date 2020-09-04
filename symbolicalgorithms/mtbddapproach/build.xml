@@ -47,6 +47,9 @@
 	<target name="test-class" depends="loadProperties" description="Runs the tests of a specific class">
 		<antcall target="symbolic.mtbdd.fu.test-class"/>
 	</target>
+	<target name="javac" depends="loadProperties" description="Compiles the module">
+		<antcall target="symbolic.mtbdd.fu.javac"/>
+	</target>
 	<target name="jar" depends="loadProperties" description="Builds a jar with all its dependencies">
 		<antcall target="symbolic.mtbdd.fu.jar"/>
 	</target>
