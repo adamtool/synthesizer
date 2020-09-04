@@ -33,8 +33,8 @@ import uniolunisaar.adam.generators.pg.Watchdog;
 import uniolunisaar.adam.generators.pg.Workflow;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 

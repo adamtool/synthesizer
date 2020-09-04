@@ -6,8 +6,8 @@ import org.testng.annotations.Test;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 

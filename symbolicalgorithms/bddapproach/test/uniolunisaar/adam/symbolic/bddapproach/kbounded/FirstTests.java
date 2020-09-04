@@ -1,7 +1,7 @@
 package uniolunisaar.adam.symbolic.bddapproach.kbounded;
 
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolverFactory;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.kbounded.BDDkBoundedSolver;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

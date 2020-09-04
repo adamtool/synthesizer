@@ -13,7 +13,7 @@ import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.PGTools;
 

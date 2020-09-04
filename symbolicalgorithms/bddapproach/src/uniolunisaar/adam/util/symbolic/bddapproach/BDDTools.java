@@ -23,8 +23,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.Logger;
 

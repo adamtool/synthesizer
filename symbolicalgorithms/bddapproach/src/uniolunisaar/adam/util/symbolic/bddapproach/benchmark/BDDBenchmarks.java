@@ -8,7 +8,7 @@ import uniolunisaar.adam.ds.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.benchmarks.Benchmarks;
 import uniolunisaar.adam.util.benchmarks.Benchmarks.Parts;
 
