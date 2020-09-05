@@ -7,7 +7,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
-import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 
 /**

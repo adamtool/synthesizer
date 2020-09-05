@@ -3,7 +3,7 @@ package uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach;
 import java.io.File;
 import java.lang.reflect.Field;
 import uniolunisaar.adam.ds.synthesis.solver.LLSolverOptions;
-import uniolunisaar.adam.exceptions.distrsynt.symbolic.bddapproach.NoSuchBDDLibraryException;
+import uniolunisaar.adam.exceptions.synthesis.symbolic.bddapproach.NoSuchBDDLibraryException;
 import uniolunisaar.adam.tools.AdamProperties;
 
 /**
