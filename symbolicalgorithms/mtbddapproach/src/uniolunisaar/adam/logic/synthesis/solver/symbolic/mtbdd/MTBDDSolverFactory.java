@@ -1,4 +1,4 @@
-package uniolunisaar.adam.symbolic.mtbdd.solver;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.mtbdd;
 
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
@@ -10,7 +10,7 @@ import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
-import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.mtbdd.MTBDDSolvingObject;
 
 /**
  *

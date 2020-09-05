@@ -1,4 +1,4 @@
-package uniolunisaar.adam.symbolic.mtbdd.solver;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.mtbdd;
 
 import uniolunisaar.adam.ds.synthesis.solver.LLSolverOptions;
 

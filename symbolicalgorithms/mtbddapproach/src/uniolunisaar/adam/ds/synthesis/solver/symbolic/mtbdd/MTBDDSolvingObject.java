@@ -1,4 +1,4 @@
-package uniolunisaar.adam.symbolic.mtbdd.petrigame;
+package uniolunisaar.adam.ds.synthesis.solver.symbolic.mtbdd;
 
 import java.util.Iterator;
 import uniol.apt.adt.pn.Marking;

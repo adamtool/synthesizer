@@ -4,9 +4,9 @@ import java.io.File;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolver;
-import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverFactory;
-import uniolunisaar.adam.symbolic.mtbdd.solver.MTBDDSolverOptions;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.mtbdd.MTBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.mtbdd.MTBDDSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.mtbdd.MTBDDSolverOptions;
 
 /**
  *
