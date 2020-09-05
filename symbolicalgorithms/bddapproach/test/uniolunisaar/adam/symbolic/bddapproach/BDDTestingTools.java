@@ -6,12 +6,12 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
@@ -46,7 +46,7 @@ public class BDDTestingTools {
     }
 
     private static void printWinningStrategies(DistrSysBDDSolver<? extends Condition> solv, String path) throws NoStrategyExistentException, IOException, InterruptedException, CalculationInterruptedException {
-        Pair<BDDGraph, PetriGame> strats = solv.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strats = solv.getStrategies();
         //        System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
 //        System.out.println("Save petri game pdf.");
@@ -73,7 +73,7 @@ public class BDDTestingTools {
     }
 
     private static void printWinningStratPG(DistrSysBDDSolver<? extends Condition> solv, String path) throws Exception {
-        PetriGame strategy = solv.getStrategy();
+        PetriGameWithTransits strategy = solv.getStrategy();
         PNWTTools.savePnwt2DotAndPDF(path + "_pg", strategy, true);
     }
 

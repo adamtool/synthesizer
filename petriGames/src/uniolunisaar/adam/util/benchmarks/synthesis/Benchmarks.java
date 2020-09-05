@@ -3,12 +3,12 @@ package uniolunisaar.adam.util.benchmarks.synthesis;
 import java.util.HashMap;
 import java.util.Map;
 import uniol.apt.adt.pn.PetriNet;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.util.benchmarks.Benchmark;
 
 /**
@@ -36,7 +36,7 @@ public class Benchmarks {
     }
     private static Benchmarks instance = null;
     private final Map<Parts, Benchmark> benchs;
-    private Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> solver = null;
+    private Solver<PetriGameWithTransits, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGameWithTransits, ? extends Condition<?>, ?>, ? extends SolverOptions> solver = null;
     private PetriNet strategy = null;
 
     private Benchmarks() {
@@ -104,7 +104,7 @@ public class Benchmarks {
         benchs.get(part).setStopMemory(rt.totalMemory() - rt.freeMemory());
     }
 
-    public void addData(Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> solver, PetriNet strat) {
+    public void addData(Solver<PetriGameWithTransits, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGameWithTransits, ? extends Condition<?>, ?>, ? extends SolverOptions> solver, PetriNet strat) {
         this.solver = solver;
         this.strategy = strat;
     }
@@ -116,7 +116,7 @@ public class Benchmarks {
             sb.append(bench.toString()).append("\n");
         }
         if (solver != null) {
-            PetriGame game = solver.getGame();
+            PetriGameWithTransits game = solver.getGame();
             sb.append("Nb orig places: ").append(game.getPlaces().size()).append("\n");
             sb.append("Nb orig trans: ").append(game.getTransitions().size()).append("\n");
             sb.append("Nb token: ").append(solver.getGame().getValue(CalculatorIDs.MAX_TOKEN_COUNT.name()).toString()).append("\n");
@@ -231,7 +231,7 @@ public class Benchmarks {
         return sb.toString();
     }
 
-    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGame, ? extends Condition<?>, ?>, ? extends SolverOptions> getSolver() {
+    public Solver<PetriGameWithTransits, ? extends Condition<?>, ? extends SolvingObject<? extends PetriGameWithTransits, ? extends Condition<?>, ?>, ? extends SolverOptions> getSolver() {
         return solver;
     }
 

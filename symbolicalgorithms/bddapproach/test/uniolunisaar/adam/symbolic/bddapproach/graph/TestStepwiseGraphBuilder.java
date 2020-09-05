@@ -12,12 +12,12 @@ import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
@@ -138,7 +138,7 @@ public class TestStepwiseGraphBuilder {
                 + "\n"
                 + ".initial_marking {1*Env, 1*S0}";
 
-        PetriGame game = PGTools.getPetriGameFromAPTString(apt, true, true);
+        PetriGameWithTransits game = PGTools.getPetriGameFromAPTString(apt, true, true);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(game, opts);
         solv.initialize();

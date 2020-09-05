@@ -1,10 +1,10 @@
 package uniolunisaar.adam.symbolic.mtbdd.solver;
 
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
@@ -14,7 +14,7 @@ import uniolunisaar.adam.symbolic.mtbdd.petrigame.MTBDDSolvingObject;
  * @author Manuel Gieseking
  * @param <W>
  */
-public abstract class MTBDDSolver<W extends Condition<W>> extends Solver<PetriGame, W, MTBDDSolvingObject<W>, MTBDDSolverOptions> {
+public abstract class MTBDDSolver<W extends Condition<W>> extends Solver<PetriGameWithTransits, W, MTBDDSolvingObject<W>, MTBDDSolverOptions> {
 
     /**
      * Creates a new solver for the given game.

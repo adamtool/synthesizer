@@ -1,11 +1,11 @@
 package uniolunisaar.adam.tests.generators.pg;
 
-import uniolunisaar.adam.generators.pg.Philosopher;
-import uniolunisaar.adam.generators.pg.ManufactorySystem;
-import uniolunisaar.adam.generators.pg.Clerks;
-import uniolunisaar.adam.generators.pg.Workflow;
-import uniolunisaar.adam.generators.pg.SelfOrganizingRobots;
-import uniolunisaar.adam.generators.pg.RobotCell;
+import uniolunisaar.adam.generators.pgwt.Philosopher;
+import uniolunisaar.adam.generators.pgwt.ManufactorySystem;
+import uniolunisaar.adam.generators.pgwt.Clerks;
+import uniolunisaar.adam.generators.pgwt.Workflow;
+import uniolunisaar.adam.generators.pgwt.SelfOrganizingRobots;
+import uniolunisaar.adam.generators.pgwt.RobotCell;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,12 +15,12 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NetNotConcurrencyPreservingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.Tools;
 

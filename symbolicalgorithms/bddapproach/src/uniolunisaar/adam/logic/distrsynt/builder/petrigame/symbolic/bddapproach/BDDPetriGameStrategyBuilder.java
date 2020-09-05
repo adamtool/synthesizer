@@ -15,12 +15,12 @@ import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.util.pg.TransitCalculator;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.util.pgwt.TransitCalculator;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
@@ -44,9 +44,9 @@ public class BDDPetriGameStrategyBuilder {
     }
 
     public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
-            PetriGame builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
+            PetriGameWithTransits builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
         Logger.getInstance().addMessage("Calculate Petri game strategy.");
-        PetriGame strategy = new PetriGame("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
+        PetriGameWithTransits strategy = new PetriGameWithTransits("Winning strategy of the system players of the net '" + solver.getGame().getName() + "'.");
         // why does a strategy need the winning condition?
 //        PetriGameExtensionHandler.setWinningCondition(strategy, PetriGameExtensionHandler.getWinningCondition(solver.getGame()));
         BDDState init = graph.getInitial();
@@ -80,7 +80,7 @@ public class BDDPetriGameStrategyBuilder {
     }
 
     private <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
-            void calculateStrategyByBFS(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState initialState, List<Place> initialMarking) {
+            void calculateStrategyByBFS(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGameWithTransits strategy, BDDState initialState, List<Place> initialMarking) {
         Map<Integer, List<Place>> visitedCuts = new HashMap<>();
         LinkedList<Pair<BDDState, List<Place>>> todoStates = new LinkedList<>();
         todoStates.add(new Pair<>(initialState, initialMarking));
@@ -171,7 +171,7 @@ public class BDDPetriGameStrategyBuilder {
         cleanup();
     }
 
-    void addBehaviorForVisitedSuccessors(PetriGame strategy, Map<Integer, List<Place>> visitedCuts, BDDState succState, Transition t, Transition strat_t, LinkedList<Pair<BDDState, List<Place>>> todoStates, List<Place> prevMarking) {
+    void addBehaviorForVisitedSuccessors(PetriGameWithTransits strategy, Map<Integer, List<Place>> visitedCuts, BDDState succState, Transition t, Transition strat_t, LinkedList<Pair<BDDState, List<Place>>> todoStates, List<Place> prevMarking) {
         // Don't create new places, only add the "suitable" flows and delete 
         // the places which had been created before, which are now double.
         List<Place> visitedMarking = visitedCuts.get(succState.getId());
@@ -231,7 +231,7 @@ public class BDDPetriGameStrategyBuilder {
      * @param strategy
      */
     <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
-            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGameWithTransits strategy, BDDState prevState, List<Place> prevMarking) {
 
     }
 
@@ -242,7 +242,7 @@ public class BDDPetriGameStrategyBuilder {
 
     }
 
-    private boolean containsID(PetriGame game, Set<Place> places, Place place) {
+    private boolean containsID(PetriGameWithTransits game, Set<Place> places, Place place) {
         for (Place p : places) {
             if (p.getId().equals(game.getOrigID(place))) {
                 return true;
@@ -269,7 +269,7 @@ public class BDDPetriGameStrategyBuilder {
      * @param marking - the current marking of the unfolding
      * @return the place of the marking with the given placeid
      */
-    Place getSuitablePredecessor(PetriGame game, String placeid, List<Place> marking) {
+    Place getSuitablePredecessor(PetriGameWithTransits game, String placeid, List<Place> marking) {
         for (Place p : marking) {
             String id = game.getOrigID(p);
             if (id.equals(placeid)) {

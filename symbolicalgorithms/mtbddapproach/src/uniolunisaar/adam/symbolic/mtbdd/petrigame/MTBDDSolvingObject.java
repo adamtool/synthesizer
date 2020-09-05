@@ -6,9 +6,9 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.tools.Logger;
@@ -18,13 +18,13 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W, MTBDDSolvingObject<W>> {
+public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGameWithTransits, W, MTBDDSolvingObject<W>> {
 
-    public MTBDDSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public MTBDDSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         this(game, winCon, false);
     }
 
-    public MTBDDSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
+    public MTBDDSolvingObject(PetriGameWithTransits game, W winCon, boolean skipChecks) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException {
         super(game, winCon);
 
         if (!skipChecks) {
@@ -51,7 +51,7 @@ public class MTBDDSolvingObject<W extends Condition<W>> extends SolvingObject<Pe
     }
 
     public MTBDDSolvingObject(MTBDDSolvingObject<W> obj) {
-        super(new PetriGame(obj.getGame()), obj.getWinCon().getCopy());
+        super(new PetriGameWithTransits(obj.getGame()), obj.getWinCon().getCopy());
     }
 
     @Override

@@ -15,14 +15,14 @@ import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.AdamProperties;
@@ -36,7 +36,7 @@ public class BDDTools {
 
     private static final boolean print = false;
 
-    public static String place2BinID(PetriGame game, Place p, int digits) {
+    public static String place2BinID(PetriGameWithTransits game, Place p, int digits) {
         String binID = Integer.toBinaryString(game.getID(p));
         binID = String.format("%" + digits + "s", binID).replace(' ', '0');
         return new StringBuilder(binID).reverse().toString();
@@ -299,7 +299,7 @@ public class BDDTools {
         return out;
     }
 
-    public static String getPlaceIDByBin(PetriGame game, byte[] dcs, BDDDomain bddDomain, Set<Place> places, boolean cp) {
+    public static String getPlaceIDByBin(PetriGameWithTransits game, byte[] dcs, BDDDomain bddDomain, Set<Place> places, boolean cp) {
         int[] ids = bddDomain.vars();
         String id = "";
         String zero = "";

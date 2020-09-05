@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.safety;
 
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +12,15 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.objectives.Safety;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
 import uniolunisaar.adam.logic.distrsynt.builder.petrigame.symbolic.bddapproach.BDDPetriGameWithType2StrategyBuilder;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
@@ -770,11 +770,11 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
+    protected PetriGameWithTransits calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriGame pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGameWithTransits pn = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -782,12 +782,12 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
     }
 
     @Override
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
+    public Pair<BDDGraph, PetriGameWithTransits> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriGame pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGameWithTransits pstrat = BDDPetriGameWithType2StrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

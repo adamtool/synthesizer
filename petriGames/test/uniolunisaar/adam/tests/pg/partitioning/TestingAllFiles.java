@@ -1,6 +1,6 @@
 package uniolunisaar.adam.tests.pg.partitioning;
 
-import uniolunisaar.adam.logic.pg.partitioning.Partitioner;
+import uniolunisaar.adam.logic.synthesis.pgwt.partitioning.Partitioner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,16 +25,16 @@ import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
-import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.Tools;
@@ -95,7 +95,7 @@ public class TestingAllFiles {
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, FileNotFoundException, ModuleException, CouldNotCalculateException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         PetriNet net = Tools.getPetriNet(file.getAbsolutePath());
-        PetriGame game = PGTools.getPetriGameFromParsedPetriNet(net, true, true);
+        PetriGameWithTransits game = PGTools.getPetriGameFromParsedPetriNet(net, true, true);
 //        Set<List<Integer>> invariants = InvariantCalculator.calcSInvariants(net, InvariantCalculator.InvariantAlgorithm.FARKAS);
 //        System.out.println(invariants.toString());
 //        Assert.assertTrue(InvariantCalculator.coveredBySInvariants(net, invariants) != null);
@@ -117,7 +117,7 @@ public class TestingAllFiles {
 
     }
 
-    private boolean isValidDistributed(PetriGame net) {
+    private boolean isValidDistributed(PetriGameWithTransits net) {
         for (Place place : net.getPlaces()) {
             if (! net.hasPartition(place)) {
                 return false;
@@ -142,7 +142,7 @@ public class TestingAllFiles {
         return true;
     }
 
-    private boolean hasEnv(Set<Place> places, PetriGame game) {
+    private boolean hasEnv(Set<Place> places, PetriGameWithTransits game) {
         for (Place place : places) {
             if (game.isEnvironment(place)) {
                 return true;

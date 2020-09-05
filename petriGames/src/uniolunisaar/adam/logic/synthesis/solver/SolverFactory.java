@@ -3,15 +3,15 @@ package uniolunisaar.adam.logic.synthesis.solver;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.objectives.Buchi;
-import uniolunisaar.adam.ds.petrigame.IPetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.IPetriGame;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 
 /**
  *

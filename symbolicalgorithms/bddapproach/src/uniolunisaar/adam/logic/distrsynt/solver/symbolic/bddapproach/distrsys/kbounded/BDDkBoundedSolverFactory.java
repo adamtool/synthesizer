@@ -1,23 +1,23 @@
 package uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.kbounded;
 
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
 
 /**
  *
  * @author Manuel Gieseking
  */
-public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, BDDSolverOptions>> {
+public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, Solver<PetriGameWithTransits, ? extends Condition<?>, ? extends SolvingObject<PetriGameWithTransits, ? extends Condition<?>, ? extends SolvingObject<PetriGameWithTransits, ? extends Condition<?>, ?>>, BDDSolverOptions>> {
 
     private static BDDkBoundedSolverFactory instance = null;
 
@@ -33,7 +33,7 @@ public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected <W extends Condition<W>> BDDkBoundedSolvingObject<W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> BDDkBoundedSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
         try {
             return new BDDkBoundedSolvingObject<>(game, winCon);
         } catch (NoSuitableDistributionFoundException ex) {
@@ -42,32 +42,32 @@ public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected BDDkBoundedSolver getESafetySolver(PetriGame game, Safety con, BDDSolverOptions options) throws SolvingException {
+    protected BDDkBoundedSolver getESafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected BDDkBoundedSolver getASafetySolver(PetriGame game, Safety con, BDDSolverOptions options) throws SolvingException {
+    protected BDDkBoundedSolver getASafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions options) throws SolvingException {
         return new BDDkBoundedSolver(createSolvingObject(game, con), options);
     }
 
     @Override
-    protected Solver<PetriGame, Reachability, BDDkBoundedSolvingObject<Reachability>, BDDSolverOptions> getEReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions options) throws SolvingException {
+    protected Solver<PetriGameWithTransits, Reachability, BDDkBoundedSolvingObject<Reachability>, BDDSolverOptions> getEReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected Solver<PetriGame, Reachability, BDDkBoundedSolvingObject<Reachability>, BDDSolverOptions> getAReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions options) throws SolvingException {
+    protected Solver<PetriGameWithTransits, Reachability, BDDkBoundedSolvingObject<Reachability>, BDDSolverOptions> getAReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected Solver<PetriGame, Buchi, BDDkBoundedSolvingObject<Buchi>, BDDSolverOptions> getEBuchiSolver(PetriGame game, Buchi con, BDDSolverOptions options) throws SolvingException {
+    protected Solver<PetriGameWithTransits, Buchi, BDDkBoundedSolvingObject<Buchi>, BDDSolverOptions> getEBuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected Solver<PetriGame, Buchi, BDDkBoundedSolvingObject<Buchi>, BDDSolverOptions> getABuchiSolver(PetriGame game, Buchi con, BDDSolverOptions options) throws SolvingException {
+    protected Solver<PetriGameWithTransits, Buchi, BDDkBoundedSolvingObject<Buchi>, BDDSolverOptions> getABuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions options) throws SolvingException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

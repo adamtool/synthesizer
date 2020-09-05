@@ -1,6 +1,6 @@
 package uniolunisaar.adam.ds.synthesis.solver;
 
-import uniolunisaar.adam.ds.petrigame.IPetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.IPetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 
 /**

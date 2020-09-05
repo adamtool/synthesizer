@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import net.sf.javabdd.BDDFactory;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Safety;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.symbolic.bddapproach.JavaBDDCallback;
 import uniolunisaar.adam.tools.Logger;
@@ -22,7 +22,7 @@ import uniolunisaar.adam.tools.Logger;
  *
  * @author Manuel Gieseking
  */
-public class BDDkBoundedSolver extends Solver<PetriGame, Safety, BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
+public class BDDkBoundedSolver extends Solver<PetriGameWithTransits, Safety, BDDkBoundedSolvingObject<Safety>, BDDSolverOptions> {
 
     // BDD settings
     private BDDFactory bddfac;
@@ -194,7 +194,7 @@ public class BDDkBoundedSolver extends Solver<PetriGame, Safety, BDDkBoundedSolv
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException {
+    protected PetriGameWithTransits calculateStrategy() throws NoStrategyExistentException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

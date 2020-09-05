@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys;
 
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 

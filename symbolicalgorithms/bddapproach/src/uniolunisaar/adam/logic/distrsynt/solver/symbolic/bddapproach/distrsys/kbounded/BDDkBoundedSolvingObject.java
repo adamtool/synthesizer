@@ -5,12 +5,12 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.tools.Logger;
 
 /**
@@ -18,13 +18,13 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  * @param <W>
  */
-public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGame, W, BDDkBoundedSolvingObject<W>> {
+public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObject<PetriGameWithTransits, W, BDDkBoundedSolvingObject<W>> {
 
-    public BDDkBoundedSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException, NoSuitableDistributionFoundException {
+    public BDDkBoundedSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         this(game, winCon, false);
     }
 
-    public BDDkBoundedSolvingObject(PetriGame game, W winCon, boolean skipChecks) throws NotSupportedGameException, NoSuitableDistributionFoundException {
+    public BDDkBoundedSolvingObject(PetriGameWithTransits game, W winCon, boolean skipChecks) throws NotSupportedGameException, NoSuitableDistributionFoundException {
         super(game, winCon);
 
         if (!skipChecks) {
@@ -56,7 +56,7 @@ public class BDDkBoundedSolvingObject<W extends Condition<W>> extends SolvingObj
     }
 
     public BDDkBoundedSolvingObject(BDDkBoundedSolvingObject<W> obj) {
-        super(new PetriGame(obj.getGame()), obj.getWinCon().getCopy());
+        super(new PetriGameWithTransits(obj.getGame()), obj.getWinCon().getCopy());
     }
 
     /**

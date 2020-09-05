@@ -6,11 +6,11 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 
 /**
@@ -52,8 +52,8 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
      */
     @Override
     public <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
-            PetriGame builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
-        PetriGame strategy = super.builtStrategy(solver, graph);
+            PetriGameWithTransits builtStrategy(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph) {
+        PetriGameWithTransits strategy = super.builtStrategy(solver, graph);
         Set<Place> todo = new HashSet<>();
         // add all enviroment places without successors of the strategy
         for (Place place : strategy.getPlaces()) {

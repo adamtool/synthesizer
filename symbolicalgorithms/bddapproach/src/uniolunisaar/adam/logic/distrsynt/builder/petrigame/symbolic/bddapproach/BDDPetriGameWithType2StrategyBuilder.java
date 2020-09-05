@@ -9,11 +9,11 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.graph.Graph;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDType2Solver;
 
@@ -52,7 +52,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
 
     @Override
     <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
-            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGame strategy, BDDState prevState, List<Place> prevMarking) {
+            void addSpecialStateBehaviour(BDDSolver<W, SO, SOP> solver, Graph<BDDState, Flow> graph, PetriGameWithTransits strategy, BDDState prevState, List<Place> prevMarking) {
         super.addSpecialStateBehaviour(solver, graph, strategy, prevState, prevMarking);
 
 //        // Adapt the name of the net
@@ -74,7 +74,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
 
     }
 
-    private void type2Step(DistrSysBDDType2Solver solver, PetriGame strategy, BDD state, List<Place> marking) {
+    private void type2Step(DistrSysBDDType2Solver solver, PetriGameWithTransits strategy, BDD state, List<Place> marking) {
 //        System.out.println("Add type2 strategy");
         visitedType2Markings.put(state, new ArrayList<>(marking));
 //        System.out.println("type2 stuff");

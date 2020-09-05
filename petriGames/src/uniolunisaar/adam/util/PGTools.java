@@ -23,16 +23,16 @@ import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.parser.impl.AptPNParser;
 import uniol.apt.io.renderer.RenderException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
-import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
-import uniolunisaar.adam.logic.pg.calculators.ConcurrencyPreservingCalculator;
-import uniolunisaar.adam.logic.pg.calculators.MaxTokenCountCalculator;
-import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
-import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingCalculator;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
 import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.processHandling.ExternalProcessHandler;
@@ -41,8 +41,8 @@ import uniolunisaar.adam.tools.processHandling.ProcessPool;
 import uniolunisaar.adam.util.synthesis.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
 import static uniolunisaar.adam.util.PNWTTools.getTransitRelationFromTransitions;
-import uniolunisaar.adam.util.pg.ExtensionCalculator;
-import uniolunisaar.adam.util.pg.TransitCalculator;
+import uniolunisaar.adam.util.pgwt.ExtensionCalculator;
+import uniolunisaar.adam.util.pgwt.TransitCalculator;
 
 /**
  *
@@ -54,11 +54,11 @@ public class PGTools {
         return aptText.replaceAll(key + "=\"([^\"]*)\"", key + "=$1");
     }
 
-    public static void saveAPT(String path, PetriGame game, boolean withAnnotationPartition) throws RenderException, FileNotFoundException {
+    public static void saveAPT(String path, PetriGameWithTransits game, boolean withAnnotationPartition) throws RenderException, FileNotFoundException {
         PNWTTools.saveAPT(path, game, withAnnotationPartition);
     }
 
-    public static String getAPT(PetriGame game, boolean withAnnotationPartition, boolean withCoordinates) throws RenderException {
+    public static String getAPT(PetriGameWithTransits game, boolean withAnnotationPartition, boolean withCoordinates) throws RenderException {
         String file = PNWTTools.getAPT(game, withAnnotationPartition, withCoordinates);
         // Since every value of the options is put as a String Object into the file,
         // delete the quotes for a suitable value (Integers can be parsed)
@@ -76,8 +76,8 @@ public class PGTools {
      * @param name
      * @return
      */
-    public static PetriGame createPetriGame(String name) {
-        return new PetriGame(name, new ConcurrencyPreservingCalculator(), new MaxTokenCountCalculator());
+    public static PetriGameWithTransits createPetriGame(String name) {
+        return new PetriGameWithTransits(name, new ConcurrencyPreservingCalculator(), new MaxTokenCountCalculator());
     }
 
     /**
@@ -90,21 +90,21 @@ public class PGTools {
      * @throws NotSupportedGameException
      * @throws ParseException
      * @throws IOException
-     * @throws uniolunisaar.adam.exceptions.pg.CouldNotCalculateException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException
      */
-    public static PetriGame getPetriGameFromAPTString(String content, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, IOException, CouldNotCalculateException {
+    public static PetriGameWithTransits getPetriGameFromAPTString(String content, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, IOException, CouldNotCalculateException {
         PetriNet pn = Tools.getPetriNetFromString(content);
         return getPetriGameFromParsedPetriNet(pn, skipTests, withAutomatic);
     }
 
-    public static PetriGame getPetriGame(String path, boolean skipTest, boolean withAutomatic) throws ParseException, IOException, NotSupportedGameException, CouldNotCalculateException {
+    public static PetriGameWithTransits getPetriGame(String path, boolean skipTest, boolean withAutomatic) throws ParseException, IOException, NotSupportedGameException, CouldNotCalculateException {
         PetriNet pn = Tools.getPetriNet(path);
         return getPetriGameFromParsedPetriNet(pn, skipTest, withAutomatic);
     }
 
-    public static PetriGame getPetriGameFromParsedPetriNet(PetriNet net, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, CouldNotCalculateException {
+    public static PetriGameWithTransits getPetriGameFromParsedPetriNet(PetriNet net, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, CouldNotCalculateException {
 //        Condition.Condition win = parseConditionFromNetExtensionText(net);
-        PetriGame game = new PetriGame(net, skipTests, new ConcurrencyPreservingCalculator(), new MaxTokenCountCalculator());
+        PetriGameWithTransits game = new PetriGameWithTransits(net, skipTests, new ConcurrencyPreservingCalculator(), new MaxTokenCountCalculator());
         parseAndCreateTransitsFromTransitionExtensionText(game, withAutomatic);
 //        if (win == Condition.Condition.E_SAFETY
 //                || win == Condition.Condition.A_REACHABILITY
@@ -124,7 +124,7 @@ public class PGTools {
         return game;
     }
 
-    private static void parseAndCreateTransitsFromTransitionExtensionText(PetriGame game, boolean withAutomatic) throws ParseException, CouldNotCalculateException {
+    private static void parseAndCreateTransitsFromTransitionExtensionText(PetriGameWithTransits game, boolean withAutomatic) throws ParseException, CouldNotCalculateException {
         //todo: hack. change it, when the new implemenation of the flows is implmemented
         if (game.hasExtension(AdamExtensions.condition.name())) {
             if (game.getExtension(AdamExtensions.condition.name()).equals("A_SAFETY")
@@ -177,7 +177,7 @@ public class PGTools {
         }
     }
 
-    public static boolean isDeterministic(PetriGame strat, CoverabilityGraph cover) {
+    public static boolean isDeterministic(PetriGameWithTransits strat, CoverabilityGraph cover) {
         boolean det = true;
         for (Place place : strat.getPlaces()) {
             if (!strat.isEnvironment(place)) {
@@ -207,7 +207,7 @@ public class PGTools {
         return det;
     }
 
-    public static boolean isEnvTransition(PetriGame game, Transition t) {
+    public static boolean isEnvTransition(PetriGameWithTransits game, Transition t) {
         for (Place p : t.getPreset()) {
             if (!game.isEnvironment(p)) {
                 return false;
@@ -216,7 +216,7 @@ public class PGTools {
         return true;
     }
 
-    public static boolean restrictsEnvTransition(PetriGame origNet, PetriGame strat, boolean withReachableCheck) {
+    public static boolean restrictsEnvTransition(PetriGameWithTransits origNet, PetriGameWithTransits strat, boolean withReachableCheck) {
         for (Place place : strat.getPlaces()) { // every env place of the strategy
             if (strat.isEnvironment(place)) {
                 String id = strat.getOrigID(place);
@@ -265,7 +265,7 @@ public class PGTools {
         return false;
     }
 
-    public static boolean isDeadlockAvoiding(PetriGame origNet, PetriGame strat, CoverabilityGraph cover) {
+    public static boolean isDeadlockAvoiding(PetriGameWithTransits origNet, PetriGameWithTransits strat, CoverabilityGraph cover) {
         for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
             CoverabilityGraphNode next = iterator.next();
             Marking m = next.getMarking();
@@ -301,7 +301,7 @@ public class PGTools {
         return true;
     }
 
-    public static Set<Transition> getSolelySystemTransitions(PetriGame game) {
+    public static Set<Transition> getSolelySystemTransitions(PetriGameWithTransits game) {
         Set<Transition> systrans = new HashSet<>();
         for (Transition t : game.getTransitions()) {
             boolean add = true;
@@ -318,7 +318,7 @@ public class PGTools {
         return systrans;
     }
 
-    public static Set<Transition> getSolelyEnviromentTransitions(PetriGame game) {
+    public static Set<Transition> getSolelyEnviromentTransitions(PetriGameWithTransits game) {
         Set<Transition> envtrans = new HashSet<>();
         for (Transition t : game.getTransitions()) {
             boolean add = true;
@@ -342,7 +342,7 @@ public class PGTools {
      * @param cover
      * @return
      */
-    public static NotSolvableWitness isSolvablePetriGame(PetriGame game, CoverabilityGraph cover) {
+    public static NotSolvableWitness isSolvablePetriGame(PetriGameWithTransits game, CoverabilityGraph cover) {
         Set<Transition> systrans = getSolelySystemTransitions(game);
         Set<Transition> envtrans = getSolelyEnviromentTransitions(game);
         for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
@@ -370,7 +370,7 @@ public class PGTools {
         return null;
     }
 
-    private static NotSolvableWitness checkReachableMarkingForSolvable(CoverabilityGraphNode node, Marking m, PetriGame game, Transition systran, Set<Transition> envtrans) {
+    private static NotSolvableWitness checkReachableMarkingForSolvable(CoverabilityGraphNode node, Marking m, PetriGameWithTransits game, Transition systran, Set<Transition> envtrans) {
         //                    PetriNet subnet = new PetriNet(net);
 //                    subnet.setInitialMarking(new Marking(m));
 //                    CoverabilityGraph g = CoverabilityGraph.getReachabilityGraph(subnet);
@@ -419,7 +419,7 @@ public class PGTools {
         }
     }
 
-    public static boolean checkStrategy(PetriGame origNet, PetriGame strat, boolean withReachabillityCheck) {
+    public static boolean checkStrategy(PetriGameWithTransits origNet, PetriGameWithTransits strat, boolean withReachabillityCheck) {
         boolean isStrat = true;
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
         // deadlock avoiding
@@ -434,7 +434,7 @@ public class PGTools {
         return isStrat;
     }
 
-    public static void checkValidPartitioned(PetriGame game) throws InvalidPartitionException {
+    public static void checkValidPartitioned(PetriGameWithTransits game) throws InvalidPartitionException {
         // No transition has places of the same partition in its pre- or postset respectively
         for (Transition transition : game.getTransitions()) {
             List<Integer> partition = new ArrayList<>();
@@ -473,7 +473,7 @@ public class PGTools {
         }
     }
 
-    public static void checkOnlyOneEnvToken(PetriGame game) throws NotSupportedGameException {
+    public static void checkOnlyOneEnvToken(PetriGameWithTransits game) throws NotSupportedGameException {
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         // only one env token is allowed (todo: do it less expensive ?)
         for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
@@ -501,7 +501,7 @@ public class PGTools {
      * @param withDebugging
      * @return
      */
-    public static String pg2Dot(PetriGame game, boolean withLabel, boolean withDebugging) {
+    public static String pg2Dot(PetriGameWithTransits game, boolean withLabel, boolean withDebugging) {
         final String placeShape = "circle";
         final String specialPlaceShape = "doublecircle";
 
@@ -618,7 +618,7 @@ public class PGTools {
 //        }
 //        return String.valueOf(start + id);
 //    }
-    public static String pg2Tikz(PetriGame game) {
+    public static String pg2Tikz(PetriGameWithTransits game) {
         StringBuilder sb = new StringBuilder();
         sb.append("\\begin{tikzpicture}[node distance=12mm,>=stealth',bend angle=15,auto]\n");
         // Places
@@ -656,20 +656,20 @@ public class PGTools {
         return sb.toString();
     }
 
-    public static String petriGame2Dot(PetriGame game, boolean withLabel) {
+    public static String petriGame2Dot(PetriGameWithTransits game, boolean withLabel) {
         return pg2Dot(game, withLabel, false);
     }
 
     public static void savePG2Dot(String input, String output, boolean withLabel) throws IOException, ParseException, NotSupportedGameException {
-        PetriGame game = new PetriGame(Tools.getPetriNet(input));
+        PetriGameWithTransits game = new PetriGameWithTransits(Tools.getPetriNet(input));
         savePG2Dot(output, game, withLabel);
     }
 
-    public static void savePG2Dot(String path, PetriGame game, boolean withLabel) throws FileNotFoundException {
+    public static void savePG2Dot(String path, PetriGameWithTransits game, boolean withLabel) throws FileNotFoundException {
         savePG2Dot(path, game, withLabel, false);
     }
 
-    public static void savePG2Dot(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
+    public static void savePG2Dot(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
         try ( PrintStream out = new PrintStream(path + ".dot")) {
             out.println(pg2Dot(game, withLabel, withDebugging));
         }
@@ -681,16 +681,16 @@ public class PGTools {
     }
 
     public static Thread savePG2DotAndPDF(String input, String output, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException, ParseException, NotSupportedGameException {
-        PetriGame game = withDebugging ? new PetriGame(new AptPNParser().parseFile(input), new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator())
-                : new PetriGame(new AptPNParser().parseFile(input));
+        PetriGameWithTransits game = withDebugging ? new PetriGameWithTransits(new AptPNParser().parseFile(input), new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator())
+                : new PetriGameWithTransits(new AptPNParser().parseFile(input));
         return savePG2DotAndPDF(output, game, withLabel, withDebugging);
     }
 
-    public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel) throws IOException, InterruptedException {
+    public static Thread savePG2DotAndPDF(String path, PetriGameWithTransits game, boolean withLabel) throws IOException, InterruptedException {
         return savePG2DotAndPDF(path, game, withLabel, false);
     }
 
-    public static Thread savePG2DotAndPDF(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
+    public static Thread savePG2DotAndPDF(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
         savePG2Dot(path, game, withLabel, withDebugging);
         String dot = AdamProperties.getInstance().getProperty(AdamProperties.DOT);
         String[] command = {dot, "-Tpdf", path + ".dot", "-o", path + ".pdf"};
@@ -719,11 +719,11 @@ public class PGTools {
         return thread;
     }
 
-    public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel) throws IOException, InterruptedException {
+    public static Thread savePG2PDF(String path, PetriGameWithTransits game, boolean withLabel) throws IOException, InterruptedException {
         return savePG2PDF(path, game, withLabel, false);
     }
 
-    public static Thread savePG2PDF(String path, PetriGame game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
+    public static Thread savePG2PDF(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws IOException, InterruptedException {
         String bufferpath = path + "_" + System.currentTimeMillis();
         Thread dot;
         dot = savePG2DotAndPDF(bufferpath, game, withLabel, withDebugging);
@@ -752,8 +752,8 @@ public class PGTools {
      * @param game
      * @return
      */
-    public static PetriGame createPetriGameWithIDsInLabel(PetriGame game) {
-        PetriGame out = new PetriGame(game.getName());
+    public static PetriGameWithTransits createPetriGameWithIDsInLabel(PetriGameWithTransits game) {
+        PetriGameWithTransits out = new PetriGameWithTransits(game.getName());
         PNWTTools.addElementsForPNWTWithIDsInLabel(game, out);
         for (Map.Entry<String, ExtensionCalculator<?>> calc : game.getCalculators().entrySet()) {
             out.addExtensionCalculator(calc.getKey(), calc.getValue(), true); // todo: to greedy to add all of them as to listen to changes.

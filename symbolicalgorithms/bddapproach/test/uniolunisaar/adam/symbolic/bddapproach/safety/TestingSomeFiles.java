@@ -9,27 +9,27 @@ import org.testng.annotations.Test;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.exceptions.pg.NetNotConcurrencyPreservingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
-import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.logic.pg.calculators.ConcurrencyPreservingGamesCalculator;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingGamesCalculator;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.BDDTestingTools;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.pg.ExtensionCalculator;
+import uniolunisaar.adam.util.pgwt.ExtensionCalculator;
 
 /**
  *
@@ -314,7 +314,7 @@ public class TestingSomeFiles {
         // this doesn't work since the partitioning is done during the creation 
         // of the solver and this is already dependent on cp
 //        DistrSysBDDSolver<? extends Condition<?>> solv = BDDSolverFactory.getInstance().getSolver(path + name + ".apt", false);
-        PetriGame game = PGTools.getPetriGame(path + name + ".apt", false, true);
+        PetriGameWithTransits game = PGTools.getPetriGame(path + name + ".apt", false, true);
         ExtensionCalculator<Boolean> calc = new ConcurrencyPreservingGamesCalculator();
         ExtensionCalculator<?> c = game.addExtensionCalculator(calc.getKey(), calc);
         BDDSolverOptions opts = new BDDSolverOptions(false, true);

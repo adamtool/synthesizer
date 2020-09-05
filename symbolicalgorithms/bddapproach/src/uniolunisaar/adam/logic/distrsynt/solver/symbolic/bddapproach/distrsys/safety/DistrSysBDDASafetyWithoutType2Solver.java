@@ -1,17 +1,17 @@
 package uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.safety;
 
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.util.Map;
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.objectives.Safety;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
@@ -139,7 +139,7 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
      * Returns the winning decisionsets for the system players
      *
      * @return
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      */
     @Override
     protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {

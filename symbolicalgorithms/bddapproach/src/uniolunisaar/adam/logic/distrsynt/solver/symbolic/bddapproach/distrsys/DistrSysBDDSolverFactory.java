@@ -4,22 +4,22 @@ import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.re
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDEBuechiSolver;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.reach.DistrSysBDDAReachabilitySolver;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDABuechiSolver;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.io.IOException;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.ds.objectives.Buchi;
 import uniolunisaar.adam.ds.objectives.Reachability;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDBuchiSolverFactory;
@@ -50,12 +50,12 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
 //    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, BDDSolverOptions> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
-    public DistrSysBDDSolver<? extends Condition<?>> getSolver(PetriGame game) throws CouldNotFindSuitableConditionException, SolvingException {
+    public DistrSysBDDSolver<? extends Condition<?>> getSolver(PetriGameWithTransits game) throws CouldNotFindSuitableConditionException, SolvingException {
         return super.getSolver(game, new BDDSolverOptions());
     }
 
     @Override
-    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGame game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
         try {
             return new DistrSysBDDSolvingObject<>(game, winCon);
         } catch (NetNotSafeException | NoSuitableDistributionFoundException | InvalidPartitionException ex) {
@@ -64,7 +64,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDSolver<Safety> getESafetySolver(PetriGame game, Safety con, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
+    protected DistrSysBDDSolver<Safety> getESafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
         try {
 // if it creates a new token chain, use the co-Buchi solver
             DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con);
@@ -82,7 +82,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDSolver<Safety> getASafetySolver(PetriGame game, Safety con, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
+    protected DistrSysBDDSolver<Safety> getASafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
         try {
             DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con);
             if (opts.isNoType2()) {
@@ -97,7 +97,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDEReachabilitySolver getEReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions opts) throws SolvingException {
+    protected DistrSysBDDEReachabilitySolver getEReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions opts) throws SolvingException {
         try {
             DistrSysBDDSolvingObject<Reachability> so = createSolvingObject(game, con);
             return DistrSysBDDReachabilitySolverFactory.getInstance().createDistrSysBDDEReachabilitySolver(so, opts);
@@ -107,7 +107,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDAReachabilitySolver getAReachabilitySolver(PetriGame game, Reachability con, BDDSolverOptions options) throws SolvingException {
+    protected DistrSysBDDAReachabilitySolver getAReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions options) throws SolvingException {
         try {
             return DistrSysBDDReachabilitySolverFactory.getInstance().createDistrSysBDDAReachabilitySolver(createSolvingObject(game, con), options);
         } catch (NetNotSafeException ex) {
@@ -116,7 +116,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDEBuechiSolver getEBuchiSolver(PetriGame game, Buchi con, BDDSolverOptions opts) throws SolvingException {
+    protected DistrSysBDDEBuechiSolver getEBuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions opts) throws SolvingException {
         try {
             return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDEBuechiSolver(createSolvingObject(game, con), opts);
         } catch (NetNotSafeException ex) {
@@ -125,7 +125,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected DistrSysBDDABuechiSolver getABuchiSolver(PetriGame game, Buchi con, BDDSolverOptions options) throws SolvingException {
+    protected DistrSysBDDABuechiSolver getABuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions options) throws SolvingException {
         try {
             return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDABuechiSolver(createSolvingObject(game, con), options);
         } catch (NetNotSafeException ex) {

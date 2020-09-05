@@ -11,14 +11,14 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.distrsynt.builder.graph.symbolic.bddapproach.BDDGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.distrsynt.builder.petrigame.symbolic.bddapproach.BDDPetriGameStrategyBuilder;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
@@ -35,7 +35,7 @@ import uniolunisaar.adam.tools.Logger;
  * @param <SOP>
  * @param <SO>
  */
-public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions> extends Solver<PetriGame, W, BDDSolvingObject<W>, SOP> {
+public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions> extends Solver<PetriGameWithTransits, W, BDDSolvingObject<W>, SOP> {
 
     // BDD settings
     private BDDFactory bddfac;
@@ -415,7 +415,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * @param buchiStates
      * @param distance
      * @return
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      */
     protected BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return buchi(buchiStates, distance, true);
@@ -430,7 +430,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * @param distance
      * @param player1
      * @return
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      */
     protected BDD buchi(BDD buchiStates, Map<Integer, BDD> distance, boolean player1) throws CalculationInterruptedException {
         BDD S = getBufferedDCSs().id();
@@ -486,7 +486,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * Calculates all states reachable from the initial state.
      *
      * @return BDD with all reachable states
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      */
     protected BDD calcDCSs() throws CalculationInterruptedException {
         BDD Q = getZero();
@@ -511,7 +511,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      *
      * @param distance
      * @return - A BDD containing all winning states for the system.
-     * @throws uniolunisaar.adam.exceptions.pg.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      */
     protected abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
 
@@ -557,23 +557,23 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
     }
 
     @Override
-    protected PetriGame calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
+    protected PetriGameWithTransits calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriGame pn = BDDPetriGameStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGameWithTransits pn = BDDPetriGameStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return pn;
     }
 
-    public Pair<BDDGraph, PetriGame> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
+    public Pair<BDDGraph, PetriGameWithTransits> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().start(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
-        PetriGame pstrat = BDDPetriGameStrategyBuilder.getInstance().builtStrategy(this, gstrat);
+        PetriGameWithTransits pstrat = BDDPetriGameStrategyBuilder.getInstance().builtStrategy(this, gstrat);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Benchmarks.getInstance().stop(Benchmarks.Parts.PG_STRAT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
