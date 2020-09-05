@@ -1,7 +1,7 @@
 package uniolunisaar.adam.exceptions.pg;
 
 import uniolunisaar.adam.ds.petrigame.IPetriGame;
-import uniolunisaar.adam.ds.synthesis.solver.Solver;
+import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;

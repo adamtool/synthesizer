@@ -1,9 +1,11 @@
-package uniolunisaar.adam.ds.synthesis.solver;
+package uniolunisaar.adam.logic.synthesis.solver;
 
 import uniolunisaar.adam.ds.petrigame.IPetriGame;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 
 /**

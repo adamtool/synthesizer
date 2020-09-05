@@ -14,7 +14,7 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.synthesis.solver.Solver;
+import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
