@@ -1,4 +1,4 @@
-package uniolunisaar.adam.ds.graph.symbolic.bddapproach;
+package uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach;
 
 import net.sf.javabdd.BDD;
 import uniol.apt.adt.pn.Transition;

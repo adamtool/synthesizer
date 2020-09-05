@@ -1,12 +1,12 @@
-package uniolunisaar.adam.logic.synthesis.builder.graph.symbolic.bddapproach;
+package uniolunisaar.adam.logic.synthesis.builder.twoplayergame.symbolic.bddapproach;
 
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.javabdd.BDD;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;

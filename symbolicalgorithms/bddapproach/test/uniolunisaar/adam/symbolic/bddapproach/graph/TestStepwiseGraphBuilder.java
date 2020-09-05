@@ -1,8 +1,8 @@
 package uniolunisaar.adam.symbolic.bddapproach.graph;
 
-import uniolunisaar.adam.logic.synthesis.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
-import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
+import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
+import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
