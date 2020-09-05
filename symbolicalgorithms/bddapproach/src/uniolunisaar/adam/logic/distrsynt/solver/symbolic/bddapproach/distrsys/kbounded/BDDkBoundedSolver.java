@@ -11,7 +11,7 @@ import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.solver.Solver;
+import uniolunisaar.adam.ds.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Safety;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;

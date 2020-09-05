@@ -1,12 +1,12 @@
-package uniolunisaar.adam.logic.pg.solver;
+package uniolunisaar.adam.logic.synthesis.solver;
 
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.solver.LLSolverOptions;
-import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.solver.SolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.LLSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.Solver;
+import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;

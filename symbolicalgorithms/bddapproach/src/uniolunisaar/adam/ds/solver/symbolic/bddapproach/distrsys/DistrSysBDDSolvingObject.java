@@ -17,7 +17,7 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.logic.pg.partitioning.Partitioner;
-import uniolunisaar.adam.util.benchmarks.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 

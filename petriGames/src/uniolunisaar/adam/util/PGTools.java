@@ -38,7 +38,7 @@ import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.processHandling.ExternalProcessHandler;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.processHandling.ProcessPool;
-import uniolunisaar.adam.util.pg.NotSolvableWitness;
+import uniolunisaar.adam.util.synthesis.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
 import static uniolunisaar.adam.util.PNWTTools.getTransitRelationFromTransitions;
 import uniolunisaar.adam.util.pg.ExtensionCalculator;

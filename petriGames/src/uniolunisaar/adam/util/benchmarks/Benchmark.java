@@ -12,7 +12,7 @@ public class Benchmark {
     private long startMemory;
     private long stopMemory;
 
-    Benchmark(String name) {
+    public Benchmark(String name) {
         this.name = name;
     }
 

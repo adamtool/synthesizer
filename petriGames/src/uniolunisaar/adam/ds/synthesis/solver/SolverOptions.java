@@ -1,4 +1,4 @@
-package uniolunisaar.adam.ds.solver;
+package uniolunisaar.adam.ds.synthesis.solver;
 
 /**
  *

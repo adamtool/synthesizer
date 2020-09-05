@@ -1,14 +1,15 @@
-package uniolunisaar.adam.util.benchmarks;
+package uniolunisaar.adam.util.benchmarks.synthesis;
 
 import java.util.HashMap;
 import java.util.Map;
 import uniol.apt.adt.pn.PetriNet;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.solver.SolverOptions;
-import uniolunisaar.adam.ds.solver.SolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.Solver;
+import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.pg.calculators.CalculatorIDs;
+import uniolunisaar.adam.util.benchmarks.Benchmark;
 
 /**
  *

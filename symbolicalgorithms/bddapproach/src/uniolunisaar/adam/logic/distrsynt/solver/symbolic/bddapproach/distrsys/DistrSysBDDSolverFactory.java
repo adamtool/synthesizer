@@ -21,7 +21,7 @@ import uniolunisaar.adam.exceptions.pg.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.logic.pg.solver.LLSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDBuchiSolverFactory;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.reach.DistrSysBDDReachabilitySolverFactory;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.safety.DistrSysBDDSafetySolverFactory;

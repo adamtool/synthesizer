@@ -1,4 +1,4 @@
-package uniolunisaar.adam.util.pg;
+package uniolunisaar.adam.util.synthesis;
 
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Transition;

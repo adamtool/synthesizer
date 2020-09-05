@@ -2,15 +2,15 @@ package uniolunisaar.adam.util.symbolic.bddapproach.benchmark;
 
 import uniol.apt.adt.pn.PetriNet;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.solver.Solver;
-import uniolunisaar.adam.ds.solver.SolverOptions;
-import uniolunisaar.adam.ds.solver.SolvingObject;
+import uniolunisaar.adam.ds.synthesis.solver.Solver;
+import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.util.benchmarks.Benchmarks;
-import uniolunisaar.adam.util.benchmarks.Benchmarks.Parts;
+import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
+import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks.Parts;
 
 /**
  * Just toString and toCSVString overriden to add the nb of variables to the
