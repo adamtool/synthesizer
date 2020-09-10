@@ -7,13 +7,18 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import uniol.apt.adt.exception.StructureException;
 import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Marking;
+import uniol.apt.adt.pn.Node;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
@@ -23,6 +28,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.parser.impl.AptPNParser;
 import uniol.apt.io.renderer.RenderException;
+import uniolunisaar.adam.ds.BoundingBox;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
@@ -54,8 +60,105 @@ public class PGTools {
         return aptText.replaceAll(key + "=\"([^\"]*)\"", key + "=$1");
     }
 
-    public static void saveAPT(String path, PetriGameWithTransits game, boolean withAnnotationPartition) throws RenderException, FileNotFoundException {
-        PNWTTools.saveAPT(path, game, withAnnotationPartition);
+    /**
+     * Uses a heuristic to set the coordinates of the strategy according to the
+     * original nodes of the game. Starts with the initially marked places and
+     * recursively adds the postsets of nodes with the original distances.
+     *
+     * All places and transitions have to be labeled with the corresponding
+     * place of the Petri game.
+     *
+     * @param game
+     * @param strategy
+     */
+    public static void addCoordinates(PetriGameWithTransits game, PetriGameWithTransits strategy) {
+        BoundingBox bb = PNTools.calculateBoundingBox(game);
+        final double padding = 10;
+    }
+
+    /**
+     * Uses a heuristic to set the coordinates of the strategy according to the
+     * corresponding places of the given Petri game. This method only takes care
+     * of the depths of the places. Duplicates in the breath are not handled
+     * properly.
+     *
+     * All places and transitions have to be labeled with the corresponding
+     * place of the Petri game.
+     *
+     * @param game
+     * @param strategy
+     */
+    public static void addCoordinatesOnlyDepthCopies(PetriGameWithTransits game, PetriGameWithTransits strategy) {
+        BoundingBox bb = PNTools.calculateBoundingBox(game);
+        final double padding = 10;
+        // collect all the places and transition with the same id
+        Map<String, List<Node>> mapping = new HashMap<>();
+        for (Node stratNode : strategy.getNodes()) {
+            String label = PNTools.getLabel(strategy, stratNode);
+            if (!mapping.containsKey(label)) {
+                mapping.put(label, new ArrayList<>());
+            }
+            mapping.get(label).add(stratNode);
+        }
+        // add coordinates with the heuristic to keep the xcoordinates of the original node
+        // and set the y-coordinate to depth*(width+padding), where depth is the time point
+        // the node was created.
+        Comparator<Node> comp = new Comparator<>() {
+            /**
+             * Compares places by their suffix '_StateID' of their ID, and
+             * transition by the largest suffix of the prefixes.
+             *
+             * @param o1
+             * @param o2
+             * @return
+             */
+            @Override
+            public int compare(Node o1, Node o2) {
+                if (o1.getGraph() != o2.getGraph()) { // Petri nets don't match
+                    throw new StructureException("Node '" + o1.getId() + "' and node '" + o2.getId() + "' does not belong to the same net.");
+                }
+                PetriNet net = o1.getGraph();
+                if (net.containsPlace(o1.getId()) && net.containsPlace(o2.getId())) { // both are places
+                    Integer id1 = Integer.parseInt(o1.getId().substring(o1.getId().lastIndexOf("_") + 1));
+                    Integer id2 = Integer.parseInt(o2.getId().substring(o2.getId().lastIndexOf("_") + 1));
+                    return id1.compareTo(id2);
+                }
+                if (net.containsTransition(o1.getId()) && net.containsTransition(o2.getId())) { // both are transitions
+                    // take the largest suffix of the preset for comparison
+                    Integer max1 = 0;
+                    for (Node presetNode : o1.getPresetNodes()) {
+                        Integer id = Integer.parseInt(o1.getId().substring(o1.getId().lastIndexOf("_") + 1));
+                        if (id > max1) {
+                            max1 = id;
+                        }
+                    }
+                    Integer max2 = 0;
+                    for (Node presetNode : o2.getPresetNodes()) {
+                        Integer id = Integer.parseInt(o2.getId().substring(o2.getId().lastIndexOf("_") + 1));
+                        if (id > max2) {
+                            max2 = id;
+                        }
+                    }
+                    return max1.compareTo(max2);
+                }
+                throw new StructureException("Only nodes of the same type (Place/Transition) can be compared.");
+            }
+        };
+        // set the coordinates
+        for (Map.Entry<String, List<Node>> entry : mapping.entrySet()) {
+            String origID = entry.getKey();
+            List<Node> nodes = entry.getValue();
+            Collections.sort(nodes, comp); // sort them ascending
+            for (int i = 0; i < nodes.size(); i++) {
+                Node node = nodes.get(i);
+                PetriNetExtensionHandler.setXCoord(node, PetriNetExtensionHandler.getXCoord(game.getNode(origID)));
+                PetriNetExtensionHandler.setYCoord(node, PetriNetExtensionHandler.getYCoord(game.getNode(origID)) + i * (bb.getHeight() + padding));
+            }
+        }
+    }
+
+    public static void saveAPT(String path, PetriGameWithTransits game, boolean withAnnotationPartition, boolean withCoordinates) throws RenderException, FileNotFoundException {
+        PNWTTools.saveAPT(path, game, withAnnotationPartition, withCoordinates);
     }
 
     public static String getAPT(PetriGameWithTransits game, boolean withAnnotationPartition, boolean withCoordinates) throws RenderException {
@@ -90,7 +193,8 @@ public class PGTools {
      * @throws NotSupportedGameException
      * @throws ParseException
      * @throws IOException
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException
+     * @throws
+     * uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException
      */
     public static PetriGameWithTransits getPetriGameFromAPTString(String content, boolean skipTests, boolean withAutomatic) throws NotSupportedGameException, ParseException, IOException, CouldNotCalculateException {
         PetriNet pn = Tools.getPetriNetFromString(content);
@@ -670,7 +774,7 @@ public class PGTools {
     }
 
     public static void savePG2Dot(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
-        try ( PrintStream out = new PrintStream(path + ".dot")) {
+        try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(pg2Dot(game, withLabel, withDebugging));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
