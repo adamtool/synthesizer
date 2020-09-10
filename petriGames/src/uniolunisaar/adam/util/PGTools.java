@@ -65,6 +65,14 @@ public class PGTools {
      * original nodes of the game. Starts with the initially marked places and
      * recursively adds the postsets of nodes with the original distances.
      *
+     * Here we use a depth-first approach so every place which already exists in
+     * this branch must be placed lower, repeating places in other branches lead
+     * to an xshift.
+     *
+     * For a breadth-first approach one could save the past of the nodes to
+     * decide whether a token has to be shifted, but this seems to be more
+     * expensive.
+     *
      * All places and transitions have to be labeled with the corresponding
      * place of the Petri game.
      *
@@ -72,8 +80,107 @@ public class PGTools {
      * @param strategy
      */
     public static void addCoordinates(PetriGameWithTransits game, PetriGameWithTransits strategy) {
-        BoundingBox bb = PNTools.calculateBoundingBox(game);
-        final double padding = 10;
+        final double xshift = 100;
+        final BoundingBox bb = PNTools.calculateBoundingBox(game);
+        // a mapping collecting for each place of the game all corresponding places of the strategy
+        final Map<String, List<Place>> mapping = new HashMap<>();
+        final Set<Place> marking = new HashSet<>();
+        // sets coords for the initial marking (same as in game)
+        final Marking m = strategy.getInitialMarking();
+        for (Place place : strategy.getPlaces()) {
+            if (m.getToken(place).getValue() > 0) {
+                // add the place
+                marking.add(place);
+                // set the original coordinates
+                final Place orig = game.getPlace(PetriNetExtensionHandler.getOrigID(place));
+                PetriNetExtensionHandler.setXCoord(place, PetriNetExtensionHandler.getXCoord(orig));
+                PetriNetExtensionHandler.setYCoord(place, PetriNetExtensionHandler.getYCoord(orig));
+                // add it to the mapping
+                final List<Place> corr = new ArrayList<>();
+                corr.add(place);
+                mapping.put(orig.getId(), corr);
+            }
+        }
+        annotateSuccessors(game, strategy, marking, mapping, xshift, bb);
+    }
+
+    /**
+     * Takes an annotated marking and recursively in depth-first order annotates
+     * the following markings.
+     *
+     * @param game
+     * @param strategy
+     * @param marking
+     * @param mapping
+     * @param xshift
+     * @param bb
+     */
+    private static void annotateSuccessors(PetriGameWithTransits game, PetriGameWithTransits strategy, Set<Place> marking, Map<String, List<Place>> mapping,
+            double xshift, BoundingBox bb) {
+        // all fireable transitions (in a strategy that are all of the postset of the current marking)
+        for (Place place : marking) {
+            // $$$$ the successor transitions
+            // get orig place coordinates
+            Place origPlace = game.getPlace(PetriNetExtensionHandler.getLabel(place));
+            double xdist = PetriNetExtensionHandler.getXCoord(place) - PetriNetExtensionHandler.getXCoord(origPlace);
+            double ydist = PetriNetExtensionHandler.getYCoord(place) - PetriNetExtensionHandler.getYCoord(origPlace);
+            for (Transition transition : place.getPostset()) {
+                if (!PetriNetExtensionHandler.hasXCoord(transition)) { // only if not already handled
+                    // get orig transition coordinates
+                    Transition origTransition = game.getTransition(transition.getLabel());
+                    double origX = PetriNetExtensionHandler.getXCoord(origTransition);
+                    double origY = PetriNetExtensionHandler.getYCoord(origTransition);
+                    // set the coordinates of the transition in the same distance of the input place
+                    PetriNetExtensionHandler.setXCoord(transition, origX + xdist);
+                    PetriNetExtensionHandler.setYCoord(transition, origY + ydist);
+                    // $$$$ the successor places
+                    for (Place post : transition.getPostset()) {
+                        if (!PetriNetExtensionHandler.hasXCoord(post)) { // only if not already handled
+                            // get orig place coordinates
+                            Place origPost = game.getPlace(PetriNetExtensionHandler.getLabel(post));
+                            origX = PetriNetExtensionHandler.getXCoord(origPost);
+                            origY = PetriNetExtensionHandler.getYCoord(origPost);
+                            double newX = origX + xdist;
+                            double newY = origY + ydist;
+                            // calc whether the new node is left or right of the middle of the original net
+                            // to possible shift it the left or to the right respectivly
+                            double mid = bb.getLeft() + (bb.getWidth() / 2.0f);
+                            int direction = (newX < mid) ? -1 : 1;
+                            // check if place already occupied (should only be possible by another place with the same label)
+                            boolean isFree;
+                            do {
+                                isFree = true;
+                                List<Place> corr = mapping.get(origPost.getId());
+                                if (corr != null) {
+                                    for (Place p : corr) {
+                                        if (PetriNetExtensionHandler.getXCoord(p) == newX && PetriNetExtensionHandler.getYCoord(p) == newY) {
+                                            newX += direction * xshift;
+                                            isFree = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } while (!isFree);
+                            // set the coordinates of the transition in the same distance of the input place
+                            PetriNetExtensionHandler.setXCoord(post, newX);
+                            PetriNetExtensionHandler.setYCoord(post, newY);
+                            // add the place to the mapping
+                            List<Place> map = mapping.get(origPost.getId());
+                            if (map == null) {
+                                map = new ArrayList<>();
+                                mapping.put(origPost.getId(), map);
+                            }
+                            map.add(post);
+                        }
+                    }
+                    // fire the transition
+                    Set<Place> m = new HashSet<>(marking);
+                    m.removeAll(transition.getPreset());
+                    m.addAll(transition.getPostset());
+                    annotateSuccessors(game, strategy, m, mapping, xshift, bb);
+                }
+            }
+        }
     }
 
     /**

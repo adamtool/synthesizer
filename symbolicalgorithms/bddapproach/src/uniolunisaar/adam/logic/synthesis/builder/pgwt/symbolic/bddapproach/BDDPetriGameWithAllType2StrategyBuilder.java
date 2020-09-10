@@ -192,6 +192,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
                 strategy.setOrigID(strat_p, p.getId());
                 PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                 strat_p.copyExtensions(p);
+                PetriNetExtensionHandler.clearCoords(strat_p);
                 strategy.createFlow(strat_t, strat_p);
                 prevMarking.add(strat_p);
             }
@@ -293,6 +294,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
                 strategy.setOrigID(strat_p, p.getId());
                 PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                 strat_p.copyExtensions(p);
+                PetriNetExtensionHandler.clearCoords(strat_p);
                 strategy.createFlow(strat_t, strat_p);
                 prevMarking.add(strat_p);
             }
@@ -409,6 +411,7 @@ public class BDDPetriGameWithAllType2StrategyBuilder extends BDDPetriGameStrateg
                             strategy.setOrigID(strat_p, p.getId());
                             PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                             strat_p.copyExtensions(p);
+                            PetriNetExtensionHandler.clearCoords(strat_p);
                             strategy.createFlow(strat_t, strat_p);
                             marking.add(strat_p);
                         }

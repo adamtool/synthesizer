@@ -93,6 +93,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
                             strategy.setOrigID(strat_p, p.getId());
                             PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                             strat_p.copyExtensions(p);
+                            PetriNetExtensionHandler.clearCoords(strat_p);
                             strategy.createFlow(tstrat, strat_p);
                             todo.add(strat_p);
                         }

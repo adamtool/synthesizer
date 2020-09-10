@@ -16,6 +16,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedExcepti
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -57,7 +58,8 @@ public class AdamSynthesisBDDBehavior {
      * @throws uniol.apt.io.parser.ParseException
      * @throws CouldNotFindSuitableConditionException
      * @throws NotSupportedGameException
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws
+     * uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
      * @throws NoSuitableDistributionFoundException
      */
     public static boolean existsWinningStrategy(String path, BDDSolverOptions so) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
@@ -146,40 +148,50 @@ public class AdamSynthesisBDDBehavior {
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PG STRATEGY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     /**
      * Calculates with the BDDSolver a winning strategy exists for the a file
-     * given by the path. The file in APT format has to be equipped with a
+     * given by the path.The file in APT format has to be equipped with a
      * suitable Condition. The solver options are set to the standards and no
      * tests are skipped.
      *
      * @param path
-     * @return
+     * @param withCoordinates
+     * @return the pair (game, strategy)
      * @throws CouldNotFindSuitableConditionException
      * @throws NotSupportedGameException
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGameWithTransits getStrategy(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategy(String path, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(path, opts);
-        return solver.getStrategy();
+        PetriGameWithTransits strategy = solver.getStrategy();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategy);
+        }
+        return strategy;
     }
 
     /**
      * Calculates with the BDDSolver a winning strategy exists for the a file
-     * given by the path. The file in APT format has to be equipped with a
+     * given by the path.The file in APT format has to be equipped with a
      * suitable Condition. The solver instatiated with the given options and no
      * tests are skipped.
      *
      * @param path
      * @param so
+     * @param withCoordinates
      * @return
      * @throws CouldNotFindSuitableConditionException
      * @throws NotSupportedGameException
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGameWithTransits getStrategy(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategy(String path, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(path, so);
-        return solver.getStrategy();
+        PetriGameWithTransits strategy = solver.getStrategy();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategy);
+        }
+        return strategy;
     }
 
     /**
@@ -194,10 +206,14 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, opts);
-        return solver.getStrategy();
+        PetriGameWithTransits strategy = solver.getStrategy();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategy);
+        }
+        return strategy;
     }
 
     /**
@@ -213,9 +229,13 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, so);
-        return solver.getStrategy();
+        PetriGameWithTransits strategy = solver.getStrategy();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategy);
+        }
+        return strategy;
     }
 
     /**
@@ -233,9 +253,13 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategy(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, win, so);
-        return solver.getStrategy();
+        PetriGameWithTransits strategy = solver.getStrategy();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategy);
+        }
+        return strategy;
     }
 
 //    /**
@@ -509,10 +533,14 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(String path) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(String path, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(path, opts);
-        return solver.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strategies = solver.getStrategies();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategies.getSecond());
+        }
+        return strategies;
     }
 
     /**
@@ -532,9 +560,13 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(String path, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(String path, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(path, so);
-        return solver.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strategies = solver.getStrategies();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategies.getSecond());
+        }
+        return strategies;
     }
 
     /**
@@ -553,10 +585,14 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, opts);
-        return solver.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strategies = solver.getStrategies();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategies.getSecond());
+        }
+        return strategies;
     }
 
     /**
@@ -576,9 +612,13 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, so);
-        return solver.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strategies = solver.getStrategies();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategies.getSecond());
+        }
+        return strategies;
     }
 
     /**
@@ -599,9 +639,13 @@ public class AdamSynthesisBDDBehavior {
      * @throws NetNotSafeException
      * @throws NoSuitableDistributionFoundException
      */
-    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategies(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so, boolean withCoordinates) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, CalculationInterruptedException {
         var solver = DistrSysBDDSolverFactory.getInstance().getSolver(net, win, so);
-        return solver.getStrategies();
+        Pair<BDDGraph, PetriGameWithTransits> strategies = solver.getStrategies();
+        if (withCoordinates) {
+            PGTools.addCoordinates(solver.getGame(), strategies.getSecond());
+        }
+        return strategies;
     }
 
 //    /**

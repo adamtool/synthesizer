@@ -117,6 +117,7 @@ public class BDDPetriGameWithType2StrategyBuilder extends BDDPetriGameStrategyBu
                         strategy.setOrigID(strat_p, p.getId());
                         PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                         strat_p.copyExtensions(p);
+                        PetriNetExtensionHandler.clearCoords(strat_p);
                         strategy.createFlow(strat_t, strat_p);
                         marking.add(strat_p);
                     }

@@ -60,6 +60,7 @@ public class BDDPetriGameStrategyBuilder {
                 solver.getGame().setOrigID(place, p.getId());
                 PetriNetExtensionHandler.setLabel(place, p.getId());
                 place.copyExtensions(p);
+                PetriNetExtensionHandler.clearCoords(place);
                 place.setInitialToken(1);
                 initial.add(place);
             }
@@ -149,6 +150,7 @@ public class BDDPetriGameStrategyBuilder {
                             strategy.setOrigID(strat_p, p.getId());
                             PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                             strat_p.copyExtensions(p);
+                            PetriNetExtensionHandler.clearCoords(strat_p);
                             strategy.createFlow(strat_t, strat_p);
                             succMarking.add(strat_p);
                         }
