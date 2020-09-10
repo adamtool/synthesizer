@@ -9,6 +9,7 @@ import uniolunisaar.adam.ds.graph.Graph;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
+import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.BDDSolver;
@@ -90,6 +91,7 @@ public class BDDPetriGameWithInitialEnvStrategyBuilder extends BDDPetriGameStrat
                             //Create place
                             Place strat_p = strategy.createPlace(p.getId() + BDDPetriGameStrategyBuilder.DELIM + id++);
                             strategy.setOrigID(strat_p, p.getId());
+                            PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                             strat_p.copyExtensions(p);
                             strategy.createFlow(tstrat, strat_p);
                             todo.add(strat_p);

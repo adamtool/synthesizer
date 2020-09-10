@@ -19,6 +19,7 @@ import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.util.pgwt.TransitCalculator;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.util.PNWTTools;
@@ -57,6 +58,7 @@ public class BDDPetriGameStrategyBuilder {
             if (initialMarking.getToken(p).getValue() > 0) {
                 Place place = strategy.createPlace(p.getId() + DELIM + init.getId());
                 solver.getGame().setOrigID(place, p.getId());
+                PetriNetExtensionHandler.setLabel(place, p.getId());
                 place.copyExtensions(p);
                 place.setInitialToken(1);
                 initial.add(place);
@@ -145,6 +147,7 @@ public class BDDPetriGameStrategyBuilder {
                         for (Place p : t.getPostset()) {
                             Place strat_p = strategy.createPlace(p.getId() + DELIM + succState.getId());
                             strategy.setOrigID(strat_p, p.getId());
+                            PetriNetExtensionHandler.setLabel(strat_p, p.getId());
                             strat_p.copyExtensions(p);
                             strategy.createFlow(strat_t, strat_p);
                             succMarking.add(strat_p);
