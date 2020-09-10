@@ -338,7 +338,7 @@ public class CreatingGeneratorExamples {
         Logger.getInstance().addMessage("Generate Workflow...");
         PetriGameWithTransits pn = Workflow.generateImprovedVersion(machines, pieces, true, true);
         Tools.savePN(path + name, pn);
-        PNWTTools.saveAPT(path + name, pn, true);
+        PNWTTools.saveAPT(path + name, pn, true, false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
         BDDTestingTools.testExample(solv, path + name, hasStrategy);
@@ -401,7 +401,7 @@ public class CreatingGeneratorExamples {
         f.mkdir();
         Logger.getInstance().addMessage("Generate routing...");
         PetriGameWithTransits pn = CarRouting.createAReachabilityVersionWithRerouting(nb_routings, nb_cars, true);
-        PNWTTools.saveAPT(path + name, pn, true);
+        PNWTTools.saveAPT(path + name, pn, true, false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(pn, opts);
 //        BDDGraph gg = solv.getGraphGame();
