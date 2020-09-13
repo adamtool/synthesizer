@@ -14,7 +14,7 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;

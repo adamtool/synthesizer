@@ -12,7 +12,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameExcepti
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
-import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.symbolic.bddapproach.JavaBDDCallback;

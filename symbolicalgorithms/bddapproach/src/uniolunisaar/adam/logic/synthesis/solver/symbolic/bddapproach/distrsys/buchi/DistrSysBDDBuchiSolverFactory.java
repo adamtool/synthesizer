@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.buchi;
 
-import uniolunisaar.adam.ds.objectives.Buchi;
+import uniolunisaar.adam.ds.objectives.local.Buchi;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;

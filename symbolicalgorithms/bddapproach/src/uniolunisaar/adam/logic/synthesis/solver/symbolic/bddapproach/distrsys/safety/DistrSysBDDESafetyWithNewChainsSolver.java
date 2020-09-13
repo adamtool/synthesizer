@@ -21,7 +21,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
-import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;

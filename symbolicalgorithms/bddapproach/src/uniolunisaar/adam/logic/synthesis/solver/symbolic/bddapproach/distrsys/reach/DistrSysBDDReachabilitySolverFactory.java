@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.reach;
 
-import uniolunisaar.adam.ds.objectives.Reachability;
+import uniolunisaar.adam.ds.objectives.local.Reachability;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;

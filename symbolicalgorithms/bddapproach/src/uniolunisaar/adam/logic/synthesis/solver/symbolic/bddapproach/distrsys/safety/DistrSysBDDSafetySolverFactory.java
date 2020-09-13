@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.safety;
 
-import uniolunisaar.adam.ds.objectives.Safety;
+import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;

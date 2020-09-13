@@ -17,7 +17,7 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.ds.objectives.Buchi;
+import uniolunisaar.adam.ds.objectives.local.Buchi;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
