@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import uniol.apt.adt.exception.StructureException;
 import uniol.apt.adt.extension.ExtensionProperty;
@@ -753,7 +754,7 @@ public class PGTools {
         }
     }
 
-    public static void checkOnlyOneEnvToken(PetriGameWithTransits game) throws NotSupportedGameException {
+    private static Optional<Marking> getMarkingWithMultipleTokenOfType(boolean env, PetriGameWithTransits game) {
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         // only one env token is allowed (todo: do it less expensive ?)
         for (Iterator<CoverabilityGraphNode> iterator = cover.getNodes().iterator(); iterator.hasNext();) {
@@ -761,13 +762,28 @@ public class PGTools {
             Marking m = next.getMarking();
             boolean first = false;
             for (Place place : game.getPlaces()) { //todo: very expensive because of the marking implementation
-                if (m.getToken(place).getValue() > 0 && game.isEnvironment(place)) {
+                if (m.getToken(place).getValue() > 0 && (game.isEnvironment(place) == env)) {
                     if (first) {
-                        throw new NotSupportedGameException("There are two environment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
+                        return Optional.of(m);
                     }
                     first = true;
                 }
             }
+        }
+        return Optional.empty();
+    }
+
+    public static void checkOnlyOneEnvToken(PetriGameWithTransits game) throws NotSupportedGameException {
+        Optional<Marking> illegalMarking = getMarkingWithMultipleTokenOfType(true, game);
+        if (illegalMarking.isPresent()) {
+            throw new NotSupportedGameException("There are two environment token in marking " + illegalMarking.get().toString() + ". The BDD approach only allows one external source of information.");
+        }
+    }
+
+    public static void checkOnlyOneSysToken(PetriGameWithTransits game) throws NotSupportedGameException {
+        Optional<Marking> illegalMarking = getMarkingWithMultipleTokenOfType(false, game);
+        if (illegalMarking.isPresent()) {
+            throw new NotSupportedGameException("There are two system token in marking " + illegalMarking.get().toString() + ". The BDD approach only allows one external source of information.");
         }
     }
 
