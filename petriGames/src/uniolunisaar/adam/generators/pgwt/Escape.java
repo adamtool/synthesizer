@@ -8,7 +8,6 @@ import uniol.apt.module.exception.ModuleException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * The system tries to escape from the environment. The system wins if at least
@@ -145,6 +144,6 @@ public class Escape {
     }
 
     private static void addESafetyWinCondition(PetriGameWithTransits net, int nb_sys, int nb_env, boolean withPartitioning) {
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
     }
 }

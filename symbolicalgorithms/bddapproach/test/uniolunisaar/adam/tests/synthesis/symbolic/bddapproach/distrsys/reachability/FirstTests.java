@@ -13,7 +13,7 @@ import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestin
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;

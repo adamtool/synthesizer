@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * The concurrent machines benchmark
@@ -20,7 +19,7 @@ public class Workflow {
             throw new RuntimeException("less than 2 machines or 1 work piece does not make any sense!");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Workflow_" + "M" + machines + "WP" + work_pieces);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
         // todo: since no other partioning possible use two token to much...
 //        int maxtoken = (machines - 1) * 2 + work_pieces + 1 + 2;
 //        net.putExtension("MAXTOKEN", maxtoken, ExtensionProperty.WRITE_TO_FILE);
@@ -84,7 +83,7 @@ public class Workflow {
         PetriGameWithTransits net = PGTools.createPetriGame("Workflow_" + "M" + machines + "WP" + work_pieces);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place start = net.createEnvPlace("S");
@@ -207,7 +206,7 @@ public class Workflow {
         PetriGameWithTransits net = PGTools.createPetriGame("Workflow_" + "M" + machines + "WP" + work_pieces);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place start = net.createEnvPlace("Env");
@@ -332,7 +331,7 @@ public class Workflow {
         PetriGameWithTransits net = PGTools.createPetriGame("CM_" + "M" + machines + "WP" + work_pieces);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place start = net.createEnvPlace("Env");
@@ -435,7 +434,7 @@ public class Workflow {
         PetriGameWithTransits net = PGTools.createPetriGame("CM_" + "M" + machines + "WP" + work_pieces);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place start = net.createEnvPlace("Env");
@@ -539,7 +538,7 @@ public class Workflow {
         PetriGameWithTransits net = PGTools.createPetriGame("Workflow_" + "M" + machines + "WP" + work_pieces);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place start = net.createEnvPlace("Env");

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;

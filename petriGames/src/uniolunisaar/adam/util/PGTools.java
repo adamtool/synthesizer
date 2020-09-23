@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import uniol.apt.adt.exception.StructureException;
+import uniol.apt.adt.extension.ExtensionProperty;
 import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Node;
@@ -29,15 +30,18 @@ import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.parser.impl.AptPNParser;
 import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.ds.BoundingBox;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
+import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingCalculator;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
 import uniolunisaar.adam.tools.AdamProperties;
@@ -55,6 +59,53 @@ import uniolunisaar.adam.util.pgwt.TransitCalculator;
  * @author Manuel Gieseking
  */
 public class PGTools {
+
+    private static boolean hasConditionAnnotation(PetriNet net) {
+        return net.hasExtension(AdamExtensions.condition.name())
+                || net.hasExtension(AdamExtensions.winningCondition.name())// todo: this is only for the fallback to the just-sythesis-version.
+                ;
+    }
+
+    private static String getConditionAnnotation(PetriNet net) {
+        return (String) net.getExtension(AdamExtensions.condition.name());
+    }
+
+    public static void setConditionAnnotation(PetriNet net, Condition.Objective con) {
+        net.putExtension(AdamExtensions.condition.name(), con.name(), ExtensionProperty.WRITE_TO_FILE);
+    }
+
+    public static Condition.Objective parseConditionFromNetExtensionText(PetriNetWithTransits net) throws CouldNotFindSuitableConditionException {
+        if (hasConditionAnnotation(net)) {
+            try {
+                // todo: this is only for the fallback to the just-synthesis-version.
+                String con;
+                if (net.hasExtension(AdamExtensions.winningCondition.name())) {
+                    con = (String) net.getExtension(AdamExtensions.winningCondition.name());
+                    net.removeExtension(AdamExtensions.winningCondition.name());
+                    net.putExtension(AdamExtensions.condition.name(), con, ExtensionProperty.WRITE_TO_FILE);
+                } else {
+                    con = getConditionAnnotation(net);
+                }
+                Condition.Objective winCon = Condition.Objective.valueOf(con);
+                return winCon;
+            } catch (ClassCastException | IllegalArgumentException e) {
+                String con = getConditionAnnotation(net);
+                // Set some standards concerning existential or universal
+                if (con.equals("SAFETY")) {
+                    return Condition.Objective.A_SAFETY;
+                }
+                if (con.equals("REACHABILITY")) {
+                    return Condition.Objective.E_REACHABILITY;
+                }
+                if (con.equals("BUCHI")) {
+                    return Condition.Objective.E_BUCHI;
+                }
+                throw new CouldNotFindSuitableConditionException(net, e);
+            }
+        } else {
+            throw new CouldNotFindSuitableConditionException(net);
+        }
+    }
 
     private static String deleteQuoteFromMaxTokenCount(String aptText, String key) {
         return aptText.replaceAll(key + "=\"([^\"]*)\"", key + "=$1");

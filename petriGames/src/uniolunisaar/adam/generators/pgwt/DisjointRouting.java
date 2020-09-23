@@ -7,7 +7,7 @@ import uniol.apt.adt.ts.State;
 import uniol.apt.adt.ts.TransitionSystem;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
-import uniolunisaar.adam.util.PNWTTools;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  * 
@@ -21,7 +21,7 @@ public class DisjointRouting {
 	public static PetriGameWithTransits disjointRouting (int nb_players) {
 		TransitionSystem ts = getTransitionsSystem(nb_players);
 		PetriGameWithTransits pg = new PetriGameWithTransits("DisjointRouting" + nb_players);
-		PNWTTools.setConditionAnnotation(pg, Condition.Objective.A_SAFETY);
+		PGTools.setConditionAnnotation(pg, Condition.Objective.A_SAFETY);
 		// create net
 		for (int player = 0; player < nb_players; ++player) {
 			for (State s : ts.getNodes()) {

@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -23,7 +22,7 @@ public class Philosopher {
         PetriGameWithTransits pn = PGTools.createPetriGame("Philosopher_guided_" + n);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         pn.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
 
         for (int i = 0; i < n; ++i) {
             generateOne(pn, false, i, n, withPartition, true);
@@ -86,7 +85,7 @@ public class Philosopher {
         PetriGameWithTransits pn = PGTools.createPetriGame("Philosopher_guided_" + n);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         pn.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
         for (int i = 0; i < n; ++i) {
             generateOne(pn, false, i, n, withPartition, true);
         }
@@ -144,7 +143,7 @@ public class Philosopher {
             // todo: !!!!!!!!!!!!
         }
         PetriGameWithTransits pn = PGTools.createPetriGame("Philosopher_" + n);
-        PNWTTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
 
         generateOne(pn, true, 0, n, withPartition, false);
         for (int i = 1; i < n; i++) {

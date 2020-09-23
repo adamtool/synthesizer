@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * todo adapt all the textes and stuff an dso
@@ -27,7 +26,7 @@ public class EmergencyBreakdown {
             throw new RuntimeException("less than 2 two machines are not meaningful");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Emergency breackdown with " + nb_critical_machines + " intruding " + nb_noncritical_machines + " points");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place env1 = net.createEnvPlace("e1");

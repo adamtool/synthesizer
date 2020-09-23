@@ -8,7 +8,7 @@ import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.Distr
 import java.io.IOException;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;

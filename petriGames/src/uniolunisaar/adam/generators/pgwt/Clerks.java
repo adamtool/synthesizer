@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -31,7 +30,7 @@ public class Clerks {
         PetriGameWithTransits net = PGTools.createPetriGame("Clerks_" + size);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
         Place env = net.createEnvPlace("env");
         env.setInitialToken(1);
         if (withMaxToken) {
@@ -152,7 +151,7 @@ public class Clerks {
 // todo : !!!!!!!!!
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Clerks_" + size);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
         Place env = net.createEnvPlace("env");
         env.setInitialToken(1);
         for (int i = 0; i < size; i++) {

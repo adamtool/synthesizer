@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.pgwt.TransitCalculator;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * Caculates games for which the newly created chain get's bad after x unrolling
@@ -32,7 +31,7 @@ public class LoopUnrolling {
         }
 
         PetriGameWithTransits net = PGTools.createPetriGame("ESafety version of loop unrolling example (" + ((withNewChain) ? "with" : "without") + " new chains)  with " + nb_unrolling + " unrollings.");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
         // merge transition
         Transition tmerge = net.createTransition("tmerge");
 //        StringBuilder sb = new StringBuilder();

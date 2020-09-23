@@ -149,7 +149,7 @@ public class CarRouting {
     }
 
     private static void addEReachabilityWinCondition(PetriGameWithTransits net, int nb_routes, int nb_cars, boolean withPartitioning) {
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.E_REACHABILITY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.E_REACHABILITY);
         for (int i = 0; i < nb_cars; i++) {
             for (int j = 0; j < nb_routes; j++) {
                 Place buf = net.createPlace("c" + i + "r" + j + "buf");
@@ -173,7 +173,7 @@ public class CarRouting {
     }
 
     private static void addAReachabilityWinCondition(PetriGameWithTransits net, int nb_routes, int nb_cars, boolean withPartitioning) {
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_REACHABILITY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_REACHABILITY);
         net.setReach(net.getPlace("env"));
         for (int i = 0; i < nb_cars; i++) {
             Place reach = net.createPlace("reach" + i);

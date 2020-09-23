@@ -4,7 +4,7 @@ import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.objectives.local.Buchi;
 import uniolunisaar.adam.ds.synthesis.pgwt.IPetriGame;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.synthesis.solver.SolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;

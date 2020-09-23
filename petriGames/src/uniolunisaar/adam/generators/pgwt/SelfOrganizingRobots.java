@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * Self-reconfiguring Robots example of the ADAM paper.
@@ -45,7 +44,7 @@ public class SelfOrganizingRobots {
             throw new RuntimeException("you should at least destroy one tool.");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("SR_r" + robots + "_t" + tools + "_p" + phases);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         Place env = net.createEnvPlace("Env");
         env.setInitialToken(1);
@@ -165,7 +164,7 @@ public class SelfOrganizingRobots {
             throw new RuntimeException("you should at least destroy one tool.");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("SelfOrgaRobots_r" + robots + "_t" + tools + "_p" + phases);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         Place env = net.createEnvPlace("E0");
         env.setInitialToken(1);
@@ -272,7 +271,7 @@ public class SelfOrganizingRobots {
         PetriGameWithTransits net = PGTools.createPetriGame("SelfOrgaRobots_" + size + "_" + destroy);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place env = net.createEnvPlace("env" + 0);

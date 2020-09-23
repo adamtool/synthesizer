@@ -7,9 +7,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.LLSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.SolvingObject;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -54,7 +53,7 @@ public abstract class LLSolverFactory<SOP extends LLSolverOptions, S extends Sol
 //    public Solver<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ? extends SolvingObject<PetriGame, ? extends Condition<?>, ?>>, SOP> getSolver(PetriGame game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
     public S getSolver(PetriGameWithTransits game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
 //    public <W extends Condition<W>, SO extends SolvingObject<PetriGame, W, SO>> Solver<PetriGame, W, SO, SOP> getSolver(PetriGame game, SOP options) throws CouldNotFindSuitableConditionException, SolvingException {
-        Condition.Objective winCon = PNWTTools.parseConditionFromNetExtensionText(game);
+        Condition.Objective winCon = PGTools.parseConditionFromNetExtensionText(game);
         return getSolver(game, winCon, options);
     }
 }

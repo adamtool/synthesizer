@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * Creates the Container-Terminal examples of the synt2017 paper
@@ -27,7 +26,7 @@ public class ContainerTerminal {
                     + "interesting for a terminal.");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Container terminal with " + nb_containerPlaces + " container places. (Safety)");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         createContainerTerminal(net, nb_containerPlaces, withPartitioning);
         createContainer(net, withPartitioning);

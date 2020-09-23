@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -19,7 +18,7 @@ public class OnceOfAll {
             System.out.println("Error");
         }
         PetriGameWithTransits pn = PGTools.createPetriGame("OnceOfAll_" + n);
-        PNWTTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(pn, Condition.Objective.A_SAFETY);
 
         int start = 0;
         if (withEnvironment) {

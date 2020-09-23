@@ -7,7 +7,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * 
@@ -30,7 +29,7 @@ public class SCC {
 		if (size < 1)
 			throw new RuntimeException("at least 1 scc!");
 		PetriGameWithTransits net = PGTools.createPetriGame("scc_" + size);
-		PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+		PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 		Place env = net.createEnvPlace("env");
 		env.setInitialToken(1);	
 		Place bad = net.createPlace("bad");

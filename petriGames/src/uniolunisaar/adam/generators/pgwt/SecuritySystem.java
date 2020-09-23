@@ -4,7 +4,6 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PGTools;
 
@@ -21,7 +20,7 @@ public class SecuritySystem {
                     + "interesting for a security system");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Security system with " + nb_alarmSystems + " intruding points. (Reachability)");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.E_REACHABILITY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.E_REACHABILITY);
 
         // Environment
         Place env = net.createEnvPlace("env");
@@ -110,7 +109,7 @@ public class SecuritySystem {
                     + "interesting for a security system");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Security system with " + nb_alarmSystems + " intruding points. (Safety)");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place env = net.createEnvPlace("env");
@@ -236,7 +235,7 @@ public class SecuritySystem {
                     + "interesting for a security system");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Security system with " + nb_alarmSystems + " intruding points. (Safety)");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place env = net.createEnvPlace("env");
@@ -356,7 +355,7 @@ public class SecuritySystem {
                     + "interesting for a security system");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("Security system with " + nb_alarmSystems + " intruding points. (Safety)");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Environment
         Place env = net.createEnvPlace("env");

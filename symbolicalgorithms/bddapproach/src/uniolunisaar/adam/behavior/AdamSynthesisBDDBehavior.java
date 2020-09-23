@@ -3,7 +3,7 @@ package uniolunisaar.adam.behavior;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
@@ -36,7 +36,7 @@ public class AdamSynthesisBDDBehavior {
      * @throws java.io.IOException
      * @throws uniol.apt.io.parser.ParseException
      * @throws
-     * uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException
+     * uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException
      * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException
      */
     public static boolean existsWinningStrategy(String path) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {

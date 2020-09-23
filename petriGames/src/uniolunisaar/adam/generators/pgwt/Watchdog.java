@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * Generates the watchdog example (with AND without partial observation).
@@ -35,7 +34,7 @@ public class Watchdog {
             throw new RuntimeException("less than 1 machine does not make any sense!");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("The Watchdog (clever smoke detector) - " + nb_machines + " machines.");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 //        if (partialObservation) {
 //            PetriGameExtensionHandler.setPartialObservation(net, true);
 //        }
@@ -122,7 +121,7 @@ public class Watchdog {
             throw new RuntimeException("less than 1 machine does not make any sense!");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("The Watchdog (dump smoke detector) - " + nb_machines + " machines.");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 //        if (partialObservation) {
 //            PetriGameExtensionHandler.setPartialObservation(net, true);
 //        }
@@ -240,7 +239,7 @@ public class Watchdog {
             throw new RuntimeException("less than 1 machine does not make any sense!");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("The Watchdog (with partial observation) - " + nb_machines);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 //        if (partialObservation) {
 //            PetriGameExtensionHandler.setPartialObservation(net, true);
 //        }

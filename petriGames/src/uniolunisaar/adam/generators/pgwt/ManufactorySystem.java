@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * generates the Job Processing example of the ADAM paper
@@ -32,7 +31,7 @@ public class ManufactorySystem {
         PetriGameWithTransits net = PGTools.createPetriGame("ManufactorySystem" + size);
         MaxTokenCountCalculator calc = new MaxTokenCountCalculator();
         net.addExtensionCalculator(CalculatorIDs.MAX_TOKEN_COUNT.name(), calc, true);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // job desk
         Place start = net.createEnvPlace("S");

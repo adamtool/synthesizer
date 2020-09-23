@@ -5,7 +5,6 @@ import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -18,7 +17,7 @@ public class RobotCell {
             throw new RuntimeException("less than 2 robots and tools do not make any sense!");
         }
         PetriGameWithTransits net = PGTools.createPetriGame("RobotCell_" + size);
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.A_SAFETY);
 
         // Robots
         for (int i = 0; i < size; ++i) {

@@ -10,7 +10,7 @@ import uniol.apt.analysis.exception.UnboundedException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NetNotConcurrencyPreservingException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;

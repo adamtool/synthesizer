@@ -7,7 +7,6 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.pgwt.TransitCalculator;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * Generates a sensor network example with nb_sensor_ nodes sensors sensing some
@@ -36,7 +35,7 @@ public class SensorNetwork {
         }
 
         PetriGameWithTransits net = PGTools.createPetriGame("ESafety version of loop unrolling example for creating new chains with " + nb_unrolling + " unrollings.");
-        PNWTTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
+        PGTools.setConditionAnnotation(net, Condition.Objective.E_SAFETY);
         // merge transition
         Transition tmerge = net.createTransition();
 //        StringBuilder sb = new StringBuilder();

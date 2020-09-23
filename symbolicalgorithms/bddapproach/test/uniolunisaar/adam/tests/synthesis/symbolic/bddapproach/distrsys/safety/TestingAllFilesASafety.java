@@ -17,7 +17,7 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
