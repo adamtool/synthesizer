@@ -62,6 +62,7 @@ public class DistrSysBDDSolvingObject<W extends Condition<W>> extends BDDSolving
 
     @Override
     protected void checkPrecondition(PetriGameWithTransits game) throws NetNotSafeException, NotSupportedGameException {
+        // todo: merge this one with the PgwtPreconditionChecker
         if (!game.getBounded().isSafe()) {
             throw new NetNotSafeException(game.getBounded().unboundedPlace.toString(), game.getBounded().sequence.toString());
         }

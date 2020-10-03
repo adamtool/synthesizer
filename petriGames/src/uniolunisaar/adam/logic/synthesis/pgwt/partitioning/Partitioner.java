@@ -12,6 +12,8 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.tools.Logger;
@@ -25,21 +27,40 @@ public class Partitioner {
 
     /**
      * Checks whether each reachable marking contains no two places with the
-     * same partition id.
+     * same partition id.Additionally, since we iterate throw every reachable
+     * marking anyhow we check whether there is only one environment token in
+     * the game when the flag checkOneEnv is true.
      *
      * @param game
+     * @param checkOneEnv
      * @return
+     * @throws
+     * uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException
+     * @throws
+     * uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException
      */
-    public static boolean checkPartitioning(PetriGameWithTransits game) {
+    public static boolean checkPartitioning(PetriGameWithTransits game, boolean checkOneEnv) throws InvalidPartitionException, MoreThanOneEnvironmentPlayerException {
         CoverabilityGraph cg = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cg.getNodes()) {
             Marking m = node.getMarking(); // todo: the markings are very expensive for this use case. 
             List<Integer> partitions = new ArrayList<>();
+            boolean oneEnv = false;
             for (Place place : game.getPlaces()) {
                 if (m.getToken(place).getValue() > 0) {
+                    // check if more than one env first (otherwise partition would also yield an error (both partition =0)
+                    if (checkOneEnv) {
+                        if (game.isEnvironment(place)) {
+                            if (oneEnv) {
+                                throw new MoreThanOneEnvironmentPlayerException(game, m);
+                            } else {
+                                oneEnv = true;
+                            }
+                        }
+                    }
+                    // check the partition
                     int partition = game.getPartition(place);
                     if (partitions.contains(partition)) {
-                        return false;
+                        throw new InvalidPartitionException(game, m, place);
                     } else {
                         partitions.add(partition);
                     }
