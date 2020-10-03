@@ -742,7 +742,7 @@ public class PGTools {
             CoverabilityGraphNode next = iterator.next();
             Marking m = next.getMarking();
             boolean first = false;
-            for (Place place : game.getPlaces()) {
+            for (Place place : game.getPlaces()) { //todo: very expensive because of the marking implementation
                 if (m.getToken(place).getValue() > 0 && game.isEnvironment(place)) {
                     if (first) {
                         throw new NotSupportedGameException("There are two environment token in marking " + m.toString() + ". The BDD approach only allows one external source of information.");
