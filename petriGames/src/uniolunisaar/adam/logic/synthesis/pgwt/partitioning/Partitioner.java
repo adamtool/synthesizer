@@ -24,6 +24,32 @@ import uniolunisaar.adam.tools.Logger;
 public class Partitioner {
 
     /**
+     * Checks whether each reachable marking contains no two places with the
+     * same partition id.
+     *
+     * @param game
+     * @return
+     */
+    public static boolean checkPartitioning(PetriGameWithTransits game) {
+        CoverabilityGraph cg = CoverabilityGraph.getReachabilityGraph(game);
+        for (CoverabilityGraphNode node : cg.getNodes()) {
+            Marking m = node.getMarking(); // todo: the markings are very expensive for this use case. 
+            List<Integer> partitions = new ArrayList<>();
+            for (Place place : game.getPlaces()) {
+                if (m.getToken(place).getValue() > 0) {
+                    int partition = game.getPartition(place);
+                    if (partitions.contains(partition)) {
+                        return false;
+                    } else {
+                        partitions.add(partition);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      *
      * @param game
      * @throws NoSuitableDistributionFoundException
