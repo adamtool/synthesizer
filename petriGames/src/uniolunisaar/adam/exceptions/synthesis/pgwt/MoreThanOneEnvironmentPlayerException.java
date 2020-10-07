@@ -16,6 +16,7 @@ public class MoreThanOneEnvironmentPlayerException extends SolvingException {
     }
 
     public MoreThanOneEnvironmentPlayerException(PetriGameWithTransits game, Marking m) {
-        super("There is more then one environment player in the game. Witness marking: " + m.toString());
+        super("There are more than one environment player in the game. Witness marking: " + m.toString() + "."
+                + "  The 'distributed system' approach  only allows one external source of information.");
     }
 }
