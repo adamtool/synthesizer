@@ -7,12 +7,12 @@ Contains:
 ---------
 - data structures for
   * Petri games (cp. [Inf. Comp. 17](https://doi.org/10.1016/j.ic.2016.07.006))
-  * the corresponding two-player game (cp. [Inf. Comp. 17](https://doi.org/10.1016/j.ic.2016.07.006)
+  * the corresponding two-player game (cp. [Inf. Comp. 17](https://doi.org/10.1016/j.ic.2016.07.006))
   * Petri games with transits
 - a general structure for easily integrating solvers for Petri games with transits
 - heuristics to partition the places of a Petri net in disjunctive sets regarding their occurrence in reachable markings 
 - algorithms for solving Petri games with one environment and an arbitrary number of system players with a local safety objective by using BDDs
-  (cp. [CAV'15]((https://doi.org/10.1007/978-3-319-21690-4_25), [SYNT@CAV'17](https://doi.org/10.4204/EPTCS.260.5)) 
+  (cp. [CAV'15](https://doi.org/10.1007/978-3-319-21690-4_25), [SYNT@CAV'17](https://doi.org/10.4204/EPTCS.260.5)) 
 - renderer for Petri games with transits and the two-player game into the dot format
 - parser for Petri nets games with transits
 - generators for examples of Petri games with transits
