@@ -92,7 +92,7 @@ public class TestingAllFilesInvariants {
         return out;
     }
 
-    @Test(dataProvider = "files")
+    @Test(dataProvider = "files", enabled=false)
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, FileNotFoundException, ModuleException, CouldNotCalculateException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         PetriNet net = Tools.getPetriNet(file.getAbsolutePath());
