@@ -37,7 +37,6 @@ public class BDDGraphGameBuilderStepwise {
             inits = inits.and(solver.getWellformed(0));
             BDD init = inits.satOne(solver.getFirstBDDVariables(), false);
             while (!init.isZero()) {
-//                System.out.println("ja;lsdfjas");
 //                BDDTools.printDecisionSets(init, true);
 //                BDDTools.printDecodedDecisionSets(init, solver, true);
                 BDDState initSucc = graph.addState(init, solver);
