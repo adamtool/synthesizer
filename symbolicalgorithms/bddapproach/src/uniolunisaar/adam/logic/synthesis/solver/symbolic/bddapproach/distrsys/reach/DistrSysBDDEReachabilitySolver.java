@@ -13,7 +13,7 @@ import uniolunisaar.adam.ds.objectives.local.Reachability;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
-import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
@@ -132,7 +132,7 @@ public class DistrSysBDDEReachabilitySolver extends DistrSysBDDSolver<Reachabili
      *
      *
      * @return - The graph game for the reachability objective.
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
     @Override
     public BDDGraph getGraphGame() throws CalculationInterruptedException {

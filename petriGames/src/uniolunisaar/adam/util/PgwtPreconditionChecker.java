@@ -6,11 +6,14 @@ import uniol.apt.adt.pn.Node;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.analysis.bounded.Bounded;
 import uniol.apt.analysis.bounded.BoundedResult;
+import uniol.apt.util.interrupt.UncheckedInterruptedException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
+import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
 import uniolunisaar.adam.logic.synthesis.pgwt.partitioning.Partitioner;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  * This class is used to check and store all preconditions of a Petri game with
@@ -32,7 +35,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
     }
 
     @Override
-    public boolean check() throws NetNotSafeException, MoreThanOneEnvironmentPlayerException, InvalidPartitionException {
+    public boolean check() throws NetNotSafeException, MoreThanOneEnvironmentPlayerException, InvalidPartitionException, CalculationInterruptedException {
         if (!isSafe()) {
             throw new NetNotSafeException(bounded.unboundedPlace.getId(), bounded.sequence.toString());
         }
@@ -47,14 +50,20 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
         return part;
     }
 
-    public boolean isSafe() {
+    public boolean isSafe() throws CalculationInterruptedException {
         if (bounded == null) {
-            bounded = Bounded.checkBounded(getNet());
+            try {
+                bounded = Bounded.checkBounded(getNet());
+            } catch (UncheckedInterruptedException ex) {
+                CalculationInterruptedException e = new CalculationInterruptedException(ex.getMessage());
+                Logger.getInstance().addError(e.getMessage(), e);
+                throw e;
+            }
         }
         return bounded.isSafe();
     }
 
-    public Boolean isPartitioned() {
+    public Boolean isPartitioned() throws CalculationInterruptedException {
         if (partitioned == null && mtoepe == null && ipe == null) {
             try {
                 partitioned = Partitioner.checkPartitioning(getGame(), true);

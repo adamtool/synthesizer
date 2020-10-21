@@ -12,7 +12,7 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.logic.synthesis.solver.Solver;
 import uniolunisaar.adam.ds.objectives.Condition;
@@ -415,7 +415,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * @param buchiStates
      * @param distance
      * @return
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
     protected BDD buchi(BDD buchiStates, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         return buchi(buchiStates, distance, true);
@@ -430,7 +430,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * @param distance
      * @param player1
      * @return
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
     protected BDD buchi(BDD buchiStates, Map<Integer, BDD> distance, boolean player1) throws CalculationInterruptedException {
         BDD S = getBufferedDCSs().id();
@@ -486,7 +486,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * Calculates all states reachable from the initial state.
      *
      * @return BDD with all reachable states
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
     protected BDD calcDCSs() throws CalculationInterruptedException {
         BDD Q = getZero();
@@ -511,7 +511,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      *
      * @param distance
      * @return - A BDD containing all winning states for the system.
-     * @throws uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
     protected abstract BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException;
 

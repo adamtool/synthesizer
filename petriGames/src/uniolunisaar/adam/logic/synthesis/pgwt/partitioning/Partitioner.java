@@ -12,6 +12,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
+import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
@@ -39,13 +40,18 @@ public class Partitioner {
      * @throws
      * uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException
      */
-    public static boolean checkPartitioning(PetriGameWithTransits game, boolean checkOneEnv) throws InvalidPartitionException, MoreThanOneEnvironmentPlayerException {
+    public static boolean checkPartitioning(PetriGameWithTransits game, boolean checkOneEnv) throws InvalidPartitionException, MoreThanOneEnvironmentPlayerException, CalculationInterruptedException {
         CoverabilityGraph cg = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cg.getNodes()) {
             Marking m = node.getMarking(); // todo: the markings are very expensive for this use case. 
             List<Integer> partitions = new ArrayList<>();
             boolean oneEnv = false;
             for (Place place : game.getPlaces()) {
+                if (Thread.interrupted()) {
+                    CalculationInterruptedException e = new CalculationInterruptedException();
+                    Logger.getInstance().addError(e.getMessage(), e);
+                    throw e;
+                }
                 if (m.getToken(place).getValue() > 0) {
                     // check if more than one env first (otherwise partition would also yield an error (both partition =0)
                     if (checkOneEnv) {
