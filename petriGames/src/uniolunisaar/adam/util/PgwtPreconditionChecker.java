@@ -12,6 +12,7 @@ import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.logic.synthesis.pgwt.partitioning.Partitioner;
 import uniolunisaar.adam.tools.Logger;
 
@@ -35,7 +36,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
     }
 
     @Override
-    public boolean check() throws NetNotSafeException, MoreThanOneEnvironmentPlayerException, InvalidPartitionException, CalculationInterruptedException {
+    public boolean check() throws NetNotSafeException, MoreThanOneEnvironmentPlayerException, InvalidPartitionException, CalculationInterruptedException, NoSuitableDistributionFoundException {
         if (!isSafe()) {
             throw new NetNotSafeException(bounded.unboundedPlace.getId(), bounded.sequence.toString());
         }
@@ -63,9 +64,12 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
         return bounded.isSafe();
     }
 
-    public Boolean isPartitioned() throws CalculationInterruptedException {
+    public Boolean isPartitioned() throws CalculationInterruptedException, NoSuitableDistributionFoundException {
         if (partitioned == null && mtoepe == null && ipe == null) {
             try {
+                // first try to automatically annotate it
+                Partitioner.doIt(getGame());
+                // then check it
                 partitioned = Partitioner.checkPartitioning(getGame(), true);
             } catch (InvalidPartitionException e) {
                 ipe = e;

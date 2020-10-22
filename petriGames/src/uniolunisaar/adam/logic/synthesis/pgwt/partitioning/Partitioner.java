@@ -39,8 +39,9 @@ public class Partitioner {
      * uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException
      * @throws
      * uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      */
-    public static boolean checkPartitioning(PetriGameWithTransits game, boolean checkOneEnv) throws InvalidPartitionException, MoreThanOneEnvironmentPlayerException, CalculationInterruptedException {
+    public static boolean checkPartitioning(PetriGameWithTransits game, boolean checkOneEnv) throws InvalidPartitionException, MoreThanOneEnvironmentPlayerException, CalculationInterruptedException, NoSuitableDistributionFoundException {
         CoverabilityGraph cg = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode node : cg.getNodes()) {
             Marking m = node.getMarking(); // todo: the markings are very expensive for this use case. 
@@ -64,6 +65,9 @@ public class Partitioner {
                         }
                     }
                     // check the partition
+                    if (!game.hasPartition(place)) {
+                        throw new NoSuitableDistributionFoundException(place);
+                    }
                     int partition = game.getPartition(place);
                     if (partitions.contains(partition)) {
                         throw new InvalidPartitionException(game, m, place);
