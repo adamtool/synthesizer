@@ -50,7 +50,7 @@ public class NoSuitableDistributionFoundException extends SolvingException {
      * @param place
      */
     public NoSuitableDistributionFoundException(Place place) {
-        super("The places are not properly annotated with token ids. Place " + place.getId() + " has no token related to.");
+        super("The places are not properly annotated with partition ids. Place " + place.getId() + " has no token related to.");
     }
 
     /**
@@ -59,7 +59,7 @@ public class NoSuitableDistributionFoundException extends SolvingException {
      * @param tokencount
      */
     public NoSuitableDistributionFoundException(long maxTokenCount, long tokencount) {
-        super("The places are not properly annotated with token ids. The maximum token id, which should be assigned is: " + (tokencount - 1)
+        super("The places are not properly annotated with partition ids. The maximum token id, which should be assigned is: " + (tokencount - 1)
                 + ". You assigned: " + maxTokenCount);
     }
 }
