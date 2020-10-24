@@ -1056,9 +1056,9 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
 // %%%%%%%%%%%%%%%%%%%%%% Precalculated results / BDDs %%%%%%%%%%%%%%%%%%%%%%%%%
     protected BDD getBufferedNDet() {
         if (ndet == null) {
-//            ndet = ndetStates(0);
+            ndet = ndetStates(0);
 //            ndet = ndetStatesReachNet(0);
-            ndet = ndetStatesReachUnfolding(0);
+//            ndet = ndetStatesReachUnfolding(0);
             //fixes one special case of the ndet problem but takes longer
 //            ndet = ndetEncountered();
         }
