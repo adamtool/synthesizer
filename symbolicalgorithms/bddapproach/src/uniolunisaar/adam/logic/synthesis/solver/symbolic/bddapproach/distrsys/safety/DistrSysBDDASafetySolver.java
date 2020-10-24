@@ -189,6 +189,11 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
      */
     private BDD sys2TransitionCP(Transition t) {
         Set<Place> pre = t.getPreset();
+        if (pre.isEmpty() && t.getPostset().isEmpty()) {
+            // this means the transition does not have any pre- or postset 
+            // don't consider this transition
+            return getZero();
+        }
         BDD sys2 = firable(t, false, 0);
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             BDD pl = getZero();

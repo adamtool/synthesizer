@@ -344,6 +344,7 @@ public class PetriGameWithTransits extends PetriNetWithTransits implements IPetr
     public void setEnvironment(Place place) {
         PetriGameExtensionHandler.setEnvironment(place);
         envPlaces.add(place);
+//        invokeListeners(); todo: don't want to invoke the listeners for the Petri net changes, implement an own
     }
 
     public boolean isSystem(Place place) {
@@ -353,6 +354,7 @@ public class PetriGameWithTransits extends PetriNetWithTransits implements IPetr
     public void setSystem(Place place) {
         PetriGameExtensionHandler.setSystem(place);
         envPlaces.remove(place);
+//        invokeListeners(); todo: don't want to invoke the listeners for the Petri net changes, implement an own
     }
 
     @Override

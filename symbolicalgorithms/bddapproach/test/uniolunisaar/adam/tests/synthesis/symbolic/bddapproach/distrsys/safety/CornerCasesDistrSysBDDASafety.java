@@ -49,12 +49,57 @@ public class CornerCasesDistrSysBDDASafety {
     }
 
     @Test
-    public void cornerCaseEnvPlaceWithoutToken() throws CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
+    public void cornerCaseEnvPlaceWithoutToken() throws CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException, NoStrategyExistentException {
         PetriGameWithTransits pg = new PetriGameWithTransits("asdf", new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator());
         pg.putExtension("condition", "A_SAFETY");
         pg.createEnvPlace();
 
         DistrSysBDDSolver<? extends Condition<?>> solver = DistrSysBDDSolverFactory.getInstance().getSolver(pg);
         Assert.assertTrue(solver.existsWinningStrategy());
+
+        PetriGameWithTransits strategy = solver.getStrategy();
+        Assert.assertEquals(0, strategy.getPlaces().size());
+    }
+
+    @Test
+    public void cornerCaseEnvPlaceWithToken() throws CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException, NoStrategyExistentException {
+        PetriGameWithTransits pg = new PetriGameWithTransits("asdf", new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator());
+        pg.putExtension("condition", "A_SAFETY");
+        Place p = pg.createEnvPlace();
+        p.setInitialToken(1);
+
+        DistrSysBDDSolver<? extends Condition<?>> solver = DistrSysBDDSolverFactory.getInstance().getSolver(pg);
+        Assert.assertTrue(solver.existsWinningStrategy());
+
+        PetriGameWithTransits strategy = solver.getStrategy();
+        Assert.assertEquals(1, strategy.getPlaces().size());
+    }
+
+    @Test
+    public void cornerCaseTransitionWithoutFlow() throws CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException, NoStrategyExistentException {
+        PetriGameWithTransits pg = new PetriGameWithTransits("asdf", new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator());
+        pg.putExtension("condition", "A_SAFETY");
+        pg.createTransition();
+        
+        DistrSysBDDSolver<? extends Condition<?>> solver = DistrSysBDDSolverFactory.getInstance().getSolver(pg);
+        Assert.assertTrue(solver.existsWinningStrategy());
+
+        PetriGameWithTransits strategy = solver.getStrategy();
+        Assert.assertEquals(0, strategy.getPlaces().size());
+    }
+    @Test
+    public void cornerCaseSystemPlaceAndTransitionWithoutFlow() throws CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException, NoStrategyExistentException {
+        PetriGameWithTransits pg = new PetriGameWithTransits("asdf", new MaxTokenCountCalculator(), new ConcurrencyPreservingCalculator());
+        pg.putExtension("condition", "A_SAFETY");
+        pg.createTransition();
+        Place sys = pg.createPlace();
+        sys.setInitialToken(1);
+        
+        DistrSysBDDSolver<? extends Condition<?>> solver = DistrSysBDDSolverFactory.getInstance().getSolver(pg);
+        Assert.assertTrue(solver.existsWinningStrategy());
+
+        PetriGameWithTransits strategy = solver.getStrategy();
+        Assert.assertEquals(1, strategy.getPlaces().size());
+        Assert.assertEquals(1, strategy.getTransitions().size());
     }
 }
