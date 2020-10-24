@@ -73,6 +73,10 @@ public class MaxTokenCountCalculator extends ExtensionCalculator<Long> {
                 Logger.getInstance().addMessage("Maximal number of token: " + tokencount + " (through coverability graph)");
             }
         }
+        if (tokencount == 0) {
+            Logger.getInstance().addWarning("To get the reasonable result we say that there is a token even though there is no token.");
+            tokencount++;
+        }
         return tokencount;
     }
 
