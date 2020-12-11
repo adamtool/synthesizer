@@ -478,6 +478,21 @@ public class PGTools {
         return true;
     }
 
+    /**
+     * Checks whether the given strategy restricts any purely environment
+     * transition, i.e., which only has environment places in its preset. In the
+     * case of only one environment player there is no need for the reachability
+     * check because the place must be reachable, otherwise it would not be in
+     * the strategy, and a purely environment transition can only have this
+     * place in its preset. For more than one environment place we have to check
+     * whether the purely environment transition is not in the strategy due to
+     * the possibly not reachable other environment places.
+     *
+     * @param origNet
+     * @param strat
+     * @param withReachableCheck
+     * @return
+     */
     public static boolean restrictsEnvTransition(PetriGameWithTransits origNet, PetriGameWithTransits strat, boolean withReachableCheck) {
         for (Place place : strat.getPlaces()) { // every env place of the strategy
             if (strat.isEnvironment(place)) {
@@ -504,6 +519,9 @@ public class PGTools {
                                 for (Iterator<CoverabilityGraphNode> it = cover.getNodes().iterator(); it.hasNext();) {
                                     CoverabilityGraphNode node = it.next();
                                     Marking m = node.getMarking();
+                                    if (m.getToken(place).getValue() <= 0) { // skip the markings which does not contain the place under consideration.
+                                        continue;
+                                    }
                                     Set<Place> stratPre = new HashSet<>();
                                     for (Place stratPlace : strat.getPlaces()) {
                                         if (m.getToken(stratPlace).getValue() > 0) {
