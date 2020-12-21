@@ -1,6 +1,6 @@
 package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.safety;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import uniol.apt.adt.pn.Place;
 import uniolunisaar.adam.ds.objectives.Condition;

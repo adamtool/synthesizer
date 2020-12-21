@@ -20,7 +20,8 @@ import uniolunisaar.adam.tools.Logger;
  * This class is used to check and store all preconditions of a Petri game with
  * transits to be used in the distributed system approach.
  *
- * It checks: - whether the net is 1-bounded - it is correctly partitioned
+ * It checks: - whether the net is 1-bounded - it is correctly partitioned -
+ * there is only one environment player
  *
  * @author Manuel Gieseking
  */
@@ -68,7 +69,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
         if (partitioned == null && mtoepe == null && ipe == null) {
             try {
                 // first try to automatically annotate it
-                Partitioner.doIt(getGame());
+                Partitioner.doIt(getGame(), true); // currently here it also checks that there is only one env player (for general Petri games, change it here)
                 // then check it
                 partitioned = Partitioner.checkPartitioning(getGame(), true);
             } catch (InvalidPartitionException e) {

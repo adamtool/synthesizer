@@ -50,26 +50,81 @@ public class TestingAllFiles {
     private static final String inputDir = System.getProperty("examplesfolder");
     private static final String outputDir = System.getProperty("testoutputfolder");
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList());
-    private static final List<String> skip = new ArrayList<>(Arrays.asList(
-            //            "robots_true.apt", // infinite inv calculation (only wihtout the concurrency preserving stuff?)
-            //            "robots_false.apt", // infinite inv calculation (only without the concurrency preserving stuff?)
-            "wf_2_3_pg_reversible.apt", // infinite inv calculation with PIPE and FARKAS
-            //            "container_withoutAnnotation.apt", // infinite inv calculation with FARKAS
-            //            "container.apt", // infinite inv calculation with FARKAS
-            "unfair2.apt", // has two env token  
-            "myexample7.apt", // has two environment token
-            "sendingprotocolTwo.apt", // two environment token
-            "unfair7.apt", // two env token
-            "unfair8.apt", // two env token
-            "unfair9.apt", // two env token
-            "unfair10.apt" // two env token
+    private static final List<String> skipFile = new ArrayList<>(Arrays.asList(
+            //            //            "robots_true.apt", // infinite inv calculation (only wihtout the concurrency preserving stuff?)
+            //            //            "robots_false.apt", // infinite inv calculation (only without the concurrency preserving stuff?)
+            //            "wf_2_3_pg_reversible.apt", // infinite inv calculation with PIPE and FARKAS
+            //            //            "container_withoutAnnotation.apt", // infinite inv calculation with FARKAS
+            //            //            "container.apt", // infinite inv calculation with FARKAS
+            //            "unfair2.apt", // has two env token  
+            //            "myexample7.apt", // has two environment token
+            //            "sendingprotocolTwo.apt", // two environment token
+            //            "unfair7.apt", // two env token
+            //            "unfair8.apt", // two env token
+            //            "unfair9.apt", // two env token
+            //            "unfair10.apt" // two env token
+            /////////////////////////////////////////////
+            ///// not bounded
+            "wf_2_3_pg_reversible.apt",
+            ///// take to long calculating the reachability graph
+            "10_DW.apt",
+            "11_DW.apt",
+            "12_DW.apt",
+            "13_DW.apt",
+            "14_DW.apt",
+            "15_DW.apt",
+            "16_DW.apt",
+            "17_DW.apt",
+            "18_DW.apt",
+            "19_DW.apt",
+            "11_DWs.apt",
+            "12_DWs.apt",
+            "13_DWs.apt",
+            "14_DWs.apt",
+            "15_DWs.apt",
+            "16_DWs.apt",
+            "17_DWs.apt",
+            "18_DWs.apt",
+            "19_DWs.apt",
+            "20_DWs.apt",
+            "09_JP.apt",
+            "10_JP.apt",
+            "11_JP.apt",
+            "r3_d3_SR.apt",
+            "r3_d4_SR.apt",
+            "m3_w5_CM.apt",
+            "m3_w6_CM.apt",
+            "m4_w4_CM.apt",
+            "m4_w5_CM.apt",
+            "m4_w6_CM.apt",
+            "m5_w3_CM.apt",
+            "m5_w4_CM.apt",
+            "m5_w5_CM.apt",
+            "m5_w6_CM.apt",
+            "m6_w3_CM.apt",
+            "m6_w4_CM.apt",
+            "m6_w5_CM.apt",
+            "m6_w6_CM.apt",
+            ///// take still too much time for the reachability graph to have them all in the suite
+            "07_DW.apt",
+            "08_DW.apt",
+            "09_DW.apt",
+            ///// High-Level
+            "burglar-HL.apt",
+            ///// missing transit annotation
+            "handbuiltSDN-TACAS21.apt",
+            "SDN-Arpanet196912.apt",
+            "SDN-Napnet.apt",
+            "handbuiltSDN-ATVA19.apt",
+            "SDN-Heanet.apt"
     )
     );
+    private static final List<String> skipFolder = new ArrayList<>(Arrays.asList("sdn"));
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass
     public void createFolder() {
-//        Logger.getInstance().setVerbose(false);
+//        Logger.getInstance().setVerbose(true);
         (new File(outputDir)).mkdirs();
     }
 
@@ -79,19 +134,44 @@ public class TestingAllFiles {
                 new File(inputDir),
                 new RegexFileFilter(".*\\.apt"),
                 DirectoryFileFilter.DIRECTORY);
-        Object[][] out = new Object[files.size() - skip.size()][2];
+        Object[][] out = new Object[files.size() - skipFile.size()][2];
         int i = 0;
         for (File file : files) {
-            if (!skip.contains(file.getName())) {
+            boolean skip = false;
+            for (String folder : skipFolder) {
+                if (file.getAbsolutePath().contains(folder)) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip && !skipFile.contains(file.getName())) {
+//            if (!file.getAbsolutePath().contains("sdn") && !skipFile.contains(file.getName())) {
                 out[i][0] = file;
                 out[i][1] = !(withoutStrategy.contains(file.getName()));
                 i++;
             }
         }
-        return out;
+        Object[][] decreasedOut = new Object[i][2];
+        System.arraycopy(out, 0, decreasedOut, 0, i);
+        return decreasedOut;
     }
 
-    @Test(dataProvider = "files", enabled=false)
+    @Test
+    public void testSomeFiles() throws Exception {
+        File file;
+//        File file = new File(inputDir+"/synthesis/forallsafety/burglar/burglar.apt");
+//        testFile(file, true);
+//        file = new File(inputDir+"/synthesis/forallsafety/scalable/documentWorkFlow/standard/15_DW.apt"); // takes too long calculating the reachability graph
+//        testFile(file, true);
+//        file = new File(inputDir + "/synthesis/forallsafety/scalable/documentWorkFlow/standard/DW-1.apt");
+//        testFile(file, true);
+        file = new File(inputDir + "/synthesis/forallsafety/jhh/myexample00.apt");
+        testFile(file, true);
+//        file = new File(inputDir+"/synthesis/forallsafety/reversible/wf_2_3_pg_reversible.apt"); // not bounded
+//        testFile(file, true);
+    }
+
+    @Test(dataProvider = "files", enabled = true)
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, FileNotFoundException, ModuleException, CouldNotCalculateException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         PetriNet net = Tools.getPetriNet(file.getAbsolutePath());
@@ -108,7 +188,10 @@ public class TestingAllFiles {
 //        long tokencount = AdamExtensions.getMaxTokenCount(net);
 //        if (file.getName().equals("abb62.apt")) {
 //        if (file.getName().equals("nondetNoStrat.apt")) {
-        Partitioner.doIt(game);
+        long start = System.currentTimeMillis();
+        System.out.println("start partitioning: " + start);
+        Partitioner.doIt(game, false);
+        System.out.println("end partitioning. Needed: " + (System.currentTimeMillis() - start) / 100 + "s");
 
         long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
         PNWTTools.savePnwt2PDF(outputDir + File.separator + file.getName(), game, false, (int) tokencount);
@@ -118,8 +201,9 @@ public class TestingAllFiles {
     }
 
     private boolean isValidDistributed(PetriGameWithTransits net) {
+//        System.out.println("Check distribution");
         for (Place place : net.getPlaces()) {
-            if (! net.hasPartition(place)) {
+            if (!net.hasPartition(place)) {
                 return false;
             }
         }

@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import uniol.apt.adt.pn.Marking;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
@@ -28,7 +27,7 @@ public class Partitioner {
 
     /**
      * Checks whether each reachable marking contains no two places with the
-     * same partition id.Additionally, since we iterate throw every reachable
+     * same partition id. Additionally, since we iterate throw every reachable
      * marking anyhow we check whether there is only one environment token in
      * the game when the flag checkOneEnv is true.
      *
@@ -83,35 +82,38 @@ public class Partitioner {
     /**
      *
      * @param game
+     * @param onlyOneEnv
      * @throws NoSuitableDistributionFoundException
      */
-    public static void doIt(PetriGameWithTransits game) throws NoSuitableDistributionFoundException {
-        if (!hasDistribution(game, true)) {
+    public static void doIt(PetriGameWithTransits game, boolean onlyOneEnv) throws NoSuitableDistributionFoundException {
+        // hasDistribution only checks that all system places have a partition id annotated
+        // so in the case that we have more than one environment player we discard all annotations 
+        // and do the annotation on our own
+        if (!hasDistribution(game, true) || !onlyOneEnv) {
             Logger.getInstance().addMessage("Calculating partition of places ...");
 
             long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
-            List<Set<Place>> tokenFlowTrees = calcTokenFlowTrees(game);
+            List<Set<Place>> partitions = calcPartitions(game, onlyOneEnv);
 
-            if (tokenFlowTrees.size() > tokencount) {
-                Logger.getInstance().addWarning("We distributed the net into " + tokenFlowTrees.size() + " partitions."
+            if (partitions.size() > tokencount) {
+                Logger.getInstance().addWarning("We distributed the net into " + partitions.size() + " partitions."
                         + " Only " + tokencount + " token can be visible together at a certain point in time. This could be necessary, but"
-                        + " we could also be to greedy by creating new partitions.");
-//                game.setMaxTokenCount(tokenFlowTrees.size());
+                        + " we could also be too greedy in creating new partitions.");
                 MaxTokenCountCalculator calc = (MaxTokenCountCalculator) game.getCalculators().get(CalculatorIDs.MAX_TOKEN_COUNT.name());
-                calc.setManuallyFixedTokencount(game, tokenFlowTrees.size());
+                calc.setManuallyFixedTokencount(game, partitions.size());
             }
 
             // add token ids
-            int count = 0;
-            for (Set<Place> set : tokenFlowTrees) {
+            int count = onlyOneEnv ? 0 : -1;
+            for (Set<Place> set : partitions) {
                 ++count;
-                if (set.isEmpty()) { // for the no env token case
+                if (set.isEmpty()) { // especially for the no env token case
                     --count;
                 }
                 for (Place place : set) {
-                    if (game.isEnvironment(place)) {
+                    if (onlyOneEnv && game.isEnvironment(place)) {
                         --count;
-                        break; // it's the env tokentree, do it at the end
+                        break; // it's the env partition, do it at the end
                     } else {
                         game.setPartition(place, count);
                     }
@@ -121,58 +123,96 @@ public class Partitioner {
         } else {
             Logger.getInstance().addMessage("Using the annotated partition of places.");
         }
-        for (Place p : game.getPlaces()) { // to simplify the annotations for the user (env automatically gets 0)
-            if (game.isEnvironment(p)) {
-                game.setPartition(p, 0);
+        if (onlyOneEnv) {
+            for (Place p : game.getPlaces()) { // to simplify the annotations for the user (env automatically gets 0)
+                if (game.isEnvironment(p)) {
+                    game.setPartition(p, 0);
+                }
             }
         }
     }
 
-    private static List<Set<Place>> calcTokenFlowTrees(PetriGameWithTransits game) throws NoSuitableDistributionFoundException {
-        List<Set<Place>> tokenFlowTrees = new ArrayList<>();
-
+    /**
+     * A very easy but expensive method to calculate the partitions of the net.
+     *
+     *
+     * @param game
+     * @param onlyOneEnv - there is only one environment player in the game.
+     * @return
+     * @throws NoSuitableDistributionFoundException
+     */
+    private static List<Set<Place>> calcPartitions(PetriGameWithTransits game, boolean onlyOneEnv) throws NoSuitableDistributionFoundException {
+        List<Set<Place>> partitions = new ArrayList<>();
         Set<Place> considered = new HashSet<>();
 
+        // the env partition
         Set<Place> env = new HashSet<>();
-        for (Place place : game.getPlaces()) { // env should be one tokenflowtree since it is only one token
-            if (game.isEnvironment(place)) {
-                env.add(place);
-                considered.add(place);
-            }
-        }
-
-        CoverabilityGraph graph = CoverabilityGraph.getReachabilityGraph(game);
-        CoverabilityGraphNode init = graph.getInitialNode();
-        for (Place place : getPlaces(init.getMarking())) { // for all initially marked places their should be at least one tokenflow tree
-            if (!game.isEnvironment(place)) {
-                Set<Place> set = new HashSet<>();
-                set.add(place);
-                considered.add(place);
-                tokenFlowTrees.add(set);
+        if (onlyOneEnv) {
+            for (Place place : game.getPlaces()) { // env should be one partition since it is only one token
+                if (game.isEnvironment(place)) {
+                    env.add(place);
+                    considered.add(place);
+                }
             }
         }
 
         // calculate a list of all possible markings        
+//        CoverabilityGraph graph = CoverabilityGraph.getReachabilityGraph(game);
+        CoverabilityGraph graph = CoverabilityGraph.get(game);
         List<Set<Place>> markings = new ArrayList<>();
+        Logger.getInstance().addMessage("Starting to calculate the reachability graph.", true);
         for (Iterator<CoverabilityGraphNode> iterator = graph.getNodes().iterator(); iterator.hasNext();) {
             CoverabilityGraphNode next = iterator.next();
             markings.add(getPlaces(next.getMarking()));
         }
+        Logger.getInstance().addMessage("Finished calculating the reachability graph.", true);
 
-        boolean ret = addNewPlace(game, considered, tokenFlowTrees, markings);
+        // all initially marked places create one separate partition
+        CoverabilityGraphNode init = graph.getInitialNode();
+        for (Place place : getPlaces(init.getMarking())) { // for all initially marked places their should be at least one partition
+            if (!onlyOneEnv || !game.isEnvironment(place)) {
+                Set<Place> set = new HashSet<>();
+                set.add(place);
+                considered.add(place);
+                partitions.add(set);
+            }
+        }
+
+        // recursively add new places and try to pack them into a suitable partition
+        boolean ret = addNewPlace(game, considered, partitions, markings);
         if (!ret) {
             long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
             throw new NoSuitableDistributionFoundException(tokencount);
         }
 
-        // had already been calculated, just add at the end to do not do anything more with it
-        // For the no env-token case this one is empty, but that is intented
-        tokenFlowTrees.add(env);
+        // the environment partition
+        if (onlyOneEnv) {
+            // had already been calculated, just add at the end to do not do anything more with it
+            // For the no env-token case this one is empty, but that is intented
+            partitions.add(env);
+        }
 
-        return tokenFlowTrees;
+        return partitions;
     }
 
-    private static boolean addNewPlace(PetriNet net, Set<Place> considered, List<Set<Place>> tokenFlowTrees, List<Set<Place>> markings) {
+    /**
+     * Tries to inductively add not already partitioned places to partitions or
+     * create a new one if the test fails which checks that no reachable marking
+     * contains more than one place of any partition.
+     *
+     * The method is very naive and expensive because it just takes a random not
+     * considered place, adds it to the first partition, if the check fails, the
+     * place is added to the next partition and so on. If no partition could be
+     * found such that the test does not fail, a new partition containing the
+     * place is created.
+     *
+     * @param net - the considered Petri net
+     * @param considered - all places which are already sorted into a partition
+     * @param partitions - the so fare partitioned places
+     * @param markings - a list of all reachable markings
+     * @return
+     */
+    private static boolean addNewPlace(PetriGameWithTransits net, Set<Place> considered, List<Set<Place>> partitions, List<Set<Place>> markings) {
         // find one not considered
         Place place = null;
         for (Place p : net.getPlaces()) {
@@ -184,41 +224,56 @@ public class Partitioner {
         if (place == null) { // nothing to consider anymore
             return true;
         }
+
+        // try to add the place to the first partition and if this fits
+        // recursively add next places.
         boolean good = false;
-        List<Set<Place>> treesToIterate = new ArrayList<>(tokenFlowTrees);
-        for (Set<Place> tree : treesToIterate) {
-            tree.add(place);
-            if (isValidDistribution(tokenFlowTrees, markings)) {
-                considered.add(place);
-                good = addNewPlace(net, considered, tokenFlowTrees, markings);
-                if (!good) {
-                    considered.remove(place);
-                    tree.remove(place);
+        List<Set<Place>> partitionsToIterate = new ArrayList<>(partitions);
+        for (Set<Place> partition : partitionsToIterate) {
+            if (!partition.isEmpty() && (net.isEnvironment(partition.iterator().next()) == net.isEnvironment(place))) { // only if the types of the partition and the place fits
+                partition.add(place);
+                if (isValidDistribution(partitions, markings)) {
+                    considered.add(place);
+                    good = addNewPlace(net, considered, partitions, markings);
+                    if (!good) {
+                        considered.remove(place);
+                        partition.remove(place);
+                    } else {
+                        break;
+                    }
                 } else {
-                    break;
+                    partition.remove(place);
                 }
-            } else {
-                tree.remove(place);
             }
         }
+        // if there was no partition possible when adding the place to an already
+        // existing partition, create a new one.
         if (!good) {
-            Set<Place> tree = new HashSet<>();
-            tree.add(place);
+            Set<Place> partition = new HashSet<>();
+            partition.add(place);
             considered.add(place);
-            tokenFlowTrees.add(tree);
-            good = addNewPlace(net, considered, tokenFlowTrees, markings);
+            partitions.add(partition);
+            good = addNewPlace(net, considered, partitions, markings);
             if (!good) {
                 considered.remove(place);
-                tokenFlowTrees.remove(tree);
+                partitions.remove(partition);
                 return false;
             }
         }
         return true;
     }
 
-    static boolean isValidDistribution(List<Set<Place>> tokenFlowTrees, List<Set<Place>> markings) {
+    /**
+     * Checks wether the given list or partitions are valid, i.e., no two places
+     * of any reachable marking are contained in the same partition.
+     *
+     * @param partitions
+     * @param markings
+     * @return
+     */
+    static boolean isValidDistribution(List<Set<Place>> partitions, List<Set<Place>> markings) {
         for (Set<Place> marking : markings) {
-            for (Set<Place> tree : tokenFlowTrees) {
+            for (Set<Place> tree : partitions) {
                 boolean alreadyContained = false;
                 for (Place place : marking) {
                     if (tree.contains(place)) {
