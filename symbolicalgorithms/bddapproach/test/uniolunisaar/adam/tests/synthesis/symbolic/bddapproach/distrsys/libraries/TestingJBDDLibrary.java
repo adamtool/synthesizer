@@ -44,10 +44,11 @@ public class TestingJBDDLibrary {
 
     @BeforeClass
     public void silence() {
-        Logger.getInstance().setVerbose(false);
-        Logger.getInstance().setShortMessageStream(null);
-        Logger.getInstance().setVerboseMessageStream(null);
-        Logger.getInstance().setWarningStream(null);
+//        Logger.getInstance().setVerbose(false);
+        Logger.getInstance().setVerbose(true);
+//        Logger.getInstance().setShortMessageStream(null);
+//        Logger.getInstance().setVerboseMessageStream(null);
+//        Logger.getInstance().setWarningStream(null);
     }
 
     @Test
@@ -576,5 +577,15 @@ public class TestingJBDDLibrary {
 //        BDDTools.printDecisionSets(one);
         Place p = null;
 //        int asdf = p.getId().hashCode();
+    }
+    
+     @Test
+    public void checkSmaller() {
+        BDDFactory fac = JFactory.init(NODENUM, CACHESIZE);
+        int nbVar = 16;
+        fac.setVarNum(nbVar);
+        BDD smaller = BDDTools.getSmallerBDD(fac);
+        BDDTools.printDecisionSets(smaller, true);
+//        BDD firstVars = fac.ithVar(0).and(fac.ithVar(1).and(fac.ithVar(2)));
     }
 }

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
+import net.sf.javabdd.BDDFactory;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
@@ -35,6 +36,24 @@ import uniolunisaar.adam.tools.Logger;
 public class BDDTools {
 
     private static final boolean print = false;
+
+    public static BDD getSmallerBDD(BDDFactory factory) {
+        Logger.getInstance().addMessage("Calculation of smaller BDD ...", true);
+        long time = System.currentTimeMillis();
+        // 1... -> 0... or x1 -> x0 ... or xy1 -> xy0
+        int offset = factory.varNum() / 2;
+        BDD smaller = factory.zero();
+        for (int i = 0; i < offset; i++) {
+            // when ith position 1 front BDD then ith position of back BDD 0
+            BDD disjunct = factory.ithVar(i).andWith(factory.nithVar(i + offset));
+            for (int j = 0; j < i; j++) {
+                disjunct.andWith(factory.ithVar(j).biimpWith(factory.ithVar(j + offset)));
+            }
+            smaller.orWith(disjunct);
+        }
+        Logger.getInstance().addMessage(".... finished calculation of smaller BDD (" + (System.currentTimeMillis() - time) / 1000.0f + ")", true);
+        return smaller;
+    }
 
     public static String place2BinID(PetriGameWithTransits game, Place p, int digits) {
         String binID = Integer.toBinaryString(game.getID(p));
@@ -860,7 +879,7 @@ public class BDDTools {
 
     public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
             void saveGraph2Dot(String path, BDDGraph g, BDDSolver<W, SO, SOP> solver) throws FileNotFoundException {
-        try ( PrintStream out = new PrintStream(path + ".dot")) {
+        try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(graph2Dot(g, solver));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
@@ -891,7 +910,7 @@ public class BDDTools {
 
     public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions>
             void saveStates2Pdf(String path, BDD bdds, BDDSolver<W, SO, SOP> solver) throws IOException, InterruptedException {
-        try ( PrintStream out = new PrintStream(path + ".dot")) {
+        try (PrintStream out = new PrintStream(path + ".dot")) {
             out.println(states2Dot(bdds, solver));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);

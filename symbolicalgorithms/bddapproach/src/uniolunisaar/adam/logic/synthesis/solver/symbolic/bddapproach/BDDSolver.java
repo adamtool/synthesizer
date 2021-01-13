@@ -384,6 +384,8 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
 
     protected BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance) throws CalculationInterruptedException {
         // Calculate the possibly restricted transitions to the given game graph
+        Logger.getInstance().addMessage("Attractor calculation... ", true);
+        long time = System.currentTimeMillis();
         BDD graphSuccs = this.shiftFirst2Second(gameGraph);
         BDD envTrans = getBufferedEnvTransitions().and(gameGraph).and(graphSuccs);
         BDD sysTrans = getBufferedSystemTransitions().and(gameGraph).and(graphSuccs);
@@ -404,7 +406,9 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             BDD pre = p1 ? pre(Q, sysTrans, envTrans) : pre(Q, envTrans, sysTrans);
             Q_ = pre.or(Q);
         }
-        return Q_.andWith(wellformed());
+        BDD ret = Q_.andWith(wellformed());
+        Logger.getInstance().addMessage("... finished calculation of attractor BDD (" + (System.currentTimeMillis() - time) / 1000.0f + ")", true);
+        return ret;
     }
 
     /**
