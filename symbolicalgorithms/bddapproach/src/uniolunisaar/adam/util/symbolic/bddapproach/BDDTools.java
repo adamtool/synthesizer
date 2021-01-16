@@ -38,7 +38,7 @@ public class BDDTools {
     private static final boolean print = false;
 
     public static BDD getSmallerBDD(BDDFactory factory) {
-        Logger.getInstance().addMessage("Calculation of smaller BDD ...", true);
+        Logger.getInstance().addMessage("Calculation of smaller BDD ...", "INTERMEDIATE_TIMING");
         long time = System.currentTimeMillis();
         // 1... -> 0... or x1 -> x0 ... or xy1 -> xy0
         int offset = factory.varNum() / 2;
@@ -51,7 +51,7 @@ public class BDDTools {
             }
             smaller.orWith(disjunct);
         }
-        Logger.getInstance().addMessage(".... finished calculation of smaller BDD (" + (System.currentTimeMillis() - time) / 1000.0f + ")", true);
+        Logger.getInstance().addMessage(".... finished calculation of smaller BDD (" + (System.currentTimeMillis() - time) / 1000.0f + ")", "INTERMEDIATE_TIMING");
         return smaller;
     }
 
