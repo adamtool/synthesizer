@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -434,8 +435,9 @@ public class BDDTools {
             String getDecodedDecisionSets(BDD dcs, BDDSolver<W, SO, SOP> solver) {
         String out = "";
         @SuppressWarnings("unchecked")
-        List<byte[]> l = dcs.allsat();
+        List<byte[]> l = dcs.allsat();        
         for (byte[] sol : l) {
+//            System.out.println(Arrays.toString(sol));
             // required for buddy library
             if (sol == null) {
                 continue;
@@ -443,7 +445,8 @@ public class BDDTools {
             out += solver.decode(sol) + "\n\n";
         }
         if (out.equals("")) {
-            throw new RuntimeException("State has no solution." + dcs.isZero());
+//            throw new RuntimeException("State has no solution." + dcs.isZero());
+            Logger.getInstance().addMessage("State has no solution." + dcs.isZero());
         }
         return out;
     }

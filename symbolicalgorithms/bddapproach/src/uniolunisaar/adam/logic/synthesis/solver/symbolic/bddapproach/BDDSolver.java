@@ -272,6 +272,8 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
 
     public BDD pre(BDD succ, BDD allTrans, BDD existsTrans) {
         BDD succ_shifted = shiftFirst2Second(succ);
+        // (forall x_1',...x_n': allTrans -> succ') AND |allTrans | -1 |
+        // or equivalent (forall x_1',...x_n': (not allTrans) or succ') AND |allTrans | -1 |
         BDD forall = ((allTrans.imp(succ_shifted)).forAll(getSecondBDDVariables())).and(allTrans.id().exist(getSecondBDDVariables()));
         BDD exists = (existsTrans.and(succ_shifted)).exist(getSecondBDDVariables());
         return forall.or(exists).and(wellformed());
