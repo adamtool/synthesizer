@@ -454,7 +454,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             }
             Q = Q_;
             BDD pre = p1 ? pre(Q, sysTrans, envTrans) : pre(Q, envTrans, sysTrans);
-            if (withAbortion && !pre.and(abortionStates).isZero()) {
+            if (withAbortion && (pre.and(abortionStates)).equals(abortionStates)) {
                 return null;
             }
             Q_ = pre.or(Q);
