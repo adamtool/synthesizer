@@ -787,7 +787,7 @@ public class DistrSysBDDABuechiWithoutType2Solver extends DistrSysBDDSolver<Buch
             if (distance != null) {
                 distance.clear();
             }
-            BDD R = attractor(B, false, S, distance);
+            BDD R = attractor(B, false, S, distance, false, null);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
@@ -799,7 +799,7 @@ public class DistrSysBDDABuechiWithoutType2Solver extends DistrSysBDDSolver<Buch
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);         
-            W_ = attractor(Tr, true, S);
+            W_ = attractor(Tr, true, S, false, null);
 
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);

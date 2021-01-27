@@ -372,19 +372,67 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
-    BDD attractor(BDD F, boolean p1) throws CalculationInterruptedException {
-        return attractor(F, p1, getBufferedDCSs());
+    /**
+     * With abortion = true, the return value is null iff some abortionState is
+     * contained in the attractor.
+     *
+     * @param F
+     * @param p1
+     * @param withAbortion
+     * @param abortionStates
+     * @return
+     * @throws CalculationInterruptedException
+     */
+    BDD attractor(BDD F, boolean p1, boolean withAbortion, BDD abortionStates) throws CalculationInterruptedException {
+        return attractor(F, p1, getBufferedDCSs(), withAbortion, abortionStates);
     }
 
-    protected BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance) throws CalculationInterruptedException {
-        return attractor(F, p1, getBufferedDCSs(), distance);
+    /**
+     * With abortion = true, the return value is null iff some abortionState is
+     * contained in the attractor.
+     *
+     * @param F
+     * @param p1
+     * @param distance
+     * @param withAbortion
+     * @param abortionStates
+     * @return
+     * @throws CalculationInterruptedException
+     */
+    protected BDD attractor(BDD F, boolean p1, Map<Integer, BDD> distance, boolean withAbortion, BDD abortionStates) throws CalculationInterruptedException {
+        return attractor(F, p1, getBufferedDCSs(), distance, withAbortion, abortionStates);
     }
 
-    protected BDD attractor(BDD F, boolean p1, BDD gameGraph) throws CalculationInterruptedException {
-        return attractor(F, p1, gameGraph, null);
+    /**
+     * With abortion = true, the return value is null iff some abortionState is
+     * contained in the attractor.
+     *
+     * @param F
+     * @param p1
+     * @param gameGraph
+     * @param withAbortion
+     * @param abortionStates
+     * @return
+     * @throws CalculationInterruptedException
+     */
+    protected BDD attractor(BDD F, boolean p1, BDD gameGraph, boolean withAbortion, BDD abortionStates) throws CalculationInterruptedException {
+        return attractor(F, p1, gameGraph, null, withAbortion, abortionStates);
     }
 
-    protected BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance) throws CalculationInterruptedException {
+    /**
+     * With abortion = true, the return value is null iff some abortionState is
+     * contained in the attractor.
+     *
+     * @param F
+     * @param p1
+     * @param gameGraph
+     * @param distance
+     * @param withAbortion
+     * @param abortionStates
+     * @return
+     * @throws CalculationInterruptedException
+     */
+    protected BDD attractor(BDD F, boolean p1, BDD gameGraph, Map<Integer, BDD> distance, boolean withAbortion, BDD abortionStates) throws CalculationInterruptedException {
         // Calculate the possibly restricted transitions to the given game graph
         Logger.getInstance().addMessage("Attractor calculation... ", "INTERMEDIATE_TIMING");
         long time = System.currentTimeMillis();
@@ -406,6 +454,9 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             }
             Q = Q_;
             BDD pre = p1 ? pre(Q, sysTrans, envTrans) : pre(Q, envTrans, sysTrans);
+            if (withAbortion && !pre.and(abortionStates).isZero()) {
+                return null;
+            }
             Q_ = pre.or(Q);
         }
         BDD ret = Q_.andWith(wellformed());
@@ -448,7 +499,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             if (distance != null) {
                 distance.clear();
             }
-            BDD R = player1 ? attractor(B, !player1, S, distance) : attractor(B, !player1, S);
+            BDD R = player1 ? attractor(B, !player1, S, distance, false, null) : attractor(B, !player1, S, false, null);
 //            System.out.println("R states");
 //            BDDTools.printDecodedDecisionSets(R, this, true);
 //            System.out.println("END R staes");
@@ -460,7 +511,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
 //            System.out.println("END TR states");
 //            System.out.println("%%%%%%%%%%%%%%%% TR");
 //            BDDTools.printDecodedDecisionSets(Tr, this, true);         
-            W_ = player1 ? attractor(Tr, player1, S) : attractor(Tr, player1, S, distance);
+            W_ = player1 ? attractor(Tr, player1, S, false, null) : attractor(Tr, player1, S, distance, false, null);
 
 //            System.out.println("W_ states");
 //            BDDTools.printDecodedDecisionSets(W_, this, true);

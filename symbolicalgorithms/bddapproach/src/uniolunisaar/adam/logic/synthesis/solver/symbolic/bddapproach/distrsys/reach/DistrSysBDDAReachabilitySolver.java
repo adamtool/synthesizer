@@ -552,7 +552,7 @@ public class DistrSysBDDAReachabilitySolver extends DistrSysBDDSolver<Reachabili
         Logger.getInstance().addMessage("Calculating fixpoint ...");
         BDD goodReach = winningStates().andWith(getBufferedNDet().not()).andWith(wellformed(0));
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-        BDD fixedPoint = attractor(goodReach, false, distance);
+        BDD fixedPoint = attractor(goodReach, false, distance, false, null);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS

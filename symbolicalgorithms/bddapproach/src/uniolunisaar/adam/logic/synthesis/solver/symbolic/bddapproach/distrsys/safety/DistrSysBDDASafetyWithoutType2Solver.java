@@ -147,7 +147,17 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
-        BDD fixedPoint = attractor(badStates(), true, distance).not().and(getBufferedDCSs());//fixpointOuter();
+
+        BDD attractor = attractor(badStates(), true, distance, true, getInitialDCSs());
+        // it is not really true that when the initial state is in the 
+        // attractor of the bad states that the winning region is empty
+        // but for all our current scenerios, we are only interested in 
+        // whether the initial state is contained.
+        if (attractor == null) {
+            return getFactory().zero();
+        }
+//        BDD fixedPoint = attractor(badStates(), true, distance, false, null).not().and(getBufferedDCSs());//fixpointOuter();
+        BDD fixedPoint = attractor.not().and(getBufferedDCSs());
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()), this, true);
 //        BDDTools.printDecodedDecisionSets(fixedPoint.andWith(codePlace(getGame().getNet().getPlace("env1"), 0, 0)).andWith(getBufferedSystemTransition()).andWith(getNotTop()), this, true);

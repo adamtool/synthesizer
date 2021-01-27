@@ -630,7 +630,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-        BDD fixedPoint = attractor(winningStates(), true, distance).not().and(getBufferedDCSs());
+        BDD fixedPoint = attractor(winningStates(), true, distance, false, null).not().and(getBufferedDCSs());
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
