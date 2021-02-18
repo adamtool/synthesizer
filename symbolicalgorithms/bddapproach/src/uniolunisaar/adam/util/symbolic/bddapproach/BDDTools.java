@@ -746,7 +746,7 @@ public class BDDTools {
             String graph2Dot(BDDGraph g, BDDSolver<W, SO, SOP> solver) {
 //        final String mcutShape = "diamond";
 //        final String sysShape = "box";
-        final String mcutColor = "white";
+        final String envColor = "white";
         final String sysColor = "gray";
 
         StringBuilder sb = new StringBuilder();
@@ -757,7 +757,7 @@ public class BDDTools {
         for (BDDState state : g.getStates()) {
             // mcut?
 //            String shape = (state.isMcut()) ? mcutShape : sysShape;
-            String color = (solver.isEnvState(state.getState())) ? mcutColor : sysColor;
+            String color = (solver.isEnvState(state.getState())) ? envColor : sysColor;
             int penwidth = (state.isBad()) ? 8 : 1;
             String shape = (state.isSpecial()) ? "doubleoctagon" : "box";
             // Drawing

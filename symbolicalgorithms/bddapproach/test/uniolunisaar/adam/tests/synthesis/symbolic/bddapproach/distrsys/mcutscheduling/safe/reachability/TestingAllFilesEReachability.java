@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.safety;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.reachability;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +28,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 
@@ -38,37 +38,34 @@ import uniolunisaar.adam.util.PGTools;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesESafety {
+public class TestingAllFilesEReachability {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsreachability/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
-            "decision1.apt",
+            "infiniteB.apt",
+            "infiniteC.apt",
+            "simple.apt",
+            "nondetNoStrat.apt",
+            "nondet_s3_noStrat.apt",
+            "notReachable.apt",
+            "unfair.apt",
+            "nondetNoStrat",// should have no strategy, builds one voilating S3
+            "nondet2.apt",// should have no strategy, builds one voilating S3,
             "twoDecisions1.apt",
-            "oneTransitionSys1.apt",
-            "oneTransitionBoth2.apt",
-            "oneTransitionEnv3.apt",
-            "oneTransitionEnv1.apt",
-            "escape11.apt",
-            "infiniteBad.apt",
-            "infflowchains.apt", // creates infinitely many flow chains
-            "infflowchains2.apt",
-            "infflowchains6.apt",
-            "multipleFlowChains2.apt",
-            "multipleFlowChains7.apt",
-            "infflowchains_env_0.apt",
-            "infflowchainsOneGoodOneBad_1.apt",
-            "newchainForget_1.apt",
-            "infiniteFiniteFlowChains.apt"
+            "unfairEnv.apt",
+            "runaway.apt"
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
-            "unfair7.apt", // two env token
-            "unfair8.apt", // two env token
-            "unfair9.apt", // two env token
-            "unfair10.apt" // two env token
+            "unfair2.apt" // has two env token
     )
     );
-    private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
+            "nondet.apt", // should have a strategy
+            "nondetWithBack.apt", // should have a strategy
+            "nondetNoStrat.apt",// should have no strategy, builds one voilating S3
+            "nondet2.apt"// should have no strategy, builds one voilating S3
+    ));
 
     @BeforeClass
     public void createFolder() {

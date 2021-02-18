@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.reachability;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +28,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 
@@ -38,36 +38,36 @@ import uniolunisaar.adam.util.PGTools;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesAReachability {
+public class TestingAllFilesESafety {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/forallreachability/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/forallreachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existssafety/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/existssafety/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
-            "chains0.apt",
-            "chains1.apt",
-            "myexampleWithSysNoStrat.apt",
-            "myexampleNoStrat.apt",
-            "myexample2WithEnvNoStrat.apt",
-            "myexample2WithFlowNoStrat.apt",
-            "unfair.apt",
-            "burglar2.apt",
-            "oneTokenMultiChains0.apt",
-            "oneTokenMultiChains1.apt",
-            "oneTokenMultiChains2.apt",
-            "oneTokenMultiChains4.apt",
-            "oneTokenMultiChains5.apt",
-            "oneTokenMultiChains6.apt",
-            "overallBad0.apt",
-//            "newLateChain.apt", // only when we have to be deadlock-avoiding
-//            "newLateToken1.apt",// only when we have to be deadlock-avoiding
+            "decision1.apt",
             "twoDecisions1.apt",
-            "infiniteFlowChains2.apt"                   
+            "oneTransitionSys1.apt",
+            "oneTransitionBoth2.apt",
+            "oneTransitionEnv3.apt",
+            "oneTransitionEnv1.apt",
+            "escape11.apt",
+            "infiniteBad.apt",
+            "infflowchains.apt", // creates infinitely many flow chains
+            "infflowchains2.apt",
+            "infflowchains6.apt",
+            "multipleFlowChains2.apt",
+            "multipleFlowChains7.apt",
+            "infflowchains_env_0.apt",
+            "infflowchainsOneGoodOneBad_1.apt",
+            "newchainForget_1.apt",
+            "infiniteFiniteFlowChains.apt"
     ));
-    private static final List<String> skip = new ArrayList<>(   
-//                  Arrays.asList(
-//            "myexample2.apt" // has no flow annotation
-//                            )
-            );
+    private static final List<String> skip = new ArrayList<>(Arrays.asList(
+            "unfair7.apt", // two env token
+            "unfair8.apt", // two env token
+            "unfair9.apt", // two env token
+            "unfair10.apt" // two env token
+    )
+    );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass

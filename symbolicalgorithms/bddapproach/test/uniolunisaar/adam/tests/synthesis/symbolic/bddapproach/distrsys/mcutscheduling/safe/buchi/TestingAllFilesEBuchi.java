@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.reachability;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.buchi;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +28,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 
@@ -38,33 +38,19 @@ import uniolunisaar.adam.util.PGTools;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesEReachability {
+public class TestingAllFilesEBuchi {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/existsreachability/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/reachability/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/existsbuechi/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
+            "finiteA.apt",
             "infiniteB.apt",
-            "infiniteC.apt",
-            "simple.apt",
-            "nondetNoStrat.apt",
-            "nondet_s3_noStrat.apt",
-            "notReachable.apt",
-            "unfair.apt",
-            "nondetNoStrat",// should have no strategy, builds one voilating S3
-            "nondet2.apt",// should have no strategy, builds one voilating S3,
-            "twoDecisions1.apt",
-            "unfairEnv.apt",
-            "runaway.apt"
-    ));
-    private static final List<String> skip = new ArrayList<>(Arrays.asList(
-            "unfair2.apt" // has two env token
-    )
-    );
+            "oneGoodInfEnv.apt"));
+    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
+            //                )
+            );
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
-            "nondet.apt", // should have a strategy
-            "nondetWithBack.apt", // should have a strategy
-            "nondetNoStrat.apt",// should have no strategy, builds one voilating S3
-            "nondet2.apt"// should have no strategy, builds one voilating S3
+            "nondet.apt" // should have no strategy, builds one voilating S3
     ));
 
     @BeforeClass
@@ -95,7 +81,7 @@ public class TestingAllFilesEReachability {
     }
 
     @Test(dataProvider = "files")
-    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, CalculationInterruptedException {
+    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);

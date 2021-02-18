@@ -219,6 +219,11 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
         return init;//.and(getWellformed());
     }
 
+    /**
+     * These are the transitions belonging to Player 1.
+     *
+     * @return
+     */
     @Override
     protected BDD calcSystemTransitions() {
         BDD sys = getZero();

@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.buchi;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.reachability;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +28,8 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 
@@ -38,20 +38,37 @@ import uniolunisaar.adam.util.PGTools;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesEBuchi {
+public class TestingAllFilesAReachability {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/existsbuechi/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/buechi/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallreachability/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/forallreachability/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
-            "finiteA.apt",
-            "infiniteB.apt",
-            "oneGoodInfEnv.apt"));
-    private static final List<String> skip = new ArrayList<>( //            Arrays.asList(
-            //                )
-            );
-    private static final List<String> notSupported = new ArrayList<>(Arrays.asList(
-            "nondet.apt" // should have no strategy, builds one voilating S3
+            "chains0.apt",
+            "chains1.apt",
+            "myexampleWithSysNoStrat.apt",
+            "myexampleNoStrat.apt",
+            "myexample2WithEnvNoStrat.apt",
+            "myexample2WithFlowNoStrat.apt",
+            "unfair.apt",
+            "burglar2.apt",
+            "oneTokenMultiChains0.apt",
+            "oneTokenMultiChains1.apt",
+            "oneTokenMultiChains2.apt",
+            "oneTokenMultiChains4.apt",
+            "oneTokenMultiChains5.apt",
+            "oneTokenMultiChains6.apt",
+            "overallBad0.apt",
+//            "newLateChain.apt", // only when we have to be deadlock-avoiding
+//            "newLateToken1.apt",// only when we have to be deadlock-avoiding
+            "twoDecisions1.apt",
+            "infiniteFlowChains2.apt"                   
     ));
+    private static final List<String> skip = new ArrayList<>(   
+//                  Arrays.asList(
+//            "myexample2.apt" // has no flow annotation
+//                            )
+            );
+    private static final List<String> notSupported = new ArrayList<>(Arrays.asList());
 
     @BeforeClass
     public void createFolder() {
@@ -81,7 +98,7 @@ public class TestingAllFilesEBuchi {
     }
 
     @Test(dataProvider = "files")
-    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, SolvingException, CalculationInterruptedException {
+    public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, CalculationInterruptedException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
