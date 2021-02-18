@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.kbounded;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.kbounded;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;

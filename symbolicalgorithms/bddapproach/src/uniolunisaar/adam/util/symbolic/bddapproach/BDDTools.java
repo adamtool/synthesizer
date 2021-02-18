@@ -26,7 +26,7 @@ import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.B
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolvingObject;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.Logger;
 

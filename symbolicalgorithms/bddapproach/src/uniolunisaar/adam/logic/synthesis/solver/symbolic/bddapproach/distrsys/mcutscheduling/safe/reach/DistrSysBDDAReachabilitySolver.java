@@ -1,9 +1,10 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.safety;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.reach;
 
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,50 +14,49 @@ import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniol.apt.util.Pair;
+import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
-import uniolunisaar.adam.ds.objectives.local.Safety;
+import uniolunisaar.adam.ds.objectives.local.Reachability;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
-import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
+import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.symbolic.bddapproach.BDDReachabilityGraphAndGStrategyBuilder;
 import uniolunisaar.adam.logic.synthesis.builder.pgwt.symbolic.bddapproach.BDDPetriGameWithInitialEnvStrategyBuilder;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.tools.Logger;
 
 /**
  * @author Manuel Gieseking
  */
-public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
+public class DistrSysBDDAReachabilitySolver extends DistrSysBDDSolver<Reachability> {
 
     // Domains for predecessor and successor for each token
-    private BDDDomain[][] GOODCHAIN; // in the view of the enviroment
-    private BDDDomain[] OBAD; // from the side of the environment
+    private BDDDomain[][] GOODCHAIN;
+    private BDDDomain[] OBAD;
 
     /**
-     * Creates a new existential safety solver for a given game.
+     * Creates a new universal reachability solver for a given game.
      *
-     * @param net - the Petri game to solve.
+     * @param game - the Petri game to solve.
      * @param skipTests - should the tests for safe and bounded and other
      * preconditions be skipped?
      * @param opts - the options for the solver.
      * @throws NotSupportedGameException - Thrown if the given net is not
      * bounded.
+     * @throws NetNotSafeException - Thrown if the given net is not safe.
      * @throws NoSuitableDistributionFoundException - Thrown if the given net is
      * not annotated to which token each place belongs and the algorithm was not
      * able to detect it on its own.
      */
-//    BDDESafetySolver(PetriGame game, boolean skipTests, Safety win, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
-//        super(game, skipTests, win, opts);
-//    }
-    DistrSysBDDESafetySolver(DistrSysBDDSolvingObject<Safety> solverObject, BDDSolverOptions opts) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
-        super(solverObject, opts);
+    DistrSysBDDAReachabilitySolver(DistrSysBDDSolvingObject<Reachability> obj, BDDSolverOptions opts) throws NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        super(obj, opts);
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START INIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,7 +135,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
     /**
-     * Good when all visible token belong to a good chain (for the evironment).
+     * Good when all visible token belong to a good chain.
      */
     private BDD winningStates() {
         BDD ret = getOne();
@@ -150,53 +150,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
             }
         }
         ret.andWith(OBAD[0].ithVar(0));
-//        ret.andWith(term(0)); Not necessary since no new chain can be created
-        ret = ret.or(getBufferedNDet());
-        ret.orWith(deadSysDCS(0));
         return ret;
-    }
-
-//    /**
-//     * Calculates a BDD representing all decision sets where no transition is
-//     * enabled.
-//     *
-//     * @param pos - 0 for the predecessor variables and 1 for the successor.
-//     * @return BDD representing the terminating situations.
-//     */
-//    private BDD term(int pos) {
-//        BDD notEn = getOne();
-//        Set<Transition> trans = getGame().getNet().getTransitions();
-//        for (Transition transition : trans) {
-//            notEn.andWith(enabled(transition, pos).not());
-//        }
-////        BDD notCh = getOne();
-////        for (Transition transition : trans) {
-////            if (!getGame().getSysTransition().contains(transition)) {
-////                notCh.andWith(chosen(transition, pos).not());
-////            }
-////        }
-////        BDD termType1 = notEn.orWith(type2().andWith(notCh));
-////        return termType1;//.and(getWellformed());
-//        return notEn;
-//    }
-    /**
-     * Calculates a BDD representing all decision sets where the system decided
-     * not to choose any enabled transition, but there exists at least one.
-     *
-     * @param pos - 0 for the predecessor variables and 1 for the successor.
-     * @return BDD representing the deadlocks of the Petri game.
-     */
-    private BDD deadSysDCS(int pos) {
-        BDD dead = getOne();
-        BDD buf = getZero();
-        for (Transition t : getGame().getTransitions()) {
-//            dead = dead.and((firable(t, true).or(firable(t, false))).not());
-//            buf = buf.or(enabled(t, true).or(enabled(t, false)));
-            dead.andWith(firable(t, pos).not());
-            buf.orWith(enabled(t, pos));
-        }
-        dead.andWith(buf);
-        return dead.andWith(getTop().not());//.andWith(wellformed());
     }
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -204,13 +158,14 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
     @Override
     public BDD initial() {
         BDD init = super.initial();
-        // all initial places which are marked as bad are on a good chain (for the environment)
+        init.andWith(getBufferedNDet().not());
+        // all initial places which are marked as 2reach are on a good chain
         Marking m = getGame().getInitialMarking();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount(); ++i) {
             boolean good = false;
             for (Place p : getSolvingObject().getDevidedPlaces()[i]) {
                 if (m.getToken(p).getValue() > 0) {
-                    if (getSolvingObject().getWinCon().getBadPlaces().contains(p)) {
+                    if (getSolvingObject().getWinCon().getPlaces2Reach().contains(p)) {
                         good = true;
                     }
                     break;
@@ -224,7 +179,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
 
     private BDD setGoodChainFlagForTransition(Transition t, Place post, int token) {
 //        System.out.println("Post:" + post.getId());
-        if (getSolvingObject().getWinCon().getBadPlaces().contains(post)) { // it is a bad place -> 1 (for the env)
+        if (getSolvingObject().getWinCon().getPlaces2Reach().contains(post)) { // it is a place2reach -> 1
             return GOODCHAIN[1][token].ithVar(1);
         }
         // 1 iff all predecessor which had been reached by a flow had gc=1
@@ -279,7 +234,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
 //        ret.orWith(allPres);
 //        return ret;
 //    }
-    private BDD setOverallBad(Transition t) { // for the enviroment means that a chain died before reaching a bad place, thus a bad chain died
+    private BDD setOverallBad(Transition t) {
         BDD exPreBad = getZero();
         Collection<Transit> fls = getSolvingObject().getGame().getTransits(t);
         for (Place p : t.getPreset()) {
@@ -334,12 +289,6 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         }
     }
 
-    /**
-     * the same as for forall reachability apart fomrmn getBadPlaces
-     *
-     * @param t
-     * @return
-     */
     @Override
     protected BDD envPart(Transition t) {
         BDD env = super.envPart(t);
@@ -352,7 +301,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         if (!post.isEmpty()) { // not really necessary since CP, but for no envtoken at all
             Place postPlace = post.get(0);
             // it is good if it was good, or is a reach place
-            if (getSolvingObject().getWinCon().getBadPlaces().contains(postPlace)) { // it is a place2reach -> 1
+            if (getSolvingObject().getWinCon().getPlaces2Reach().contains(postPlace)) { // it is a place2reach -> 1
                 env.andWith(GOODCHAIN[1][0].ithVar(1));
             } else {
                 Collection<Transit> tfls = getSolvingObject().getGame().getTransits(t);
@@ -378,12 +327,6 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         return env;
     }
 
-    /**
-     * The same as for for all reachability
-     *
-     * @param t
-     * @return
-     */
     @Override
     protected BDD envTransitionCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) { // take only those transitions which have an env-place in preset
@@ -431,11 +374,6 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         return getZero();
     }
 
-    /**
-     * the same as universal reachability
-     *
-     * @return
-     */
     @Override
     protected BDD envTransitionNotCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
@@ -459,10 +397,8 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
                     all.andWith(setGoodChainFlagForTransition(t, post, token));
                 }
             }
-
             // set the dcs for the places in the preset
             setPresetAndNeededZeros(pre_sys, visitedToken, all);
-
             // --------------------------
             // Positions in dcs not set with places of pre- or postset
             setNotAffectedPositions(all, visitedToken);
@@ -474,11 +410,6 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         return getZero();
     }
 
-    /**
-     * same as for forall reachablity
-     *
-     * @return
-     */
     @Override
     protected BDD sysTopPart() {
         BDD sysT = super.sysTopPart();
@@ -490,12 +421,6 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         return sysT;
     }
 
-    /**
-     * same as for universal reachability (apart from the last ndet andwith in
-     * forall reachability)
-     *
-     * @return
-     */
     @Override
     protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
@@ -546,21 +471,15 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         sys.andWith(sysN);
         sys.andWith(sysT);
         // keep the good chain flag for the environment, since there nothing could have changed        
-        sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+        sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
         // p0=p0'        
-        sys.andWith(placesEqual(0));
+        sys = sys.andWith(placesEqual(0));
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
 
-        return sys;
+        return sys.andWith(getBufferedNDet().not());
     }
 
-    /**
-     * same as for universal reachability (apart from the last ndet andwith in
-     * forall reachability)
-     *
-     * @return
-     */
     @Override
     protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
@@ -571,7 +490,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         // not all tops are zero
         BDD top = getTop();
 
-        // normal part        
+        // normal part 
         Set<Place> pre_sys = t.getPreset();
         BDD sysN = firable(t, 0);
         List<Integer> visitedToken = new ArrayList<>();
@@ -596,7 +515,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         sysN.andWith(setOverallBad(t));
         sysN = (top.not()).impWith(sysN);
 
-        // top part      
+        // top part
         BDD sysT = top.impWith(sysTopPart());
 
         // todo: cheaper?
@@ -607,11 +526,13 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         sys.andWith(sysT);
         // keep the good chain flag for the environment, since there nothing could have changed        
         sys = sys.andWith(GOODCHAIN[0][0].buildEquals(GOODCHAIN[1][0]));
+
         // p0=p0'        
         sys = sys.andWith(placesEqual(0));
+
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
-        return sys;
+        return sys.andWith(getBufferedNDet().not());
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% The relevant ability of the solver %%%%%%%%%%%%%%%%
@@ -629,8 +550,9 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
         Benchmarks.getInstance().start(Benchmarks.Parts.FIXPOINT);
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         Logger.getInstance().addMessage("Calculating fixpoint ...");
+        BDD goodReach = winningStates().andWith(getBufferedNDet().not()).andWith(wellformed(0));
 //        BDDTools.printDecodedDecisionSets(goodReach, this, true);
-        BDD fixedPoint = attractor(winningStates(), true, distance, false, null).not().and(getBufferedDCSs());
+        BDD fixedPoint = attractor(goodReach, false, distance, false, null);
         //BDDTools.printDecodedDecisionSets(fixedPoint, this, true);
         Logger.getInstance().addMessage("... calculation of fixpoint done.");
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
@@ -641,23 +563,27 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
 
     @Override
     protected BDD calcBadDCSs() {
-        return winningStates();
+        return getBufferedNDet().orWith(OBAD[0].ithVar(1));
     }
 
     @Override
     protected BDD calcSpecialDCSs() {
-        return getFactory().zero();
+        return winningStates();
     }
 
-    /**
-     * Safety game graphs don't have a special state
-     *
-     * @param state
-     * @return
-     */
     @Override
-    public boolean isSpecialState(BDD state) {
-        return false;
+    public BDDGraph calculateGraphStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
+        HashMap<Integer, BDD> distance = new HashMap<>();
+        BDD win = calcWinningDCSs(distance);
+        super.setBufferedWinDCSs(win);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().start(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS        
+        BDDGraph strat = BDDReachabilityGraphAndGStrategyBuilder.getInstance().builtGraphStrategy(this, distance);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
+        Benchmarks.getInstance().stop(Benchmarks.Parts.GRAPH_STRAT);
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS         
+        return strat;
     }
 
     @Override
@@ -767,6 +693,7 @@ public class DistrSysBDDESafetySolver extends DistrSysBDDSolver<Safety> {
             return false;
         }
         // %%%%%%%%%% end change to super method %%%%%%%%%%%%%%%%%%%%%%%
+
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;
         }

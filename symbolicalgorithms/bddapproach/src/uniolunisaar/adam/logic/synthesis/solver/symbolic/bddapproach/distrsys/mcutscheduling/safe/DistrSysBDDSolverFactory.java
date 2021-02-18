@@ -1,9 +1,9 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe;
 
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.reach.DistrSysBDDEReachabilitySolver;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDEBuechiSolver;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.reach.DistrSysBDDAReachabilitySolver;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDABuechiSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.reach.DistrSysBDDEReachabilitySolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.buchi.DistrSysBDDEBuechiSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.reach.DistrSysBDDAReachabilitySolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.buchi.DistrSysBDDABuechiSolver;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.io.IOException;
 import uniol.apt.adt.pn.Transition;
@@ -22,9 +22,9 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundEx
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.buchi.DistrSysBDDBuchiSolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.reach.DistrSysBDDReachabilitySolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.safety.DistrSysBDDSafetySolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.buchi.DistrSysBDDBuchiSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.reach.DistrSysBDDReachabilitySolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.DistrSysBDDSafetySolverFactory;
 
 /**
  *
