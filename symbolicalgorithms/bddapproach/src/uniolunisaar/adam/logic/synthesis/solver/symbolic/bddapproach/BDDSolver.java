@@ -441,7 +441,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
         BDD sysTrans = getBufferedSystemTransitions().and(gameGraph).and(graphSuccs);
 
         BDD Q = getZero();
-        BDD Q_ = F;
+        BDD Q_ = F.and(gameGraph);
         int i = 0;
         while (!Q_.equals(Q)) {
             if (Thread.interrupted()) {
@@ -451,7 +451,13 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             }
             if (distance != null) {
                 distance.put(i++, Q_);
-            }
+            }   
+//            if (i == 1) {
+//                System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% current "+ this.getGame().getName());
+//                BDDTools.printDecodedDecisionSets(Q_, this, true);
+//                System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  end");
+//            }         
+//            i++;
             Q = Q_;
             BDD pre = p1 ? pre(Q, sysTrans, envTrans) : pre(Q, envTrans, sysTrans);
             if (withAbortion && (pre.and(abortionStates)).equals(abortionStates)) {

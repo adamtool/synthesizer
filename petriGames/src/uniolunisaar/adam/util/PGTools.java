@@ -788,6 +788,22 @@ public class PGTools {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph PetriNet {\n");
 
+        // are there final markings? Print them
+        if (!game.getFinalMarkings().isEmpty()) {
+            sb.append("markings [shape=box, style=dashed, label=\"");
+            for (Marking finalMarking : game.getFinalMarkings()) {
+                sb.append("{");
+                for (Place place : game.getPlaces()) {
+                    if (finalMarking.getToken(place).getValue() > 0) {
+                        sb.append(place.getId()).append(",");
+                    }
+                }
+                sb.delete(sb.length() - 1, sb.length());
+                sb.append("}\n");
+            }
+            sb.append("\"];\n");
+        }
+
         // Transitions
         sb.append("#transitions\n");
         sb.append("node [shape=box, height=0.5, width=0.5, fixedsize=true];\n");
@@ -1038,6 +1054,30 @@ public class PGTools {
         for (Map.Entry<String, ExtensionCalculator<?>> calc : game.getCalculators().entrySet()) {
             out.addExtensionCalculator(calc.getKey(), calc.getValue(), true); // todo: to greedy to add all of them as to listen to changes.
         }
+        return out;
+    }
+
+    public static PetriGameWithTransits convertPetriGameWithBadPlacesToBadMarkings(PetriGameWithTransits game) {
+        PetriGameWithTransits out = new PetriGameWithTransits(game);
+        List<Place> badPlaces = new ArrayList<>();
+        for (Place place : game.getPlaces()) {
+            if (game.isBad(place)) {
+                Place bad = out.getPlace(place.getId());
+                badPlaces.add(bad);
+                out.removeBad(bad);
+            }
+        }
+        CoverabilityGraph g = CoverabilityGraph.get(out);
+        for (CoverabilityGraphNode node : g.getNodes()) {
+            for (Place badPlace : badPlaces) {
+                if (node.getMarking().getToken(badPlace).getValue() > 0) {
+                    out.addFinalMarking(node.getMarking());
+                    break;
+                }
+            }
+        }
+
+        PGTools.setConditionAnnotation(out, Condition.Objective.GLOBAL_SAFETY);
         return out;
     }
 

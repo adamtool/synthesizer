@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.envscheduling;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -22,13 +23,13 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolverDontFitPetriGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
-import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolverFactory;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
@@ -68,20 +69,22 @@ public class TestingAllFilesASafety {
             "minimalNonCP.apt",
             "ndetConcurrent2.apt",
             "deadlockAvoidance3.apt",
-            "deadlockAvoidance5.apt",
-            // %%%% Examples which should have a strategy for the journal version of the nondeterminism
-            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
-            "nondet_s3.apt", // should only have a strategy for the journal version of the ndet
-            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
-            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
-            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
-            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
-            "nondet2SysPlace.apt" // should have a strategy for the original definition of ndet
+            "deadlockAvoidance5.apt"
+    // %%%% Examples which should have a strategy for the journal version of the nondeterminism
+    //            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
+    //            "nondet_s3.apt", // should only have a strategy for the journal version of the ndet
+    //            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
+    //            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
+    //            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
+    //            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
+    //            "nondet2SysPlace.apt" // should have a strategy for the original definition of ndet
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             // %%%% Examples skipped for saving time
             "container.apt", // takes to long ... 
             "container_withoutAnnotation.apt", // takes to long
+            "15_DW.apt", // takes to long
+            "11_DW.apt", // takes to long
             // %%%% Missing partitioning of the places regarding their occupation by tokesn
             "myexample1.apt", // no token annotation given and not able to do it on its own
             "myexample2.apt", // no token annotation given and not able to do it on its own
@@ -104,8 +107,8 @@ public class TestingAllFilesASafety {
             "trueconcurrent.apt", // two environment token
             "unfolding1.apt", // two environment token
             "independentNets.apt", //  more than one env token
-            "unreachableEnvTransition2.apt", //  two env token      
-            "thesis2sys2env.apt", //  two env token                  
+            "unreachableEnvTransition2.apt", //  two env token            
+            "thesis2sys2env.apt", //  two env token            
             //            "secondTry.apt", // net not safe p0
             //            "finiteWithBad.apt", // net not safe p19
             //            "firstTry.apt" // net not safe
@@ -140,9 +143,9 @@ public class TestingAllFilesASafety {
     @BeforeClass
     public void createFolder() {
         Logger.getInstance().setVerbose(false);
-        Logger.getInstance().setShortMessageStream(null);
-        Logger.getInstance().setVerboseMessageStream(null);
-        Logger.getInstance().setWarningStream(null);
+//        Logger.getInstance().setShortMessageStream(null);
+//        Logger.getInstance().setVerboseMessageStream(null);
+//        Logger.getInstance().setWarningStream(null);
         (new File(outputDir)).mkdirs();
     }
 
@@ -167,18 +170,22 @@ public class TestingAllFilesASafety {
     @Test(dataProvider = "files")
     public void testFile(File file, boolean hasStrategy) throws ParseException, IOException, SolvingException, NetNotSafeException, NoStrategyExistentException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, CouldNotFindSuitableConditionException, NotSupportedGameException, ParameterMissingException, CalculationInterruptedException {
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
-        if (file.getAbsolutePath().contains("scalable")) { // just a quick hack to skip the large examples
+        if(file.getAbsolutePath().contains("scalable")) { // just a quick hack to skip the large examples
             Logger.getInstance().addMessage("skip this", false);
             return;
         }
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
-        DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
-//        if (notSupported.contains(file.getName())) {
-//            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());
-//            Assert.assertTrue(AdamTools.isSolvablePetriGame(solv.getNet(), cover) != null, "Petri game not solvable: ");
-//        } else {
+        PetriGameWithTransits game = PGTools.getPetriGame(file.getAbsolutePath(), true, true);
+        PetriGameWithTransits convGame = PGTools.convertPetriGameWithBadPlacesToBadMarkings(game);
+        DistrSysBDDEnvSchedulingSolver solv = DistrSysBDDEnvSchedulingSolverFactory.getInstance().getSolver(convGame, opts);
         String output = outputDir + file.getName().split(".apt")[0];
-        BDDTestingTools.testExample(solv, output, hasStrategy);
-//        }
+
+//        BDDTestingTools.testExample(solv, output, hasStrategy);
+        boolean exStrat = solv.existsWinningStrategy();
+        if (hasStrategy) {
+            Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has no winning strategy: ");
+        } else {
+            Assert.assertFalse(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
+        }
     }
 }

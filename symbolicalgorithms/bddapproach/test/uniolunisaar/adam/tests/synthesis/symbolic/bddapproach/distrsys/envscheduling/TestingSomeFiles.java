@@ -2,6 +2,7 @@ package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.envsched
 
 import java.io.File;
 import java.util.List;
+import net.sf.javabdd.BDD;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -15,6 +16,10 @@ import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingG
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolver;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
+import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
@@ -26,7 +31,7 @@ import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 @Test
 public class TestingSomeFiles {
 
-    private static final String inputDir = System.getProperty("examplesfolder") + "/globalsafety/";
+    private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
     private static final String outputDir = System.getProperty("testoutputfolder") + "/globalsafety/";
 
     @BeforeClass
@@ -82,7 +87,7 @@ public class TestingSomeFiles {
         m2 = m2.setTokenCount(ER, 1);
         m2 = m2.setTokenCount(SR, 1);
         game.addFinalMarking(m2);
-     
+
         PGTools.setConditionAnnotation(game, Condition.Objective.GLOBAL_SAFETY);
 
         DistrSysBDDEnvSchedulingSolver solv = DistrSysBDDEnvSchedulingSolverFactory.getInstance().getSolver(game, new BDDSolverOptions(true));
@@ -101,6 +106,39 @@ public class TestingSomeFiles {
         boolean exStrat = solv.existsWinningStrategy();
 //            Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
         Assert.assertFalse(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
+    }
+
+    @Test
+    public void testNdet() throws Exception {
+        File file = new File(inputDir + "deadlock/nondetDeadlock.apt");
+        testFile(file, true);
+        file = new File(inputDir + "ndet/nondet_s3_noStrat.apt");
+        testFile(file, false);
+        file = new File(inputDir + "ndet/nondetNetvsUnfolding.apt");
+        testFile(file, true);
+
+    }
+
+    public void testFile(File file, boolean hasStrategy) throws Exception {
+        String output = outputDir + file.getName().split(".apt")[0];
+        Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        PetriGameWithTransits game = PGTools.getPetriGame(file.getAbsolutePath(), true, true);
+        PetriGameWithTransits convGame = PGTools.convertPetriGameWithBadPlacesToBadMarkings(game);
+        PGTools.savePG2PDF(output, convGame, false);
+
+        DistrSysBDDEnvSchedulingSolver solv = DistrSysBDDEnvSchedulingSolverFactory.getInstance().getSolver(convGame, opts);
+        BDDTools.saveGraph2PDF(output + "_GG", solv.getGraphGame(), solv);
+        BDD bufferedWinDCSs = solv.getBufferedWinDCSs();
+//        BDDTools.printDecodedDecisionSets(bufferedWinDCSs, solv, true);
+
+//        BDDTestingTools.testExample(solv, output, hasStrategy);
+        boolean exStrat = solv.existsWinningStrategy();
+        if (hasStrategy) {
+            Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
+        } else {
+            Assert.assertFalse(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
+        }
     }
 
 }

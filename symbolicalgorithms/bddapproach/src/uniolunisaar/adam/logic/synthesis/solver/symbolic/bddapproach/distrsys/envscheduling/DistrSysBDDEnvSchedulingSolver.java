@@ -408,11 +408,11 @@ public class DistrSysBDDEnvSchedulingSolver extends BDDSolver<GlobalSafety, Dist
             if (!post.isEmpty()) {
                 all.andWith(codePlace(post.get(0), 1, 0));
             } else {
-                all.andWith(codePlace(0, 0, 0));
+                all.andWith(codePlace(0, 1, 0));
             }
         } else {
             if (!post.isEmpty()) {
-                all.andWith(codePlace(0, 1, 0));
+                all.andWith(codePlace(0, 0, 0));
                 all.andWith(codePlace(post.get(0), 1, 0));
             } else {
                 all.andWith(placesEqual(0));
@@ -434,7 +434,9 @@ public class DistrSysBDDEnvSchedulingSolver extends BDDSolver<GlobalSafety, Dist
         BDD edges = envPart(t);
         // the transition must be fireable
         edges.andWith(firable(t, 0));
-        // handle the system tokesn
+        // here no top is allowed to be true
+        edges.andWith(nTop());
+        // handle the system tokens
         for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
             // set all possible places on this position and when the place is 
             // in the preset set a corresponding postset place, otherwise 
@@ -482,6 +484,8 @@ public class DistrSysBDDEnvSchedulingSolver extends BDDSolver<GlobalSafety, Dist
         BDD edges = envPart(t);
         // the transition must be fireable
         edges.andWith(firable(t, 0));
+        // here no top is allowed to be true
+        edges.andWith(nTop());
 
         List<Integer> visitedToken = new ArrayList<>();
 
