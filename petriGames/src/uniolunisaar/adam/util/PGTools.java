@@ -780,10 +780,30 @@ public class PGTools {
         }
     }
 
-    public static void checkOnlyOneSysToken(PetriGameWithTransits game) throws NotSupportedGameException {
-        Optional<Marking> illegalMarking = getMarkingWithMultipleTokenOfType(false, game);
+    private static Optional<Marking> getMarkingWithNonOneTokenOfType(boolean env, PetriGameWithTransits game) {
+        CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
+        for (CoverabilityGraphNode next : cover.getNodes()) {
+            Marking m = next.getMarking();
+            boolean first = false;
+            for (Place place : game.getPlaces()) {
+                if (m.getToken(place).getValue() > 0 && (game.isEnvironment(place) == env)) {
+                    if (first) {
+                        return Optional.of(m);
+                    }
+                    first = true;
+                }
+            }
+            if (!first) {
+                return Optional.of(m);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static void checkExactlyOneSysToken(PetriGameWithTransits game) throws NotSupportedGameException {
+        Optional<Marking> illegalMarking = getMarkingWithNonOneTokenOfType(false, game);
         if (illegalMarking.isPresent()) {
-            throw new NotSupportedGameException("There are two system token in marking " + illegalMarking.get().toString() + ". The BDD approach only allows one external source of information.");
+            throw new NotSupportedGameException("There is not one system token in marking " + illegalMarking.get().toString() + ".");
         }
     }
 
