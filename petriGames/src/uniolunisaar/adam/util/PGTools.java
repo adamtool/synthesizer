@@ -780,6 +780,13 @@ public class PGTools {
         }
     }
 
+    public static void checkAtMostOneSysToken(PetriGameWithTransits game) throws NotSupportedGameException {
+        Optional<Marking> illegalMarking = getMarkingWithMultipleTokenOfType(false, game);
+        if (illegalMarking.isPresent()) {
+            throw new NotSupportedGameException("There are two or more system token in marking " + illegalMarking.get().toString() + ".");
+        }
+    }
+
     private static Optional<Marking> getMarkingWithNonOneTokenOfType(boolean env, PetriGameWithTransits game) {
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(game);
         for (CoverabilityGraphNode next : cover.getNodes()) {
