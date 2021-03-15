@@ -59,6 +59,7 @@ public class TestingAllFilesASafety {
             "nondet2.apt",
             "nondet_jhh1.apt",
             "nondet_jhh3.apt",
+            "nondet_motivationForSchedulingChange.apt",
             "nondet2SelectionToken.apt",
             "robinhood.apt",
             "myexample0.apt",
@@ -101,7 +102,6 @@ public class TestingAllFilesASafety {
             "toMakeCP.apt",// two environment token
             "madeCP.apt",// two environment token
             "paul.apt",// two environment token
-            "nondet_motivationForSchedulingChange.apt",// two environment token
             "nounfolding.apt", // two environment token
             "oneunfolding.apt", // two environment token
             "trueconcurrent.apt", // two environment token

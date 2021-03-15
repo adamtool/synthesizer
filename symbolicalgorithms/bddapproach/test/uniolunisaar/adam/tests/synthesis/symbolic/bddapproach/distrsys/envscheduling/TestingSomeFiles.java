@@ -16,9 +16,6 @@ import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingG
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolver;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.envscheduling.DistrSysBDDEnvSchedulingSolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
-import uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.BDDTestingTools;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
@@ -109,13 +106,41 @@ public class TestingSomeFiles {
     }
 
     @Test
+    public void testEnvScheduling() throws Exception {
+//        File file = new File(inputDir + "envScheduling/envScheduling.apt");
+//        File file = new File(inputDir + "envScheduling/envScheduling2.apt");
+//        File file = new File(inputDir + "envScheduling/envScheduling3.apt"); // should have a strategy
+//        File file = new File(inputDir + "envScheduling/envScheduling4.apt");
+//        File file = new File(inputDir + "envScheduling/p1HasToWait.apt");
+        File file = new File(inputDir + "envScheduling/twoPhasesNoStrat.apt");
+//        File file = new File(inputDir + "envScheduling/twoPhasesStrat.apt"); // should have a strategy
+        String output = outputDir + file.getName().split(".apt")[0];
+        Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);
+        BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        PetriGameWithTransits game = PGTools.getPetriGame(file.getAbsolutePath(), true, false);
+        PGTools.savePG2PDF(output, game, false);
+
+        DistrSysBDDEnvSchedulingSolver solv = DistrSysBDDEnvSchedulingSolverFactory.getInstance().getSolver(game, opts);
+//        BDDTools.saveGraph2PDF(output + "_GG", solv.getGraphGame(), solv);
+//        BDD bufferedWinDCSs = solv.getBufferedWinDCSs();
+//        BDDTools.printDecodedDecisionSets(bufferedWinDCSs, solv, true);
+
+//        BDDTestingTools.testExample(solv, output, hasStrategy);
+        boolean exStrat = solv.existsWinningStrategy();
+        Assert.assertFalse(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
+    }
+
+    @Test
     public void testNdet() throws Exception {
         File file = new File(inputDir + "deadlock/nondetDeadlock.apt");
-        testFile(file, true);
-        file = new File(inputDir + "ndet/nondet_s3_noStrat.apt");
+//        testFile(file, true);
+//        file = new File(inputDir + "ndet/nondet_s3_noStrat.apt");
+//        testFile(file, false);
+//        file = new File(inputDir + "ndet/nondetNetvsUnfolding.apt");
+//        testFile(file, true);
+//        file = new File(inputDir + "ndet/nondet_motivationForSchedulingChange.apt");
+        file = new File(inputDir + "envScheduling/broken.apt");
         testFile(file, false);
-        file = new File(inputDir + "ndet/nondetNetvsUnfolding.apt");
-        testFile(file, true);
 
     }
 
