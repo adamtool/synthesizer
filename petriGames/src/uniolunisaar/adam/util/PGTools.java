@@ -919,6 +919,11 @@ public class PGTools {
                     sb.append("\"");
                 }
             }
+            if (f.hasExtension(AdamExtensions.flowMovesTokenBetweenEqualGamePlaces.name())) {
+                sb.append(", style=dotted");
+            } else {
+                sb.append(", style=solid");
+            }
             if (game.isInhibitor(f)) {
                 sb.append(", dir=\"both\", arrowtail=\"odot\"");
             }
