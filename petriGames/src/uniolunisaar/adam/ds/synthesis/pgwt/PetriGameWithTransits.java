@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import uniol.apt.adt.extension.ExtensionProperty;
+import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
@@ -360,6 +361,18 @@ public class PetriGameWithTransits extends PetriNetWithTransits implements IPetr
     @Override
     public void initializeWinningCondition(Condition<? extends Condition<?>> winCon) {
         winCon.buffer(this);
+    }
+
+    public boolean isSpecial(Flow f) {
+        return PetriGameExtensionHandler.isSpecial(f);
+    }
+
+    public void removeSpecial(Flow f) {
+        PetriGameExtensionHandler.removeSpecial(f);
+    }
+
+    public void setSpecial(Flow f) {
+        PetriGameExtensionHandler.setSpecial(f);
     }
 
 }

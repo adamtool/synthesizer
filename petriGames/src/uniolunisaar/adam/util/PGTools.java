@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import uniol.apt.adt.exception.StructureException;
 import uniol.apt.adt.extension.ExtensionProperty;
-import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Node;
 import uniol.apt.adt.pn.PetriNet;
@@ -36,7 +35,6 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
-import uniolunisaar.adam.ds.petrinetwithtransits.Transit;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.ConcurrencyPreservingCalculator;
@@ -45,13 +43,13 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.parser.transits.TransitParser;
+import uniolunisaar.adam.logic.transformers.PGWT2Dot;
 import uniolunisaar.adam.tools.AdamProperties;
 import uniolunisaar.adam.tools.processHandling.ExternalProcessHandler;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.processHandling.ProcessPool;
 import uniolunisaar.adam.util.synthesis.NotSolvableWitness;
 import uniolunisaar.adam.tools.Tools;
-import static uniolunisaar.adam.util.PNWTTools.getTransitRelationFromTransitions;
 import uniolunisaar.adam.util.pgwt.ExtensionCalculator;
 import uniolunisaar.adam.util.pgwt.TransitCalculator;
 
@@ -708,13 +706,13 @@ public class PGTools {
         boolean isStrat = true;
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strat);
         // deadlock avoiding
-        System.out.println("DLA " + isDeadlockAvoiding(origNet, strat, cover));
+//        System.out.println("DLA " + isDeadlockAvoiding(origNet, strat, cover));
         isStrat &= isDeadlockAvoiding(origNet, strat, cover);
         // (S1)
-        System.out.println("DET " + isDeterministic(strat, cover));
+//        System.out.println("DET " + isDeterministic(strat, cover));
         isStrat &= isDeterministic(strat, cover);
         // (S2)
-        System.out.println("ENV " + !restrictsEnvTransition(origNet, strat, withReachabillityCheck));
+//        System.out.println("ENV " + !restrictsEnvTransition(origNet, strat, withReachabillityCheck));
         isStrat &= !restrictsEnvTransition(origNet, strat, withReachabillityCheck);
         return isStrat;
     }
@@ -818,144 +816,6 @@ public class PGTools {
         }
     }
 
-    /**
-     * It is a copy of the method pnwt2dot only adds the gray color for system
-     * places. Debugging true results in colouring the places according to their
-     * partition. the maxtoken calculator must be added for that.
-     *
-     * @param game
-     * @param withLabel
-     * @param withDebugging
-     * @return
-     */
-    public static String pg2Dot(PetriGameWithTransits game, boolean withLabel, boolean withDebugging) {
-        final String placeShape = "circle";
-        final String specialPlaceShape = "doublecircle";
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("digraph PetriNet {\n");
-
-        // are there final markings? Print them
-        if (!game.getFinalMarkings().isEmpty()) {
-            sb.append("markings [shape=box, style=dashed, label=\"");
-            for (Marking finalMarking : game.getFinalMarkings()) {
-                sb.append("{");
-                for (Place place : game.getPlaces()) {
-                    if (finalMarking.getToken(place).getValue() > 0) {
-                        sb.append(place.getId()).append(",");
-                    }
-                }
-                sb.delete(sb.length() - 1, sb.length());
-                sb.append("}\n");
-            }
-            sb.append("\"];\n");
-        }
-
-        // Transitions
-        sb.append("#transitions\n");
-        sb.append("node [shape=box, height=0.5, width=0.5, fixedsize=true];\n");
-        for (Transition t : game.getTransitions()) {
-            String c = null;
-            if (game.isStrongFair(t)) {
-                c = "blue";
-            }
-            if (game.isWeakFair(t)) {
-                c = "lightblue";
-            }
-            String color = (c != null) ? "style=filled, fillcolor=" + c : "";
-
-            sb.append("\"").append(t.getId()).append("\"").append("[").append(color);
-            if (withLabel) {
-                if (game.isStrongFair(t) || game.isWeakFair(t)) {
-                    sb.append(", ");
-                }
-                sb.append("xlabel=\"").append(t.getLabel()).append("\"");
-            }
-            sb.append("];\n");
-        }
-        sb.append("\n\n");
-
-        // Places
-        sb.append("#places\n");
-        for (Place place : game.getPlaces()) {
-            // special?
-            String shape = (game.isBad(place) || game.isReach(place) || game.isBuchi(place)) ? specialPlaceShape : placeShape;
-            // Initialtoken number
-            Long token = place.getInitialToken().getValue();
-            String tokenString = (token > 0) ? token.toString() : "";
-            // Drawing
-            sb.append("\"").append(place.getId()).append("\"").append("[shape=").append(shape);
-            sb.append(", height=0.5, width=0.5, fixedsize=true");
-            sb.append(", xlabel=").append("\"").append(place.getId()).append("\"");
-            sb.append(", label=").append("\"").append(tokenString).append("\"");
-
-            if (game.hasPartition(place) && !game.isEnvironment(place)) {
-                int t = game.getPartition(place);
-                if (t != 0) {  // should it be colored?
-                    sb.append(", style=\"filled");
-                    if (game.isInitialTransit(place)) {
-                        sb.append(", dashed");
-                    }
-                    sb.append("\", fillcolor=");
-                    if (!withDebugging) {
-                        sb.append("gray");
-                    } else {
-                        long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
-                        sb.append("\"");
-                        float val = ((t + 1) * 1.f) / (tokencount * 1.f);
-                        sb.append(val).append(" ").append(val).append(" ").append(val);
-                        sb.append("\"");
-                    }
-                } else if (game.isInitialTransit(place)) {
-                    sb.append(", style=dashed");
-                }
-            } else if (!game.isEnvironment(place)) {
-                sb.append(", style=\"filled\", fillcolor=gray");
-            }
-            sb.append("];\n");
-        }
-
-        // Flows
-        Map<Flow, String> map = getTransitRelationFromTransitions(game);
-        sb.append("\n#flows\n");
-        for (Flow f : game.getEdges()) {
-            sb.append("\"").append(f.getSource().getId()).append("\"").append("->").append("\"").append(f.getTarget().getId()).append("\"");
-            Integer w = f.getWeight();
-            String weight = "\"" + ((w != 1) ? w.toString() + " : " : "");
-            if (map.containsKey(f)) {
-                weight += map.get(f);
-            }
-            weight += "\"";
-            sb.append("[label=").append(weight);
-            if (map.containsKey(f)) {
-                String tfl = map.get(f);
-                if (!tfl.contains(",")) {
-                    sb.append(", color=\"");
-                    Transit init = game.getInitialTransit(f.getTransition());
-                    int max = game.getTransits(f.getTransition()).size() + ((init == null) ? 0 : init.getPostset().size() - 1);
-                    int id = Tools.calcStringIDSmallPrecedenceReverse(tfl);
-                    float val = ((id + 1) * 1.f) / (max * 1.f);
-                    sb.append(val).append(" ").append(val).append(" ").append(val);
-                    sb.append("\"");
-                }
-            }
-            if (f.hasExtension(AdamExtensions.flowMovesTokenBetweenEqualGamePlaces.name())) {
-                sb.append(", style=dotted");
-            } else {
-                sb.append(", style=solid");
-            }
-            if (game.isInhibitor(f)) {
-                sb.append(", dir=\"both\", arrowtail=\"odot\"");
-            }
-            sb.append("]\n");
-        }
-        sb.append("overlap=false\n");
-        sb.append("label=\"").append(game.getName()).append("\"\n");
-        sb.append("fontsize=12\n");
-        sb.append("}");
-        return sb.toString();
-    }
-
 //    public static String getFlowRepresentativ(int id) {
 //        int start = 97; // a
 //        if (id > 25 && id < 51) {
@@ -1005,7 +865,7 @@ public class PGTools {
     }
 
     public static String petriGame2Dot(PetriGameWithTransits game, boolean withLabel) {
-        return pg2Dot(game, withLabel, false);
+        return PGWT2Dot.get(game, withLabel, false);
     }
 
     public static void savePG2Dot(String input, String output, boolean withLabel) throws IOException, ParseException, NotSupportedGameException {
@@ -1019,7 +879,7 @@ public class PGTools {
 
     public static void savePG2Dot(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
-            out.println(pg2Dot(game, withLabel, withDebugging));
+            out.println(PGWT2Dot.get(game, withLabel, withDebugging));
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }

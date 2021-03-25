@@ -12,4 +12,5 @@ public enum AdamPGWTExtensions implements IAdamExtensions {
     env,
     t,
     strat_t,
+    special
 }
