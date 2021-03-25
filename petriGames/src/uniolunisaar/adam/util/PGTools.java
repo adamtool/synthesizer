@@ -60,18 +60,21 @@ import uniolunisaar.adam.util.pgwt.TransitCalculator;
  */
 public class PGTools {
 
+    //%%%%%%%%%% The following methods are used for the parsing, here the 
+    //           Extensions are overwritten because they are stored as String
+    //           during the parsing. Thus, we handle them separately.
     private static boolean hasConditionAnnotation(PetriNet net) {
-        return net.hasExtension(AdamExtensions.condition.name())
-                || net.hasExtension(AdamExtensions.winningCondition.name())// todo: this is only for the fallback to the just-sythesis-version.
+        return ExtensionManagement.getInstance().hasExtension(net, AdamPGWTExtensions.condition)
+                || ExtensionManagement.getInstance().hasExtension(net, AdamPGWTExtensions.winningCondition)// todo: this is only for the fallback to the just-sythesis-version.
                 ;
     }
 
     private static String getConditionAnnotation(PetriNet net) {
-        return (String) net.getExtension(AdamExtensions.condition.name());
+        return ExtensionManagement.getInstance().getExtension(net, AdamPGWTExtensions.condition, String.class);
     }
 
     public static void setConditionAnnotation(PetriNet net, Condition.Objective con) {
-        net.putExtension(AdamExtensions.condition.name(), con.name(), ExtensionProperty.WRITE_TO_FILE);
+        ExtensionManagement.getInstance().putExtension(net, AdamPGWTExtensions.condition, con.name(), ExtensionProperty.WRITE_TO_FILE);
     }
 
     public static Condition.Objective parseConditionFromNetExtensionText(PetriNetWithTransits net) throws CouldNotFindSuitableConditionException {
@@ -79,10 +82,10 @@ public class PGTools {
             try {
                 // todo: this is only for the fallback to the just-synthesis-version.
                 String con;
-                if (net.hasExtension(AdamExtensions.winningCondition.name())) {
-                    con = (String) net.getExtension(AdamExtensions.winningCondition.name());
-                    net.removeExtension(AdamExtensions.winningCondition.name());
-                    net.putExtension(AdamExtensions.condition.name(), con, ExtensionProperty.WRITE_TO_FILE);
+                if (ExtensionManagement.getInstance().hasExtension(net, AdamPGWTExtensions.winningCondition)) {
+                    con = ExtensionManagement.getInstance().getExtension(net, AdamPGWTExtensions.winningCondition, String.class);
+                    ExtensionManagement.getInstance().removeExtension(net, AdamPGWTExtensions.winningCondition);
+                    ExtensionManagement.getInstance().putExtension(net, AdamPGWTExtensions.condition, con, ExtensionProperty.WRITE_TO_FILE);
                 } else {
                     con = getConditionAnnotation(net);
                 }
@@ -387,19 +390,20 @@ public class PGTools {
     }
 
     private static void parseAndCreateTransitsFromTransitionExtensionText(PetriGameWithTransits game, boolean withAutomatic) throws ParseException, CouldNotCalculateException {
-        //todo: hack. change it, when the new implemenation of the flows is implmemented
-        if (game.hasExtension(AdamExtensions.condition.name())) {
-            if (game.getExtension(AdamExtensions.condition.name()).equals("A_SAFETY")
-                    || game.getExtension(AdamExtensions.condition.name()).equals("SAFETY")
-                    || game.getExtension(AdamExtensions.condition.name()).equals("E_REACHABILITY")
-                    || game.getExtension(AdamExtensions.condition.name()).equals("REACHABILITY")) {
+        //todo: hack. change it, when the new implemenation of the flows is implemented
+        ExtensionManagement m = ExtensionManagement.getInstance();
+        if (m.hasExtension(game, AdamPGWTExtensions.condition)) {
+            if (m.getExtension(game, AdamPGWTExtensions.condition, String.class).equals("A_SAFETY")
+                    || m.getExtension(game, AdamPGWTExtensions.condition, String.class).equals("SAFETY")
+                    || m.getExtension(game, AdamPGWTExtensions.condition, String.class).equals("E_REACHABILITY")
+                    || m.getExtension(game, AdamPGWTExtensions.condition, String.class).equals("REACHABILITY")) {
                 return;
             }
-        } else if (game.hasExtension(AdamExtensions.winningCondition.name())) { // todo: this is only for the fallback to the just-sythesis-version.
-            if (game.getExtension(AdamExtensions.winningCondition.name()).equals("A_SAFETY")
-                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("SAFETY")
-                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("E_REACHABILITY")
-                    || game.getExtension(AdamExtensions.winningCondition.name()).equals("REACHABILITY")) {
+        } else if (m.hasExtension(game, AdamPGWTExtensions.winningCondition)) { // todo: this is only for the fallback to the just-sythesis-version.
+            if (m.getExtension(game, AdamPGWTExtensions.winningCondition, String.class).equals("A_SAFETY")
+                    || m.getExtension(game, AdamPGWTExtensions.winningCondition, String.class).equals("SAFETY")
+                    || m.getExtension(game, AdamPGWTExtensions.winningCondition, String.class).equals("E_REACHABILITY")
+                    || m.getExtension(game, AdamPGWTExtensions.winningCondition, String.class).equals("REACHABILITY")) {
                 return;
             }
         }

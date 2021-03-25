@@ -2,7 +2,8 @@ package uniolunisaar.adam.ds.graph;
 
 import java.util.List;
 import uniol.apt.adt.pn.Transition;
-import uniolunisaar.adam.util.AdamExtensions;
+import uniolunisaar.adam.util.AdamPGWTExtensions;
+import uniolunisaar.adam.util.ExtensionManagement;
 
 /**
  *
@@ -11,28 +12,28 @@ import uniolunisaar.adam.util.AdamExtensions;
 class GraphExtensionHandler {
 
 // %%%%%%%%%%%%%%%%%%%%%%%%% STATE EXTENSIONS
-    static List<Transition> getTransition(State state) {
-        return (List<Transition>) state.getExtension(AdamExtensions.t.name());
+    static List<Transition> getTransitions(State state) {
+        return ExtensionManagement.getInstance().getExtension(state, AdamPGWTExtensions.t, List.class);
     }
 
-    static boolean hasTransition(State state) {
-        return state.hasExtension(AdamExtensions.t.name());
+    static boolean hasTransitions(State state) {
+        return ExtensionManagement.getInstance().hasExtension(state, AdamPGWTExtensions.t);
     }
 
-    static void setTransition(State state, List<Transition> trans) {
-        state.putExtension(AdamExtensions.t.name(), trans);
+    static void setTransitions(State state, List<Transition> trans) {
+        ExtensionManagement.getInstance().putExtension(state, AdamPGWTExtensions.t, trans);
     }
 
     static List<Transition> getStrategyTransition(State state) {
-        return (List<Transition>) state.getExtension(AdamExtensions.strat_t.name());
+        return ExtensionManagement.getInstance().getExtension(state, AdamPGWTExtensions.strat_t, List.class);
     }
 
     static boolean hasStrategyTransition(State state) {
-        return state.hasExtension(AdamExtensions.strat_t.name());
+        return ExtensionManagement.getInstance().hasExtension(state, AdamPGWTExtensions.strat_t);
     }
 
     static void setStrategyTransition(State state, List<Transition> strat_trans) {
-        state.putExtension(AdamExtensions.strat_t.name(), strat_trans);
+        ExtensionManagement.getInstance().putExtension(state, AdamPGWTExtensions.strat_t, strat_trans);
     }
 
 }

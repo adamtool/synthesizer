@@ -2,7 +2,8 @@ package uniolunisaar.adam.ds.synthesis.pgwt;
 
 import uniol.apt.adt.extension.ExtensionProperty;
 import uniol.apt.adt.pn.Place;
-import uniolunisaar.adam.util.AdamExtensions;
+import uniolunisaar.adam.util.AdamPGWTExtensions;
+import uniolunisaar.adam.util.ExtensionManagement;
 
 /**
  *
@@ -12,20 +13,20 @@ public class PetriGameExtensionHandler {
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLACE EXTENSIONS   
     static boolean isEnvironment(Place place) {
-        return place.hasExtension(AdamExtensions.env.name());
+        return ExtensionManagement.getInstance().hasExtension(place, AdamPGWTExtensions.env);
     }
 
     static void setEnvironment(Place place) {
-        place.putExtension(AdamExtensions.env.name(), true, ExtensionProperty.WRITE_TO_FILE);
+        ExtensionManagement.getInstance().putExtension(place, AdamPGWTExtensions.env, true, ExtensionProperty.WRITE_TO_FILE);
     }
 
     static boolean isSystem(Place place) {
-        return !place.hasExtension(AdamExtensions.env.name());
+        return !ExtensionManagement.getInstance().hasExtension(place, AdamPGWTExtensions.env);
     }
 
     static void setSystem(Place place) {
         if (isEnvironment(place)) {
-            place.removeExtension(AdamExtensions.env.name());
+            ExtensionManagement.getInstance().removeExtension(place, AdamPGWTExtensions.env);
         }
     }
 

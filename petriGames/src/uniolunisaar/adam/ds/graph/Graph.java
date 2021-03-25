@@ -158,7 +158,7 @@ public class Graph<S extends State, F extends Flow> {
     }
 
     public List<Transition> getTransition(State prevState) {
-        return GraphExtensionHandler.getTransition(prevState);
+        return GraphExtensionHandler.getTransitions(prevState);
     }
 
     public List<Transition> getStrategyTransition(State prevState) {
@@ -170,7 +170,7 @@ public class Graph<S extends State, F extends Flow> {
     }
 
     public boolean hasTransition(State succState) {
-        return GraphExtensionHandler.hasTransition(succState);
+        return GraphExtensionHandler.hasTransitions(succState);
     }
 
     public void setStrategyTransition(State succState, List<Transition> strat_trans) {
@@ -178,6 +178,6 @@ public class Graph<S extends State, F extends Flow> {
     }
 
     public void setTransition(State succState, List<Transition> trans) {
-        GraphExtensionHandler.setTransition(succState, trans);
+        GraphExtensionHandler.setTransitions(succState, trans);
     }
 }
