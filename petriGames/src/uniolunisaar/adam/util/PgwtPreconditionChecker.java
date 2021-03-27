@@ -131,7 +131,8 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
         if (!PetriGameExtensionHandler.isValidPartitioned(getGame())
                 && !PetriGameExtensionHandler.isInValidPartitioned(getGame())) {
             // first try to automatically annotate it
-            Partitioner.doIt(getGame(), true);
+            Partitioner.doIt(getGame(), PetriGameExtensionHandler.thereIsOneEnvPlayer(getGame()));
+
             // then check it
             try {
                 Partitioner.checkPartitioning(getGame());

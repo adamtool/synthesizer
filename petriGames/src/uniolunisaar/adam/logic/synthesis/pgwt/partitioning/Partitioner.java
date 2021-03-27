@@ -74,7 +74,7 @@ public class Partitioner {
         // hasDistribution only checks that all system places have a partition id annotated
         // so in the case that we have more than one environment player we discard all annotations 
         // and do the annotation on our own
-        if (!hasDistribution(game, true) || !onlyOneEnv) {
+        if (!hasDistribution(game, onlyOneEnv)) {
             Logger.getInstance().addMessage("Calculating partition of places ...");
 
             long tokencount = game.getValue(CalculatorIDs.MAX_TOKEN_COUNT.name());
