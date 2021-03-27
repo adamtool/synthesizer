@@ -21,7 +21,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;

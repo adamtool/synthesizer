@@ -12,7 +12,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
@@ -57,7 +57,7 @@ public class AdamSynthesisBDDBehavior {
      * @throws uniol.apt.io.parser.ParseException
      * @throws CouldNotFindSuitableConditionException
      * @throws NotSupportedGameException
-     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.CalculationInterruptedException
      * @throws NoSuitableDistributionFoundException
      */
     public static boolean existsWinningStrategy(String path, BDDSolverOptions so) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {

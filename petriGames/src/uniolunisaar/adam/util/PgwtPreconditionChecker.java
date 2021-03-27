@@ -14,7 +14,7 @@ import uniol.apt.util.interrupt.UncheckedInterruptedException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameExtensionHandler;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneSystemPlayerException;

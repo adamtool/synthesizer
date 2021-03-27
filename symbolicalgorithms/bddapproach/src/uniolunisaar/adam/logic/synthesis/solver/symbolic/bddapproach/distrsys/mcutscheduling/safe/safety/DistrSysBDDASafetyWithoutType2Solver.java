@@ -10,7 +10,7 @@ import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundEx
 import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;
@@ -139,7 +139,7 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
      * Returns the winning decisionsets for the system players
      *
      * @return
-     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.CalculationInterruptedException
      */
     @Override
     protected BDD calcWinningDCSs(Map<Integer, BDD> distance) throws CalculationInterruptedException {

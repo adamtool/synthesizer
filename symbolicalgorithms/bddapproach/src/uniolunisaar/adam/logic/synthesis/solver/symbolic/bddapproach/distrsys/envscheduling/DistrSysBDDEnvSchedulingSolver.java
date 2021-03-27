@@ -13,7 +13,7 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.objectives.global.GlobalSafety;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.BDDSolver;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.benchmarks.synthesis.Benchmarks;

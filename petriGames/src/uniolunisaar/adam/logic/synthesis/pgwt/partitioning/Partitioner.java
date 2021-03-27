@@ -11,7 +11,7 @@ import uniol.apt.analysis.coverability.CoverabilityGraph;
 import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
-import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.CalculatorIDs;
 import uniolunisaar.adam.logic.synthesis.pgwt.calculators.MaxTokenCountCalculator;
@@ -32,7 +32,7 @@ public class Partitioner {
      * @return
      * @throws
      * uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException
-     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.CalculationInterruptedException
      * @throws
      * uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException
      */
