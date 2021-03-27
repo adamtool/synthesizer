@@ -3,6 +3,10 @@ package uniolunisaar.adam.ds.synthesis.pgwt;
 import uniol.apt.adt.extension.ExtensionProperty;
 import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.Place;
+import uniol.apt.analysis.bounded.BoundedResult;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneSystemPlayerException;
 import uniolunisaar.adam.util.AdamPGWTExtensions;
 import uniolunisaar.adam.util.ExtensionManagement;
 
@@ -44,7 +48,111 @@ public class PetriGameExtensionHandler {
         ExtensionManagement.getInstance().removeExtension(f, AdamPGWTExtensions.special);
     }
 
-// %%%%%%%%%%%%%%%%%%%%%%%%%% NET EXTENSIONS
+// %%%%%%%%%%%%%%%%%%%%%%%%%% NET EXTENSIONS    
+    // $$ bounded
+    public static BoundedResult getBoundedResult(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.bounded, BoundedResult.class);
+    }
+
+    public static void setBoundedResult(PetriGameWithTransits game, BoundedResult res) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.bounded, res);
+    }
+
+    public static boolean hasBoundedResult(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.bounded);
+    }
+
+    public static void removeBoundedResult(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().removeExtension(game, AdamPGWTExtensions.bounded);
+    }
+
+    // $$ partitioning
+    public static void setValidPartioned(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.partitioned, null);
+    }
+
+    public static void removePartitioned(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().removeExtension(game, AdamPGWTExtensions.partitioned);
+    }
+
+    public static boolean isValidPartitioned(PetriGameWithTransits game) {
+        if (ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.partitioned)) {
+            return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.partitioned, InvalidPartitionException.class) == null;
+        }
+        return false;
+    }
+
+    public static void setInValidPartioned(PetriGameWithTransits game, InvalidPartitionException ivpe) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.partitioned, ivpe);
+    }
+
+    public static boolean isInValidPartitioned(PetriGameWithTransits game) {
+        if (ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.partitioned)) {
+            return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.partitioned, InvalidPartitionException.class) != null;
+        }
+        return false;
+    }
+
+    public static InvalidPartitionException getInValidPartitioned(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.partitioned, InvalidPartitionException.class);
+    }
+
+    // $$ one environment player
+    public static void removeOneEnvPlayer(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().removeExtension(game, AdamPGWTExtensions.oneEnv);
+    }
+
+    public static boolean checkedOneEnvPlayer(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.oneEnv);
+    }
+
+    public static boolean thereIsOneEnvPlayer(PetriGameWithTransits game) {
+        if (ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.oneEnv)) {
+            return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.oneEnv, MoreThanOneEnvironmentPlayerException.class) == null;
+        }
+        return false;
+    }
+
+    public static MoreThanOneEnvironmentPlayerException getOneEnvPlayer(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.oneEnv, MoreThanOneEnvironmentPlayerException.class);
+    }
+
+    public static void setOneEnvPlayer(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.oneEnv, null);
+    }
+
+    public static void setOneEnvPlayer(PetriGameWithTransits game, MoreThanOneEnvironmentPlayerException mtoepe) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.oneEnv, mtoepe);
+    }
+
+    // $$ one system player
+    public static void removeOneSysPlayer(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().removeExtension(game, AdamPGWTExtensions.oneSystem);
+    }
+
+    public static boolean checkedOneSysPlayer(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.oneSystem);
+    }
+
+    public static boolean thereIsOneSysPlayer(PetriGameWithTransits game) {
+        if (ExtensionManagement.getInstance().hasExtension(game, AdamPGWTExtensions.oneSystem)) {
+            return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.oneSystem, MoreThanOneSystemPlayerException.class) == null;
+        }
+        return false;
+    }
+
+    public static MoreThanOneSystemPlayerException getOneSysPlayer(PetriGameWithTransits game) {
+        return ExtensionManagement.getInstance().getExtension(game, AdamPGWTExtensions.oneSystem, MoreThanOneSystemPlayerException.class);
+    }
+
+    public static void setOneSysPlayer(PetriGameWithTransits game) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.oneSystem, null);
+    }
+
+    public static void setOneSysPlayer(PetriGameWithTransits game, MoreThanOneSystemPlayerException mtoepe) {
+        ExtensionManagement.getInstance().putExtension(game, AdamPGWTExtensions.oneSystem, mtoepe);
+    }
+
 //    static long getMaxTokenCount(PetriGame game) throws NoCalculatorProvidedException {
 //        if (!hasMaxTokenCount(game)) {
 //            ExtensionCalculator calc = game.getCalculators().get(AdamExtensions.MAXTOKENCOUNT);

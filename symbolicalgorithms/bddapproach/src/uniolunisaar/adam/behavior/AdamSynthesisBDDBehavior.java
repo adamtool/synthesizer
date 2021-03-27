@@ -41,8 +41,7 @@ public class AdamSynthesisBDDBehavior {
      */
     public static boolean existsWinningStrategy(String path) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        var solver = DistrSysBDDSolverFactory.getInstance().getSolver(path, opts);
-        return solver.existsWinningStrategy();
+        return AdamSynthesisBDDBehavior.existsWinningStrategy(path, opts);
     }
 
     /**
@@ -58,8 +57,7 @@ public class AdamSynthesisBDDBehavior {
      * @throws uniol.apt.io.parser.ParseException
      * @throws CouldNotFindSuitableConditionException
      * @throws NotSupportedGameException
-     * @throws
-     * uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
+     * @throws uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException
      * @throws NoSuitableDistributionFoundException
      */
     public static boolean existsWinningStrategy(String path, BDDSolverOptions so) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
@@ -81,8 +79,7 @@ public class AdamSynthesisBDDBehavior {
      */
     public static boolean existsWinningStrategy(PetriGameWithTransits game) throws SolvingException, CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, CalculationInterruptedException {
         BDDSolverOptions opts = new BDDSolverOptions(false, true);
-        var solver = DistrSysBDDSolverFactory.getInstance().getSolver(game, opts);
-        return solver.existsWinningStrategy();
+        return AdamSynthesisBDDBehavior.existsWinningStrategy(game, opts);
     }
 
     /**

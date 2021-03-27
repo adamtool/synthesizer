@@ -2,92 +2,156 @@ package uniolunisaar.adam.util;
 
 import uniol.apt.adt.IGraph;
 import uniol.apt.adt.pn.Flow;
+import uniol.apt.adt.pn.Marking;
 import uniol.apt.adt.pn.Node;
 import uniol.apt.adt.pn.PetriNet;
+import uniol.apt.adt.pn.Place;
 import uniol.apt.analysis.bounded.Bounded;
 import uniol.apt.analysis.bounded.BoundedResult;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
+import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.interrupt.UncheckedInterruptedException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameExtensionHandler;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pnwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.InvalidPartitionException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneEnvironmentPlayerException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.MoreThanOneSystemPlayerException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
 import uniolunisaar.adam.logic.synthesis.pgwt.partitioning.Partitioner;
 import uniolunisaar.adam.tools.Logger;
 
 /**
  * This class is used to check and store all preconditions of a Petri game with
- * transits to be used in the distributed system approach.
+ * transits to be used in the distributed system or distributed environment
+ * approach.
  *
  * It checks: - whether the net is 1-bounded - it is correctly partitioned -
- * there is only one environment player
+ * there is only one environment player or only one system players
+ *
+ * The results are saved in the extensions of the game.
  *
  * @author Manuel Gieseking
  */
 public class PgwtPreconditionChecker extends PreconditionChecker {
-
-    private BoundedResult bounded = null;
-    private Boolean partitioned = null;
-    private InvalidPartitionException ipe = null;
-    private MoreThanOneEnvironmentPlayerException mtoepe = null;
 
     public PgwtPreconditionChecker(PetriGameWithTransits pgwt) {
         super(pgwt);
     }
 
     @Override
-    public boolean check() throws NetNotSafeException, MoreThanOneEnvironmentPlayerException, InvalidPartitionException, CalculationInterruptedException, NoSuitableDistributionFoundException {
+    public boolean check() throws NetNotSafeException, InvalidPartitionException, CalculationInterruptedException, NoSuitableDistributionFoundException, SolvingException {
         if (!isSafe()) {
+            BoundedResult bounded = PetriGameExtensionHandler.getBoundedResult(getGame());
             throw new NetNotSafeException(bounded.unboundedPlace.getId(), bounded.sequence.toString());
         }
-        Boolean part = isPartitioned();
-        if (part == null) {
-            if (ipe != null) {
-                throw ipe;
-            } else if (mtoepe != null) {
-                throw mtoepe;
-            }
+        if (!playerNumbers()) {
+            throw new SolvingException(
+                    PetriGameExtensionHandler.getOneEnvPlayer(getGame()).getMessage() + " and "
+                    + PetriGameExtensionHandler.getOneSysPlayer(getGame()).getMessage()
+            );
         }
-        return part;
+        if (!isPartitioned()) {
+            throw PetriGameExtensionHandler.getInValidPartitioned(getGame());
+        }
+
+        return true;
     }
 
     public boolean isSafe() throws CalculationInterruptedException {
-        if (bounded == null) {
+        BoundedResult bounded;
+        if (!PetriGameExtensionHandler.hasBoundedResult(getGame())) {
             try {
-                bounded = Bounded.checkBounded(getNet());
+                bounded = Bounded.checkBounded(getGame());
+                PetriGameExtensionHandler.setBoundedResult(getGame(), bounded);
             } catch (UncheckedInterruptedException ex) {
                 CalculationInterruptedException e = new CalculationInterruptedException(ex.getMessage());
                 Logger.getInstance().addError(e.getMessage(), e);
                 throw e;
             }
+        } else {
+            bounded = PetriGameExtensionHandler.getBoundedResult(getGame());
         }
         return bounded.isSafe();
     }
 
-    public Boolean isPartitioned() throws CalculationInterruptedException, NoSuitableDistributionFoundException {
-        if (partitioned == null && mtoepe == null && ipe == null) {
-            try {
-                // first try to automatically annotate it
-                Partitioner.doIt(getGame(), true); // currently here it also checks that there is only one env player (for general Petri games, change it here)
-                // then check it
-                partitioned = Partitioner.checkPartitioning(getGame(), true);
-            } catch (InvalidPartitionException e) {
-                ipe = e;
-            } catch (MoreThanOneEnvironmentPlayerException e) {
-                mtoepe = e;
+    // todo: merge this with the PGTools methods and anyhow collect all the reachability checks together
+    public boolean playerNumbers() throws CalculationInterruptedException {
+        if (PetriGameExtensionHandler.thereIsOneEnvPlayer(getGame()) || PetriGameExtensionHandler.thereIsOneSysPlayer(getGame())) {
+            return true;
+        } else if (PetriGameExtensionHandler.checkedOneEnvPlayer(getGame()) && PetriGameExtensionHandler.checkedOneSysPlayer(getGame())) {
+            return false;
+        }
+        CoverabilityGraph cg = CoverabilityGraph.getReachabilityGraph(getGame());
+        for (CoverabilityGraphNode node : cg.getNodes()) {
+            Marking m = node.getMarking(); // todo: the markings are very expensive for this use case. 
+            boolean firstEnv = false;
+            boolean firstSys = false;
+            for (Place place : getGame().getPlaces()) {
+                if (Thread.interrupted()) {
+                    CalculationInterruptedException e = new CalculationInterruptedException();
+                    Logger.getInstance().addError(e.getMessage(), e);
+                    throw e;
+                }
+                if (m.getToken(place).getValue() > 0) {
+                    if (getGame().isEnvironment(place)) {
+                        if (firstEnv) {
+                            PetriGameExtensionHandler.setOneEnvPlayer(getGame(), new MoreThanOneEnvironmentPlayerException(getGame(), m));
+                            if (firstSys) {
+                                return false;
+                            }
+                        } else {
+                            firstEnv = true;
+                        }
+                    } else {
+                        if (firstSys) {
+                            PetriGameExtensionHandler.setOneSysPlayer(getGame(), new MoreThanOneSystemPlayerException(getGame(), m));
+                            if (firstEnv) {
+                                return false;
+                            }
+                        } else {
+                            firstSys = true;
+                        }
+                    }
+                }
             }
         }
-        return partitioned;
+        if (!PetriGameExtensionHandler.checkedOneEnvPlayer(getGame())) {
+            PetriGameExtensionHandler.setOneEnvPlayer(getGame());
+        }
+        if (!PetriGameExtensionHandler.checkedOneSysPlayer(getGame())) {
+            PetriGameExtensionHandler.setOneSysPlayer(getGame());
+        }
+        return true;
+    }
+
+    public boolean isPartitioned() throws CalculationInterruptedException, NoSuitableDistributionFoundException, InvalidPartitionException {
+        if (!PetriGameExtensionHandler.isValidPartitioned(getGame())
+                && !PetriGameExtensionHandler.isInValidPartitioned(getGame())) {
+            // first try to automatically annotate it
+            Partitioner.doIt(getGame(), true);
+            // then check it
+            try {
+                Partitioner.checkPartitioning(getGame());
+                PetriGameExtensionHandler.setValidPartioned(getGame());
+                return true;
+            } catch (InvalidPartitionException e) {
+                PetriGameExtensionHandler.setInValidPartioned(getGame(), e);
+                throw e;
+            }
+        }
+        return PetriGameExtensionHandler.isValidPartitioned(getGame());
     }
 
     @Override
     public boolean changeOccurred(IGraph<PetriNet, Flow, Node> graph) {
         super.changeOccurred(graph);
-        bounded = null;
-        partitioned = null;
-        ipe = null;
-        mtoepe = null;
+        PetriGameExtensionHandler.removeBoundedResult(getGame());
+        PetriGameExtensionHandler.removeOneEnvPlayer(getGame());
+        PetriGameExtensionHandler.removeOneSysPlayer(getGame());
+        PetriGameExtensionHandler.removePartitioned(getGame());
         return true;
     }
 
