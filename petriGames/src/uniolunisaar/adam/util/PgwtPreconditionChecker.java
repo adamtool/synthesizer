@@ -99,7 +99,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
                     if (getGame().isEnvironment(place)) {
                         if (firstEnv) {
                             PetriGameExtensionHandler.setOneEnvPlayer(getGame(), new MoreThanOneEnvironmentPlayerException(getGame(), m));
-                            if (firstSys) {
+                            if (PetriGameExtensionHandler.checkedOneSysPlayer(getGame())) { // there is also more than one system player
                                 return false;
                             }
                         } else {
@@ -108,7 +108,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
                     } else {
                         if (firstSys) {
                             PetriGameExtensionHandler.setOneSysPlayer(getGame(), new MoreThanOneSystemPlayerException(getGame(), m));
-                            if (firstEnv) {
+                            if (PetriGameExtensionHandler.checkedOneSysPlayer(getGame())) { // there is also more than one env player)
                                 return false;
                             }
                         } else {
