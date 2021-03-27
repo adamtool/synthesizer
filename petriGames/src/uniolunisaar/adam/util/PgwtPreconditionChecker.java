@@ -108,7 +108,7 @@ public class PgwtPreconditionChecker extends PreconditionChecker {
                     } else {
                         if (firstSys) {
                             PetriGameExtensionHandler.setOneSysPlayer(getGame(), new MoreThanOneSystemPlayerException(getGame(), m));
-                            if (PetriGameExtensionHandler.checkedOneSysPlayer(getGame())) { // there is also more than one env player)
+                            if (PetriGameExtensionHandler.checkedOneEnvPlayer(getGame())) { // there is also more than one env player)
                                 return false;
                             }
                         } else {
