@@ -144,6 +144,12 @@ public class TestingSomeFiles {
 
     }
 
+    @Test
+    public void testFirstExample() throws Exception {
+        File file = new File(inputDir + "firstExamplePaper/firstExamplePaper.apt");
+        testFile(file, true);
+    }
+
     public void testFile(File file, boolean hasStrategy) throws Exception {
         String output = outputDir + file.getName().split(".apt")[0];
         Logger.getInstance().addMessage("Testing file: " + file.getAbsolutePath(), false);

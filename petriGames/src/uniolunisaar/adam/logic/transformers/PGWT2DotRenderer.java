@@ -48,7 +48,7 @@ public class PGWT2DotRenderer<G extends PetriGameWithTransits> extends PNWT2DotR
         sb.append(super.getPlacesAdditionalStyles(net, withOrigPlaces, place));
         // add the coloring of the places according to env or system places
         // when it is not the mode where we want to see the partitions
-        if (nb_partitions != null && !net.isEnvironment(place)) {
+        if (nb_partitions == null && !net.isEnvironment(place)) {
             sb.append(", style=\"filled\", fillcolor=" + SYSTEM_COLOR);
         }
         return sb.toString();
