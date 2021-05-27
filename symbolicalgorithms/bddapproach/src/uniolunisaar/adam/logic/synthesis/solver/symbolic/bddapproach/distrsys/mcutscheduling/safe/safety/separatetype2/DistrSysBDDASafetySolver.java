@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2;
 
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
@@ -140,7 +140,7 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
                 sb.append(", ");
                 sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                 sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getSolvingObject().getDevidedTransitions()[j]));
+                sb.append(BDDTools.getCommitmentSetByBin(dcs, TRANSITIONS[pos][j], getSolvingObject().getDevidedTransitions()[j]));
             }
             sb.append(")").append("\n");
         }

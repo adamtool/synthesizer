@@ -24,7 +24,8 @@ import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.logic.synthesis.solver.LLSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.buchi.DistrSysBDDBuchiSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.reach.DistrSysBDDReachabilitySolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.DistrSysBDDSafetySolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.DistrSysBDDSafetyLocNDetSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2.DistrSysBDDSafetySolverFactory;
 
 /**
  *
@@ -87,6 +88,8 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
             DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con);
             if (opts.isNoType2()) {
                 return DistrSysBDDSafetySolverFactory.getInstance().createDistrSysBDDASafetyWithoutType2Solver(so, opts);
+            } else if (opts.isWithLocNDet()) {
+                return DistrSysBDDSafetyLocNDetSolverFactory.getInstance().createDistrSysBDDASafetySolver(so, opts);
             } else {
                 return DistrSysBDDSafetySolverFactory.getInstance().createDistrSysBDDASafetySolver(so, opts);
             }

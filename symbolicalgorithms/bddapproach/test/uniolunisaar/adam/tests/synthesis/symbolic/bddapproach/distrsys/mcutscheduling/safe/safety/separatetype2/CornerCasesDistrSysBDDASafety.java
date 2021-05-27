@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

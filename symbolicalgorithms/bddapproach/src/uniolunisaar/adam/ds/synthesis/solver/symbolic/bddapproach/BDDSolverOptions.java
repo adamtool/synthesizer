@@ -23,6 +23,7 @@ public class BDDSolverOptions extends LLSolverOptions {
     private boolean ggs = false;
     private boolean pgs = true;
     private boolean noType2 = false;
+    private boolean withLocNDet = false;
 
     public BDDSolverOptions() {
         super("bdd", true, true);
@@ -146,6 +147,14 @@ public class BDDSolverOptions extends LLSolverOptions {
 
     public void setNoType2(boolean noType2) {
         this.noType2 = noType2;
+    }
+
+    public boolean isWithLocNDet() {
+        return withLocNDet;
+    }
+
+    public void setWithLocNDet(boolean withLocNDet) {
+        this.withLocNDet = withLocNDet;
     }
 
 }

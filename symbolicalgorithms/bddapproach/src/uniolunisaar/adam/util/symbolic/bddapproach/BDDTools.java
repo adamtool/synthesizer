@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.Set;
 import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import net.sf.javabdd.BDDFactory;
+import uniol.apt.adt.pn.Node;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
@@ -56,15 +56,15 @@ public class BDDTools {
         return smaller;
     }
 
-    public static String place2BinID(PetriGameWithTransits game, Place p, int digits) {
-        String binID = Integer.toBinaryString(game.getID(p));
+    public static String node2BinID(PetriGameWithTransits game, Node n, int digits) {
+        String binID = Integer.toBinaryString(game.getID(n));
         binID = String.format("%" + digits + "s", binID).replace(' ', '0');
         return new StringBuilder(binID).reverse().toString();
     }
 
     public static String place2BinID(Place s3, DistrSysBDDSolvingObject<? extends Condition<?>> game, int token) {
         int digits = getBinLength(game, token);
-        return place2BinID(game.getGame(), s3, digits);
+        return node2BinID(game.getGame(), s3, digits);
     }
 
 //    public static String getPlace2BinIDMapping(PetriGame game) {
@@ -197,7 +197,7 @@ public class BDDTools {
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
             for (Place pl : game.getDevidedPlaces()[i]) {
-                pls[i].put(place2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
+                pls[i].put(node2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
             }
         }
 
@@ -331,7 +331,7 @@ public class BDDTools {
             return "-";
         }
         for (Place p : places) {
-            if (id.equals(place2BinID(game, p, ids.length))) {
+            if (id.equals(node2BinID(game, p, ids.length))) {
                 return p.getId();
             }
         }
@@ -343,7 +343,7 @@ public class BDDTools {
         return (topFlag == 1) ? "T" : (topFlag == 0) ? "!T" : "-";
     }
 
-    public static String getTransitionsByBin(byte[] dcs, BDDDomain bddDomain, List<Transition> transitions) {
+    public static String getCommitmentSetByBin(byte[] dcs, BDDDomain bddDomain, List<Transition> transitions) {
         int[] ids = bddDomain.vars();
         StringBuilder sb = new StringBuilder("{");
         boolean added = false;
@@ -368,6 +368,25 @@ public class BDDTools {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    public static String getTransitionByBin(PetriGameWithTransits game, byte[] dcs, BDDDomain bddDomain) {
+        int[] ids = bddDomain.vars();
+        String id = "";
+        String zero = "";
+        for (int i = 0; i < ids.length; i++) {
+            id += dcs[ids[i]];
+            zero += "0";
+        }
+        if (id.equals(zero)) {
+            return "T";
+        }
+        for (Transition t : game.getTransitions()) {
+            if (id.equals(node2BinID(game, t, ids.length))) {
+                return t.getId();
+            }
+        }
+        return id;
     }
 
     public static String getGoodChainFlagByBin(byte[] dcs, BDDDomain bddDomain) {
@@ -435,7 +454,7 @@ public class BDDTools {
             String getDecodedDecisionSets(BDD dcs, BDDSolver<W, SO, SOP> solver) {
         String out = "";
         @SuppressWarnings("unchecked")
-        List<byte[]> l = dcs.allsat();        
+        List<byte[]> l = dcs.allsat();
         for (byte[] sol : l) {
 //            System.out.println(Arrays.toString(sol));
             // required for buddy library
@@ -467,7 +486,7 @@ public class BDDTools {
         for (int i = 0; i < game.getMaxTokenCount(); i++) {
             pls[i] = new HashMap<>();
             for (Place pl : game.getDevidedPlaces()[i]) {
-                pls[i].put(place2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
+                pls[i].put(node2BinID(solver.getGame(), pl, getBinLength(game, i)), pl.getId());
             }
         }
 //        Map<Integer, String> transitions = new HashMap<>();

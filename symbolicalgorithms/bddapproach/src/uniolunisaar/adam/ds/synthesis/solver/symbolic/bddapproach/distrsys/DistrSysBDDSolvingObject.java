@@ -98,7 +98,10 @@ public class DistrSysBDDSolvingObject<W extends Condition<W>> extends BDDSolving
     // todo: proof that it's a suitable slicing, such that every environment place
     // belongs to one single invariant   
     private void bufferData() {
+        int id = 1;
         for (Transition t : getGame().getTransitions()) {
+            // Add a unique ID starting from 1
+            getGame().setID(t, id++);
             // Pre- and Postset
             List<Place> pre = new ArrayList<>();
             pre.addAll(t.getPreset());
@@ -135,9 +138,7 @@ public class DistrSysBDDSolvingObject<W extends Condition<W>> extends BDDSolving
 
         // Calculate the possible transitions for the places of a special token
         transitions = new List[getMaxTokenCountInt() - 1]; // todo: get rid of the generic array?// todo: get rid of the generic array?
-        for (int i = 1;
-                i < getMaxTokenCountInt();
-                ++i) {
+        for (int i = 1; i < getMaxTokenCountInt(); ++i) {
             transitions[i - 1] = new ArrayList<>();
             for (Place place : getDevidedPlaces()[i]) {
                 transitions[i - 1].addAll(place.getPostset());

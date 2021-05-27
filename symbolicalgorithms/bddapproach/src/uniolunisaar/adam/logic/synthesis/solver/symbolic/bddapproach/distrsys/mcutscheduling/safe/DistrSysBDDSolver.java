@@ -138,7 +138,7 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
                 sb.append(", ");
                 sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                 sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], getSolvingObject().getDevidedTransitions()[j]));
+                sb.append(BDDTools.getCommitmentSetByBin(dcs, TRANSITIONS[pos][j], getSolvingObject().getDevidedTransitions()[j]));
             }
             sb.append(")").append("\n");
         }
@@ -747,15 +747,7 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
         return sysT;
     }
 
-    protected BDD sysTransitionCP(Transition t) {
-        // todo: cheaper?
-        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
-        // but then calling this method e.g. for hasFired won't work as expected.
-        // Only useable if it's not an mcut
-        BDD sys = getMcut().not();
-        // not all tops are zero
-        BDD top = getTop();
-
+    protected BDD sysNotTopCPPart(Transition t) {
         // normal part
         Set<Place> pre = t.getPreset();
         BDD sysN = firable(t, 0);
@@ -779,8 +771,20 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
             // top'=0
             sysN.andWith(TOP[1][i - 1].ithVar(0));
         }
-        sysN = (top.not()).impWith(sysN);
+        return sysN;
+    }
 
+    protected BDD sysTransitionCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut
+        BDD sys = getMcut().not();
+        // not all tops are zero
+        BDD top = getTop();
+
+        // normal part
+        BDD sysN = (top.not()).impWith(sysNotTopCPPart(t));
         // top part
         BDD sysT = top.impWith(sysTopPart());
 
@@ -796,15 +800,7 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
         return sys;
     }
 
-    protected BDD sysTransitionNotCP(Transition t) {
-        // todo: cheaper?
-        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
-        // but then calling this method e.g. for hasFired won't work as expected.
-        // Only useable if it's not an mcut
-        BDD sys = getMcut().not();
-        // not all tops are zero
-        BDD top = getTop();
-
+    protected BDD sysNotTopNotCPPart(Transition t) {
         // normal part        
         Set<Place> pre_sys = t.getPreset();
         BDD sysN = firable(t, 0);
@@ -824,8 +820,20 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
         setPresetAndNeededZeros(pre_sys, visitedToken, sysN);
         // Positions in dcs not set with places of pre- or postset
         setNotAffectedPositions(sysN, visitedToken);
-        sysN = (top.not()).impWith(sysN);
+        return sysN;
+    }
 
+    protected BDD sysTransitionNotCP(Transition t) {
+        // todo: cheaper?
+        // could be outside of the transition (move to envTransitionCP), since it fits for all transitions
+        // but then calling this method e.g. for hasFired won't work as expected.
+        // Only useable if it's not an mcut
+        BDD sys = getMcut().not();
+        // not all tops are zero
+        BDD top = getTop();
+
+        // normal part
+        BDD sysN = (top.not()).impWith(sysNotTopNotCPPart(t));
         // top part
         BDD sysT = top.impWith(sysTopPart());
         // todo: cheaper?

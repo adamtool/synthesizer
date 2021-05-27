@@ -35,10 +35,10 @@ import uniolunisaar.adam.tools.Logger;
  * @author Manuel Gieseking
  */
 @Test
-public class TestingAllFilesASafety {
+public class TestingAllFilesASafetyLocNDet {
 
     private static final String inputDir = System.getProperty("examplesfolder") + "/forallsafety/";
-    private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/";
+    private static final String outputDir = System.getProperty("testoutputfolder") + "/safety/locNdet/";
     private static final List<String> withoutStrategy = new ArrayList<>(Arrays.asList(
             "abb62.apt",
             "lateSameDecision.apt",
@@ -121,7 +121,7 @@ public class TestingAllFilesASafety {
             "causalmemory.apt", // p0 (sys) - t0 -> p2 (env)
             "minimal.apt", // A (env) -tA-> B (sys)
             // %%%%%% MISC
-            "unreachableEnvTransition.apt" // this has a problem with the partitioning
+            "unreachableEnvTransition.apt" // this has a problem with the partitioning            
     // because there is a transition with two env places in the preset (but this transition is not reachable)
     // could either automatically delete unreachable transitions (expensive) or 
     // do a more expensive partitioning check and the coding of the partitions more expensive by checking reachabillity
@@ -172,6 +172,7 @@ public class TestingAllFilesASafety {
             return;
         }
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
+        opts.setWithLocNDet(true);
         DistrSysBDDSolver<? extends Condition> solv = DistrSysBDDSolverFactory.getInstance().getSolver(file.getAbsolutePath(), opts);
 //        if (notSupported.contains(file.getName())) {
 //            CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(solv.getNet());

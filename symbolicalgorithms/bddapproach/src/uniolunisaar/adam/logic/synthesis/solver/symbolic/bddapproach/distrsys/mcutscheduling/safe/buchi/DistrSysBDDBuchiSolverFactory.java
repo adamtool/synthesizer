@@ -15,7 +15,7 @@ import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
  *
  * Do not use the factory to create the solver. Use 'DistrSysBDDSolverFactor'.
  *
- * @author thewn
+ * @author Manuel Gieseking
  */
 public class DistrSysBDDBuchiSolverFactory {
 

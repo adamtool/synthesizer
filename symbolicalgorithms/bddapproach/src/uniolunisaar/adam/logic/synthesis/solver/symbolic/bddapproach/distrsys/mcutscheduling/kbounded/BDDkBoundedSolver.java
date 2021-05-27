@@ -146,7 +146,7 @@ public class BDDkBoundedSolver extends Solver<PetriGameWithTransits, Safety, BDD
                 sb.append(", ");
                 sb.append(BDDTools.getTopFlagByBin(dcs, TOP[pos][j]));
                 sb.append(", ");
-                sb.append(BDDTools.getTransitionsByBin(dcs, TRANSITIONS[pos][j], new ArrayList<>(getSolvingObject().getGame().getTransitions())));
+                sb.append(BDDTools.getCommitmentSetByBin(dcs, TRANSITIONS[pos][j], new ArrayList<>(getSolvingObject().getGame().getTransitions())));
             }
             sb.append(")").append("\n");
         }

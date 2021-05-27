@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2;
 
 import uniolunisaar.adam.ds.objectives.local.Safety;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
@@ -15,7 +15,7 @@ import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
  *
  * Do not use the factory to create the solver. Use 'DistrSysBDDSolverFactor'.
  *
- * @author thewn
+ * @author Manuel Gieseking
  */
 public class DistrSysBDDSafetySolverFactory {
 

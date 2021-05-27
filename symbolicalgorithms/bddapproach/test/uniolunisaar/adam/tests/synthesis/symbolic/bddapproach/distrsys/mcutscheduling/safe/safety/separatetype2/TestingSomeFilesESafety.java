@@ -1,4 +1,4 @@
-package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.tests.synthesis.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2;
 
 import java.io.File;
 import org.testng.annotations.BeforeClass;

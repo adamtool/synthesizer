@@ -1,4 +1,4 @@
-package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety;
+package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.safety.separatetype2;
 
 //package uniolunisaar.adam.symbolic.bddapproach.solver;
 //
