@@ -3,6 +3,7 @@ package uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.m
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolvingObject;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,9 @@ import net.sf.javabdd.BDD;
 import net.sf.javabdd.BDDDomain;
 import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
+import uniol.apt.analysis.coverability.CoverabilityGraph;
+import uniol.apt.analysis.coverability.CoverabilityGraphEdge;
+import uniol.apt.analysis.coverability.CoverabilityGraphNode;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
@@ -49,6 +53,8 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
     // Precalculated BDDs (todo:necessary?)
     private BDD system2 = null;
     private BDD type2Trap = null;
+
+    private BDD localNDetTransitions = null;
 
     /**
      * Creates a new Safety solver for a given game.
@@ -152,15 +158,15 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
 //        return type2;
         return type2;//.andWith(getWellformed());
     }
-    
+
     BDD getSystem2Transitions() {
         BDD sys = getZero();
         boolean cp = getSolvingObject().isConcurrencyPreserving();
         for (Transition t : getSolvingObject().getSysTransition()) {
             sys.orWith(cp ? sys2TransitionCP(t) : sys2TransitionNotCP(t));
         }
-        // no nondeterministic successors
-        return sys;//.andWith(ndet(1).not().andWith(ndet(0).not()));
+        // no nondeterministic edges
+        return sys.andWith(getBufferedLocalNDetTransitions().not());
     }
 
     /**
@@ -317,7 +323,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         }
         return all;
     }
-    
+
     public boolean hasFiredSystem2(Transition t, BDD source, BDD target) {
         if (hasTop(source)) { // in a top state nothing could have been fired
             return false;
@@ -325,11 +331,11 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         if (!isFirable(t, source)) { // here source tested 
             return false;
         }
-        
+
         boolean cp = getSolvingObject().isConcurrencyPreserving();
         BDD trans = source.and(shiftFirst2Second(target));
         BDD out;
-        
+
         if (cp) {
             out = sys2TransitionCP(t).andWith(trans);
         } else {
@@ -340,6 +346,101 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END Special TYPE 2 Stuff %%%%%%%%%%%%%%%%%%%%    
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% START WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%
+    private BDD localNDetTransitions() {
+        BDD ndetTrans = getZero();
+        // check for all reachable states whether these two transitions exist
+        CoverabilityGraph reach = getGame().getReachabilityGraph();
+        for (CoverabilityGraphNode preState : reach.getNodes()) {
+            // get the successor states 
+            for (CoverabilityGraphEdge postsetEdge : preState.getPostsetEdges()) {
+                Transition tFired = postsetEdge.getTransition();
+                CoverabilityGraphNode postState = postsetEdge.getTarget();
+                // todo: check whether we can skip some
+                // now check whether there is another transition which shares a
+                // system place in the preset and can fire in any situation 
+                // in the future of the previous state without moving the token
+                // in pre(tFired)
+                for (Transition t2 : getSolvingObject().getGame().getTransitions()) {
+                    if (!tFired.equals(t2)) {
+                        // sharing a system place?
+                        Set<Place> pre1 = tFired.getPreset();
+                        Set<Place> pre2 = t2.getPreset();
+                        Set<Place> intersect = new HashSet<>(pre1);
+                        intersect.retainAll(pre2);
+                        boolean shared = false;
+                        for (Place place : intersect) {
+                            if (!getSolvingObject().getGame().isEnvironment(place)) {
+                                shared = true;
+                                break;
+                            }
+                        }
+                        if (shared) { // found one
+//                            System.out.println("found sharing" + tFired.getId() + " " + t2.getId());
+//                            System.out.println("makring " + preState.getMarking());
+                            // now check whether there is a marking in the future 
+                            // of preState where t2 is enabled (without moving token of pre(tFired)
+                            if (checkFutureFirability(preState, tFired, t2, new HashSet<>())) {
+                                // we found a situation, so add such an edge
+                                // predecessor
+//                                System.out.println("found");
+//                                System.out.println(tFired.getId());
+//                                System.out.println(t2.getId());
+                                BDD pre = marking2BDD(preState.getMarking(), 0);
+                                pre.andWith(chosen(t2, 0));
+                                pre.andWith(firable(tFired, true, 0).orWith(firable(tFired, false, 0)));
+                                // successor
+                                BDD post = marking2BDD(postState.getMarking(), 1);
+                                post.andWith(LAST_T[1].ithVar(getSolvingObject().getGame().getID(tFired)));
+                                BDD trans = pre.andWith(post);
+//                                BDDTools.printDecodedDecisionSets(trans, this, true);
+                                ndetTrans.orWith(trans);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ndetTrans;
+    }
+
+    /**
+     * Checks whether there is a marking in the future of preState where t2 is
+     * enabled without moving the token of pre(tFired)
+     *
+     * @param preState
+     * @param tFired
+     * @param t2
+     * @return
+     */
+    private boolean checkFutureFirability(CoverabilityGraphNode preState, Transition tFired, Transition t2, Set<CoverabilityGraphNode> visited) {
+        if (t2.isFireable(preState.getMarking())) {
+//            System.out.println("say it's true");
+            return true;
+        }
+        Set<Place> preset = tFired.getPreset();
+        for (CoverabilityGraphEdge postsetEdge : preState.getPostsetEdges()) {
+//            System.out.println(postsetEdge.getSource().getMarking()+"-"+postsetEdge.getTransition().getId()+">"+postsetEdge.getTarget().getMarking());
+        
+            CoverabilityGraphNode post = postsetEdge.getTarget();
+            if (visited.contains(post)) { // already visited
+//                System.out.println("visited: "+post.getMarking());
+                continue;
+            }
+            visited.add(post);
+//            System.out.println("pot"+postsetEdge.getTransition().getId());
+//            System.out.println(postsetEdge.getSource().getMarking()+"-"+postsetEdge.getTransition().getId()+">"+postsetEdge.getTarget().getMarking());
+            Set<Place> intersect = new HashSet<>(postsetEdge.getTransition().getPreset());
+            intersect.retainAll(preset);
+            if (intersect.isEmpty()) { // don't move token in pre(tFired)
+                boolean check = checkFutureFirability(post, tFired, t2, visited);
+                if(check) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Calculates a BDD with all possible situations containing a bad place.
      *
@@ -389,12 +490,17 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
 //        System.out.println("end");
         return baddcs(0).orWith(getBufferedNDet().or(deadSysDCS(0)));
     }
-    
+
     @Override
     protected BDD calcBadDCSs() {
         return badSysDCS().orWith(wrongTypedDCS());
     }
-    
+
+    @Override
+    protected BDD calcForceNoSuccessorDCSs() {
+        return baddcs(0).orWith(wrongTypedDCS());
+    }
+
     @Override
     protected BDD calcSpecialDCSs() {
         return getFactory().zero();
@@ -417,7 +523,8 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
      * @return BDD representing all good decision sets for the system.
      */
     private BDD goodSysDCSForType2Trap() {
-        return badSysDCS().not().andWith(super.wellformed(0));
+//        return badSysDCS().not().andWith(super.wellformed(0));
+        return (baddcs(0).orWith(deadSysDCS(0))).not().andWith(super.wellformed(0)); // todo: changed due to loops when alos using the ndet. Thus, currently no ndet is check in type2 cases
     }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%% END WINNING CONDITION %%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -437,7 +544,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         BDD wrongType1 = wrongTypedType1DCS();
         return wrongType1.orWith(wrongTyped2);
     }
-    
+
     private BDD wrongTypedType1DCS() {
         BDD type2 = getBufferedType2Trap();
         int max = getSolvingObject().getMaxTokenCountInt();
@@ -546,16 +653,16 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         }
         return en;//.andWith(getWellformed());
     }
-    
+
     private BDD firable(Transition t, boolean type1, int pos) {
         return enabled(t, type1, pos).andWith(chosen(t, pos));
     }
-    
+
     @Override
     protected boolean isFirable(Transition t, BDD source) {
         return !(source.and(firable(t, true, 0)).isZero() && source.and(firable(t, false, 0)).isZero());
     }
-    
+
     @Override
     protected BDD notUsedToken(int pos, int token) {
         BDD zero = super.notUsedToken(pos, token);
@@ -564,7 +671,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         }
         return zero;
     }
-    
+
     @Override
     protected void setNotAffectedPositions(BDD all, List<Integer> visitedToken) {
         // Positions in dcs not set with places of pre- or postset
@@ -592,7 +699,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
             all.andWith(pl.orWith(zero));
         }
     }
-    
+
     @Override
     protected BDD envTransitionCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
@@ -636,14 +743,14 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
             // Environmentpart                
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(getBadDCSs().not());
+            all.andWith(getForceNoSuccessorsDCSs().not());
             // last transition
             all.andWith(LAST_T[1].ithVar(getSolvingObject().getGame().getID(t)));
             return all;
         }
         return getZero();
     }
-    
+
     @Override
     protected BDD envTransitionNotCP(Transition t) {
         if (!getSolvingObject().getSysTransition().contains(t)) {
@@ -674,14 +781,14 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
             // Environmentpart
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(getBadDCSs().not());
+            all.andWith(getForceNoSuccessorsDCSs().not());
             // last transition
             all.andWith(LAST_T[1].ithVar(getSolvingObject().getGame().getID(t)));
             return all;
         }
         return getZero();
     }
-    
+
     @Override
     protected BDD sysTopPart() {
         // top part
@@ -707,7 +814,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         sysT.andWith(LAST_T[1].ithVar(0));
         return sysT;
     }
-    
+
     @Override
     protected BDD sysNotTopNotCPPart(Transition t) {
         BDD sys = super.sysNotTopNotCPPart(t);
@@ -715,7 +822,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         sys.andWith(LAST_T[1].ithVar(getSolvingObject().getGame().getID(t)));
         return sys;
     }
-    
+
     @Override
     protected BDD sysNotTopCPPart(Transition t) {
         BDD sys = super.sysNotTopCPPart(t);
@@ -723,7 +830,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         sys.andWith(LAST_T[1].ithVar(getSolvingObject().getGame().getID(t)));
         return sys;
     }
-    
+
     @Override
     protected BDD sysTransitionCP(Transition t) {
         // todo: cheaper?
@@ -732,11 +839,11 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionCP(t);
         // bad states don't have succesors
-        sys1.andWith(getBadDCSs().not());
+        sys1.andWith(getForceNoSuccessorsDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
-    
+
     @Override
     protected BDD sysTransitionNotCP(Transition t) {
         // todo: cheaper?
@@ -745,9 +852,23 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionNotCP(t);
         // bad states don't have succesors
-        sys1.andWith(getBadDCSs().not());
+        sys1.andWith(getForceNoSuccessorsDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
+    }
+
+    @Override
+    protected BDD calcEnvironmentTransitions() {
+        BDD env = super.calcEnvironmentTransitions();
+        // no nondeterministic edges
+        return env.andWith(getBufferedLocalNDetTransitions().not());
+    }
+
+    @Override
+    protected BDD calcSystemTransitions() {
+        BDD sys = super.calcSystemTransitions();
+        // no nondeterministic edges
+        return sys.andWith(getBufferedLocalNDetTransitions().not());
     }
 
 //    @Override
@@ -781,7 +902,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return fixedPoint;
     }
-    
+
     @Override
     protected PetriGameWithTransits calculateStrategy() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
@@ -793,7 +914,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO : FOR BENCHMARKS
         return pn;
     }
-    
+
     @Override
     public Pair<BDDGraph, PetriGameWithTransits> getStrategies() throws NoStrategyExistentException, CalculationInterruptedException {
         BDDGraph gstrat = getGraphStrategy();
@@ -886,7 +1007,7 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         BDD preBimpSucc = super.preBimpSucc();
         for (int i = 0; i < getSolvingObject().getMaxTokenCount() - 1; ++i) {
             preBimpSucc.andWith(TYPE[0][i].buildEquals(TYPE[1][i]));
-        }        
+        }
         preBimpSucc.andWith(LAST_T[0].buildEquals(LAST_T[1]));
         return preBimpSucc;
     }
@@ -898,12 +1019,35 @@ public class DistrSysBDDASafetyLocNDetSolver extends DistrSysBDDSolver<Safety> i
         }
         return type2Trap;
     }
-    
+
     BDD getBufferedSystem2Transition() {
         if (system2 == null) {
             system2 = getSystem2Transitions();
         }
         return system2;
 //        return sys2Transitions();
+    }
+
+    @Override
+    protected BDD getBufferedNDet() {
+        if (ndet == null) {
+//            ndet = localNDetStates();
+//            ndet = getZero(); // in this approach we have ndet transitions and not states.
+            BDD canFire = getZero();
+            for (Transition transition : getGame().getTransitions()) {
+                canFire.orWith(firable(transition, true, 0).orWith(firable(transition, false, 0)));
+            }
+            BDD transitions = getBufferedSystemTransitions().or(getBufferedSystem2Transition().or(getBufferedEnvTransitions()));
+            transitions = transitions.exist(getSecondBDDVariables());
+            ndet = canFire.and(transitions.not());
+        }
+        return ndet;
+    }
+
+    protected BDD getBufferedLocalNDetTransitions() {
+        if (localNDetTransitions == null) {
+            localNDetTransitions = localNDetTransitions();
+        }
+        return localNDetTransitions;
     }
 }

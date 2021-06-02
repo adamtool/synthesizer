@@ -46,19 +46,10 @@ public class TestingAllFilesASafetyLocNDet {
             "tafel_3.apt",
             "vsp__adam_machines.apt",
             "infiniteSystemTrysToAvoidEnvUseBadPlace.apt",
-            "nondet.apt",
-            "nondet_s3_noStrat.apt",
-            "nondet_unnecessarily_noStrat.apt",
             "firstExamplePaper_extended.apt",
             "envSkipsSys.apt",
             "robots_false.apt",
             "myexample4.apt",
-            "nondet_withBad.apt",
-            "nondet2WithSys.apt",
-            "nondet2.apt",
-            "nondet_jhh1.apt",
-            "nondet_jhh3.apt",
-            "nondet2SelectionToken.apt",
             "robinhood.apt",
             "myexample0.apt",
             "myexample00.apt",
@@ -69,14 +60,23 @@ public class TestingAllFilesASafetyLocNDet {
             "ndetConcurrent2.apt",
             "deadlockAvoidance3.apt",
             "deadlockAvoidance5.apt",
-            // %%%% Examples which should have a strategy for the journal version of the nondeterminism
-            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
-            "nondet_s3.apt", // should only have a strategy for the journal version of the ndet
-            "nondet_withBad.apt", // has a strategy for the journal version of ndet because nondet is overseen
-            "nondet2WithSys.apt", // has a strategy for the journal version of ndet because nondet is overseen
-            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
-            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
-            "nondet2SysPlace.apt" // should have a strategy for the original definition of ndet
+            // %%%% Examples which tests the nondeterminism
+            "nondet.apt",
+            "nondet_s3_noStrat.apt",
+            "nondet_unnecessarily_noStrat.apt",
+            "nondet_withBad.apt",
+            "nondet2WithSys.apt",
+            "nondet2.apt",
+            "nondet_jhh1.apt",
+            "nondet_jhh3.apt",
+            //            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
+            //            "nondet_s3.apt", // should only have a strategy for the journal version of the ndet
+            "nondet_withBad.apt", 
+            "nondet2WithSys.apt" 
+            // %%% Examples which we now cannot solve due to only checking the local ndet
+//            "nondet2SysAtStart.apt", // should have a strategy for the original definition of ndet
+//            "nondet2WithStratByGameSolving.apt", // should have a strategy for the original definition of ndet
+//            "nondet2SysPlace.apt" // should have a strategy for the original definition of ndet
     ));
     private static final List<String> skip = new ArrayList<>(Arrays.asList(
             // %%%% Examples skipped for saving time
@@ -126,6 +126,12 @@ public class TestingAllFilesASafetyLocNDet {
     // could either automatically delete unreachable transitions (expensive) or 
     // do a more expensive partitioning check and the coding of the partitions more expensive by checking reachabillity
     ));
+
+    private static final List<String> skipFolder = new ArrayList<>(Arrays.asList(
+            "envScheduling",
+            "lukas-panneke"
+    ));
+    
     private static final List<String> notSupported = new ArrayList<>(Arrays.asList( //            "nondet2WithStratByGameSolving.apt", // should have a strategy
             //            "missDeadlock.apt", // should have a strategy
             //            "nondet_withBad.apt", // should have no strategy, builds one voilating S3
@@ -148,10 +154,18 @@ public class TestingAllFilesASafetyLocNDet {
 
     @DataProvider(name = "files")
     public static Object[][] allExamples() {
+        Collection<File> skipFiles = new ArrayList<>();
+        for (String folderPath : skipFolder) {
+            skipFiles.addAll(FileUtils.listFiles(
+                    new File(inputDir + File.separator + folderPath),
+                    new RegexFileFilter(".*\\.apt"),
+                    DirectoryFileFilter.DIRECTORY));
+        }
         Collection<File> files = FileUtils.listFiles(
                 new File(inputDir),
                 new RegexFileFilter(".*\\.apt"),
                 DirectoryFileFilter.DIRECTORY);
+        files.removeAll(skipFiles);
         Object[][] out = new Object[files.size() - skip.size()][2];
         int i = 0;
         for (File file : files) {

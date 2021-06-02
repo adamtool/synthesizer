@@ -1163,7 +1163,7 @@ public class DistrSysBDDABuechiSolver extends DistrSysBDDSolver<Buchi> implement
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
         // bad states don't have succesors
-        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not());
+        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not()); // todo: check this for the new ndet (have getForceNoSuccessorsDCSs)
         sys.orWith(loops());
 
 //        System.out.println("sys trans");
@@ -1258,7 +1258,7 @@ public class DistrSysBDDABuechiSolver extends DistrSysBDDSolver<Buchi> implement
         // overall bad state don't have any successor
         sys.andWith(OBAD[0].ithVar(0));
         // bad states don't have succesors
-        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not());
+        sys.andWith((wrongTypedDCS().or(getBufferedNDet())).not()); // check this for the new ndet, have getForceNoSuccessorsDCSs
         sys.orWith(loops());
         return sys;
     }

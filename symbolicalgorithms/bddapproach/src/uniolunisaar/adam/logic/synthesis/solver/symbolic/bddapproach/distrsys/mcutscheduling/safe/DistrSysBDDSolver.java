@@ -32,7 +32,13 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
     protected BDDDomain[][] TOP;
 
     //Buffered BDDs (todo:necessary?)  
-    private BDD ndet = null;
+    protected BDD ndet = null;
+
+//    protected abstract BDD calcForceNoSuccessorDCSs();
+    // todo: change this, when implemeting the general paper version
+    protected BDD calcForceNoSuccessorDCSs() {
+        return calcBadDCSs();
+    }
 
     protected DistrSysBDDSolver(DistrSysBDDSolvingObject<W> solverObject, BDDSolverOptions options) {
         super(solverObject, options);
@@ -1060,6 +1066,10 @@ public abstract class DistrSysBDDSolver<W extends Condition<W>> extends BDDSolve
 
     protected BDD getBadDCSs() {
         return calcBadDCSs();
+    }
+
+    protected BDD getForceNoSuccessorsDCSs() {
+        return calcForceNoSuccessorDCSs();
     }
 
     BDD getSpecialDCSs() {

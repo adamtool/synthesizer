@@ -12,7 +12,6 @@ import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.CalculationInterruptedException;
-import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.util.symbolic.bddapproach.BDDTools;
 import uniolunisaar.adam.util.PGTools;
@@ -25,19 +24,19 @@ public class BDDTestingTools {
 
     public static void testExample(DistrSysBDDSolver<? extends Condition> solv, String file, boolean hasStrategy) throws NetNotSafeException, NoStrategyExistentException, IOException, InterruptedException, NoSuitableDistributionFoundException, UnboundedException, CalculationInterruptedException {
 //        CoverabilityGraph cover = solv.getGame().getReachabilityGraph();
-        PNWTTools.savePnwt2PDF(file, solv.getGame(), false);
+        PGTools.savePG2PDF(file, solv.getGame(), false);
 //        Assert.assertTrue(PNWTTools.isSolvablePetriGame(solv.getNet(), cover) == null, "Is solvable:");
 //        BDDTools.saveGraph2PDF(file + "_graph", solv.getGraphGame(), solv);
-        PNWTTools.savePnwt2PDF(file + "_debug", solv.getGame(), true, solv.getSolvingObject().getMaxTokenCountInt());
+        PGTools.savePG2PDF(file + "_debug", solv.getGame(), true, true);
 //            printWinningStrategies(solv, file);
         boolean exStrat = solv.existsWinningStrategy();
+        if (exStrat) {
+            printWinningStrategies(solv, file);
+        }
         if (hasStrategy) {
             Assert.assertTrue(exStrat, "Net: " + solv.getGame().getName() + " has winning strategy: ");
         } else {
             Assert.assertFalse(solv.existsWinningStrategy(), "Net: " + solv.getGame().getName() + " has winning strategy: ");
-        }
-        if (exStrat) {
-            printWinningStrategies(solv, file);
         }
     }
 
@@ -50,7 +49,7 @@ public class BDDTestingTools {
         //        System.out.println("Save graph to pdf.");
         BDDTools.saveGraph2PDF(path + "_gg", strats.getFirst(), solv);
 //        System.out.println("Save petri game pdf.");
-        PNWTTools.savePnwt2PDF(path + "_pg", strats.getSecond(), true);
+        PGTools.savePG2PDF(path + "_pg", strats.getSecond(), true);
 
         //   Tools.savePN2DotAndPDF(path + "_debug", pg.getNet(), true, pg);        
         CoverabilityGraph cover = CoverabilityGraph.getReachabilityGraph(strats.getSecond());
@@ -74,7 +73,7 @@ public class BDDTestingTools {
 
     private static void printWinningStratPG(DistrSysBDDSolver<? extends Condition> solv, String path) throws Exception {
         PetriGameWithTransits strategy = solv.getStrategy();
-        PNWTTools.savePnwt2DotAndPDF(path + "_pg", strategy, true);
+        PGTools.savePG2DotAndPDF(path + "_pg", strategy, true);
     }
 
 }

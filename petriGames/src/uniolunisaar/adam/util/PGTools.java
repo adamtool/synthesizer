@@ -879,7 +879,12 @@ public class PGTools {
 
     public static void savePG2Dot(String path, PetriGameWithTransits game, boolean withLabel, boolean withDebugging) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(path + ".dot")) {
-            out.println(PGWT2Dot.get(game, withLabel, withDebugging));
+            if (withDebugging) {
+                // todo: cannot get to getMaxTokenCountInt, to show the debugging tokens
+                out.println(PGWT2Dot.get(game, withLabel, withDebugging));
+            } else {
+                out.println(PGWT2Dot.get(game, withLabel, withDebugging));
+            }
         }
         Logger.getInstance().addMessage("Saved to: " + path + ".dot", true);
     }

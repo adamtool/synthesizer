@@ -105,7 +105,7 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
 
     @Override
     protected BDD envTransitionNotCP(Transition t) {
-        return super.envTransitionNotCP(t).andWith(badStates().not()); // bad states don't have any successors
+        return super.envTransitionNotCP(t).andWith(badStates().not()); // bad states don't have any successors todo: check this for the new ndet, now have getForceNoSuccessorsDCSs
     }
 
     @Override
@@ -116,7 +116,7 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionCP(t);
         // bad states don't have succesors
-        sys1.andWith(badStates().not());
+        sys1.andWith(badStates().not()); // check this for the new ndet, now have getForceNoSuccessorsDCSs
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
@@ -129,7 +129,7 @@ public class DistrSysBDDASafetyWithoutType2Solver extends DistrSysBDDSolver<Safe
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionNotCP(t);
         // bad states don't have succesors
-        sys1.andWith(badStates().not());
+        sys1.andWith(badStates().not()); // todo: check this for the new ndet, now have getForceNoSuccessorsDCSs
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }

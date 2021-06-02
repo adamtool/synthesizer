@@ -650,7 +650,7 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
             // Environmentpart                
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(getBadDCSs().not());
+            all.andWith(getForceNoSuccessorsDCSs().not());
             return all;
         }
         return getZero();
@@ -686,7 +686,7 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
             // Environmentpart
             all.andWith(envPart(t));
             // bad states don't have succesors
-            all.andWith(getBadDCSs().not());
+            all.andWith(getForceNoSuccessorsDCSs().not());
             return all;
         }
         return getZero();
@@ -724,7 +724,7 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionCP(t);
         // bad states don't have succesors
-        sys1.andWith(getBadDCSs().not());
+        sys1.andWith(getForceNoSuccessorsDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }
@@ -737,7 +737,7 @@ public class DistrSysBDDASafetySolver extends DistrSysBDDSolver<Safety> implemen
         // Only useable if it's not an mcut        
         BDD sys1 = super.sysTransitionNotCP(t);
         // bad states don't have succesors
-        sys1.andWith(getBadDCSs().not());
+        sys1.andWith(getForceNoSuccessorsDCSs().not());
 //        sys1.andWith(oldType2());//.andWith(wellformed(1));//.andWith(wellformedTransition()));
         return sys1;//.andWith(wellformed(1));//.andWith(wellformedTransition()));
     }

@@ -225,7 +225,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
      * @return BDD for the initial marking.
      */
     protected BDD initial() {
-        BDD init = marking2BDD(getGame().getInitialMarking());
+        BDD init = marking2BDD(getGame().getInitialMarking(), 0);
         return init;//.and(getWellformed());
     }
 
@@ -305,20 +305,20 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
         return pre(succ, getBufferedEnvTransitions(), getBufferedSystemTransitions());
     }
 
-    protected BDD marking2BDD(Marking m) {
+    protected BDD marking2BDD(Marking m, int pos) {
         BDD marking = getOne();
         List<Integer> tokens = new ArrayList<>();
         for (Place place : getGame().getPlaces()) {
             if (m.getToken(place).getValue() > 0) {
                 int token = getSolvingObject().getGame().getPartition(place);
                 tokens.add(token);
-                marking.andWith(codePlace(place, 0, token));
+                marking.andWith(codePlace(place, pos, token));
             }
         }
         if (!getSolvingObject().isConcurrencyPreserving()) {
             for (int i = 1; i < getSolvingObject().getMaxTokenCount(); ++i) {
                 if (!tokens.contains(i)) {
-                    marking.andWith(codePlace(0, 0, i));
+                    marking.andWith(codePlace(0, pos, i));
                 }
             }
         }
@@ -451,7 +451,7 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
             }
             if (distance != null) {
                 distance.put(i++, Q_);
-            }   
+            }
 //            if (i == 1) {
 //                System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% current "+ this.getGame().getName());
 //                BDDTools.printDecodedDecisionSets(Q_, this, true);
@@ -758,6 +758,15 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
         return codePlace(getSolvingObject().getGame().getID(place), pos, token);
     }
 
+//    protected BDD codeMarking(Marking m, int pos) {
+//        BDD marking = getOne();
+//        for (Place place : getGame().getPlaces()) {
+//            if (m.getToken(place).getValue() > 0) {
+//                marking.andWith(codePlace(place, pos, getGame().getPartition(place)));
+//            }
+//        }
+//        return marking;
+//    }
     /**
      * Returns the variables of the predecessor of a transition.
      *
