@@ -197,12 +197,14 @@ public class TestingSomeFilesLocNDet {
     @Test
     public void testNondet() throws IOException, SolvingException, ParseException, NetNotSafeException, NetNotConcurrencyPreservingException, InterruptedException, NoStrategyExistentException, NoSuitableDistributionFoundException, UnboundedException, SolverDontFitPetriGameException, NotSupportedGameException, CouldNotFindSuitableConditionException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, ParameterMissingException, CalculationInterruptedException {
         final String path = inputDir + "ndet" + File.separator;
-        final String name = "nondet";
+//        final String name = "nondet"; // should be false
+//        final String name = "nondet2LateDecision"; // should be false       
+        final String name = "nondet2LateDecision2"; // should be false       
         BDDSolverOptions opts = new BDDSolverOptions(true, true);
         opts.setWithLocNDet(true);
         DistrSysBDDSolver<? extends Condition<?>> solv = DistrSysBDDSolverFactory.getInstance().getSolver(path + name + ".apt", opts);
-        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
-        BDDTestingTools.testExample(solv, outputDir + name, false); // todo: should be false
+//        BDDTools.saveGraph2PDF(outputDir + name + "garaphengame", solv.getGraphGame(), solv);
+        BDDTestingTools.testExample(solv, outputDir + name, false); 
     }
 
     @Test

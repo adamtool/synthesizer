@@ -67,6 +67,8 @@ public class TestingAllFilesASafetyLocNDet {
             "nondet_withBad.apt",
             "nondet2WithSys.apt",
             "nondet2.apt",
+            "nondet2LateDecision.apt", 
+            "nondet2LateDecision2.apt", 
             "nondet_jhh1.apt",
             "nondet_jhh3.apt",
             //            "journalReview2.apt", // should only have a strategy for the journal version of the ndet
