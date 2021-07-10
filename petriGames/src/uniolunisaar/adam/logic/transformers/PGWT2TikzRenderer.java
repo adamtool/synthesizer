@@ -1,5 +1,6 @@
 package uniolunisaar.adam.logic.transformers;
 
+import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;
 import uniolunisaar.adam.ds.BoundingBox;
 import uniolunisaar.adam.ds.petrinet.PetriNetExtensionHandler;
@@ -26,7 +27,8 @@ public class PGWT2TikzRenderer extends PetriNet2TikzRenderer<PetriGameWithTransi
         return sb.toString();
     }
 
-    String places(PetriGameWithTransits game, BoundingBox bb) {
+    @Override
+    protected String places(PetriGameWithTransits game, BoundingBox bb) {
         StringBuilder sb = new StringBuilder();
         for (Place place : game.getPlaces()) {
             double xcoord = norm(PetriNetExtensionHandler.getXCoord(place), bb.getLeft(), bb.getRight());

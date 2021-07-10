@@ -1,6 +1,6 @@
 package uniolunisaar.adam.logic.transformers;
 
-import uniol.apt.adt.pn.PetriNet;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 
 /**
  *
@@ -8,7 +8,7 @@ import uniol.apt.adt.pn.PetriNet;
  */
 public class PGWT2Tikz {
 
-    public static String get(PetriNet net) {
+    public static String get(PetriGameWithTransits net) {
         return new PGWT2TikzRenderer().renderFromCoordinates(net);
     }
 }
