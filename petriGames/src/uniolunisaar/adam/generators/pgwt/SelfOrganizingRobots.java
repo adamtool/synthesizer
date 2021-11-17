@@ -16,10 +16,10 @@ import uniolunisaar.adam.util.PGTools;
 public class SelfOrganizingRobots {
 
     /**
-     * Adapted the generate version below on 2018/11/30 to the benchmark family
-     * of the Bengt Jonsson Festschrift submission. Now it is not possible
-     * anymore to have a strategy which uses a wrong tool in any phase. In the
-     * other version this is only guarented in the last phase.
+     * Adapted the generate version below on 2018/11/30 to the paper 
+     *  High-Level Representations of Benchmark Families. Now it is not possible
+     * anymore to have a strategy that uses a wrong tool in any phase. In the
+     * other version this is only guaranteed in the last phase.
      *
      * todo: add withPartition and withMaxToken abillity
      *
