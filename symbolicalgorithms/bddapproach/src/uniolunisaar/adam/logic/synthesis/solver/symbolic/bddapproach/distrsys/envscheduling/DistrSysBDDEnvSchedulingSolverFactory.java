@@ -67,7 +67,7 @@ public class DistrSysBDDEnvSchedulingSolverFactory {
             throw new CouldNotFindSuitableConditionException(game);
         }
         GlobalSafety win = new GlobalSafety();
-        DistrSysBDDSolvingObject<GlobalSafety> so = createSolvingObject(game, win);
+        DistrSysBDDSolvingObject<GlobalSafety> so = createSolvingObject(game, win, options);
         return new DistrSysBDDEnvSchedulingSolver(so, options);
     }
 
@@ -79,9 +79,9 @@ public class DistrSysBDDEnvSchedulingSolverFactory {
         return getSolver(game, new BDDSolverOptions());
     }
 
-    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon, BDDSolverOptions options) throws NotSupportedGameException {
         try {
-            return new DistrSysBDDSolvingObject<>(game, winCon);
+            return new DistrSysBDDSolvingObject<>(game, winCon, options.isSkipTests());
         } catch (NetNotSafeException | NoSuitableDistributionFoundException | InvalidPartitionException ex) {
             throw new NotSupportedGameException("Could not create solving object.", ex);
         }

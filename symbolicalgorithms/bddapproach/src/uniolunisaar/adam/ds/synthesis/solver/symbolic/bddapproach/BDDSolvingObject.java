@@ -41,6 +41,7 @@ public abstract class BDDSolvingObject<W extends Condition<W>> extends SolvingOb
     public BDDSolvingObject(PetriGameWithTransits game, W winCon, boolean skipChecks) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
         super(game, winCon);
         if (!skipChecks) {
+            System.out.println("testing");
             checkPrecondition(game);
         } else {
             Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe or"
@@ -71,7 +72,9 @@ public abstract class BDDSolvingObject<W extends Condition<W>> extends SolvingOb
     // todo: proof that it's a suitable slicing, such that types of the places are preserved.
     private void bufferData(boolean skipChecks) throws NoSuitableDistributionFoundException, InvalidPartitionException {
         try {
+            Logger.getInstance().addMessage("Annotate places with partitions ...");            
             annotatePlacesWithPartitions(skipChecks);
+            Logger.getInstance().addMessage("... annotation done");        
             //todo:  all comments are old version, before cavarti
             // split places and add an id
 //        int add = getEnvPlaces().isEmpty() ? 1 : 0;

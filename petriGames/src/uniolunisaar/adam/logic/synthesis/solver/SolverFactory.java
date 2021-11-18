@@ -82,7 +82,7 @@ public abstract class SolverFactory<G extends IPetriGame, SOP extends SolverOpti
         return null;
     }
 
-    protected abstract <W extends Condition<W>> SolvingObject<G, W, ? extends SolvingObject<G, W, ?>> createSolvingObject(G game, W winCon) throws NotSupportedGameException;
+    protected abstract <W extends Condition<W>> SolvingObject<G, W, ? extends SolvingObject<G, W, ?>> createSolvingObject(G game, W winCon, SOP options) throws NotSupportedGameException;
 
 //    protected abstract Solver<G, Safety, ? extends SolvingObject<G, Safety, ? extends SolvingObject<G, Safety, ?>>, SOP> getESafetySolver(G game, Safety con, SOP options) throws SolvingException;
     protected abstract S getESafetySolver(G game, Safety con, SOP options) throws SolvingException;

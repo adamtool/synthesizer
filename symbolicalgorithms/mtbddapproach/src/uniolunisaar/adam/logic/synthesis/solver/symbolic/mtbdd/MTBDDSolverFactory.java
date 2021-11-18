@@ -32,9 +32,9 @@ public class MTBDDSolverFactory extends LLSolverFactory<MTBDDSolverOptions, MTBD
     }
 
     @Override
-    protected <W extends Condition<W>> MTBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> MTBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon, MTBDDSolverOptions options) throws NotSupportedGameException {
         try {
-            return new MTBDDSolvingObject<>(game, winCon);
+            return new MTBDDSolvingObject<>(game, winCon, options.isSkipTests());
         } catch (NetNotSafeException | NoSuitableDistributionFoundException ex) {
             throw new NotSupportedGameException("Could not create solving object.", ex);
         }

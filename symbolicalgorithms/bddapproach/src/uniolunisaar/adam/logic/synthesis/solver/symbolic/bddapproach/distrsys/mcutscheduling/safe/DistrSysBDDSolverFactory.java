@@ -56,9 +56,9 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> DistrSysBDDSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon, BDDSolverOptions options) throws NotSupportedGameException {
         try {
-            return new DistrSysBDDSolvingObject<>(game, winCon);
+            return new DistrSysBDDSolvingObject<>(game, winCon, options.isSkipTests());
         } catch (NetNotSafeException | NoSuitableDistributionFoundException | InvalidPartitionException ex) {
             throw new NotSupportedGameException("Could not create solving object.", ex);
         }
@@ -68,7 +68,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     protected DistrSysBDDSolver<Safety> getESafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions options) throws SolvingException, NoSuitableDistributionFoundException, NotSupportedGameException, InvalidPartitionException {
         try {
 // if it creates a new token chain, use the co-Buchi solver
-            DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con);
+            DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con, options);
             for (Transition t : so.getGame().getTransitions()) {
                 for (Transit tfl : so.getGame().getTransits(t)) {
                     if (tfl.isInitial()) {
@@ -85,7 +85,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     @Override
     protected DistrSysBDDSolver<Safety> getASafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions opts) throws SolvingException, NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException {
         try {
-            DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con);
+            DistrSysBDDSolvingObject<Safety> so = createSolvingObject(game, con, opts);
             if (opts.isNoType2()) {
                 return DistrSysBDDSafetySolverFactory.getInstance().createDistrSysBDDASafetyWithoutType2Solver(so, opts);
             } else if (opts.isWithLocNDet()) {
@@ -102,7 +102,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     @Override
     protected DistrSysBDDEReachabilitySolver getEReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions opts) throws SolvingException {
         try {
-            DistrSysBDDSolvingObject<Reachability> so = createSolvingObject(game, con);
+            DistrSysBDDSolvingObject<Reachability> so = createSolvingObject(game, con, opts);
             return DistrSysBDDReachabilitySolverFactory.getInstance().createDistrSysBDDEReachabilitySolver(so, opts);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
@@ -112,7 +112,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     @Override
     protected DistrSysBDDAReachabilitySolver getAReachabilitySolver(PetriGameWithTransits game, Reachability con, BDDSolverOptions options) throws SolvingException {
         try {
-            return DistrSysBDDReachabilitySolverFactory.getInstance().createDistrSysBDDAReachabilitySolver(createSolvingObject(game, con), options);
+            return DistrSysBDDReachabilitySolverFactory.getInstance().createDistrSysBDDAReachabilitySolver(createSolvingObject(game, con, options), options);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
@@ -121,7 +121,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     @Override
     protected DistrSysBDDEBuechiSolver getEBuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions opts) throws SolvingException {
         try {
-            return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDEBuechiSolver(createSolvingObject(game, con), opts);
+            return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDEBuechiSolver(createSolvingObject(game, con, opts), opts);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }
@@ -130,7 +130,7 @@ public class DistrSysBDDSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     @Override
     protected DistrSysBDDABuechiSolver getABuchiSolver(PetriGameWithTransits game, Buchi con, BDDSolverOptions options) throws SolvingException {
         try {
-            return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDABuechiSolver(createSolvingObject(game, con), options);
+            return DistrSysBDDBuchiSolverFactory.getInstance().createDistrSysBDDABuechiSolver(createSolvingObject(game, con, options), options);
         } catch (NetNotSafeException ex) {
             throw new NotSupportedGameException(ex);
         }

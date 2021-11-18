@@ -33,9 +33,9 @@ public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, 
     }
 
     @Override
-    protected <W extends Condition<W>> BDDkBoundedSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon) throws NotSupportedGameException {
+    protected <W extends Condition<W>> BDDkBoundedSolvingObject<W> createSolvingObject(PetriGameWithTransits game, W winCon, BDDSolverOptions options) throws NotSupportedGameException {
         try {
-            return new BDDkBoundedSolvingObject<>(game, winCon);
+            return new BDDkBoundedSolvingObject<>(game, winCon, options.isSkipTests());
         } catch (NoSuitableDistributionFoundException ex) {
             throw new NotSupportedGameException("Could not create solving object.", ex);
         }
@@ -48,7 +48,7 @@ public class BDDkBoundedSolverFactory extends LLSolverFactory<BDDSolverOptions, 
 
     @Override
     protected BDDkBoundedSolver getASafetySolver(PetriGameWithTransits game, Safety con, BDDSolverOptions options) throws SolvingException {
-        return new BDDkBoundedSolver(createSolvingObject(game, con), options);
+        return new BDDkBoundedSolver(createSolvingObject(game, con, options), options);
     }
 
     @Override
