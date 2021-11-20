@@ -16,10 +16,10 @@ import uniolunisaar.adam.util.PGTools;
 public class SelfOrganizingRobots {
 
     /**
-     * Adapted the generate version below on 2018/11/30 to the paper 
-     *  High-Level Representations of Benchmark Families. Now it is not possible
-     * anymore to have a strategy that uses a wrong tool in any phase. In the
-     * other version this is only guaranteed in the last phase.
+     * Adapted the generate version below on 2018/11/30 to the paper High-Level
+     * Representations of Benchmark Families. Now it is not possible anymore to
+     * have a strategy that uses a wrong tool in any phase. In the other version
+     * this is only guaranteed in the last phase.
      *
      * todo: add withPartition and withMaxToken abillity
      *
@@ -112,6 +112,8 @@ public class SelfOrganizingRobots {
         Place e1 = net.createEnvPlace("W" + id);
         Place p = net.createPlace("P" + id);
         p.setInitialToken(1);
+        if (withPartition) {
+        }
         Place ep = net.createEnvPlace("S" + id);
         Transition t = net.createTransition();
         net.createFlow(p, t);
@@ -137,9 +139,9 @@ public class SelfOrganizingRobots {
 
     /**
      * more adaptive version created from the high-level idea 2018/06/13
-     * 
-     * This version only checks that no robots uses a destroyed tool, not 
-     * that all tools are used
+     *
+     * This version only checks that no robots uses a destroyed tool, not that
+     * all tools are used
      *
      * todo: add withPartition and withMaxToken abillity
      *

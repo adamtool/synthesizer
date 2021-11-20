@@ -87,6 +87,11 @@ public abstract class BDDSolver<W extends Condition<W>, SO extends BDDSolvingObj
         int nodenum = getSolverOpts().getInitNodeNb();
         int cachesize = getSolverOpts().getCacheSize();
         int maxIncrease = getSolverOpts().getMaxIncrease();
+        /* If you want to use the native BuDDy library, put the buddy.dll (on Windows)
+        or libbuddy.so (on Unix) somewhere in your library path or in the directory you will execute from.
+        (JavaBDD will automatically search the current directory for the native library,
+        so there is no need to specify the current directory in the "java.library.path" system property.)*/        
+        //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
         bddfac = BDDFactory.init(libName, nodenum, cachesize);
         // Redirect the GCSTats stream from standard System.err to Logger
         // and the Reorder and ResizeStats from System.out to Logger

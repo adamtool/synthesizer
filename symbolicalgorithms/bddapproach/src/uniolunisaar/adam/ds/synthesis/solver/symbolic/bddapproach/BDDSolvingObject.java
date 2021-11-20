@@ -41,7 +41,6 @@ public abstract class BDDSolvingObject<W extends Condition<W>> extends SolvingOb
     public BDDSolvingObject(PetriGameWithTransits game, W winCon, boolean skipChecks) throws NotSupportedGameException, NoSuitableDistributionFoundException, InvalidPartitionException, NetNotSafeException {
         super(game, winCon);
         if (!skipChecks) {
-            System.out.println("testing");
             checkPrecondition(game);
         } else {
             Logger.getInstance().addMessage("Attention: You decided to skip the tests. We cannot ensure that the net is safe or"
