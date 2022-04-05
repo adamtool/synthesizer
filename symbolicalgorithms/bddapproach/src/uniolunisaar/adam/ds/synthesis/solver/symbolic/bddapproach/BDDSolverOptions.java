@@ -1,11 +1,8 @@
 package uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import uniolunisaar.adam.ds.synthesis.solver.LLSolverOptions;
 import uniolunisaar.adam.exceptions.synthesis.symbolic.bddapproach.NoSuchBDDLibraryException;
-import uniolunisaar.adam.tools.AdamProperties;
 
 /**
  * This class is used to store solver specific options for the BDD solvers.
@@ -15,8 +12,8 @@ import uniolunisaar.adam.tools.AdamProperties;
 public class BDDSolverOptions extends LLSolverOptions {
 
     //"buddy", "cudd", "cal", "j", "java", "jdd", "test", "typed",
-//    private String libraryName = "buddy";
-    private String libraryName = "java";
+    private String libraryName = "buddy";
+//    private String libraryName = "java";
     private int maxIncrease = 100000000;
     private int initNodeNb = 1000000;
     private int cacheSize = 1000000;
